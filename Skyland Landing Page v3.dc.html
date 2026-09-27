@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Caveat:wght@500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet"><style>html{scroll-behavior:smooth}body{margin:0;background:#fff;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#0b1a3a;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}a{color:#2459e0;text-decoration:none}a:hover{color:#1a44b8}@keyframes skyProg{from{transform:scaleY(0)}to{transform:scaleY(1)}}</style></helmet>
+<div style="display:flex;flex-direction:column;min-height:100vh">
+
+<header style="position:sticky;top:0;z-index:20;background:rgba(255,255,255,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid #e9eef7">
+  <nav style="max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <a href="#top" style="display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-0.02em;color:#0b1a3a;white-space:nowrap"><span style="width:28px;height:20px;border-radius:11px 11px 4px 4px;background:linear-gradient(135deg,#3b7bff,#1d4ed8)"></span>Skyland Project Studio</a>
+    <div style="display:flex;gap:28px;font-size:14px;font-weight:500;white-space:nowrap;flex-wrap:wrap">
+      <a href="#services" style="color:#4a5876">Services</a><a href="#how" style="color:#4a5876">How It Works</a><a href="#work" style="color:#4a5876">Work</a><a href="#why" style="color:#4a5876">Why Us</a><a href="#faq" style="color:#4a5876">FAQ</a>
+    </div>
+    <a href="#" style="white-space:nowrap;background:#2459e0;color:#fff;padding:11px 20px;border-radius:999px;font-size:14px;font-weight:600;box-shadow:0 6px 16px rgba(36,89,224,.28)">Free Consultation →</a>
+  </nav>
+</header>
+
+<section id="top" data-screen-label="Hero" style="background:linear-gradient(180deg,#ffffff 0%,#edf3ff 100%);overflow:hidden">
+  <div style="max-width:1200px;margin:0 auto;padding:72px 24px 96px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:48px;align-items:center">
+    <div style="display:flex;flex-direction:column;gap:26px">
+      <div data-anim="hero" style="align-self:flex-start;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e3eaf6;padding:7px 14px;border-radius:999px;font-size:12.5px;color:#4a5876"><span style="width:8px;height:8px;border-radius:50%;background:#16a36a;box-shadow:0 0 0 3px #d5f3e5"></span>Founding client offer: 20% off our first 5 projects</div>
+      <h1 data-anim="hero" style="margin:0;font-size:clamp(40px,5.2vw,64px);line-height:1.02;letter-spacing:-0.035em;font-weight:800;text-wrap:balance">We Build Modern Websites for <span data-shimmer="1" style="background:linear-gradient(90deg,#2459e0 0%,#6a9bff 25%,#2459e0 50%,#6a9bff 75%,#2459e0 100%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent">Ambitious Businesses</span></h1>
+      <p data-anim="hero" style="margin:0;font-size:17px;line-height:1.6;color:#4a5876;max-width:500px;text-wrap:pretty">Tell us your idea. Our AI consultant turns it into a clear website plan, design preview and a fixed price in minutes. Then our team builds it.</p>
+      <div data-anim="hero" style="display:flex;gap:12px;flex-wrap:wrap">
+        <a href="#" style="background:#2459e0;color:#fff;padding:16px 28px;border-radius:999px;font-size:15px;font-weight:600;box-shadow:0 10px 24px rgba(36,89,224,.3);transition:transform .25s,box-shadow .25s" style-hover="transform:translateY(-2px);box-shadow:0 16px 32px rgba(36,89,224,.38)">Start Free AI Consultation →</a>
+        <a href="#work" style="background:#fff;color:#0b1a3a;padding:16px 26px;border-radius:999px;font-size:15px;font-weight:600;border:1px solid #dce4f2">See Our Work</a>
+      </div>
+      <div data-anim="hero" style="display:flex;gap:10px 24px;flex-wrap:wrap;padding-top:4px;font-size:14px;color:#33415e">
+        <span style="display:flex;align-items:center;gap:8px"><span style="flex:none;width:18px;height:18px;border-radius:50%;background:#e3f6ec;color:#16a36a;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">✓</span>Fixed price before you pay</span>
+        <span style="display:flex;align-items:center;gap:8px"><span style="flex:none;width:18px;height:18px;border-radius:50%;background:#e3f6ec;color:#16a36a;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">✓</span>Pay in stages</span>
+        <span style="display:flex;align-items:center;gap:8px"><span style="flex:none;width:18px;height:18px;border-radius:50%;background:#e3f6ec;color:#16a36a;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">✓</span>Work directly with the builder</span>
+      </div>
+    </div>
+    <div data-anim="hero-visual" style="position:relative;padding:30px 10px 60px">
+      <div style="position:absolute;inset:-40px;background:radial-gradient(circle at 55% 45%,#cddbff 0%,rgba(205,219,255,0) 62%)"></div>
+      <div data-float="0" style="position:relative"><div style="position:relative;transform:perspective(1400px) rotateY(-9deg) rotateX(4deg)">
+        <div style="background:#0f1629;border-radius:18px 18px 4px 4px;padding:12px;box-shadow:0 30px 60px rgba(11,26,58,.25)">
+          <div style="aspect-ratio:16/10;border-radius:6px;overflow:hidden;background:repeating-linear-gradient(135deg,#e8eefb 0 10px,#dfe7f7 10px 20px);display:flex;flex-direction:column;justify-content:space-between;padding:20px">
+            <div style="display:flex;justify-content:space-between;font-size:8px;color:#4a5876;font-weight:600"><span>Skyland</span><span>Home · About · Services · Work</span></div>
+            <div style="display:flex;flex-direction:column;gap:10px"><div style="font-size:24px;font-weight:800;line-height:1.05;letter-spacing:-0.02em;max-width:230px">A Brighter Tomorrow for Growing Businesses</div><div style="align-self:flex-start;background:#2459e0;color:#fff;font-size:9px;padding:6px 12px;border-radius:999px">Get Started →</div></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#7a88a6">[ client site screenshot ]</div>
+          </div>
+        </div>
+        <div style="height:14px;margin:0 -28px;background:linear-gradient(180deg,#d9dee8,#aab2c2);border-radius:0 0 18px 18px"></div>
+      </div></div>
+      <div data-float="1" style="position:absolute;top:0;right:0;display:flex;align-items:center;gap:10px;background:#fff;padding:10px 14px;border-radius:14px;box-shadow:0 12px 30px rgba(11,26,58,.12);font-size:12px;line-height:1.35;color:#4a5876"><span style="width:28px;height:28px;border-radius:8px;background:#eaf0ff;color:#2459e0;display:flex;align-items:center;justify-content:center;font-weight:700">✦</span><span><b style="color:#0b1a3a">AI plan ready</b><br>5 pages · 8 features</span></div>
+      <div data-float="2" style="position:absolute;bottom:14px;left:0;display:flex;align-items:center;gap:10px;background:#fff;padding:10px 14px;border-radius:14px;box-shadow:0 12px 30px rgba(11,26,58,.12);font-size:12px;line-height:1.35;color:#4a5876"><span style="width:28px;height:28px;border-radius:8px;background:#e3f6ec;color:#16a36a;display:flex;align-items:center;justify-content:center;font-weight:700">✓</span><span><b style="color:#0b1a3a">Fixed price: $620</b><br>Locked before you pay</span></div>
+      <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;bottom:0;right:10px;font-family:Caveat,cursive;font-size:24px;line-height:.95;color:#2459e0;transform:rotate(-10deg);text-align:center">Great Websites<br>Greater Businesses</div></sc-if>
+    </div>
+  </div>
+  </section>
+
+<section id="services" data-screen-label="Services" onMouseEnter="{{ pauseSvc }}" onMouseLeave="{{ resumeSvc }}" style="background:#fff">
+  <div style="max-width:1200px;margin:0 auto;padding:96px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:56px;align-items:center">
+    <div data-reveal="0" style="display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:12px;font-weight:700;letter-spacing:.1em;color:#2459e0">SERVICES</span>
+        <h2 style="margin:0;font-size:clamp(30px,3.6vw,42px);font-weight:800;letter-spacing:-0.03em;text-wrap:balance">Whatever you're building, we'll build it right</h2>
+        <p style="margin:0;font-size:16px;color:#4a5876;line-height:1.6;max-width:460px">From a one-page campaign to your own digital platform.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;border-left:2px solid #edf1f8">
+        <sc-for list="{{ services }}" as="s" hint-placeholder-count="8">
+          <div onClick="{{ s.pick }}" style="cursor:pointer;position:relative;display:flex;align-items:center;gap:16px;padding:11px 0 11px 20px;margin-left:-2px;border-left:2px solid {{ s.line }};transition:all .3s">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ s.numInk }}">{{ s.num }}</span>
+            <span style="font-size:{{ s.size }};font-weight:{{ s.weight }};color:{{ s.ink }};letter-spacing:-0.01em;transition:all .3s">{{ s.name }}</span>
+            <sc-if value="{{ s.active }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:-2px;top:0;width:2px;height:100%;background:#2459e0;transform-origin:top;animation:skyProg {{ svcDur }} linear both;animation-play-state:{{ svcPlay }}"></span></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div data-reveal="150" style="display:flex;flex-direction:column;gap:20px">
+      <div style="position:relative;aspect-ratio:5/4;border-radius:24px;overflow:hidden;background:#eef3ff;border:1px solid #e3eaf6;box-shadow:0 30px 60px rgba(36,89,224,.1)">
+        <div style="height:100%;display:flex;flex-direction:column;transform:{{ svcOffset }};transition:transform .9s cubic-bezier(.65,0,.25,1)">
+          <sc-for list="{{ services }}" as="s" hint-placeholder-count="1">
+            <div style="flex:none;height:100%;padding:28px;display:flex">
+              <div style="flex:1;display:flex;flex-direction:column;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 14px 34px rgba(11,26,58,.12)">
+                <div style="display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid #edf1f8"><span style="width:8px;height:8px;border-radius:50%;background:#f1c3c3"></span><span style="width:8px;height:8px;border-radius:50%;background:#f3dfb0"></span><span style="width:8px;height:8px;border-radius:50%;background:#bfe3cc"></span><span style="margin-left:10px;flex:1;max-width:220px;background:#f1f4fa;border-radius:6px;padding:3px 10px;font-size:10px;color:#8a97b0">{{ s.url }}</span></div>
+                <div style="flex:1;background:{{ s.bg }};padding:22px;display:flex;flex-direction:column;justify-content:space-between;color:{{ s.fg }}">
+                  <b style="font-size:clamp(18px,2.2vw,26px);line-height:1.1;letter-spacing:-0.02em;max-width:65%">{{ s.headline }}</b>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;opacity:.7">[ illustration: {{ s.shot }} ]</span>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px 24px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:6px;max-width:360px"><b style="font-size:18px">{{ svcName }}</b><span style="font-size:14.5px;line-height:1.55;color:#4a5876">{{ svcDesc }}</span><span style="font-size:13px;color:#6a7894">Great for {{ svcFor }}</span></div>
+        <div style="display:flex;flex-direction:column;gap:2px;text-align:right"><span style="font-size:12px;color:#6a7894">Typical range</span><b style="font-size:22px;letter-spacing:-0.02em">{{ svcRange }}</b></div>
+      </div>
+      <p style="margin:0;font-size:13.5px;color:#4a5876;border-top:1px solid #edf1f8;padding-top:16px">Get your exact price in minutes. <a href="#how" style="font-weight:600">Try the free AI consultation →</a></p>
+    </div>
+  </div>
+</section>
+
+<section id="how" data-screen-label="How It Works" style="background:linear-gradient(180deg,#f3f7ff,#eaf1ff)">
+  <div style="max-width:1200px;margin:0 auto;padding:96px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:56px;align-items:center">
+    <div data-reveal="0" style="display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.1em;color:#2459e0">✦ AI CONSULTATION · FREE</span>
+        <h2 style="margin:0;font-size:clamp(30px,3.6vw,42px);font-weight:800;letter-spacing:-0.03em;text-wrap:balance">Know your exact price before you order</h2>
+        <p style="margin:0;font-size:16px;color:#4a5876;line-height:1.6;max-width:480px">Describe your project, shape the plan with AI, and get a fixed price you can budget for. No hidden fees, no surprises later.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+          <div onClick="{{ s.pick }}" style="cursor:pointer;display:flex;gap:16px;padding:16px 18px;border-radius:16px;background:{{ s.bg }};border:1px solid {{ s.border }};box-shadow:{{ s.shadow }};transition:all .25s">
+            <span style="flex:none;width:32px;height:32px;border-radius:50%;background:{{ s.dot }};color:{{ s.dotInk }};font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .25s">{{ s.n }}</span>
+            <div style="display:flex;flex-direction:column;gap:4px"><b style="font-size:16px">{{ s.title }}</b><span style="font-size:14px;color:#6a7894;line-height:1.5">{{ s.desc }}</span></div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px 22px;flex-wrap:wrap"><a href="#" style="background:#2459e0;color:#fff;padding:16px 28px;border-radius:999px;font-size:15px;font-weight:600;box-shadow:0 10px 24px rgba(36,89,224,.3);transition:transform .25s,box-shadow .25s" style-hover="transform:translateY(-2px);box-shadow:0 16px 32px rgba(36,89,224,.38)">Get My Fixed Price →</a><div style="display:flex;flex-direction:column;gap:4px;font-size:13px;color:#4a5876"><span>✓ Price locked in writing</span><span>✓ Free, no commitment</span></div></div>
+    </div>
+
+    <div data-reveal="150" style="background:#fff;border-radius:24px;border:1px solid #dfe8fa;box-shadow:0 30px 60px rgba(36,89,224,.12);overflow:hidden">
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid #edf1f8"><span style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#3b7bff,#1d4ed8);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center">✦</span><b style="font-size:14px">Skyland AI Consultant</b><span style="margin-left:auto;font-size:12px;color:#6a7894">Step {{ stepNum }} of 4</span></div>
+      <div data-panel="1" style="padding:22px;min-height:380px;display:flex;flex-direction:column;gap:14px;background:#fbfcff">
+        <sc-if value="{{ is0 }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:4px"><b style="font-size:15px">Describe the website you want</b><span style="font-size:13px;color:#6a7894">The more detail you share, the more accurate your plan.</span></div>
+          <div style="background:#fff;border:1.5px solid #2459e0;box-shadow:0 0 0 4px #e3ebff;border-radius:14px;padding:16px;min-height:180px;display:flex;flex-direction:column;justify-content:space-between;gap:14px">
+            <p style="margin:0;font-size:14px;line-height:1.7;color:#33415e">I run a coffee shop in Bandung for students and young workers. I want a modern, minimal website with our menu, our story, location and online ordering for pickup.<span data-caret="1" style="display:inline-block;width:2px;height:16px;background:#2459e0;vertical-align:-3px;margin-left:2px"></span></p>
+            <div style="display:flex;justify-content:space-between;gap:12px;font-size:11.5px;color:#8a97b0"><span>Tip: mention your audience and must-have features</span><span>164/1000</span></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><span style="font-size:12px;color:#4a5876;background:#fff;border:1px solid #e3eaf6;border-radius:999px;padding:6px 12px">+ Target audience</span><span style="font-size:12px;color:#4a5876;background:#fff;border:1px solid #e3eaf6;border-radius:999px;padding:6px 12px">+ Must-have features</span><span style="font-size:12px;color:#4a5876;background:#fff;border:1px solid #e3eaf6;border-radius:999px;padding:6px 12px">+ Reference websites</span></div>
+          <span style="align-self:flex-end;background:#2459e0;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:600">Generate my plan →</span>
+        </sc-if>
+        <sc-if value="{{ is1 }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:13px;color:#6a7894">Recommended structure</div>
+          <div style="display:flex;flex-direction:column;border:1px solid #edf1f8;border-radius:14px;overflow:hidden;background:#fff">
+            <sc-for list="{{ planPages }}" as="p" hint-placeholder-count="4"><div style="display:flex;justify-content:space-between;gap:12px;padding:11px 14px;border-bottom:1px solid #edf1f8;font-size:13.5px"><b style="font-weight:600">{{ p.name }}</b><span style="color:#6a7894;text-align:right">{{ p.desc }}</span></div></sc-for>
+          </div>
+          <div style="align-self:flex-end;max-width:85%;background:#2459e0;color:#fff;border-radius:16px 4px 16px 16px;padding:12px 14px;font-size:14px;line-height:1.5">On the Menu page, can customers also reserve a table?</div>
+          <div style="align-self:flex-start;display:flex;gap:8px;align-items:center;background:#e3f6ec;color:#12804f;border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600">✓ Added “Table reservation” to Menu</div>
+        </sc-if>
+        <sc-if value="{{ is2 }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:13px;color:#6a7894">Pick a style for your brand</div>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+            <sc-for list="{{ themes }}" as="t" hint-placeholder-count="4">
+              <div style="border:2px solid {{ t.border }};border-radius:14px;padding:6px;background:#fff;display:flex;flex-direction:column;gap:8px">
+                <div style="aspect-ratio:16/9;border-radius:9px;background:{{ t.swatch }}"></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:0 6px 4px"><b style="font-size:13.5px">{{ t.name }}</b><span style="font-size:12px;color:#6a7894">{{ t.sub }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ is3 }}" hint-placeholder-val="{{ false }}">
+          <div style="aspect-ratio:16/9;border-radius:14px;background:repeating-linear-gradient(135deg,#f6f1ea 0 10px,#efe8de 10px 20px);padding:18px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid #ece4d8"><b style="font-size:22px;line-height:1.1;max-width:60%;letter-spacing:-0.02em">Good Coffee, Brighter Days</b><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#8a7a66">[ generated homepage mockup ]</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:#fff;border:1px solid #edf1f8;border-radius:14px;padding:14px 16px">
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12.5px;color:#6a7894">Your fixed price · 5 pages · 6 features</span><b style="font-size:28px;letter-spacing:-0.03em">$620</b><span style="align-self:flex-start;background:#e3f6ec;color:#12804f;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:999px">✓ Final price, no hidden fees</span></div>
+            <span style="background:#2459e0;color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;font-weight:600">Order this project</span>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="work" data-screen-label="Portfolio" style="background:#fff">
+  <div style="max-width:1200px;margin:0 auto;padding:96px 24px;display:flex;flex-direction:column;gap:40px">
+    <div data-reveal="0" style="display:flex;flex-direction:column;gap:12px;max-width:620px">
+      <span style="font-size:12px;font-weight:700;letter-spacing:.1em;color:#2459e0">SELECTED WORK</span>
+      <h2 style="margin:0;font-size:clamp(30px,3.6vw,42px);font-weight:800;letter-spacing:-0.03em">Small studio. Serious craft.</h2>
+      <p style="margin:0;font-size:16px;color:#4a5876;line-height:1.6">We're a new studio, so every project gets our full attention. Here's what we've built so far.</p>
+    </div>
+    <div data-stagger="1" style="display:flex;flex-wrap:wrap;gap:24px">
+      <a href="#" style="flex:2 1 520px;display:flex;flex-direction:column;gap:18px;color:#0b1a3a;min-width:0">
+        <div style="aspect-ratio:16/9;border-radius:20px;background:repeating-linear-gradient(135deg,#f6f1ea 0 10px,#efe8de 10px 20px);padding:24px;display:flex;flex-direction:column;justify-content:space-between;color:#2b1f12;transition:transform .3s" style-hover="transform:translateY(-4px)"><span style="align-self:flex-start;background:#fff;color:#0b1a3a;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px">CASE STUDY</span><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px"><b style="font-size:26px;line-height:1.1;max-width:60%;letter-spacing:-0.02em">Good Coffee, Brighter Days</b><span style="font-family:'JetBrains Mono',monospace;font-size:10px;opacity:.7">[ project screenshot ]</span></div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px 28px">
+          <div style="display:flex;flex-direction:column;gap:4px"><b style="font-size:18px">Kopi Senja</b><span style="font-size:13.5px;color:#6a7894">Company profile + online ordering</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#8a97b0">CHALLENGE</span><span style="font-size:14px;line-height:1.5;color:#33415e">Orders only came in via WhatsApp and were hard to track.</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#8a97b0">WHAT WE BUILT</span><span style="font-size:14px;line-height:1.5;color:#33415e">A 5-page site with menu, pickup ordering and location.</span></div>
+        </div>
+      </a>
+      <a href="#" style="flex:1 1 300px;display:flex;flex-direction:column;gap:18px;color:#0b1a3a;min-width:0">
+        <div style="flex:1;min-height:240px;border-radius:20px;background:repeating-linear-gradient(135deg,#f6ebe6 0 10px,#efe0d9 10px 20px);padding:24px;display:flex;flex-direction:column;justify-content:space-between;color:#3b2620;transition:transform .3s" style-hover="transform:translateY(-4px)"><span style="align-self:flex-start;background:#fff;color:#0b1a3a;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px">CONCEPT</span><b style="font-size:22px;line-height:1.1;max-width:75%;letter-spacing:-0.02em">Natural Beauty, Real Confidence</b><span style="font-family:'JetBrains Mono',monospace;font-size:10px;opacity:.7">[ concept screenshot ]</span></div>
+        <div style="display:flex;flex-direction:column;gap:4px"><b style="font-size:18px">Lume Beauty</b><span style="font-size:13.5px;color:#6a7894">Landing page concept for a skincare brand</span></div>
+      </a>
+    </div>
+    <div data-reveal="0" style="display:flex;justify-content:space-between;align-items:center;gap:16px 24px;flex-wrap:wrap;border:1.5px dashed #c9d8fb;border-radius:20px;padding:22px 26px;background:#f7faff">
+      <div style="display:flex;flex-direction:column;gap:4px"><b style="font-size:17px">Your project could be next.</b><span style="font-size:14px;color:#4a5876">Founding clients get 20% off and priority attention.</span></div>
+      <a href="#offer" style="background:#2459e0;color:#fff;padding:13px 22px;border-radius:999px;font-size:14px;font-weight:600">See the founding offer →</a>
+    </div>
+  </div>
+</section>
+
+<section id="why" data-screen-label="Why Skyland" style="background:#f5f8fd">
+  <div style="max-width:1200px;margin:0 auto;padding:96px 24px;display:flex;flex-direction:column;gap:44px">
+    <div data-reveal="0" style="display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center">
+      <span style="font-size:12px;font-weight:700;letter-spacing:.1em;color:#2459e0">WHY SKYLAND</span>
+      <h2 style="margin:0;font-size:clamp(30px,3.6vw,42px);font-weight:800;letter-spacing:-0.03em;text-wrap:balance">A new studio, with promises in writing</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px;align-items:stretch">
+      <div data-reveal="0" style="background:#fff;border:1px solid #e3eaf6;border-radius:24px;padding:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:24px;align-items:center">
+        <div style="aspect-ratio:4/5;border-radius:18px;background:repeating-linear-gradient(135deg,#e8eefb 0 8px,#dfe7f7 8px 16px);display:flex;align-items:flex-end;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#7a88a6">[ founder photo ]</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;flex-direction:column;gap:4px"><b style="font-size:20px;letter-spacing:-0.01em">Hi, I'm [Your Name]</b><span style="font-size:13.5px;color:#2459e0;font-weight:600">Founder & Web Developer</span></div>
+          <p style="margin:0;font-size:14.5px;line-height:1.65;color:#33415e;text-wrap:pretty">I started Skyland to give small businesses a clear plan, an honest price and a website built with care. You'll work with me directly, from the first message to launch.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><a href="#" style="font-size:12.5px;font-weight:600;border:1px solid #dce4f2;border-radius:999px;padding:6px 12px;color:#33415e">LinkedIn</a><a href="#" style="font-size:12.5px;font-weight:600;border:1px solid #dce4f2;border-radius:999px;padding:6px 12px;color:#33415e">GitHub</a><a href="#" style="font-size:12.5px;font-weight:600;border:1px solid #dce4f2;border-radius:999px;padding:6px 12px;color:#33415e">Dribbble</a></div>
+          <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><span style="font-family:Caveat,cursive;font-size:24px;color:#2459e0;transform:rotate(-3deg);align-self:flex-start">Let's build it together!</span></sc-if>
+        </div>
+      </div>
+      <div data-stagger="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px">
+        <sc-for list="{{ promises }}" as="p" hint-placeholder-count="4">
+          <div style="background:#fff;border:1px solid #e3eaf6;border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:10px">
+            <span style="width:36px;height:36px;border-radius:10px;background:#eaf0ff;color:#2459e0;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center">{{ p.n }}</span>
+            <b style="font-size:16px">{{ p.title }}</b>
+            <span style="font-size:14px;line-height:1.55;color:#4a5876">{{ p.desc }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" data-screen-label="FAQ" style="background:#fff">
+  <div style="max-width:1200px;margin:0 auto;padding:96px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:48px;align-items:start">
+    <div data-reveal="0" style="display:flex;flex-direction:column;gap:14px;max-width:380px">
+      <span style="font-size:12px;font-weight:700;letter-spacing:.1em;color:#2459e0">FAQ</span>
+      <h2 style="margin:0;font-size:clamp(30px,3.6vw,42px);font-weight:800;letter-spacing:-0.03em">Questions, answered</h2>
+      <p style="margin:0;font-size:15px;color:#4a5876;line-height:1.6">Still unsure? <a href="#" style="font-weight:600">Chat with us on WhatsApp</a> and we'll reply within the day.</p>
+    </div>
+    <div data-reveal="120" style="display:flex;flex-direction:column;grid-column:span 1;border-top:1px solid #e3eaf6">
+      <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="5">
+        <div style="border-bottom:1px solid #e3eaf6">
+          <div onClick="{{ q.toggle }}" style="cursor:pointer;display:flex;align-items:center;gap:16px;padding:20px 0;font-size:16px;font-weight:600"><span style="flex:1">{{ q.q }}</span><span style="flex:none;width:30px;height:30px;border-radius:50%;background:#f1f4fa;display:flex;align-items:center;justify-content:center;color:#2459e0;font-size:16px">{{ q.icon }}</span></div>
+          <sc-if value="{{ q.open }}" hint-placeholder-val="{{ false }}"><div style="padding:0 46px 20px 0;font-size:14.5px;line-height:1.65;color:#4a5876">{{ q.a }}</div></sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section id="offer" data-screen-label="Founding Offer" style="position:relative;overflow:hidden;background:linear-gradient(135deg,#1d4ed8,#2f6bff)">
+  <div style="position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:60px;background:rgba(255,255,255,.08);transform:rotate(20deg)"></div>
+  <div style="position:absolute;left:-40px;bottom:-80px;width:220px;height:220px;border-radius:50px;background:rgba(255,255,255,.06);transform:rotate(-15deg)"></div>
+  <div data-reveal="0" style="position:relative;max-width:820px;margin:0 auto;padding:96px 24px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;color:#fff">
+    <span style="background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);font-size:12px;font-weight:700;letter-spacing:.1em;padding:6px 14px;border-radius:999px">FOUNDING CLIENT PROGRAM</span>
+    <h2 style="margin:0;font-size:clamp(32px,4vw,48px);font-weight:800;letter-spacing:-0.03em;text-wrap:balance">Be one of our first 5 clients</h2>
+    <p style="margin:0;font-size:17px;color:#dbe6ff;max-width:560px;line-height:1.6">Get 20% off any package plus priority support. In return, we'd love your honest feedback once your site is live.</p>
+    <div style="display:flex;align-items:center;gap:12px;padding:4px 0"><div style="display:flex;gap:6px"><span style="width:28px;height:6px;border-radius:3px;background:rgba(255,255,255,.3)"></span><span style="width:28px;height:6px;border-radius:3px;background:rgba(255,255,255,.3)"></span><span style="width:28px;height:6px;border-radius:3px;background:#fff"></span><span style="width:28px;height:6px;border-radius:3px;background:#fff"></span><span style="width:28px;height:6px;border-radius:3px;background:#fff"></span></div><span style="font-size:14px;font-weight:600">3 of 5 spots left</span></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;padding-top:6px"><a href="#" style="background:#fff;color:#1d4ed8;padding:16px 28px;border-radius:999px;font-size:15px;font-weight:700;transition:transform .25s" style-hover="transform:translateY(-2px)">Claim My Spot →</a><a href="#" style="color:#fff;padding:16px 24px;border-radius:999px;font-size:15px;font-weight:600;border:1px solid rgba(255,255,255,.5)">Talk to us first</a></div>
+  </div>
+</section>
+
+<footer style="background:#0b1a3a;color:#c3cde0">
+  <div style="max-width:1200px;margin:0 auto;padding:56px 24px 28px;display:flex;flex-direction:column;gap:40px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:32px">
+      <div style="display:flex;flex-direction:column;gap:14px"><div style="display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;color:#fff"><span style="width:26px;height:19px;border-radius:10px 10px 4px 4px;background:linear-gradient(135deg,#5b8fff,#2459e0)"></span>Skyland Project Studio</div><span style="font-size:13.5px;line-height:1.6">Modern websites for a brighter business.</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:14px"><b style="color:#fff">Explore</b><a href="#services" style="color:#c3cde0">Services</a><a href="#how" style="color:#c3cde0">How It Works</a><a href="#work" style="color:#c3cde0">Portfolio</a><a href="#faq" style="color:#c3cde0">FAQ</a></div>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:14px"><b style="color:#fff">Contact</b><a href="#" style="color:#c3cde0">hello@skylandstudio.com</a><a href="#" style="color:#c3cde0">WhatsApp</a><span>Bandung, Indonesia</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:14px"><b style="color:#fff">Follow</b><a href="#" style="color:#c3cde0">Instagram</a><a href="#" style="color:#c3cde0">LinkedIn</a><a href="#" style="color:#c3cde0">Dribbble</a></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.1);padding-top:20px;font-size:13px;color:#8e9bb7"><span>© 2026 Skyland Project Studio</span><div style="display:flex;gap:24px"><a href="#" style="color:#8e9bb7">Privacy Policy</a><a href="#" style="color:#8e9bb7">Terms of Service</a></div></div>
+  </div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showNotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;autoPlay&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { step: 0, open: 0, touched: false, svc: 0, svcPaused: false };
+  componentDidMount() {
+    this.t = setInterval(() => {
+      if ((this.props.autoPlay ?? true) && !this.state.touched) this.setState(s => ({ step: (s.step + 1) % 4 }));
+    }, 4000);
+    this.st = setInterval(() => { if (!this.state.svcPaused) this.setState(s => ({ svc: (s.svc + 1) % 8 })); }, 3800);
+    requestAnimationFrame(() => this.initAnim());
+  }
+  componentWillUnmount() { clearInterval(this.t); clearInterval(this.st); this.io && this.io.disconnect(); }
+  componentDidUpdate(pp, ps) {
+    if (this.reduce) return;
+    if (ps.step !== this.state.step) { const p = document.querySelector('[data-panel]'); p && p.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 500, easing: 'cubic-bezier(.2,.7,.2,1)' }); }
+    this.caret();
+  }
+  caret() {
+    document.querySelectorAll('[data-caret]').forEach(el => { if (el.__a) return; el.__a = el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 550, iterations: Infinity, direction: 'alternate', easing: 'steps(2,jump-none)' }); });
+  }
+  initAnim() {
+    this.reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (this.reduce) return;
+    const ease = 'cubic-bezier(.2,.7,.2,1)';
+    document.querySelectorAll('[data-anim="hero"]').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(24px)', filter: 'blur(6px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 1000, delay: 100 + i * 110, easing: ease, fill: 'both' }));
+    const v = document.querySelector('[data-anim="hero-visual"]');
+    v && v.animate([{ opacity: 0, transform: 'translateY(40px) scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 1300, delay: 350, easing: ease, fill: 'both' });
+    document.querySelectorAll('[data-float]').forEach((el, i) => el.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-10px)' }, { transform: 'translateY(0)' }], { duration: 6000 + i * 900, delay: 1500 + i * 600, iterations: Infinity, easing: 'ease-in-out' }));
+    document.querySelectorAll('[data-shimmer]').forEach(el => el.animate([{ backgroundPosition: '0% 50%' }, { backgroundPosition: '-200% 50%' }], { duration: 8000, iterations: Infinity, easing: 'linear' }));
+    this.io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.__rv && e.target.__rv.play(); this.io.unobserve(e.target); } }), { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    const add = (el, d) => { const a = el.animate([{ opacity: 0, transform: 'translateY(32px)' }, { opacity: 1, transform: 'none' }], { duration: 900, delay: d, easing: ease, fill: 'both' }); a.pause(); el.__rv = a; this.io.observe(el); };
+    document.querySelectorAll('[data-reveal]').forEach(el => add(el, +el.dataset.reveal || 0));
+    document.querySelectorAll('[data-stagger]').forEach(g => [...g.children].forEach((c, i) => add(c, i * 120)));
+    this.caret();
+  }
+  renderVals() {
+    const st = this.state.step;
+    const steps = [
+      ['Describe your website', 'Explain your business, goals and the features you need, in as much detail as you like.'],
+      ['Review & revise the plan', 'Get suggested pages, features and content. Ask for changes anytime.'],
+      ['Choose a theme', 'Pick the visual style that matches your brand.'],
+      ['See your mockup & fixed price', 'Preview your homepage and get the final price, the same price you will pay.'],
+    ].map(([title, desc], i) => {
+      const a = i === st;
+      return { n: i + 1, title, desc, bg: a ? '#fff' : 'transparent', border: a ? '#dbe5fb' : 'transparent', shadow: a ? '0 10px 24px rgba(36,89,224,.1)' : 'none', dot: a ? '#2459e0' : '#dfe8fa', dotInk: a ? '#fff' : '#2459e0', pick: () => this.setState({ step: i, touched: true }) };
+    });
+    const faqs = [
+      ["You're a new studio. Why should I trust you?", 'Fair question. That is why the price is fixed in writing before you pay, payment is split into stages, and you approve the design before we build. You also work with the founder directly.'],
+      ['How long does it take to build a website?', 'Most websites are completed within 2–6 weeks, depending on the scope and how ready your content is.'],
+      ['Is the AI consultation really free?', 'Yes. You get the full plan, theme preview and a fixed price for free. That price is final, and you only order if you are happy with it.'],
+      ['How does payment work?', '50% down payment to start, 50% before launch. Every step is agreed with you in writing first.'],
+      ['Do you provide support after launch?', 'Every project includes 30 days of free support, with optional monthly maintenance plans after that.'],
+    ];
+    const sel = (i) => i === 0;
+    const sv = this.state.svc;
+    const svcList = [
+      ['Company Profile', 'Build credibility and turn visitors into clients.', 'SMEs, agencies, clinics, consultants', '$400 – $900', 'Trusted Partner for Your Growth', 'corporate homepage', 'repeating-linear-gradient(135deg,#e8eefb 0 10px,#dfe7f7 10px 20px)', '#0b1a3a', 'yourcompany.com'],
+      ['Landing Page', 'One focused page for a product, campaign or event.', 'product launches, ads, events', '$200 – $450', 'Launch Day Is Here', 'single-page promo', 'repeating-linear-gradient(135deg,#fff3e6 0 10px,#fde9d3 10px 20px)', '#3b230c', 'launch.yourbrand.com'],
+      ['Online Store', 'Sell online with products, cart, payments and orders.', 'retail, F&B, fashion, local brands', '$800 – $2,000', 'New Season, Fresh Picks', 'product catalog & cart', 'repeating-linear-gradient(135deg,#f1f5ec 0 10px,#e7eee0 10px 20px)', '#1f2e1a', 'shop.yourbrand.com'],
+      ['Personal Portfolio', 'Showcase your work and build your personal brand.', 'freelancers, creatives, job seekers', '$150 – $400', 'Hi, I Design Things People Love', 'personal portfolio', 'repeating-linear-gradient(135deg,#f3eefb 0 10px,#e9e1f6 10px 20px)', '#2a1745', 'yourname.com'],
+      ['Online Course (LMS)', 'Courses, quizzes, student progress and certificates.', 'schools, trainers, course creators', '$1,500 – $4,000', 'Learn at Your Own Pace', 'course dashboard', 'repeating-linear-gradient(135deg,#e6f6f3 0 10px,#d8efea 10px 20px)', '#0e3a33', 'learn.youracademy.com'],
+      ['Booking & Reservation', 'Let customers book appointments or tables online.', 'clinics, salons, restaurants, venues', '$600 – $1,500', 'Book Your Visit in Seconds', 'booking calendar', 'repeating-linear-gradient(135deg,#fdeef2 0 10px,#f9e0e7 10px 20px)', '#4a1526', 'book.yourplace.com'],
+      ['Custom Web App', 'Your own digital platform: dashboards, marketplaces, SaaS.', 'startups, internal tools, platforms', '$2,500+', 'Your Platform, Your Rules', 'web app dashboard', 'repeating-linear-gradient(135deg,#0d1a3d 0 10px,#16275a 10px 20px)', '#ffffff', 'app.yourstartup.com'],
+      ['Blog & Media', 'Publish articles and news that rank on Google.', 'writers, communities, media outlets', '$350 – $800', 'Stories Worth Reading', 'article feed', 'repeating-linear-gradient(135deg,#f5f3ee 0 10px,#ece8df 10px 20px)', '#2b261c', 'yourmagazine.com'],
+    ];
+    const cs = svcList[sv];
+    return {
+      services: svcList.map(([name, desc, forr, range, headline, shot, bg, fg, url], i) => { const a = i === sv; return { name, headline, shot, bg, fg, url, num: String(i + 1).padStart(2, '0'), active: a, line: a ? 'transparent' : 'transparent', ink: a ? '#0b1a3a' : '#8a97b0', numInk: a ? '#2459e0' : '#b8c1d3', size: a ? '20px' : '16px', weight: a ? '700' : '600', pick: () => this.setState({ svc: i }) }; }),
+      svcOffset: 'translateY(-' + sv * 100 + '%)',
+      svcName: cs[0], svcDesc: cs[1], svcFor: cs[2], svcRange: cs[3],
+      svcDur: '3.8s', svcPlay: this.state.svcPaused ? 'paused' : 'running',
+      pauseSvc: () => this.setState({ svcPaused: true }),
+      resumeSvc: () => this.setState({ svcPaused: false }),
+      promises: [
+        { n: '01', title: 'Fixed price, in writing', desc: 'The price from your consultation is the price you pay. No hidden fees.' },
+        { n: '02', title: 'Pay in stages', desc: '50% to start, the rest only after you approve the finished site.' },
+        { n: '03', title: 'You own everything', desc: 'Code, domain, content and accounts are 100% yours.' },
+        { n: '04', title: '30 days of free support', desc: 'Fixes and small changes after launch, on us.' },
+      ],
+      showNotes: this.props.showNotes ?? true,
+      clients: ['FreshMart', 'NovaTech', 'Lume Beauty', 'Kopi Senja', 'Arunika', 'BrightDental'],
+      packages: [
+        { name: 'Landing Page', desc: 'One focused page to promote a product, event or campaign.', price: '$250', time: 'Ready in ~1–2 weeks', items: ['1 page, up to 6 sections', 'Contact / WhatsApp button', 'Mobile-friendly design', 'Basic SEO setup'] },
+        { name: 'Company Profile', desc: 'A complete site that builds trust and brings in clients.', price: '$450', time: 'Ready in ~2–4 weeks', popular: true, items: ['Up to 5 pages', 'Portfolio / gallery', 'Contact form & map', 'Basic SEO setup'] },
+        { name: 'E-commerce', desc: 'Sell online with products, cart and payments.', price: '$900', time: 'Ready in ~4–6 weeks', items: ['Product catalog & cart', 'Payment gateway', 'Order management', 'Basic SEO setup'] },
+      ].map(p => ({ ...p, popular: !!p.popular, border: p.popular ? '#2459e0' : '#e3eaf6', bg: p.popular ? '#f7faff' : '#fff', shadow: p.popular ? '0 20px 40px rgba(36,89,224,.12)' : 'none' })),
+      steps,
+      stepNum: st + 1,
+      is0: st === 0, is1: st === 1, is2: st === 2, is3: st === 3,
+      planPages: [
+        { name: 'Home', desc: 'Hero, best sellers, CTA' },
+        { name: 'Menu', desc: 'Menu, online ordering' },
+        { name: 'Our Story', desc: 'Story, team, values' },
+        { name: 'Location', desc: 'Map, hours, contact' },
+      ],
+      themes: [
+        { name: 'Minimal', sub: 'Clean', swatch: 'repeating-linear-gradient(135deg,#f3f6fb 0 6px,#e8edf6 6px 12px)' },
+        { name: 'Elegant', sub: 'Refined', swatch: 'repeating-linear-gradient(135deg,#d9cdb8 0 6px,#cfc1a8 6px 12px)' },
+        { name: 'Futuristic', sub: 'Bold tech', swatch: 'repeating-linear-gradient(135deg,#0d1a3d 0 6px,#16275a 6px 12px)' },
+        { name: 'Vibrant', sub: 'Playful', swatch: 'repeating-linear-gradient(135deg,#3a0f1c 0 6px,#551628 6px 12px)' },
+      ].map((t, i) => ({ ...t, border: sel(i) ? '#2459e0' : '#e3eaf6' })),
+      projects: [
+        { name: 'FreshMart', type: 'E-commerce Website', result: '+38% online orders', headline: 'Good Food, Brighter Days', shot: 'grocery site screenshot', bg: 'repeating-linear-gradient(135deg,#f1f5ec 0 10px,#e7eee0 10px 20px)', ink: '#1f2e1a' },
+        { name: 'NovaTech', type: 'Company Profile', result: '2× more leads', headline: 'Technology for a Better Tomorrow', shot: 'corporate site screenshot', bg: 'repeating-linear-gradient(135deg,#123a9c 0 10px,#1747b8 10px 20px)', ink: '#ffffff' },
+        { name: 'Lume Beauty', type: 'Landing Page', result: '4.2% conversion', headline: 'Natural Beauty, Real Confidence', shot: 'product page screenshot', bg: 'repeating-linear-gradient(135deg,#f6ebe6 0 10px,#efe0d9 10px 20px)', ink: '#3b2620' },
+      ],
+      testimonials: [
+        { quote: 'Excellent from start to finish. They understood exactly what we needed and delivered a stunning website ahead of schedule.', name: 'Sarah Lim', role: 'Founder, FreshMart' },
+        { quote: 'Professional, fast, and creative. Our new website has helped us attract more clients and grow our business.', name: 'Daniel Prakoso', role: 'CEO, NovaTech' },
+        { quote: 'The AI plan helped us figure out what we actually needed before spending anything. Highly recommended!', name: 'Emily Chen', role: 'Owner, Lume Beauty' },
+      ],
+      faqs: faqs.map(([q, a], i) => ({ q, a, open: this.state.open === i, icon: this.state.open === i ? '−' : '+', toggle: () => this.setState(s => ({ open: s.open === i ? -1 : i })) })),
+    };
+  }
+}
+</script>
+</body>
+</html>

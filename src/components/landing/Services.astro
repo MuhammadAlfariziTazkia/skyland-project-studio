@@ -1,0 +1,154 @@
+---
+import ServiceIllustration from '../illustrations/ServiceIllustration.astro';
+import { getDict } from '../../i18n';
+import { ROUTES, SERVICE_KEYS, servicePath } from '../../i18n/routes';
+import { typicalRange } from '../../lib/pricing';
+import type { Locale } from '../../lib/schemas';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = getDict(locale);
+const items = SERVICE_KEYS.map((key) => ({ key, ...t.services_list[key], range: typicalRange(key, t.currency), href: servicePath(key, locale) }));
+---
+<section id="services" class="section svc" data-svc>
+  <div class="container grid">
+    <div class="left" data-reveal>
+      <div class="stack head">
+        <span class="eyebrow">{t.services.eyebrow}</span>
+        <h2 class="h2">{t.services.title}</h2>
+        <p class="lead">{t.services.lead}</p>
+      </div>
+      <div class="tabs" role="tablist" aria-label={t.services.eyebrow} data-svc-tabs>
+        {items.map((s, i) => (
+          <button type="button" role="tab" class="tab" id={`svc-tab-${i}`} aria-controls={`svc-panel-${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-svc-tab={i}>
+            <span class="num mono">{String(i + 1).padStart(2, '0')}</span>
+            <span class="name">{s.name}</span>
+            <span class="prog" aria-hidden="true"></span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <div class="right" data-reveal>
+      <div class="viewport">
+        <div class="track" data-svc-track>
+          {items.map((s) => (
+            <div class="slide">
+              <ServiceIllustration kind={s.key} headline={s.headline} url={s.url} idr={locale === 'id'} />
+            </div>
+          ))}
+        </div>
+      </div>
+      {items.map((s, i) => (
+        <div class="detail" role="tabpanel" id={`svc-panel-${i}`} aria-labelledby={`svc-tab-${i}`} hidden={i !== 0} data-svc-panel={i}>
+          <div class="stack info">
+            <h3>{s.name}</h3>
+            <p>{s.desc}</p>
+            <span class="for">{t.services.greatFor} {s.forWho}</span>
+            <a class="more" href={s.href}>{t.services.details} →</a>
+          </div>
+          <div class="range">
+            <span>{t.services.range}</span>
+            <b>{s.range}</b>
+          </div>
+        </div>
+      ))}
+      <p class="exact">{t.services.exact} <a href={ROUTES.consult[locale]}>{t.services.try} →</a></p>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-svc]').forEach((root) => {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-svc-tab]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[data-svc-panel]')];
+    const track = root.querySelector<HTMLElement>('[data-svc-track]')!;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let cur = 0;
+    let timer = 0;
+    const DUR = 3800;
+    const show = (i: number, focus = false) => {
+      cur = (i + tabs.length) % tabs.length;
+      tabs.forEach((t, j) => {
+        const on = j === cur;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        // restart the progress animation
+        t.classList.remove('active');
+        if (on) { void t.offsetWidth; t.classList.add('active'); }
+      });
+      panels.forEach((p, j) => (p.hidden = j !== cur));
+      track.style.transform = `translateY(-${cur * 100}%)`;
+      if (focus) tabs[cur].focus();
+      const tabsEl = tabs[cur].parentElement!;
+      if (tabsEl.scrollWidth > tabsEl.clientWidth) {
+        const left = tabsEl.scrollLeft + tabs[cur].getBoundingClientRect().left - tabsEl.getBoundingClientRect().left - 16;
+        tabsEl.scrollTo({ left, behavior: reduce ? 'auto' : 'smooth' });
+      }
+    };
+    const start = () => { if (reduce) return; stop(); timer = window.setInterval(() => show(cur + 1), DUR); root.classList.remove('paused'); };
+    const stop = () => { clearInterval(timer); root.classList.add('paused'); };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => { show(i); start(); });
+      t.addEventListener('keydown', (e) => {
+        const k = e.key;
+        if (['ArrowDown', 'ArrowRight'].includes(k)) { e.preventDefault(); show(cur + 1, true); }
+        if (['ArrowUp', 'ArrowLeft'].includes(k)) { e.preventDefault(); show(cur - 1, true); }
+      });
+    });
+    const hoverable = matchMedia('(hover: hover)').matches;
+    if (hoverable) { root.addEventListener('mouseenter', stop); root.addEventListener('mouseleave', start); }
+    root.addEventListener('focusin', stop);
+    // only rotate while visible
+    new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()), { threshold: 0.3 }).observe(root);
+    show(0);
+  });
+</script>
+
+<style>
+  .grid { display: grid; gap: 40px; align-items: center; }
+  @media (min-width: 1024px) { .grid { grid-template-columns: 1fr 1.05fr; gap: 56px; } }
+  .left { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+  .head { gap: 12px; }
+  .tabs { display: flex; flex-direction: column; border-left: 2px solid var(--line-2); }
+  .tab { position: relative; display: flex; align-items: center; gap: 16px; padding: 10px 0 10px 20px; margin-left: -2px; background: none; border: 0; border-left: 2px solid transparent; cursor: pointer; text-align: left; min-height: 44px; }
+  .num { font-size: 11px; color: #b8c1d3; transition: color .3s; }
+  .name { font-size: 16px; font-weight: 600; color: var(--faint); letter-spacing: -0.01em; transition: all .3s; }
+  .tab[aria-selected='true'] .num { color: var(--blue); }
+  .tab[aria-selected='true'] .name { font-size: 20px; font-weight: 700; color: var(--ink); }
+  .tab:hover .name { color: var(--ink-2); }
+  .prog { position: absolute; left: -2px; top: 0; width: 2px; height: 100%; background: var(--blue); transform: scaleY(0); transform-origin: top; }
+  .tab.active .prog { animation: prog 3.8s linear both; }
+  .paused .tab.active .prog { animation-play-state: paused; }
+  @keyframes prog { to { transform: scaleY(1); } }
+  @media (prefers-reduced-motion: reduce) { .tab[aria-selected='true'] .prog { transform: scaleY(1); animation: none; } }
+
+  @media (max-width: 1023px) {
+    .tabs { flex-direction: row; border-left: 0; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 calc(var(--gutter) * -1); padding: 2px var(--gutter) 6px; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex: none; scroll-snap-align: start; margin: 0; padding: 10px 16px; gap: 8px; border: 1px solid var(--line); border-radius: 999px; background: #fff; overflow: hidden; }
+    .tab[aria-selected='true'] { border-color: var(--blue); background: var(--blue-soft); }
+    .tab[aria-selected='true'] .name, .name { font-size: 14px; }
+    .prog { top: auto; bottom: 0; left: 0; width: 100%; height: 2px; transform: scaleX(0); transform-origin: left; }
+    @keyframes prog { to { transform: scaleX(1); } }
+  }
+
+  .right { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+  .viewport { aspect-ratio: 5 / 4; border-radius: 24px; overflow: hidden; background: #eef3ff; border: 1px solid var(--line); box-shadow: 0 30px 60px rgba(36, 89, 224, .1); }
+  @media (max-width: 479px) { .viewport { aspect-ratio: 1 / 1; border-radius: 18px; } }
+  .track { height: 100%; transition: transform .9s cubic-bezier(.65, 0, .25, 1); }
+  .slide { height: 100%; padding: clamp(14px, 4%, 28px); }
+  .detail { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px 24px; flex-wrap: wrap; }
+  .detail[hidden] { display: none; }
+  .info { gap: 6px; max-width: 380px; }
+  h3 { font-size: 18px; }
+  .info p { font-size: 14.5px; line-height: 1.55; color: var(--muted); }
+  .for { font-size: 13px; color: var(--muted-2); }
+  .more { font-size: 13.5px; font-weight: 600; }
+  .range { display: flex; flex-direction: column; gap: 2px; text-align: right; }
+  .range span { font-size: 12px; color: var(--muted-2); }
+  .range b { font-size: 22px; letter-spacing: -0.02em; }
+  @media (max-width: 479px) { .range { text-align: left; } }
+  .exact { font-size: 13.5px; color: var(--muted); border-top: 1px solid var(--line-2); padding-top: 16px; }
+  .exact a { font-weight: 600; }
+</style>

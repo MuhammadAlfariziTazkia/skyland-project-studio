@@ -1,0 +1,64 @@
+---
+import { Image } from 'astro:assets';
+import founder from '../../assets/founder.jpg';
+import { SITE, socialLinks } from '../../config/site';
+import { getDict } from '../../i18n';
+import type { Locale } from '../../lib/schemas';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = getDict(locale);
+const socials = socialLinks();
+---
+<section id="why" class="section why">
+  <div class="container stack wrap">
+    <div class="stack head" data-reveal>
+      <span class="eyebrow">{t.why.eyebrow}</span>
+      <h2 class="h2">{t.why.title}</h2>
+    </div>
+    <div class="grid">
+      <div class="card founder" data-reveal>
+        <Image src={founder} alt={t.why.photoAlt} widths={[320, 480, 640]} sizes="(min-width: 640px) 260px, 88vw" class="photo" loading="lazy" />
+        <div class="stack bio">
+          <div class="stack"><b class="hi">{t.why.hi}</b><span class="role">{SITE.founder.name} · {SITE.founder.role[locale]}</span></div>
+          <p>{t.why.bio}</p>
+          {socials.length > 0 && <div class="socials">{socials.map((s) => <a href={s.href} target="_blank" rel="noopener me">{s.label}</a>)}</div>}
+          <span class="note" aria-hidden="true">{t.why.note}</span>
+        </div>
+      </div>
+      <ul class="promises" data-stagger>
+        {t.why.promises.map(([title, desc], i) => (
+          <li class="card promise">
+            <span class="n">{String(i + 1).padStart(2, '0')}</span>
+            <b>{title}</b>
+            <span>{desc}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .why { background: var(--bg-soft); }
+  .wrap { gap: 40px; }
+  .head { gap: 12px; align-items: center; text-align: center; }
+  .grid { display: grid; gap: 24px; align-items: stretch; }
+  @media (min-width: 1024px) { .grid { grid-template-columns: 1fr 1fr; } }
+  .founder { border-radius: 24px; padding: 20px; display: grid; gap: 24px; align-items: center; }
+  @media (min-width: 560px) { .founder { grid-template-columns: minmax(180px, 240px) 1fr; padding: 24px; } }
+  .photo { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 18px; }
+  .bio { gap: 14px; }
+  .hi { font-size: 20px; letter-spacing: -0.01em; }
+  .role { font-size: 13.5px; color: var(--blue); font-weight: 600; margin-top: 4px; }
+  .bio p { font-size: 14.5px; line-height: 1.65; color: var(--ink-2); text-wrap: pretty; }
+  .socials { display: flex; gap: 8px; flex-wrap: wrap; }
+  .socials a { font-size: 12.5px; font-weight: 600; border: 1px solid #dce4f2; border-radius: 999px; padding: 8px 14px; color: var(--ink-2); }
+  .note { font-family: var(--hand); font-size: 24px; color: var(--blue); transform: rotate(-3deg); align-self: flex-start; }
+  .promises { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+  @media (min-width: 560px) { .promises { grid-template-columns: 1fr 1fr; } }
+  .promise { padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+  .n { width: 36px; height: 36px; border-radius: 10px; background: var(--blue-soft); color: var(--blue); font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+  .promise b { font-size: 16px; }
+  .promise > span:last-child { font-size: 14px; line-height: 1.55; color: var(--muted); }
+</style>

@@ -1,0 +1,160 @@
+{
+  "$comment": "Skyland pricing knowledge base. The AI only SELECTS items from this file; the final number is always computed by src/lib/pricing.ts. Edit prices here (both currencies are set explicitly, not FX-converted, because local and global market rates differ).",
+  "meta": {
+    "version": "2026-09",
+    "currencies": {
+      "IDR": { "rounding": 50000, "locale": "id-ID" },
+      "USD": { "rounding": 5, "locale": "en-US" }
+    },
+    "quoteValidDays": 14,
+    "paymentTerms": { "downPaymentPercent": 50, "finalPaymentPercent": 50 },
+    "includedEverywhere": [
+      "responsive_design",
+      "basic_seo",
+      "ssl_https",
+      "speed_optimization",
+      "two_design_revisions",
+      "support_30_days",
+      "source_code_ownership"
+    ]
+  },
+  "foundingOffer": {
+    "active": true,
+    "percent": 20,
+    "spotsTotal": 5,
+    "spotsTaken": 0
+  },
+  "projectTypes": {
+    "landing": {
+      "name": { "en": "Landing Page", "id": "Landing Page" },
+      "basePrice": { "IDR": 2000000, "USD": 250 },
+      "includedPages": 1,
+      "includedFeatures": ["whatsapp_button", "contact_form"],
+      "timelineWeeks": [1, 2],
+      "typicalRange": { "IDR": [2000000, 4500000], "USD": [250, 500] }
+    },
+    "company_profile": {
+      "name": { "en": "Company Profile", "id": "Company Profile" },
+      "basePrice": { "IDR": 3500000, "USD": 450 },
+      "includedPages": 5,
+      "includedFeatures": ["whatsapp_button", "contact_form", "google_maps"],
+      "timelineWeeks": [2, 3],
+      "typicalRange": { "IDR": [3500000, 8000000], "USD": [450, 950] }
+    },
+    "online_store": {
+      "name": { "en": "Online Store", "id": "Toko Online" },
+      "basePrice": { "IDR": 7500000, "USD": 900 },
+      "includedPages": 6,
+      "includedFeatures": ["whatsapp_button", "product_catalog", "cart_checkout"],
+      "timelineWeeks": [3, 5],
+      "typicalRange": { "IDR": [7500000, 18000000], "USD": [900, 2000] }
+    },
+    "portfolio": {
+      "name": { "en": "Personal Portfolio", "id": "Portofolio Pribadi" },
+      "basePrice": { "IDR": 1500000, "USD": 200 },
+      "includedPages": 3,
+      "includedFeatures": ["contact_form", "gallery"],
+      "timelineWeeks": [1, 2],
+      "typicalRange": { "IDR": [1500000, 4000000], "USD": [200, 450] }
+    },
+    "lms": {
+      "name": { "en": "Online Course (LMS)", "id": "Kursus Online (LMS)" },
+      "basePrice": { "IDR": 15000000, "USD": 1800 },
+      "includedPages": 6,
+      "includedFeatures": ["user_auth", "course_player", "progress_tracking"],
+      "timelineWeeks": [5, 8],
+      "typicalRange": { "IDR": [15000000, 35000000], "USD": [1800, 4000] }
+    },
+    "booking": {
+      "name": { "en": "Booking & Reservation", "id": "Booking & Reservasi" },
+      "basePrice": { "IDR": 6000000, "USD": 700 },
+      "includedPages": 4,
+      "includedFeatures": ["whatsapp_button", "booking_calendar", "email_notifications"],
+      "timelineWeeks": [3, 4],
+      "typicalRange": { "IDR": [6000000, 14000000], "USD": [700, 1600] }
+    },
+    "web_app": {
+      "name": { "en": "Custom Web App", "id": "Aplikasi Web Custom" },
+      "basePrice": { "IDR": 25000000, "USD": 3000 },
+      "includedPages": 6,
+      "includedFeatures": ["user_auth", "admin_dashboard"],
+      "timelineWeeks": [6, 10],
+      "typicalRange": { "IDR": [25000000, 60000000], "USD": [3000, 7000] }
+    },
+    "blog": {
+      "name": { "en": "Blog & Media", "id": "Blog & Media" },
+      "basePrice": { "IDR": 3000000, "USD": 400 },
+      "includedPages": 4,
+      "includedFeatures": ["blog_cms", "search"],
+      "timelineWeeks": [2, 3],
+      "typicalRange": { "IDR": [3000000, 7000000], "USD": [400, 850] }
+    }
+  },
+  "extraPage": {
+    "simple": { "price": { "IDR": 350000, "USD": 40 }, "days": 0.5, "description": "Mostly text/static content, e.g. Privacy, simple About" },
+    "standard": { "price": { "IDR": 600000, "USD": 70 }, "days": 1, "description": "Designed page with several sections, e.g. Services, Team" },
+    "complex": { "price": { "IDR": 1200000, "USD": 150 }, "days": 2, "description": "Interactive or data-driven page, e.g. dashboard view, configurator" }
+  },
+  "features": {
+    "whatsapp_button": { "name": { "en": "WhatsApp chat button", "id": "Tombol chat WhatsApp" }, "price": { "IDR": 100000, "USD": 10 }, "days": 0.1, "category": "basic" },
+    "contact_form": { "name": { "en": "Contact form (sent to email)", "id": "Form kontak (masuk ke email)" }, "price": { "IDR": 300000, "USD": 35 }, "days": 0.5, "category": "basic" },
+    "google_maps": { "name": { "en": "Google Maps location", "id": "Lokasi Google Maps" }, "price": { "IDR": 150000, "USD": 15 }, "days": 0.2, "category": "basic" },
+    "faq_section": { "name": { "en": "FAQ section", "id": "Bagian FAQ" }, "price": { "IDR": 200000, "USD": 25 }, "days": 0.3, "category": "basic" },
+    "testimonials": { "name": { "en": "Testimonials section", "id": "Bagian testimoni" }, "price": { "IDR": 300000, "USD": 35 }, "days": 0.3, "category": "basic" },
+    "gallery": { "name": { "en": "Photo gallery / portfolio grid", "id": "Galeri foto / grid portofolio" }, "price": { "IDR": 500000, "USD": 60 }, "days": 0.5, "category": "content" },
+    "pricing_table": { "name": { "en": "Pricing / package table", "id": "Tabel harga / paket" }, "price": { "IDR": 300000, "USD": 35 }, "days": 0.3, "category": "content" },
+    "social_feed": { "name": { "en": "Instagram / social feed embed", "id": "Embed feed Instagram / sosmed" }, "price": { "IDR": 400000, "USD": 50 }, "days": 0.5, "category": "content" },
+    "live_chat": { "name": { "en": "Live chat widget (Tawk.to / Crisp)", "id": "Widget live chat (Tawk.to / Crisp)" }, "price": { "IDR": 300000, "USD": 35 }, "days": 0.3, "category": "basic" },
+    "newsletter": { "name": { "en": "Newsletter signup (Mailchimp / Brevo)", "id": "Daftar newsletter (Mailchimp / Brevo)" }, "price": { "IDR": 500000, "USD": 60 }, "days": 0.5, "category": "marketing" },
+    "analytics_setup": { "name": { "en": "Google Analytics & Search Console setup", "id": "Setup Google Analytics & Search Console" }, "price": { "IDR": 250000, "USD": 30 }, "days": 0.3, "category": "marketing" },
+    "advanced_seo": { "name": { "en": "Advanced SEO (keyword research, schema, on-page for every page)", "id": "SEO lanjutan (riset keyword, schema, on-page tiap halaman)" }, "price": { "IDR": 1500000, "USD": 200 }, "days": 2, "category": "marketing" },
+    "multilingual": { "name": { "en": "Extra language version (per language)", "id": "Versi bahasa tambahan (per bahasa)" }, "price": { "IDR": 1500000, "USD": 200 }, "days": 2, "category": "content", "unit": "language" },
+    "cms_editable_content": { "name": { "en": "Editable content via CMS (edit text & images yourself)", "id": "Konten bisa diedit sendiri via CMS" }, "price": { "IDR": 1500000, "USD": 180 }, "days": 2, "category": "content" },
+    "blog_cms": { "name": { "en": "Blog / news with CMS", "id": "Blog / berita dengan CMS" }, "price": { "IDR": 1500000, "USD": 180 }, "days": 2, "category": "content" },
+    "search": { "name": { "en": "Site search", "id": "Pencarian di website" }, "price": { "IDR": 750000, "USD": 90 }, "days": 1, "category": "content" },
+    "copywriting": { "name": { "en": "Copywriting by us (per page)", "id": "Penulisan konten oleh kami (per halaman)" }, "price": { "IDR": 250000, "USD": 30 }, "days": 0.3, "category": "content", "unit": "page" },
+    "logo_design": { "name": { "en": "Simple logo design", "id": "Desain logo sederhana" }, "price": { "IDR": 1000000, "USD": 120 }, "days": 1.5, "category": "content" },
+    "product_catalog": { "name": { "en": "Product catalog with categories & filters", "id": "Katalog produk dengan kategori & filter" }, "price": { "IDR": 2000000, "USD": 250 }, "days": 3, "category": "commerce" },
+    "cart_checkout": { "name": { "en": "Shopping cart & checkout", "id": "Keranjang belanja & checkout" }, "price": { "IDR": 2500000, "USD": 300 }, "days": 3, "category": "commerce" },
+    "payment_gateway": { "name": { "en": "Online payment gateway (Midtrans / Xendit / Stripe)", "id": "Payment gateway (Midtrans / Xendit / Stripe)" }, "price": { "IDR": 2000000, "USD": 250 }, "days": 2.5, "category": "commerce" },
+    "shipping_calculator": { "name": { "en": "Shipping cost calculator (RajaOngkir / couriers)", "id": "Kalkulator ongkir (RajaOngkir / kurir)" }, "price": { "IDR": 1500000, "USD": 180 }, "days": 2, "category": "commerce" },
+    "order_management": { "name": { "en": "Order management admin", "id": "Admin manajemen pesanan" }, "price": { "IDR": 2000000, "USD": 250 }, "days": 3, "category": "commerce" },
+    "discount_codes": { "name": { "en": "Discount / voucher codes", "id": "Kode diskon / voucher" }, "price": { "IDR": 750000, "USD": 90 }, "days": 1, "category": "commerce" },
+    "online_ordering": { "name": { "en": "Simple online ordering (pickup / delivery, no full store)", "id": "Pemesanan online sederhana (pickup / delivery, tanpa toko penuh)" }, "price": { "IDR": 2500000, "USD": 300 }, "days": 3, "category": "commerce" },
+    "reviews_ratings": { "name": { "en": "Customer reviews & ratings", "id": "Ulasan & rating pelanggan" }, "price": { "IDR": 750000, "USD": 90 }, "days": 1, "category": "commerce" },
+    "booking_calendar": { "name": { "en": "Booking calendar with time slots", "id": "Kalender booking dengan slot waktu" }, "price": { "IDR": 3000000, "USD": 350 }, "days": 4, "category": "booking" },
+    "booking_reminders": { "name": { "en": "Automatic booking reminders (email / WhatsApp link)", "id": "Pengingat booking otomatis (email / link WhatsApp)" }, "price": { "IDR": 750000, "USD": 90 }, "days": 1, "category": "booking" },
+    "email_notifications": { "name": { "en": "Automatic email notifications", "id": "Notifikasi email otomatis" }, "price": { "IDR": 750000, "USD": 90 }, "days": 1, "category": "platform" },
+    "user_auth": { "name": { "en": "User accounts (register, login, reset password)", "id": "Akun pengguna (daftar, login, reset password)" }, "price": { "IDR": 1500000, "USD": 200 }, "days": 2, "category": "platform" },
+    "member_area": { "name": { "en": "Member area / gated content", "id": "Area member / konten khusus member" }, "price": { "IDR": 2500000, "USD": 300 }, "days": 3, "category": "platform" },
+    "roles_permissions": { "name": { "en": "User roles & permissions", "id": "Role & hak akses pengguna" }, "price": { "IDR": 2000000, "USD": 250 }, "days": 2.5, "category": "platform" },
+    "admin_dashboard": { "name": { "en": "Admin dashboard (manage data)", "id": "Dashboard admin (kelola data)" }, "price": { "IDR": 4000000, "USD": 500 }, "days": 5, "category": "platform" },
+    "reports_charts": { "name": { "en": "Reports & charts", "id": "Laporan & grafik" }, "price": { "IDR": 2500000, "USD": 300 }, "days": 3, "category": "platform" },
+    "file_upload": { "name": { "en": "File / document upload", "id": "Upload file / dokumen" }, "price": { "IDR": 750000, "USD": 90 }, "days": 1, "category": "platform" },
+    "api_integration": { "name": { "en": "Third-party API integration (per service)", "id": "Integrasi API pihak ketiga (per layanan)" }, "price": { "IDR": 2500000, "USD": 300 }, "days": 3, "category": "platform", "unit": "integration" },
+    "course_player": { "name": { "en": "Course & lesson player (video / text)", "id": "Pemutar kursus & materi (video / teks)" }, "price": { "IDR": 3000000, "USD": 350 }, "days": 4, "category": "learning" },
+    "quiz": { "name": { "en": "Quizzes & auto grading", "id": "Kuis & penilaian otomatis" }, "price": { "IDR": 2000000, "USD": 250 }, "days": 3, "category": "learning" },
+    "certificates": { "name": { "en": "Auto-generated certificates", "id": "Sertifikat otomatis" }, "price": { "IDR": 1500000, "USD": 180 }, "days": 2, "category": "learning" },
+    "progress_tracking": { "name": { "en": "Student progress tracking", "id": "Pelacakan progres siswa" }, "price": { "IDR": 1500000, "USD": 180 }, "days": 2, "category": "learning" },
+    "ai_feature": { "name": { "en": "AI feature (chatbot / generator using an LLM API)", "id": "Fitur AI (chatbot / generator dengan API LLM)" }, "price": { "IDR": 4000000, "USD": 500 }, "days": 5, "category": "platform" }
+  },
+  "customTiers": {
+    "S": { "price": { "IDR": 750000, "USD": 90 }, "days": 1, "description": "Small: about 1 day of work, a simple widget or tweak" },
+    "M": { "price": { "IDR": 2000000, "USD": 250 }, "days": 3, "description": "Medium: 2-4 days, a self-contained feature with a little logic" },
+    "L": { "price": { "IDR": 5000000, "USD": 600 }, "days": 7, "description": "Large: about 1-2 weeks, complex logic or integrations; flagged for a quick call" }
+  },
+  "modifiers": {
+    "rush": { "percent": 25, "timelineFactor": 0.6, "description": "Delivery in about 60% of normal time" }
+  },
+  "recurringNotIncluded": [
+    { "id": "domain", "name": { "en": "Domain name (.com / .id)", "id": "Nama domain (.com / .id)" }, "estimate": { "IDR": "Rp 150rb – 300rb / tahun", "USD": "$12 – 20 / year" } },
+    { "id": "hosting", "name": { "en": "Hosting (free tier possible for most sites)", "id": "Hosting (bisa gratis untuk kebanyakan website)" }, "estimate": { "IDR": "Rp 0 – 300rb / bulan", "USD": "$0 – 20 / month" } },
+    { "id": "maintenance", "name": { "en": "Optional monthly maintenance after 30 days", "id": "Maintenance bulanan opsional setelah 30 hari" }, "estimate": { "IDR": "mulai Rp 300rb / bulan", "USD": "from $40 / month" } }
+  ],
+  "guardrails": {
+    "maxPages": 20,
+    "maxCustomFeatures": 3,
+    "maxAutoQuote": { "IDR": 60000000, "USD": 7000 },
+    "reviewRangeFactor": 1.3
+  }
+}

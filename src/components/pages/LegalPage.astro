@@ -1,0 +1,89 @@
+---
+import Base from '../../layouts/Base.astro';
+import Header from '../landing/Header.astro';
+import Footer from '../landing/Footer.astro';
+import pricing from '../../../data/pricing.json';
+import { SITE } from '../../config/site';
+import type { Locale } from '../../lib/schemas';
+
+interface Props { locale: Locale; kind: 'privacy' | 'terms' }
+const { locale, kind } = Astro.props;
+const contact = SITE.email || (locale === 'id' ? 'email yang tercantum di website ini' : 'the email listed on this website');
+const p = pricing.meta.paymentTerms;
+const updated = locale === 'id' ? '27 September 2026' : 'September 27, 2026';
+
+const docs = {
+  privacy: {
+    en: {
+      title: 'Privacy Policy',
+      desc: 'How Skyland Project Studio handles your data in the AI consultation and when you order a website.',
+      sections: [
+        ['What we collect', `When you use the AI consultation we process the project description you type, your plan edits and your chosen theme. When you order, we also collect your name, email, WhatsApp number and optional company name and notes.`],
+        ['How it is processed', `Your project description is sent to OpenAI to generate the plan and mockup text. We do not send your contact details to the AI. When you order, the consultation and your contact details are emailed to us (via Gmail) and a copy is emailed to you.`],
+        ['What we store', `This website has no database. Your in-progress consultation is saved only in your own browser (local storage) so you don’t lose it on refresh; clear it any time with “Start over”. Orders exist only in our email inbox.`],
+        ['How we use it', `Only to prepare your quote, contact you about your project and deliver the work. We never sell your data or use it for unrelated marketing.`],
+        ['Your rights', `You can ask us to see, correct or delete your data at any time by contacting ${contact}.`],
+        ['Contact', `${SITE.name}, ${SITE.city}, Indonesia · ${contact}`],
+      ],
+    },
+    id: {
+      title: 'Kebijakan Privasi',
+      desc: 'Cara Skyland Project Studio mengelola data Anda di konsultasi AI dan saat Anda memesan website.',
+      sections: [
+        ['Data yang kami kumpulkan', 'Saat Anda memakai konsultasi AI, kami memproses deskripsi proyek yang Anda tulis, perubahan rencana, dan tema yang dipilih. Saat memesan, kami juga mengumpulkan nama, email, nomor WhatsApp, serta nama perusahaan dan catatan (opsional).'],
+        ['Cara data diproses', 'Deskripsi proyek Anda dikirim ke OpenAI untuk membuat rencana dan teks mockup. Data kontak Anda tidak dikirim ke AI. Saat memesan, hasil konsultasi dan data kontak dikirim ke email kami (lewat Gmail) dan salinannya dikirim ke email Anda.'],
+        ['Data yang kami simpan', 'Website ini tidak memakai database. Konsultasi yang sedang berjalan hanya disimpan di browser Anda sendiri (local storage) agar tidak hilang saat halaman dimuat ulang; hapus kapan saja dengan “Mulai ulang”. Pesanan hanya tersimpan di kotak masuk email kami.'],
+        ['Penggunaan data', 'Hanya untuk menyiapkan penawaran, menghubungi Anda terkait proyek, dan mengerjakan website Anda. Kami tidak pernah menjual data Anda atau memakainya untuk pemasaran yang tidak berkaitan.'],
+        ['Hak Anda', `Anda bisa meminta untuk melihat, memperbaiki, atau menghapus data Anda kapan saja dengan menghubungi ${contact}.`],
+        ['Kontak', `${SITE.name}, ${SITE.city}, Indonesia · ${contact}`],
+      ],
+    },
+  },
+  terms: {
+    en: {
+      title: 'Terms of Service',
+      desc: 'Terms for quotes, payment and delivery of website projects by Skyland Project Studio.',
+      sections: [
+        ['AI consultation', 'The consultation is free and non-binding. The plan and homepage mockup are concepts generated from your description; the final design is refined together with you.'],
+        ['Fixed price', `The price shown is calculated from our published price list for the exact scope in your plan and is valid for ${pricing.meta.quoteValidDays} days. It does not change unless you change the scope. Projects flagged as needing review show an estimate that we confirm in writing before any payment.`],
+        ['Payment', `${p.downPaymentPercent}% down payment to start and ${p.finalPaymentPercent}% after you approve the finished website, before launch.`],
+        ['Not included', 'Domain names, paid hosting, third-party subscriptions (e.g. payment gateway fees, paid APIs) and work outside the agreed scope are not included unless listed in your quote.'],
+        ['Revisions & support', 'Each project includes two design revision rounds and 30 days of free support after launch for bug fixes and small changes.'],
+        ['Ownership', 'After full payment, you own the website code, content, domain and accounts created for your project.'],
+        ['Changes to scope', 'New features requested after approval are quoted separately using the same price list.'],
+      ],
+    },
+    id: {
+      title: 'Syarat & Ketentuan',
+      desc: 'Ketentuan penawaran harga, pembayaran, dan pengerjaan proyek website oleh Skyland Project Studio.',
+      sections: [
+        ['Konsultasi AI', 'Konsultasi gratis dan tidak mengikat. Rencana dan mockup homepage adalah konsep yang dibuat dari deskripsi Anda; desain final disempurnakan bersama Anda.'],
+        ['Harga pasti', `Harga dihitung dari daftar harga kami untuk scope yang persis sama dengan rencana Anda dan berlaku ${pricing.meta.quoteValidDays} hari. Harga tidak berubah kecuali scope berubah. Proyek yang ditandai perlu ditinjau menampilkan estimasi yang kami konfirmasi secara tertulis sebelum pembayaran.`],
+        ['Pembayaran', `DP ${p.downPaymentPercent}% untuk memulai dan ${p.finalPaymentPercent}% setelah Anda menyetujui website yang sudah jadi, sebelum online.`],
+        ['Tidak termasuk', 'Nama domain, hosting berbayar, langganan pihak ketiga (misalnya biaya payment gateway, API berbayar), dan pekerjaan di luar scope yang disepakati tidak termasuk kecuali tercantum di penawaran.'],
+        ['Revisi & support', 'Setiap proyek mendapat dua putaran revisi desain dan support gratis 30 hari setelah online untuk perbaikan bug dan perubahan kecil.'],
+        ['Kepemilikan', 'Setelah pelunasan, kode website, konten, domain, dan akun yang dibuat untuk proyek Anda sepenuhnya milik Anda.'],
+        ['Perubahan scope', 'Fitur baru yang diminta setelah persetujuan dihitung terpisah memakai daftar harga yang sama.'],
+      ],
+    },
+  },
+};
+const d = docs[kind][locale];
+---
+<Base locale={locale} title={`${d.title} | ${SITE.name}`} description={d.desc} ogAlt={d.title}>
+  <Header locale={locale} />
+  <main class="container legal">
+    <h1>{d.title}</h1>
+    <p class="upd">{locale === 'id' ? 'Terakhir diperbarui' : 'Last updated'}: {updated}</p>
+    {d.sections.map(([h, body]) => <section><h2>{h}</h2><p>{body}</p></section>)}
+  </main>
+  <Footer locale={locale} />
+</Base>
+
+<style>
+  .legal { max-width: 760px; padding-top: 48px; padding-bottom: 80px; display: flex; flex-direction: column; gap: 22px; }
+  h1 { font-size: clamp(30px, 4vw, 44px); letter-spacing: -0.03em; }
+  .upd { color: var(--muted-2); font-size: 14px; }
+  h2 { font-size: 18px; margin-bottom: 6px; }
+  section p { color: var(--ink-2); line-height: 1.7; font-size: 15.5px; }
+</style>

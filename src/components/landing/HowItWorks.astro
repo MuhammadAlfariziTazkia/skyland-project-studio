@@ -1,0 +1,168 @@
+---
+import ScaledFrame from '../ScaledFrame.astro';
+import { getDict } from '../../i18n';
+import { ROUTES } from '../../i18n/routes';
+import { formatPrice } from '../../lib/pricing';
+import { renderMockup } from '../../lib/mockup/render';
+import { SAMPLE_MOCKUP } from '../../lib/mockup/samples';
+import { THEMES, themeSwatchHtml } from '../../lib/mockup/themes';
+import { THEME_IDS, type Locale } from '../../lib/schemas';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = getDict(locale);
+const d = t.how.demo;
+const mockHtml = renderMockup(SAMPLE_MOCKUP[locale], 'elegant', { locale });
+const price = formatPrice(locale === 'id' ? 5_200_000 : 620, t.currency);
+---
+<section id="how" class="section how" data-how>
+  <div class="container grid">
+    <div class="left" data-reveal>
+      <div class="stack head">
+        <span class="eyebrow">{t.how.eyebrow}</span>
+        <h2 class="h2">{t.how.title}</h2>
+        <p class="lead">{t.how.lead}</p>
+      </div>
+      <ol class="steps">
+        {t.how.steps.map(([title, desc], i) => (
+          <li>
+            <button type="button" class="step" aria-pressed={i === 0 ? 'true' : 'false'} data-how-step={i}>
+              <span class="n">{i + 1}</span>
+              <span class="stack txt"><b>{title}</b><span>{desc}</span></span>
+            </button>
+          </li>
+        ))}
+      </ol>
+      <div class="cta-row">
+        <a class="btn btn-primary" href={ROUTES.consult[locale]}>{t.how.cta} →</a>
+        <div class="stack mini">{t.how.checks.map((c) => <span>✓ {c}</span>)}</div>
+      </div>
+    </div>
+
+    <div class="panel-wrap" data-reveal aria-hidden="true">
+      <div class="panel-head">
+        <span class="av">✦</span><b>{t.how.consultant}</b>
+        <span class="count" data-how-count data-tpl={t.how.stepOf(0).replace('0', '#')}>{t.how.stepOf(1)}</span>
+      </div>
+      <div class="panel">
+        <div class="view" data-how-view="0">
+          <div class="stack"><b class="vt">{d.describeTitle}</b><span class="vs">{d.describeHint}</span></div>
+          <div class="textarea">
+            <p>{d.sample}<span class="caret"></span></p>
+            <div class="ta-foot"><span>{d.tip}</span><span>{d.sample.length}/1500</span></div>
+          </div>
+          <div class="chips">{d.chips.map((c) => <span>{c}</span>)}</div>
+          <span class="fake-btn right">{d.generate} →</span>
+        </div>
+        <div class="view" data-how-view="1" hidden>
+          <span class="vs">{d.structure}</span>
+          <div class="table">{d.pages.map(([n, desc]) => <div><b>{n}</b><span>{desc}</span></div>)}</div>
+          <div class="bubble">{d.ask}</div>
+          <div class="added">{d.added}</div>
+        </div>
+        <div class="view" data-how-view="2" hidden>
+          <span class="vs">{d.pickStyle}</span>
+          <div class="themes">
+            {THEME_IDS.map((id) => (
+              <div class:list={['theme', { sel: id === 'elegant' }]}>
+                <div class="sw" set:html={themeSwatchHtml(id)} />
+                <div class="tn"><b>{THEMES[id].name[locale]}</b><span>{THEMES[id].sub[locale]}</span></div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div class="view" data-how-view="3" hidden>
+          <div class="mock"><ScaledFrame html={mockHtml} title="Mockup" width={1200} height={1000} /></div>
+          <div class="price">
+            <div class="stack"><span class="vs">{d.priceLabel}</span><b>{price}</b><span class="final">{d.final}</span></div>
+            <span class="fake-btn">{d.order}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-how]').forEach((root) => {
+    const steps = [...root.querySelectorAll<HTMLButtonElement>('[data-how-step]')];
+    const views = [...root.querySelectorAll<HTMLElement>('[data-how-view]')];
+    const count = root.querySelector<HTMLElement>('[data-how-count]')!;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let cur = 0;
+    let timer = 0;
+    let touched = false;
+    const show = (i: number) => {
+      cur = i % steps.length;
+      steps.forEach((s, j) => s.setAttribute('aria-pressed', String(j === cur)));
+      views.forEach((v, j) => {
+        v.hidden = j !== cur;
+        if (j === cur && !reduce) v.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 500, easing: 'cubic-bezier(.2,.7,.2,1)' });
+      });
+      count.textContent = (count.dataset.tpl ?? '').replace('#', String(cur + 1));
+    };
+    steps.forEach((s, i) => s.addEventListener('click', () => { touched = true; clearInterval(timer); show(i); }));
+    if (!reduce) {
+      new IntersectionObserver(([e]) => {
+        clearInterval(timer);
+        if (e.isIntersecting && !touched) timer = window.setInterval(() => show(cur + 1), 4000);
+      }, { threshold: 0.3 }).observe(root);
+    }
+  });
+</script>
+
+<style>
+  .how { background: linear-gradient(180deg, #f3f7ff, #eaf1ff); }
+  .grid { display: grid; gap: 40px; align-items: center; }
+  @media (min-width: 1024px) { .grid { grid-template-columns: 1fr 1fr; gap: 56px; } }
+  .left { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+  .head { gap: 12px; }
+  .steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .step { width: 100%; display: flex; gap: 16px; padding: 16px 18px; border-radius: 16px; background: transparent; border: 1px solid transparent; text-align: left; cursor: pointer; transition: all .25s; }
+  .step[aria-pressed='true'] { background: #fff; border-color: #dbe5fb; box-shadow: 0 10px 24px rgba(36, 89, 224, .1); }
+  .n { flex: none; width: 32px; height: 32px; border-radius: 50%; background: #dfe8fa; color: var(--blue); font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all .25s; }
+  .step[aria-pressed='true'] .n { background: var(--blue); color: #fff; }
+  .txt { gap: 4px; }
+  .txt b { font-size: 16px; }
+  .txt span { font-size: 14px; color: var(--muted-2); line-height: 1.5; }
+  .cta-row { display: flex; align-items: center; gap: 14px 22px; flex-wrap: wrap; }
+  .mini { gap: 4px; font-size: 13px; color: var(--muted); }
+
+  .panel-wrap { background: #fff; border-radius: 24px; border: 1px solid #dfe8fa; box-shadow: 0 30px 60px rgba(36, 89, 224, .12); overflow: hidden; min-width: 0; }
+  .panel-head { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line-2); font-size: 14px; }
+  .av { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #3b7bff, #1d4ed8); color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+  .count { margin-left: auto; font-size: 12px; color: var(--muted-2); }
+  .panel { padding: 18px; min-height: 400px; background: #fbfcff; }
+  @media (min-width: 640px) { .panel { padding: 22px; } }
+  .view { display: flex; flex-direction: column; gap: 14px; }
+  .view[hidden] { display: none; }
+  .vt { font-size: 15px; }
+  .vs { font-size: 13px; color: var(--muted-2); }
+  .textarea { background: #fff; border: 1.5px solid var(--blue); box-shadow: 0 0 0 4px #e3ebff; border-radius: 14px; padding: 16px; min-height: 170px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; }
+  .textarea p { font-size: 14px; line-height: 1.7; color: var(--ink-2); }
+  .caret { display: inline-block; width: 2px; height: 16px; background: var(--blue); vertical-align: -3px; margin-left: 2px; animation: blink 1.1s steps(2, jump-none) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .ta-foot { display: flex; justify-content: space-between; gap: 12px; font-size: 11.5px; color: var(--faint); }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chips span { font-size: 12px; color: var(--muted); background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; }
+  .fake-btn { align-self: flex-start; background: var(--blue); color: #fff; padding: 10px 18px; border-radius: 999px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .fake-btn.right { align-self: flex-end; }
+  .table { display: flex; flex-direction: column; border: 1px solid var(--line-2); border-radius: 14px; overflow: hidden; background: #fff; }
+  .table div { display: flex; justify-content: space-between; gap: 12px; padding: 11px 14px; border-bottom: 1px solid var(--line-2); font-size: 13.5px; }
+  .table div:last-child { border-bottom: 0; }
+  .table b { font-weight: 600; }
+  .table span { color: var(--muted-2); text-align: right; }
+  .bubble { align-self: flex-end; max-width: 85%; background: var(--blue); color: #fff; border-radius: 16px 4px 16px 16px; padding: 12px 14px; font-size: 14px; line-height: 1.5; }
+  .added { align-self: flex-start; background: var(--green-soft); color: #12804f; border-radius: 999px; padding: 7px 12px; font-size: 12.5px; font-weight: 600; }
+  .themes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .theme { border: 2px solid var(--line); border-radius: 14px; padding: 6px; background: #fff; display: flex; flex-direction: column; gap: 8px; }
+  .theme.sel { border-color: var(--blue); }
+  .sw { aspect-ratio: 16 / 10; border-radius: 9px; overflow: hidden; border: 1px solid var(--line-2); }
+  .tn { display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 0 6px 4px; font-size: 13px; }
+  .tn span { font-size: 12px; color: var(--muted-2); }
+  .mock { border-radius: 14px; overflow: hidden; border: 1px solid #ece4d8; }
+  .price { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; background: #fff; border: 1px solid var(--line-2); border-radius: 14px; padding: 14px 16px; }
+  .price .stack { gap: 4px; }
+  .price b { font-size: 26px; letter-spacing: -0.03em; }
+  .final { align-self: flex-start; background: var(--green-soft); color: #12804f; font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
+</style>

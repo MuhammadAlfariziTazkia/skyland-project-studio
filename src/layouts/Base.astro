@@ -1,0 +1,34 @@
+---
+import '../styles/global.css';
+import Seo from '../components/Seo.astro';
+import type { Locale } from '../lib/schemas';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  ogAlt: string;
+  jsonLd?: object[];
+  noindex?: boolean;
+}
+const props = Astro.props;
+---
+<!doctype html>
+<html lang={props.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#2459e0" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <Seo {...props} />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+    <script>import '../scripts/reveal.ts';</script>
+  </body>
+</html>

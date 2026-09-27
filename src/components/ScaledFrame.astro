@@ -1,0 +1,22 @@
+---
+// Renders a full-width page (e.g. a generated mockup) in an iframe scaled down to fit its container.
+interface Props { html: string; title: string; width?: number; height?: number }
+const { html, title, width = 1200, height = 1500 } = Astro.props;
+---
+<div class="sf" data-scale-frame data-w={width} data-h={height} style={`aspect-ratio:${width}/${Math.round(height * 0.5)}`}>
+  <iframe srcdoc={html} title={title} loading="lazy" sandbox="" tabindex="-1" width={width} height={height} style={`width:${width}px;height:${height}px`}></iframe>
+</div>
+<script>
+  const ro = new ResizeObserver((entries) =>
+    entries.forEach(({ target }) => {
+      const el = target as HTMLElement;
+      const f = el.querySelector('iframe');
+      if (f && el.clientWidth) f.style.transform = `scale(${el.clientWidth / Number(el.dataset.w)})`;
+    }),
+  );
+  document.querySelectorAll('[data-scale-frame]').forEach((el) => ro.observe(el));
+</script>
+<style>
+  .sf { position: relative; overflow: hidden; width: 100%; }
+  iframe { position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; pointer-events: none; }
+</style>

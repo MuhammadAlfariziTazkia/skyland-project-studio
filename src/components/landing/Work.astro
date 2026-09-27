@@ -1,0 +1,75 @@
+---
+import { Image } from 'astro:assets';
+import fikrmate from '../../assets/work/fikrmate.png';
+import pricing from '../../../data/pricing.json';
+import { getDict } from '../../i18n';
+import { foundingSpotsLeft } from '../../lib/pricing';
+import type { Locale } from '../../lib/schemas';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = getDict(locale);
+const w = t.work;
+---
+<section id="work" class="section">
+  <div class="container stack wrap">
+    <div class="stack head" data-reveal>
+      <span class="eyebrow">{w.eyebrow}</span>
+      <h2 class="h2">{w.title}</h2>
+      <p class="lead">{w.lead}</p>
+    </div>
+
+    <article class="case" data-reveal>
+      <a class="shot" href="https://fikrmate.com" target="_blank" rel="noopener">
+        <div class="browser">
+          <div class="browser-bar"><i></i><i></i><i></i><span>fikrmate.com</span></div>
+          <Image src={fikrmate} alt={w.alt} widths={[480, 800, 1200]} sizes="(min-width: 1024px) 700px, 92vw" loading="lazy" />
+        </div>
+        <span class="tag">{w.tag}</span>
+      </a>
+      <div class="stack body">
+        <div class="stack">
+          <h3>{w.name}</h3>
+          <span class="type">{w.type}</span>
+        </div>
+        <p class="quote">“{w.tagline}”</p>
+        <div class="stack block"><span class="label">{w.challengeLabel}</span><p>{w.challenge}</p></div>
+        <div class="stack block"><span class="label">{w.builtLabel}</span><p>{w.built}</p></div>
+        <ul class="tags">{w.stack.map((s) => <li>{s}</li>)}</ul>
+        <a class="visit" href="https://fikrmate.com" target="_blank" rel="noopener">{w.visit} ↗</a>
+      </div>
+    </article>
+
+    {foundingSpotsLeft() > 0 && (
+      <div class="next" data-reveal>
+        <div class="stack"><b>{w.nextTitle}</b><span>{w.nextText(pricing.foundingOffer.percent)}</span></div>
+        <a class="btn btn-primary btn-sm" href="#offer">{w.nextCta} →</a>
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .wrap { gap: 40px; }
+  .head { gap: 12px; max-width: 620px; }
+  .case { display: grid; gap: 28px; align-items: center; }
+  @media (min-width: 1024px) { .case { grid-template-columns: 1.35fr 1fr; gap: 48px; } }
+  .shot { position: relative; display: block; padding: clamp(14px, 3vw, 28px); border-radius: 24px; background: linear-gradient(135deg, #1b1446, #3b2a8f 55%, #2459e0); transition: transform .3s var(--ease); min-width: 0; }
+  .shot:hover { transform: translateY(-4px); }
+  .shot img { width: 100%; height: auto; }
+  .tag { position: absolute; top: clamp(24px, 4vw, 42px); right: clamp(24px, 4vw, 42px); background: #fff; color: var(--ink); font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 999px; box-shadow: 0 6px 16px rgba(0, 0, 0, .2); }
+  .body { gap: 18px; min-width: 0; }
+  h3 { font-size: 26px; letter-spacing: -0.02em; }
+  .type { font-size: 14px; color: var(--muted-2); }
+  .quote { font-family: var(--hand); font-size: 26px; line-height: 1.1; color: var(--blue); }
+  .block { gap: 4px; }
+  .label { font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--faint); }
+  .block p { font-size: 14.5px; line-height: 1.6; color: var(--ink-2); }
+  .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tags li { font-size: 12.5px; font-weight: 600; color: var(--ink-2); background: var(--bg-soft); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; }
+  .visit { font-weight: 600; font-size: 14.5px; align-self: flex-start; padding: 6px 0; }
+  .next { display: flex; justify-content: space-between; align-items: center; gap: 16px 24px; flex-wrap: wrap; border: 1.5px dashed #c9d8fb; border-radius: 20px; padding: 22px 24px; background: #f7faff; }
+  .next .stack { gap: 4px; }
+  .next b { font-size: 17px; }
+  .next span { font-size: 14px; color: var(--muted); }
+</style>

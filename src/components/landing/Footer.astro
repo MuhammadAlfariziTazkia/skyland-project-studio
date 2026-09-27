@@ -1,0 +1,63 @@
+---
+import Logo from '../Logo.astro';
+import { SITE, socialLinks, whatsappLink } from '../../config/site';
+import { getDict } from '../../i18n';
+import { ROUTES, SERVICE_KEYS, servicePath } from '../../i18n/routes';
+import type { Locale } from '../../lib/schemas';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = getDict(locale);
+const home = ROUTES.home[locale];
+const wa = whatsappLink();
+const socials = socialLinks();
+---
+<footer class="footer">
+  <div class="container inner">
+    <div class="cols">
+      <div class="stack brand">
+        <Logo href={home} dark />
+        <span>{t.footer.tagline}</span>
+        <span>{t.footer.location}</span>
+      </div>
+      <nav class="stack col" aria-label={t.footer.services}>
+        <b>{t.footer.services}</b>
+        {SERVICE_KEYS.map((k) => <a href={servicePath(k, locale)}>{t.services_list[k].name}</a>)}
+      </nav>
+      <nav class="stack col" aria-label={t.footer.explore}>
+        <b>{t.footer.explore}</b>
+        <a href={ROUTES.consult[locale]}>{t.nav.cta}</a>
+        <a href={`${home}#how`}>{t.nav.how}</a>
+        <a href={`${home}#work`}>{t.nav.work}</a>
+        <a href={`${home}#faq`}>{t.nav.faq}</a>
+        <a href={ROUTES.home[locale === 'en' ? 'id' : 'en']} hreflang={locale === 'en' ? 'id' : 'en'}>{t.nav.switchLang}</a>
+      </nav>
+      <div class="stack col">
+        <b>{t.footer.contact}</b>
+        {SITE.email && <a href={`mailto:${SITE.email}`}>{SITE.email}</a>}
+        {wa && <a href={wa} target="_blank" rel="noopener">WhatsApp</a>}
+        {socials.map((s) => <a href={s.href} target="_blank" rel="noopener me">{s.label}</a>)}
+      </div>
+    </div>
+    <div class="bottom">
+      <span>© {new Date().getFullYear()} {SITE.name}. {t.footer.rights}</span>
+      <div class="legal"><a href={ROUTES.privacy[locale]}>{t.footer.privacy}</a><a href={ROUTES.terms[locale]}>{t.footer.terms}</a></div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer { background: #0b1a3a; color: #c3cde0; }
+  .inner { padding-top: 56px; padding-bottom: 28px; display: flex; flex-direction: column; gap: 40px; }
+  .cols { display: grid; gap: 32px; grid-template-columns: 1fr 1fr; }
+  @media (min-width: 900px) { .cols { grid-template-columns: 1.4fr 1fr 1fr 1fr; } }
+  .brand { gap: 14px; font-size: 13.5px; line-height: 1.6; grid-column: 1 / -1; }
+  @media (min-width: 900px) { .brand { grid-column: auto; } }
+  .col { gap: 10px; font-size: 14px; min-width: 0; }
+  .col b { color: #fff; }
+  .col a { color: #c3cde0; padding: 2px 0; overflow-wrap: anywhere; }
+  .col a:hover { color: #fff; }
+  .bottom { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-top: 1px solid rgba(255, 255, 255, .1); padding-top: 20px; font-size: 13px; color: #8e9bb7; }
+  .legal { display: flex; gap: 24px; }
+  .legal a { color: #8e9bb7; }
+</style>

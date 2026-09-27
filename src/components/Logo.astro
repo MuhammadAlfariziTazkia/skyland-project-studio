@@ -1,0 +1,15 @@
+---
+interface Props { dark?: boolean; href: string }
+const { dark = false, href } = Astro.props;
+---
+<a href={href} class:list={['logo', { dark }]} aria-label="Skyland Project Studio">
+  <span class="mark" aria-hidden="true"></span>Skyland <span class="rest">Project Studio</span>
+</a>
+<style>
+  .logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; letter-spacing: -0.02em; color: var(--ink); white-space: nowrap; }
+  .logo:hover { color: var(--ink); }
+  .logo.dark, .logo.dark:hover { color: #fff; }
+  .mark { width: 28px; height: 20px; border-radius: 11px 11px 4px 4px; background: linear-gradient(135deg, #3b7bff, #1d4ed8); flex: none; }
+  .dark .mark { background: linear-gradient(135deg, #5b8fff, #2459e0); }
+  @media (max-width: 380px) { .rest { display: none; } }
+</style>
