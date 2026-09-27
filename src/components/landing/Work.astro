@@ -1,8 +1,14 @@
 ---
 import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import fikrmate from '../../assets/work/fikrmate.png';
+import fikrmateMobile from '../../assets/work/fikrmate-mobile.png';
+import bunsky from '../../assets/work/bunsky.png';
+import bunskyMobile from '../../assets/work/bunsky-mobile.png';
 import pricing from '../../../data/pricing.json';
 import { getDict } from '../../i18n';
+import type { ProjectCopy } from '../../i18n/en';
+import { servicePath } from '../../i18n/routes';
 import { foundingSpotsLeft } from '../../lib/pricing';
 import type { Locale } from '../../lib/schemas';
 
@@ -10,6 +16,13 @@ interface Props { locale: Locale }
 const { locale } = Astro.props;
 const t = getDict(locale);
 const w = t.work;
+
+// Screenshots come from scripts/capture-portfolio.mjs; the panel echoes each project's own brand colors.
+const visuals: Record<ProjectCopy['key'], { desktop: ImageMetadata; mobile: ImageMetadata; panel: string; light: boolean }> = {
+  fikrmate: { desktop: fikrmate, mobile: fikrmateMobile, panel: 'linear-gradient(135deg, #1b1446 0%, #3b2a8f 55%, #2459e0 100%)', light: false },
+  bunsky: { desktop: bunsky, mobile: bunskyMobile, panel: 'linear-gradient(135deg, #fcf6ec 0%, #f3e3c6 55%, #e6c894 100%)', light: true },
+};
+const total = String(w.projects.length).padStart(2, '0');
 ---
 <section id="work" class="section">
   <div class="container stack wrap">
@@ -19,26 +32,45 @@ const w = t.work;
       <p class="lead">{w.lead}</p>
     </div>
 
-    <article class="case" data-reveal>
-      <a class="shot" href="https://fikrmate.com" target="_blank" rel="noopener">
-        <div class="browser">
-          <div class="browser-bar"><i></i><i></i><i></i><span>fikrmate.com</span></div>
-          <Image src={fikrmate} alt={w.alt} widths={[480, 800, 1200]} sizes="(min-width: 1024px) 700px, 92vw" loading="lazy" />
-        </div>
-        <span class="tag">{w.tag}</span>
-      </a>
-      <div class="stack body">
-        <div class="stack">
-          <h3>{w.name}</h3>
-          <span class="type">{w.type}</span>
-        </div>
-        <p class="quote">“{w.tagline}”</p>
-        <div class="stack block"><span class="label">{w.challengeLabel}</span><p>{w.challenge}</p></div>
-        <div class="stack block"><span class="label">{w.builtLabel}</span><p>{w.built}</p></div>
-        <ul class="tags">{w.stack.map((s) => <li>{s}</li>)}</ul>
-        <a class="visit" href="https://fikrmate.com" target="_blank" rel="noopener">{w.visit} ↗</a>
-      </div>
-    </article>
+    <div class="cases">
+      {w.projects.map((p, i) => {
+        const v = visuals[p.key];
+        return (
+          <article class:list={['case', { flip: i % 2 === 1 }]} data-reveal>
+            <a class:list={['visual', { light: v.light }]} style={`--panel:${v.panel}`} href={p.url} target="_blank" rel="noopener" aria-label={`${w.visit}: ${p.name}`}>
+              <div class="browser desk">
+                <div class="browser-bar"><i></i><i></i><i></i><span>{p.host}</span></div>
+                <Image src={v.desktop} alt={w.desktopAlt(p.name)} widths={[480, 800, 1100]} sizes="(min-width: 1024px) 560px, 80vw" loading="lazy" />
+              </div>
+              <div class="phone">
+                <Image src={v.mobile} alt={w.mobileAlt(p.name)} widths={[160, 240, 360]} sizes="(min-width: 1024px) 150px, 28vw" loading="lazy" />
+              </div>
+            </a>
+
+            <div class="body">
+              <div class="meta">
+                <span class="idx mono">{String(i + 1).padStart(2, '0')} / {total}</span>
+                <span class="cat">{p.category}</span>
+              </div>
+              <div class="title">
+                <h3>{p.name}</h3>
+                <span class="type">{p.type}</span>
+              </div>
+              <p class="quote">“{p.tagline}”</p>
+              <div class="blocks">
+                <div class="block"><span class="label">{w.challengeLabel}</span><p>{p.challenge}</p></div>
+                <div class="block"><span class="label">{w.builtLabel}</span><p>{p.built}</p></div>
+              </div>
+              <ul class="tags">{p.highlights.map((h) => <li>{h}</li>)}</ul>
+              <div class="actions">
+                <a class="btn btn-ghost btn-sm" href={p.url} target="_blank" rel="noopener">{w.visit} ↗</a>
+                <a class="similar" href={servicePath(p.service, locale)}>{w.similar}: <b>{t.services_list[p.service].name}</b> →</a>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
 
     {foundingSpotsLeft() > 0 && (
       <div class="next" data-reveal>
@@ -51,23 +83,58 @@ const w = t.work;
 
 <style>
   .wrap { gap: 40px; }
+  @media (min-width: 1024px) { .wrap { gap: 56px; } }
   .head { gap: 12px; max-width: 620px; }
-  .case { display: grid; gap: 28px; align-items: center; }
-  @media (min-width: 1024px) { .case { grid-template-columns: 1.35fr 1fr; gap: 48px; } }
-  .shot { position: relative; display: block; padding: clamp(14px, 3vw, 28px); border-radius: 24px; background: linear-gradient(135deg, #1b1446, #3b2a8f 55%, #2459e0); transition: transform .3s var(--ease); min-width: 0; }
-  .shot:hover { transform: translateY(-4px); }
-  .shot img { width: 100%; height: auto; }
-  .tag { position: absolute; top: clamp(24px, 4vw, 42px); right: clamp(24px, 4vw, 42px); background: #fff; color: var(--ink); font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 999px; box-shadow: 0 6px 16px rgba(0, 0, 0, .2); }
-  .body { gap: 18px; min-width: 0; }
-  h3 { font-size: 26px; letter-spacing: -0.02em; }
+  .cases { display: flex; flex-direction: column; gap: 56px; }
+  @media (min-width: 1024px) { .cases { gap: 88px; } }
+
+  .case { display: grid; gap: 24px; align-items: center; }
+  @media (min-width: 1024px) {
+    .case { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 56px; }
+    .case.flip { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); }
+    .case.flip .visual { order: 2; }
+  }
+
+  /* Visual: desktop browser + overlapping phone on a brand-tinted panel */
+  .visual { position: relative; display: block; min-width: 0; border-radius: 24px; background: var(--panel); padding: 7% 18% 12% 6%; box-shadow: 0 30px 60px rgba(11, 26, 58, .12); transition: transform .35s var(--ease), box-shadow .35s; }
+  .visual.light { border: 1px solid #ecdcc0; }
+  .visual:hover { transform: translateY(-4px); box-shadow: 0 36px 70px rgba(11, 26, 58, .16); }
+  .flip .visual { padding: 7% 6% 12% 18%; }
+  .desk { box-shadow: 0 20px 44px rgba(0, 0, 0, .28); }
+  .light .desk { box-shadow: 0 20px 44px rgba(90, 60, 20, .18); }
+  .desk img { width: 100%; height: auto; display: block; }
+  .phone { position: absolute; right: 5%; bottom: 7%; width: 24%; padding: 1.2%; border-radius: 18% / 8.5%; background: #0d1222; box-shadow: 0 22px 44px rgba(0, 0, 0, .35), inset 0 0 0 1px rgba(255, 255, 255, .12); transition: transform .35s var(--ease); }
+  .flip .phone { right: auto; left: 5%; }
+  .phone img { width: 100%; height: auto; display: block; border-radius: 15% / 7%; }
+  .visual:hover .phone { transform: translateY(-6px); }
+  @media (max-width: 639px) {
+    .visual, .flip .visual { padding: 7% 22% 14% 5%; border-radius: 18px; }
+    .flip .visual { padding: 7% 5% 14% 22%; }
+    .phone { width: 28%; right: 4%; bottom: 6%; }
+    .flip .phone { left: 4%; }
+  }
+
+  /* Text column */
+  .body { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .idx { font-size: 12px; color: var(--faint); letter-spacing: .06em; }
+  .cat { font-size: 12px; font-weight: 700; color: var(--blue); background: var(--blue-soft); border-radius: 999px; padding: 5px 11px; }
+  .title { display: flex; flex-direction: column; gap: 4px; }
+  h3 { font-size: clamp(24px, 2.6vw, 30px); letter-spacing: -0.025em; line-height: 1.15; }
   .type { font-size: 14px; color: var(--muted-2); }
-  .quote { font-family: var(--hand); font-size: 26px; line-height: 1.1; color: var(--blue); }
-  .block { gap: 4px; }
+  .quote { font-family: var(--hand); font-size: 25px; line-height: 1.15; color: var(--blue); text-wrap: balance; }
+  .blocks { display: grid; gap: 14px; }
+  .block { display: flex; flex-direction: column; gap: 4px; }
   .label { font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--faint); }
   .block p { font-size: 14.5px; line-height: 1.6; color: var(--ink-2); }
   .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
   .tags li { font-size: 12.5px; font-weight: 600; color: var(--ink-2); background: var(--bg-soft); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; }
-  .visit { font-weight: 600; font-size: 14.5px; align-self: flex-start; padding: 6px 0; }
+  .actions { display: flex; align-items: center; gap: 12px 20px; flex-wrap: wrap; padding-top: 4px; }
+  .similar { font-size: 13.5px; color: var(--muted); }
+  .similar b { color: var(--blue); font-weight: 600; }
+  .similar:hover b { color: var(--blue-d); }
+  @media (max-width: 479px) { .actions .btn { width: 100%; } }
+
   .next { display: flex; justify-content: space-between; align-items: center; gap: 16px 24px; flex-wrap: wrap; border: 1.5px dashed #c9d8fb; border-radius: 20px; padding: 22px 24px; background: #f7faff; }
   .next .stack { gap: 4px; }
   .next b { font-size: 17px; }

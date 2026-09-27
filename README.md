@@ -35,7 +35,7 @@ Kalau `OPENAI_API_KEY` / `GMAIL_APP_PASSWORD` kosong saat `npm run dev`, konsult
 | `node scripts/e2e-consult.mjs http://localhost:4321 id 375` | Menjalankan seluruh alur konsultasi di browser |
 | `node scripts/make-assets.mjs` | Membuat ulang gambar OG, apple-touch-icon, dan `public/founder.jpg` |
 | `node scripts/make-hero.mjs` | Membuat ulang mockup company profile di laptop hero (EN + ID). Teks & desain ada di dalam script |
-| `node scripts/capture-fikrmate.mjs` | Mengambil ulang screenshot fikrmate.com (dipakai di section portofolio) |
+| `node scripts/capture-portfolio.mjs` | Mengambil ulang screenshot desktop + HP semua proyek portofolio |
 
 Script screenshot memakai Chrome lokal (`/usr/bin/google-chrome`); ganti lewat `CHROME_PATH` bila perlu.
 
@@ -70,7 +70,10 @@ Script screenshot memakai Chrome lokal (`/usr/bin/google-chrome`); ganti lewat `
   - Setelah mengubah harga, jalankan `npm run test` (beberapa test mengasumsikan nilai default).
 - **Teks website:** `src/i18n/en.ts` & `src/i18n/id.ts` (landing + halaman layanan), `src/i18n/consult.ts` (UI konsultan).
 - **Kontak & sosial media:** `src/config/site.ts`. Link sosial yang kosong otomatis disembunyikan.
-- **Portofolio FikrMate:** teks tantangan dan hasil di `work` (`en.ts`/`id.ts`) disusun dari isi fikrmate.com. Mohon dicek ulang agar sesuai dengan yang benar-benar Anda kerjakan.
+- **Portofolio** (`work.projects` di `en.ts`/`id.ts`): teks tantangan dan hasil disusun dari isi website masing-masing. Mohon dicek ulang agar sesuai dengan yang benar-benar Anda kerjakan. Menambah proyek baru:
+  1. Tambahkan entri di `work.projects` pada **kedua** file bahasa (dan key-nya di tipe `ProjectCopy` di `en.ts`).
+  2. Tambahkan URL-nya di `scripts/capture-portfolio.mjs`, lalu jalankan script tersebut.
+  3. Import dua screenshot-nya dan tambahkan warna panelnya di map `visuals` pada `src/components/landing/Work.astro`.
 
 ## Deploy ke Vercel
 

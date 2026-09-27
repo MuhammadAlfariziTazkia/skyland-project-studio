@@ -1,6 +1,20 @@
 import type { Currency } from '../lib/schemas';
 import type { ServiceKey } from './routes';
 
+export interface ProjectCopy {
+  key: 'fikrmate' | 'bunsky';
+  name: string;
+  category: string;
+  type: string;
+  tagline: string;
+  challenge: string;
+  built: string;
+  highlights: string[];
+  url: string;
+  host: string;
+  service: ServiceKey;
+}
+
 export interface ServiceCopy {
   name: string;
   desc: string;
@@ -105,18 +119,42 @@ const en = {
     eyebrow: 'SELECTED WORK',
     title: 'Small studio. Serious craft.',
     lead: "We're a new studio, so every project gets our full attention. Here's what we've shipped so far.",
-    tag: 'CASE STUDY',
-    name: 'FikrMate',
-    type: 'AI learning platform (SaaS)',
-    tagline: 'You choose what to learn. I’ll organize what comes next.',
     challengeLabel: 'CHALLENGE',
-    challenge: 'Self-learners drown in scattered material with no structure, no rhythm and no one to keep the next step ready.',
     builtLabel: 'WHAT WE BUILT',
-    built:
-      'A web app that turns a short learning brief into an AI-generated curriculum and delivers scheduled lessons by email (PDF) or on the web, with multilingual content, an AI lesson tutor and subscription plans.',
-    stack: ['AI curriculum engine', 'Scheduled email delivery', 'Subscriptions & credits', 'Multilingual'],
-    visit: 'Visit fikrmate.com',
-    alt: 'Screenshot of the FikrMate homepage',
+    visit: 'Visit live site',
+    similar: 'Similar service',
+    desktopAlt: (name: string) => `${name} website on desktop`,
+    mobileAlt: (name: string) => `${name} website on mobile`,
+    projects: [
+      {
+        key: 'fikrmate',
+        name: 'FikrMate',
+        category: 'SaaS · Web app',
+        type: 'AI learning platform',
+        tagline: 'You choose what to learn. I’ll organize what comes next.',
+        challenge: 'Self-learners drown in scattered material with no structure, no rhythm and no one to keep the next step ready.',
+        built:
+          'A web app that turns a short learning brief into an AI-generated curriculum and delivers scheduled lessons by email (PDF) or on the web, with multilingual content, an AI lesson tutor and subscription plans.',
+        highlights: ['AI curriculum engine', 'Scheduled email delivery', 'Subscriptions & credits', 'Multilingual'],
+        url: 'https://fikrmate.com',
+        host: 'fikrmate.com',
+        service: 'web_app',
+      },
+      {
+        key: 'bunsky',
+        name: 'Rumah Belajar Bunsky',
+        category: 'Landing page · Education',
+        type: 'Private tutoring for grades 1–6',
+        tagline: 'Personal learning support so children grow more focused and confident.',
+        challenge: 'A new private tutoring service needed to earn parents’ trust online and turn their interest into registrations, without a complicated system.',
+        built:
+          'A warm, elegant landing page that explains the TKA-prep and school-subject programs, the six subjects, learning targets and a simple 3-step sign-up, with one-tap WhatsApp registration and a mobile-first layout.',
+        highlights: ['WhatsApp registration', 'Programs & subjects', '3-step sign-up', 'Mobile-first'],
+        url: 'https://rumah-belajar-bunsky.vercel.app/',
+        host: 'rumah-belajar-bunsky.vercel.app',
+        service: 'landing',
+      },
+    ] as ProjectCopy[],
     nextTitle: 'Your project could be next.',
     nextText: (pct: number) => `Founding clients get ${pct}% off and priority attention.`,
     nextCta: 'See the founding offer',
