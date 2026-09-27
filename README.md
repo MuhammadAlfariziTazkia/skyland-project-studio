@@ -69,6 +69,7 @@ Script screenshot memakai Chrome lokal (`/usr/bin/google-chrome`); ganti lewat `
   - `guardrails.maxAutoQuote`: di atas angka ini, harga ditampilkan sebagai estimasi.
   - Setelah mengubah harga, jalankan `npm run test` (beberapa test mengasumsikan nilai default).
 - **Teks website:** `src/i18n/en.ts` & `src/i18n/id.ts` (landing + halaman layanan), `src/i18n/consult.ts` (UI konsultan).
+- **Logo:** mark ada di `src/components/Logo.astro` (header/footer), `public/favicon.svg` (ikon), dan `public/logo.svg` (logo lengkap untuk dipakai di luar website). Setelah mengubah logo, jalankan `node scripts/make-assets.mjs` agar favicon PNG, `logo.png`, dan gambar OG ikut diperbarui.
 - **Kontak & sosial media:** `src/config/site.ts`. Link sosial yang kosong otomatis disembunyikan.
 - **Portofolio** (`work.projects` di `en.ts`/`id.ts`): teks tantangan dan hasil disusun dari isi website masing-masing. Mohon dicek ulang agar sesuai dengan yang benar-benar Anda kerjakan. Menambah proyek baru:
   1. Tambahkan entri di `work.projects` pada **kedua** file bahasa (dan key-nya di tipe `ProjectCopy` di `en.ts`).

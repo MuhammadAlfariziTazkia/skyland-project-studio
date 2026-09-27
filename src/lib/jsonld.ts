@@ -17,7 +17,7 @@ export function organizationLd(site: string, locale: Locale) {
     name: SITE.name,
     alternateName: locale === 'id' ? 'Skyland – Jasa Pembuatan Website' : 'Skyland – Website Development Studio',
     url: abs(site, ROUTES.home[locale]),
-    logo: `${site}/favicon.svg`,
+    logo: `${site}/logo.png`,
     image: `${site}/og-${locale}.png`,
     description: t.meta.homeDescription,
     ...(SITE.email ? { email: SITE.email } : {}),

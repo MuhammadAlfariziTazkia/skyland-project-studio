@@ -1,15 +1,28 @@
 ---
+// Skyland mark: a layered sky arc and a rising sun over the horizon ("sky" + "land").
+// Standalone versions: public/favicon.svg (mark) and public/logo.svg (full lockup).
 interface Props { dark?: boolean; href: string }
 const { dark = false, href } = Astro.props;
 ---
 <a href={href} class:list={['logo', { dark }]} aria-label="Skyland Project Studio">
-  <span class="mark" aria-hidden="true"></span>Skyland <span class="rest">Project Studio</span>
+  <span class="mark" aria-hidden="true">
+    <svg viewBox="0 0 64 64" width="36" height="36">
+      <path d="M13 38a19 19 0 0 1 38 0" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="3.5" stroke-linecap="round" />
+      <path d="M22 38a10 10 0 0 1 20 0z" fill="#fff" />
+      <path d="M11 44h42" stroke="#fff" stroke-width="3.5" stroke-linecap="round" />
+    </svg>
+  </span>
+  <span class="word"><b>Skyland</b> <span>Project Studio</span></span>
 </a>
 <style>
-  .logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; letter-spacing: -0.02em; color: var(--ink); white-space: nowrap; }
+  .logo { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); white-space: nowrap; }
   .logo:hover { color: var(--ink); }
   .logo.dark, .logo.dark:hover { color: #fff; }
-  .mark { width: 28px; height: 20px; border-radius: 11px 11px 4px 4px; background: linear-gradient(135deg, #3b7bff, #1d4ed8); flex: none; }
-  .dark .mark { background: linear-gradient(135deg, #5b8fff, #2459e0); }
-  @media (max-width: 380px) { .rest { display: none; } }
+  .mark { flex: none; width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #3d7eff, #1a3fc4); box-shadow: 0 6px 14px rgba(36, 89, 224, .28), inset 0 1px 0 rgba(255, 255, 255, .18); display: flex; }
+  .dark .mark { box-shadow: 0 6px 14px rgba(0, 0, 0, .3), inset 0 1px 0 rgba(255, 255, 255, .18); }
+  .mark svg { width: 100%; height: 100%; }
+  .word { display: flex; flex-direction: column; line-height: 1; }
+  .word b { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
+  .word span { margin-top: 4px; font-size: 9px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; color: #5b6780; }
+  .dark .word span { color: #9fb0cf; }
 </style>
