@@ -802,6 +802,7 @@ class Component extends DCLogic {
 #sky-bar button{flex:none;width:32px;height:32px;border:0;border-radius:50%;background:#f0f3f9;color:#4a5876;font:500 18px/1 system-ui,sans-serif;cursor:pointer}
 #sky-bar button:hover{background:#e3eaf6}
 #sky-bar .sky-s{display:none}
+html:not(.sky-bar-off) #contact{padding-bottom:104px}
 @media (max-width:640px){#sky-bar{left:12px;right:12px;width:auto;transform:none;border-radius:18px;padding:10px 10px 10px 14px}#sky-bar.hide{transform:translateY(24px)}#sky-bar .sky-txt{flex:1;min-width:0;white-space:normal}#sky-bar .sky-ask,#sky-bar .sky-l{display:none}#sky-bar .sky-s{display:inline}}
 </style>
 <div id="sky-bar" role="complementary" aria-label="Skyland">
@@ -819,7 +820,7 @@ class Component extends DCLogic {
     bar.querySelector('.sky-cta').href='/id/konsultasi/';
     bar.querySelector('button').setAttribute('aria-label','Tutup');
   }
-  bar.querySelector('button').addEventListener('click',function(){bar.classList.add('hide');});
+  bar.querySelector('button').addEventListener('click',function(){bar.classList.add('hide');document.documentElement.classList.add('sky-bar-off');});
 })();
 </script>
 </body>

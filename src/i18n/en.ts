@@ -16,7 +16,7 @@ export interface ProjectCopy {
 }
 
 export interface ConceptCopy {
-  key: 'tegak';
+  key: 'tegak' | 'lembar';
   name: string;
   category: string;
   type: string;
@@ -186,6 +186,18 @@ const en = {
         url: '/samples/tegak/',
         host: 'tegak-prima-konstruksi.concept',
         service: 'company_profile',
+      },
+      {
+        key: 'lembar',
+        name: 'Lembar Toko Buku',
+        category: 'Concept · Bookstore',
+        type: 'Online store for an independent bookshop',
+        tagline: 'Books worth reading slowly.',
+        desc: 'A warm, editorial online store where browsing feels like walking the shelves, not filling a spreadsheet.',
+        highlights: ['Cart & checkout', 'Instagram to product page', 'Search & genre browsing'],
+        url: '/samples/lembar/',
+        host: 'lembar-toko-buku.concept',
+        service: 'online_store',
       },
     ] as ConceptCopy[],
     nextTitle: 'Your project could be next.',

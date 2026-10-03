@@ -10,6 +10,7 @@ const projects = {
   fikrmate: { url: 'https://fikrmate.com' },
   bunsky: { url: 'https://rumah-belajar-bunsky.vercel.app/' },
   tegak: { url: `${base}/samples/tegak/`, long: 3600 },
+  lembar: { url: `${base}/samples/lembar/`, long: 3600 },
 };
 const only = process.argv.slice(2);
 

@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import tegak from '../../assets/work/tegak.png';
+import lembar from '../../assets/work/lembar.png';
 import { getDict } from '../../i18n';
 import type { ConceptCopy } from '../../i18n/en';
 import { servicePath } from '../../i18n/routes';
@@ -16,7 +17,9 @@ const w = t.work;
 // (scripts/capture-portfolio.mjs) that the frame pans through on hover; the card wears the concept's own palette.
 const visuals: Record<ConceptCopy['key'], { shot: ImageMetadata; bg: string; fg: string; accent: string; link: string }> = {
   tegak: { shot: tegak, bg: '#17181a', fg: '#f3f1ec', accent: '#e2601b', link: '#f39a63' },
+  lembar: { shot: lembar, bg: '#2f4a3a', fg: '#f5f1e8', accent: '#d9b55a', link: '#e8dcc4' },
 };
+const many = w.concepts.length > 1;
 ---
 <div class="concepts stack" data-reveal>
   <div class="head stack">
@@ -24,7 +27,7 @@ const visuals: Record<ConceptCopy['key'], { shot: ImageMetadata; bg: string; fg:
     <p class="lead">{w.conceptsLead}</p>
   </div>
 
-  <div class:list={['grid', { multi: w.concepts.length > 1 }]}>
+  <div class:list={['grid', { multi: many }]} role={many ? 'group' : undefined} aria-label={many ? w.conceptsEyebrow : undefined} data-rail>
     {w.concepts.map((c) => {
       const v = visuals[c.key];
       return (
@@ -36,7 +39,7 @@ const visuals: Record<ConceptCopy['key'], { shot: ImageMetadata; bg: string; fg:
               <span class="type">{c.type}</span>
             </div>
             <p class="quote">“{c.tagline}”</p>
-            <p class="desc">{c.desc}</p>
+            {!many && <p class="desc">{c.desc}</p>}
             <ul class="tags">{c.highlights.map((h) => <li>{h}</li>)}</ul>
             <div class="actions">
               <a class="btn btn-sm demo" href={c.url} target="_blank" rel="noopener">{w.demo} ↗</a>
@@ -57,7 +60,35 @@ const visuals: Record<ConceptCopy['key'], { shot: ImageMetadata; bg: string; fg:
       );
     })}
   </div>
+
+  {many && (
+    <div class="dots" data-dots>
+      {w.concepts.map((c, i) => (
+        <button type="button" aria-label={c.name} aria-current={i === 0 ? 'true' : 'false'} data-dot={i}></button>
+      ))}
+    </div>
+  )}
 </div>
+
+<script>
+  // The rail is a native scroll-snap container: the dots only mirror where it already is.
+  document.querySelectorAll<HTMLElement>('[data-dots]').forEach((dots) => {
+    const rail = dots.parentElement?.querySelector<HTMLElement>('[data-rail]');
+    if (!rail) return;
+    const buttons = [...dots.querySelectorAll<HTMLButtonElement>('[data-dot]')];
+    const cards = [...rail.children] as HTMLElement[];
+    const sync = () => {
+      const middle = rail.scrollLeft + rail.clientWidth / 2;
+      let near = 0;
+      cards.forEach((card, i) => {
+        if (Math.abs(card.offsetLeft + card.offsetWidth / 2 - middle) < Math.abs(cards[near].offsetLeft + cards[near].offsetWidth / 2 - middle)) near = i;
+      });
+      buttons.forEach((b, i) => b.setAttribute('aria-current', String(i === near)));
+    };
+    rail.addEventListener('scroll', () => requestAnimationFrame(sync), { passive: true });
+    buttons.forEach((b, i) => b.addEventListener('click', () => rail.scrollTo({ left: cards[i].offsetLeft - rail.offsetLeft, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })));
+  });
+</script>
 
 <style>
   .concepts { gap: 20px; }
@@ -65,7 +96,40 @@ const visuals: Record<ConceptCopy['key'], { shot: ImageMetadata; bg: string; fg:
   .head .lead { font-size: 15px; }
 
   .grid { display: grid; gap: 24px; }
-  @media (min-width: 1024px) { .grid.multi { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  /* Two or more concepts: a snap rail where the next card peeks in, so nothing is hidden the way
+     a carousel hides it. No auto-advance — that would cut the card's own 7s hover pan in half. */
+  .grid.multi {
+    grid-auto-flow: column;
+    grid-auto-columns: 88%;
+    gap: 14px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+  .grid.multi::-webkit-scrollbar { display: none; }
+  .grid.multi > * { scroll-snap-align: start; }
+  @media (min-width: 640px) { .grid.multi { grid-auto-columns: 62%; } }
+  @media (min-width: 1024px) {
+    .grid.multi {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+      overflow: visible;
+      scroll-snap-type: none;
+      margin-inline: 0;
+      padding-inline: 0;
+    }
+  }
+
+  .dots { display: flex; justify-content: center; gap: 8px; padding-top: 4px; }
+  .dots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background: #c9d4e8; cursor: pointer; transition: background .2s, transform .2s; }
+  .dots button[aria-current='true'] { background: var(--blue); transform: scale(1.3); }
+  @media (min-width: 1024px) { .dots { display: none; } }
 
   /* Dark card in the concept's palette; the browser frame bleeds off its bottom-right edge */
   .concept {
