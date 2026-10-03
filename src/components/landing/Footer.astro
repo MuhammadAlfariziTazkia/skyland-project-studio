@@ -30,7 +30,7 @@ const socials = socialLinks();
         <a href={`${home}#how`}>{t.nav.how}</a>
         <a href={`${home}#work`}>{t.nav.work}</a>
         <a href={`${home}#faq`}>{t.nav.faq}</a>
-        <a href={ROUTES.home[locale === 'en' ? 'id' : 'en']} hreflang={locale === 'en' ? 'id' : 'en'}>{t.nav.switchLang}</a>
+        <a href={ROUTES.home[locale === 'en' ? 'id' : 'en']} hreflang={locale === 'en' ? 'id' : 'en'} data-lang-switch>{t.nav.switchLang}</a>
       </nav>
       <div class="stack col">
         <b>{t.footer.contact}</b>

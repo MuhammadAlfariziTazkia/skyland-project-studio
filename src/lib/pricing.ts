@@ -289,10 +289,10 @@ export function formatPrice(amount: number, region: Region): string {
   return new Intl.NumberFormat(r.locale, { style: 'currency', currency: r.currency, maximumFractionDigits: 0 }).format(amount);
 }
 
-/** Short price for tight UI, e.g. "Rp 2,5 jt" / "$800". */
+/** Short price for tight UI, e.g. "Rp 1,75 jt" / "$650". Two decimals so it never rounds up past the real price. */
 export function formatShort(amount: number, region: Region): string {
   if (region === 'GLOBAL') return formatPrice(amount, region);
-  if (amount >= 1_000_000) return `Rp ${(amount / 1_000_000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} jt`;
+  if (amount >= 1_000_000) return `Rp ${(amount / 1_000_000).toLocaleString('id-ID', { maximumFractionDigits: 2 })} jt`;
   return `Rp ${Math.round(amount / 1000)}rb`;
 }
 

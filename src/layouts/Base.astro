@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import Seo from '../components/Seo.astro';
+import { pairFor } from '../i18n/routes';
 import type { Locale } from '../lib/schemas';
 
 interface Props {
@@ -12,6 +13,8 @@ interface Props {
   noindex?: boolean;
 }
 const props = Astro.props;
+// Indonesian twin of this exact page, so visitors in Indonesia land on the matching page and not the home page.
+const idHref = props.locale === 'en' ? (pairFor(Astro.url.pathname)?.id ?? null) : null;
 ---
 <!doctype html>
 <html lang={props.locale}>
@@ -25,6 +28,28 @@ const props = Astro.props;
     <link rel="sitemap" href="/sitemap-index.xml" />
     <Seo {...props} />
     <script is:inline>document.documentElement.classList.add('js');</script>
+    <script is:inline define:vars={{ idHref }}>
+      // Pages are prerendered and CDN-cached, so the language choice is made here instead of on the server.
+      // Only English -> Indonesian: /id/ is always reached on purpose, and English is already the default.
+      (function () {
+        var KEY = 'skyland-lang';
+        try {
+          document.addEventListener('click', function (e) {
+            var a = e.target && e.target.closest && e.target.closest('[data-lang-switch]');
+            if (a) localStorage.setItem(KEY, a.getAttribute('hreflang') || '');
+          });
+        } catch (err) {}
+        if (!idHref) return;
+        try {
+          if (localStorage.getItem(KEY)) return; // the visitor picked a language, never override it
+          if (/bot|crawl|spider|slurp|preview/i.test(navigator.userAgent)) return; // keep the English pages indexable
+          var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+          var here = /^Asia\/(Jakarta|Pontianak|Makassar|Jayapura)$/.test(tz);
+          var speaks = (navigator.languages || [navigator.language || '']).some(function (l) { return /^id\b/i.test(l); });
+          if (here || speaks) location.replace(idHref + location.search + location.hash);
+        } catch (err) {}
+      })();
+    </script>
     <slot name="head" />
   </head>
   <body>

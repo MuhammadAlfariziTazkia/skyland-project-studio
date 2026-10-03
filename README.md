@@ -110,9 +110,21 @@ Perkiraan biaya: hosting Vercel Hobby gratis, Gmail gratis. Satu konsultasi leng
 
 Semua angka ada di `data/pricing.json`; `src/lib/pricing.ts` yang menghitung, AI tidak pernah menyentuh harga.
 
+- **Patokan tabel harga.** Seluruh tabel diturunkan dari tarif per jam di `pricing_basis.hourly_rate` (Rp 55.000 / $20) dikali `est_hours` tiap item, lalu dibulatkan ke `round_to`. Untuk menaikkan harga nanti, ubah tarifnya lalu hitung ulang tabelnya. Patokan yang dipakai: proyek sekelas contoh **Tegak** (company profile, desain custom penuh, animasi, konten sebagian dibantu) = **Rp 5.000.000** harga normal, dan ada test yang menjaga angka ini (`tests/pricing.test.ts`).
+- **`reference_cases` adalah test**, bukan sekadar catatan. Kalau mengubah harga, keempatnya ikut dihitung ulang atau `npm run test` gagal.
+
 - **Diskon klien pertama.** `founding_offer.spots_total` slot dengan diskon `percent`. Bisa diatur tanpa menyentuh file, lewat `PUBLIC_FOUNDING_PERCENT`, `PUBLIC_FOUNDING_SPOTS`, dan `PUBLIC_FOUNDING_TAKEN` (angka di `pricing.json` jadi nilai default). Naikkan `PUBLIC_FOUNDING_TAKEN` setiap satu klien deal lalu deploy ulang; begitu sama dengan jumlah slot, diskon, badge hero, dan section Offer hilang sendiri. `PERCENT=0` atau `SPOTS=0` mematikannya.
 - **Kode promo.** Hanya dari env `PROMO_CODES` (`KODE=persen`, dipisah koma), tidak pernah di `pricing.json` karena file itu ikut terkirim ke browser dan repo ini publik. Browser hanya tahu persennya lewat `POST /api/promo`; saat order, server memvalidasi ulang kodenya.
 - **Penumpukan diskon bersifat aditif** (20% + 20% = 40%), dibatasi `max_discount_percent` (env: `PUBLIC_MAX_DISCOUNT_PERCENT`) dan tidak pernah menurunkan total di bawah `regions[].min_price`. Kalau batas ini lebih kecil dari penjumlahan diskon, potongan kode promo yang dipangkas.
 - Nilai `PUBLIC_*` memang ikut terkirim ke browser, dan itu disengaja: persentasenya diiklankan di website, sementara **kode promonya** tetap hanya di server.
 - **Pembayaran** mengikuti `payment_terms`. `down_payment_percent: 0` berarti tanpa DP, dan seluruh copy di website ikut menyesuaikan.
 - **Hosting & domain** ada di `not_included`: dibayar klien langsung ke providernya, setup oleh Skyland tanpa biaya.
+
+## Bahasa otomatis
+
+Pengunjung dari Indonesia yang membuka halaman Inggris dialihkan ke padanan Bahasa Indonesia-nya (`/consult/` → `/id/konsultasi/`), lewat skrip inline di `src/layouts/Base.astro`.
+
+- Halaman statis dan di-cache CDN, jadi pengalihan dilakukan di browser, bukan di server.
+- Sinyalnya zona waktu Indonesia atau bahasa browser `id`. Hanya satu arah (EN → ID); pengunjung `/id/` tidak pernah dipaksa ke Inggris.
+- Begitu pengunjung menekan tombol ganti bahasa (`data-lang-switch`), pilihannya disimpan di `localStorage` dan pengalihan otomatis berhenti selamanya.
+- Bot dilewati supaya halaman Inggris tetap terindeks; `hreflang` tetap jadi sinyal resmi untuk mesin pencari.

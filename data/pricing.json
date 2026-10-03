@@ -9,29 +9,29 @@
   "pricing_basis": {
     "formula": "Harga dasar ≈ est_hours x hourly_rate, lalu dibulatkan. Dipakai owner untuk menyesuaikan ulang semua harga; LLM tetap memakai angka eksplisit di bawah.",
     "hourly_rate": {
-      "ID": 75000,
-      "GLOBAL": 25
+      "ID": 55000,
+      "GLOBAL": 20
     },
     "upgrade_path": [
       {
         "stage": "Awal (0-2 proyek riil)",
         "hourly_rate": {
-          "ID": 75000,
-          "GLOBAL": 25
+          "ID": 55000,
+          "GLOBAL": 20
         }
       },
       {
         "stage": "Punya 3-5 proyek riil + testimoni",
         "hourly_rate": {
-          "ID": 100000,
-          "GLOBAL": 35
+          "ID": 80000,
+          "GLOBAL": 30
         }
       },
       {
         "stage": "Portfolio kuat / repeat client",
         "hourly_rate": {
-          "ID": 150000,
-          "GLOBAL": 50
+          "ID": 120000,
+          "GLOBAL": 45
         }
       }
     ]
@@ -42,16 +42,16 @@
       "currency": "IDR",
       "locale": "id-ID",
       "round_to": 50000,
-      "min_price": 1000000,
-      "max_price": 30000000
+      "min_price": 750000,
+      "max_price": 22000000
     },
     "GLOBAL": {
       "label": "Worldwide",
       "currency": "USD",
       "locale": "en-US",
       "round_to": 25,
-      "min_price": 300,
-      "max_price": 12000
+      "min_price": 250,
+      "max_price": 9000
     }
   },
   "region_detection": "Pakai 'ID' jika user memilih Indonesia, menulis dalam Bahasa Indonesia, atau menyebut lokasi/nomor Indonesia. Selain itu pakai 'GLOBAL'. Jika ragu, tanya sekali.",
@@ -75,8 +75,8 @@
       "name": "Company Profile",
       "est_hours": 32,
       "base": {
-        "ID": 2500000,
-        "GLOBAL": 800
+        "ID": 1750000,
+        "GLOBAL": 650
       },
       "pages_included": 5,
       "workdays": "5-9"
@@ -87,8 +87,8 @@
       "name": "Landing Page",
       "est_hours": 16,
       "base": {
-        "ID": 1200000,
-        "GLOBAL": 400
+        "ID": 900000,
+        "GLOBAL": 325
       },
       "pages_included": 1,
       "workdays": "2-4"
@@ -99,8 +99,8 @@
       "name": "Online Store",
       "est_hours": 80,
       "base": {
-        "ID": 6000000,
-        "GLOBAL": 2000
+        "ID": 4400000,
+        "GLOBAL": 1600
       },
       "pages_included": 6,
       "workdays": "12-21",
@@ -115,8 +115,8 @@
       "name": "Personal Portfolio",
       "est_hours": 20,
       "base": {
-        "ID": 1500000,
-        "GLOBAL": 500
+        "ID": 1100000,
+        "GLOBAL": 400
       },
       "pages_included": 4,
       "workdays": "3-6"
@@ -127,8 +127,8 @@
       "name": "Online Course (LMS)",
       "est_hours": 120,
       "base": {
-        "ID": 9000000,
-        "GLOBAL": 3000
+        "ID": 6600000,
+        "GLOBAL": 2400
       },
       "pages_included": 7,
       "workdays": "18-30",
@@ -143,8 +143,8 @@
       "name": "Booking & Reservation",
       "est_hours": 64,
       "base": {
-        "ID": 4800000,
-        "GLOBAL": 1600
+        "ID": 3500000,
+        "GLOBAL": 1275
       },
       "pages_included": 5,
       "workdays": "10-16",
@@ -159,8 +159,8 @@
       "name": "Custom Web App",
       "est_hours": 180,
       "base": {
-        "ID": 13500000,
-        "GLOBAL": 4500
+        "ID": 10000000,
+        "GLOBAL": 3600
       },
       "pages_included": 6,
       "workdays": "20-40",
@@ -176,8 +176,8 @@
       "name": "Blog & Media",
       "est_hours": 40,
       "base": {
-        "ID": 3000000,
-        "GLOBAL": 1000
+        "ID": 2200000,
+        "GLOBAL": 800
       },
       "pages_included": 5,
       "workdays": "6-10",
@@ -189,8 +189,8 @@
   "extra_page": {
     "est_hours": 4,
     "price": {
-      "ID": 300000,
-      "GLOBAL": 100
+      "ID": 200000,
+      "GLOBAL": 75
     }
   },
   "features": [
@@ -208,7 +208,7 @@
       "label": "Integrasi Peta",
       "est_hours": 1,
       "price": {
-        "ID": 100000,
+        "ID": 50000,
         "GLOBAL": 25
       }
     },
@@ -217,8 +217,8 @@
       "label": "Setup Analytics & Tracking",
       "est_hours": 2,
       "price": {
-        "ID": 150000,
-        "GLOBAL": 50
+        "ID": 100000,
+        "GLOBAL": 40
       }
     },
     {
@@ -226,8 +226,8 @@
       "label": "Form Kontak ke Email",
       "est_hours": 3,
       "price": {
-        "ID": 250000,
-        "GLOBAL": 75
+        "ID": 150000,
+        "GLOBAL": 60
       }
     },
     {
@@ -235,8 +235,8 @@
       "label": "Galeri Foto / Produk",
       "est_hours": 3,
       "price": {
-        "ID": 250000,
-        "GLOBAL": 75
+        "ID": 150000,
+        "GLOBAL": 60
       }
     },
     {
@@ -244,8 +244,8 @@
       "label": "Copywriting",
       "est_hours": 3,
       "price": {
-        "ID": 250000,
-        "GLOBAL": 75
+        "ID": 150000,
+        "GLOBAL": 60
       },
       "unit": "per halaman"
     },
@@ -254,8 +254,8 @@
       "label": "SEO Dasar & Optimasi Kecepatan",
       "est_hours": 6,
       "price": {
-        "ID": 450000,
-        "GLOBAL": 150
+        "ID": 350000,
+        "GLOBAL": 125
       }
     },
     {
@@ -263,8 +263,8 @@
       "label": "Multi-bahasa (2 bahasa)",
       "est_hours": 10,
       "price": {
-        "ID": 750000,
-        "GLOBAL": 250
+        "ID": 550000,
+        "GLOBAL": 200
       }
     },
     {
@@ -272,8 +272,8 @@
       "label": "Animasi & Interaksi Custom",
       "est_hours": 10,
       "price": {
-        "ID": 750000,
-        "GLOBAL": 250
+        "ID": 600000,
+        "GLOBAL": 225
       }
     },
     {
@@ -281,8 +281,8 @@
       "label": "Panel Admin (klien update sendiri)",
       "est_hours": 16,
       "price": {
-        "ID": 1200000,
-        "GLOBAL": 400
+        "ID": 900000,
+        "GLOBAL": 325
       }
     },
     {
@@ -290,8 +290,8 @@
       "label": "Login & Akun User",
       "est_hours": 16,
       "price": {
-        "ID": 1200000,
-        "GLOBAL": 400
+        "ID": 900000,
+        "GLOBAL": 325
       }
     },
     {
@@ -299,8 +299,8 @@
       "label": "Payment Gateway",
       "est_hours": 20,
       "price": {
-        "ID": 1500000,
-        "GLOBAL": 500
+        "ID": 1100000,
+        "GLOBAL": 400
       }
     }
   ],
@@ -397,40 +397,40 @@
       "region": "ID",
       "desc": "Kedai kopi, 5 halaman, galeri + peta + WA, desain semi custom, konten sebagian siap.",
       "service": "company_profile",
-      "math": "(2.500.000 + 250.000 + 100.000) x 1.2 x 1.1 = 3.762.000",
+      "math": "(1.750.000 + 150.000 + 50.000) x 1.2 x 1.1 = 2.574.000",
       "agreed": [
-        3750000,
-        4500000
+        2550000,
+        3050000
       ]
     },
     {
       "region": "ID",
       "desc": "Toko fashion online, 7 halaman, + SEO dasar, desain semi custom, konten sebagian siap.",
       "service": "online_store",
-      "math": "(6.000.000 + 300.000 + 450.000) x 1.2 x 1.1 = 8.910.000",
+      "math": "(4.400.000 + 200.000 + 350.000) x 1.2 x 1.1 = 6.534.000",
       "agreed": [
-        8900000,
-        10700000
+        6550000,
+        7850000
       ]
     },
     {
       "region": "GLOBAL",
       "desc": "Freelance designer portfolio, 4 pages, custom animation, semi custom design, content ready.",
       "service": "personal_portfolio",
-      "math": "(500 + 250) x 1.2 x 1.0 = 900",
+      "math": "(400 + 225) x 1.2 x 1.0 = 750",
       "agreed": [
-        900,
-        1075
+        750,
+        900
       ]
     },
     {
       "region": "GLOBAL",
       "desc": "Small course platform, 7 pages, + payment, semi custom design, content partial.",
       "service": "online_course",
-      "math": "(3000 + 500) x 1.2 x 1.1 = 4620",
+      "math": "(2400 + 400) x 1.2 x 1.1 = 3696",
       "agreed": [
-        4625,
-        5550
+        3700,
+        4450
       ]
     }
   ],

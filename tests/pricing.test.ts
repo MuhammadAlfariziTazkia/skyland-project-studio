@@ -47,25 +47,42 @@ describe('quote: reference_cases in pricing.json', () => {
   });
 });
 
+describe('the Tegak sample is the anchor for the whole table', () => {
+  it('prices a full-custom company profile at exactly Rp 5.000.000', () => {
+    const tegak = plan({ pageCount: 5, features: feats('gallery', 'contact_form', 'custom_animation', 'seo_basic', 'analytics', 'google_maps', 'whatsapp_button') });
+    const q = quote(tegak, choices({ design: 'full_custom', content: 'partial' }), 'id', noDiscount);
+    expect(q.subtotal).toBe(3_150_000);
+    expect(q.price).toBe(5_000_000);
+    expect(quote(tegak, choices({ design: 'full_custom', content: 'partial' }), 'id').total).toBe(4_000_000);
+  });
+
+  it('prices the same project at $1,900 worldwide', () => {
+    const tegak = plan({ pageCount: 5, features: feats('gallery', 'contact_form', 'custom_animation', 'seo_basic', 'analytics', 'google_maps', 'whatsapp_button') });
+    const q = quote(tegak, choices({ region: 'GLOBAL', design: 'full_custom', content: 'partial' }), 'en', noDiscount);
+    expect(q.subtotal).toBe(1_185);
+    expect(q.price).toBe(1_900);
+  });
+});
+
 describe('quote', () => {
   it('charges only the base when the plan fits the package', () => {
     const q = quote(plan(), choices(), 'en', noDiscount);
-    expect(q.total).toBe(2_500_000);
+    expect(q.total).toBe(1_750_000);
     expect(q.lines).toHaveLength(1);
   });
 
   it('charges extra pages flat and features in the package as included', () => {
     const q = quote(plan({ serviceId: 'booking_reservation', pageCount: 7, features: feats('contact_form', 'cms_admin', 'google_maps') }), choices({ region: 'GLOBAL' }), 'en', noDiscount);
-    expect(q.lines.find((l) => l.kind === 'pages')).toMatchObject({ quantity: 2, amount: 200 });
+    expect(q.lines.find((l) => l.kind === 'pages')).toMatchObject({ quantity: 2, amount: 150 });
     expect(q.lines.filter((l) => l.included)).toHaveLength(2);
-    expect(q.total).toBe(1600 + 200 + 25);
+    expect(q.total).toBe(1275 + 150 + 25);
   });
 
   it('prices copywriting per page and ignores duplicate features', () => {
     const q = quote(plan({ pageCount: 6, features: feats('copywriting', 'copywriting', 'whatsapp_button') }), choices(), 'id', noDiscount);
-    expect(q.lines.find((l) => l.label.includes('teks'))).toMatchObject({ quantity: 6, amount: 1_500_000 });
+    expect(q.lines.find((l) => l.label.includes('teks'))).toMatchObject({ quantity: 6, amount: 900_000 });
     expect(q.featuresCount).toBe(2);
-    expect(q.total).toBe(2_500_000 + 300_000 + 1_500_000);
+    expect(q.total).toBe(1_750_000 + 200_000 + 900_000);
   });
 
   it('itemises every multiplier so the breakdown adds up to the price', () => {
@@ -75,7 +92,7 @@ describe('quote', () => {
   });
 
   it('never goes below the region minimum, even after the founding discount', () => {
-    const tiny: PricingData = { ...pricing, services: pricing.services.map((s) => (s.id === 'landing_page' ? { ...s, base: { ID: 500_000, GLOBAL: 100 } } : s)) };
+    const tiny: PricingData = { ...pricing, services: pricing.services.map((s) => (s.id === 'landing_page' ? { ...s, base: { ID: 400_000, GLOBAL: 100 } } : s)) };
     const q = quote(plan({ serviceId: 'landing_page', pageCount: 1 }), choices(), 'id', tiny);
     expect(q.price).toBe(pricing.regions.ID.min_price);
     expect(q.total).toBe(pricing.regions.ID.min_price);
@@ -84,14 +101,14 @@ describe('quote', () => {
   it('applies the founding discount on the price, rounded', () => {
     const q = quote(plan(), choices(), 'id');
     expect(q.discounts).toHaveLength(1);
-    expect(q.discounts[0]).toMatchObject({ kind: 'founding', percent: 20, amount: 500_000 });
-    expect(q.total).toBe(2_000_000);
+    expect(q.discounts[0]).toMatchObject({ kind: 'founding', percent: 20, amount: 350_000 });
+    expect(q.total).toBe(1_400_000);
   });
 
   it('shows a range when a request is outside the catalog', () => {
     const q = quote(plan({ customRequests: [{ name: 'Loyalty points', description: '' }] }), choices(), 'id', noDiscount);
     expect(q.status).toBe('range');
-    expect(q.priceHigh).toBe(3_000_000);
+    expect(q.priceHigh).toBe(2_100_000);
   });
 
   it('asks for a discussion above the region maximum', () => {
@@ -129,17 +146,17 @@ const promo = (percent: number): Promo => ({ code: 'KENALANCEO', percent });
 describe('stacked discounts', () => {
   it('adds the founding and promo percentages instead of compounding them', () => {
     const q = quote(plan(), choices(), 'id', pricing, promo(20));
-    // 20% + 20% off Rp 2.500.000, not 0.8 × 0.8
-    expect(q.discounts.map((d) => d.amount)).toEqual([500_000, 500_000]);
+    // 20% + 20% off Rp 1.750.000, not 0.8 × 0.8
+    expect(q.discounts.map((d) => d.amount)).toEqual([350_000, 350_000]);
     expect(q.savingsPercent).toBe(40);
-    expect(q.total).toBe(1_500_000);
+    expect(q.total).toBe(1_050_000);
   });
 
   it('applies the promo code alone once the founding spots are gone', () => {
     const q = quote(plan(), choices(), 'id', noDiscount, promo(20));
     expect(q.discounts).toHaveLength(1);
     expect(q.discounts[0].kind).toBe('promo');
-    expect(q.total).toBe(2_000_000);
+    expect(q.total).toBe(1_400_000);
   });
 
   it('labels the promo row with the code', () => {
@@ -149,22 +166,22 @@ describe('stacked discounts', () => {
 
   it('never discounts below the region minimum and reports the real percentage', () => {
     const q = quote(plan({ serviceId: 'landing_page', pageCount: 1 }), choices(), 'id', pricing, promo(20));
-    expect(q.price).toBe(1_200_000);
+    expect(q.price).toBe(900_000);
     expect(q.total).toBe(pricing.regions.ID.min_price);
-    expect(q.savings).toBe(200_000);
+    expect(q.savings).toBe(150_000);
     expect(q.savingsPercent).toBe(17); // not 40: the minimum price capped it
   });
 
   it('caps the combined discount at max_discount_percent', () => {
     const q = quote(plan({ serviceId: 'online_store', pageCount: 6 }), choices(), 'id', pricing, promo(90));
     expect(q.discounts.reduce((s, d) => s + d.percent, 0)).toBe(pricing.max_discount_percent);
-    expect(q.total).toBe(6_000_000 * 0.6);
+    expect(q.total).toBe(2_600_000); // each discount is rounded to Rp 50rb on its own
   });
 
   it('discounts the upper bound of a range too', () => {
     const q = quote(plan({ customRequests: [{ name: 'Loyalty points', description: '' }] }), choices(), 'id', pricing, promo(20));
     expect(q.status).toBe('range');
-    expect([q.total, q.totalHigh]).toEqual([1_500_000, 1_800_000]);
+    expect([q.total, q.totalHigh]).toEqual([1_050_000, 1_300_000]);
   });
 });
 
@@ -209,7 +226,7 @@ describe('withEnv', () => {
     const d = withEnv(pricing, { PUBLIC_FOUNDING_PERCENT: '30', PUBLIC_FOUNDING_SPOTS: '3', PUBLIC_FOUNDING_TAKEN: '1', PUBLIC_MAX_DISCOUNT_PERCENT: '50' });
     expect(d.founding_offer).toMatchObject({ percent: 30, spots_total: 3, spots_taken: 1 });
     expect(d.max_discount_percent).toBe(50);
-    expect(quote(plan(), choices(), 'id', d).total).toBe(2_500_000 * 0.7);
+    expect(quote(plan(), choices(), 'id', d).total).toBe(1_200_000); // 1.750.000 − 30% rounded to Rp 50rb
   });
 
   it('ignores values that are not usable numbers', () => {
@@ -227,6 +244,6 @@ describe('withEnv', () => {
     const d = withEnv(pricing, { PUBLIC_FOUNDING_PERCENT: '30', PUBLIC_MAX_DISCOUNT_PERCENT: '50' });
     const q = quote(plan({ serviceId: 'online_store', pageCount: 6 }), choices(), 'id', d, promo(20));
     expect(q.savingsPercent).toBe(50);
-    expect(q.total).toBe(3_000_000);
+    expect(q.total).toBe(2_200_000);
   });
 });

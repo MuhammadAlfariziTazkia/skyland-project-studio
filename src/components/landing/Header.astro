@@ -25,13 +25,13 @@ const links = [
     <Logo href={home} />
     <div class="links" id="nav-links" data-nav-links>
       {links.map(([id, label]) => <a href={anchor(id)} data-nav-link>{label}</a>)}
-      <a class="lang" href={altHref} hreflang={alt} lang={alt}>
+      <a class="lang" href={altHref} hreflang={alt} lang={alt} data-lang-switch>
         <span aria-hidden="true">🌐</span> {t.nav.switchLang}
       </a>
       <a class="btn btn-primary btn-sm mobile-cta" href={ROUTES.consult[locale]}>{t.nav.cta} →</a>
     </div>
     <div class="right">
-      <a class="lang-short" href={altHref} hreflang={alt} lang={alt} aria-label={t.nav.switchLang}>{t.nav.switchLangShort}</a>
+      <a class="lang-short" href={altHref} hreflang={alt} lang={alt} aria-label={t.nav.switchLang} data-lang-switch>{t.nav.switchLangShort}</a>
       <a class="btn btn-primary btn-sm desktop-cta" href={ROUTES.consult[locale]}>{t.nav.cta} →</a>
       <button class="burger" type="button" aria-controls="nav-links" aria-expanded="false" data-burger>
         <span class="sr-only" data-burger-label data-open={t.nav.menu} data-close={t.nav.close}>{t.nav.menu}</span>
