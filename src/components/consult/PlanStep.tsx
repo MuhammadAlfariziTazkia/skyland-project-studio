@@ -245,7 +245,7 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
           ← {t.plan.back}
         </button>
         <div class="next-wrap">
-          <LivePrice label={t.plan.live} price={price} was={q.savings > 0 ? formatPrice(q.price, q.region) : ''} days={t.result.workdays(q.workdays[0], q.workdays[1])} />
+          <LivePrice {...livePrice(q, t)} />
           <button type="button" class="btn btn-primary" onClick={onNext}>
             {t.plan.next} →
           </button>
@@ -255,11 +255,26 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
   );
 }
 
+/** Derived once so the bar on the plan step and the style step can never drift apart. */
+export function livePrice(q: Quote, t: ConsultStrings) {
+  return {
+    label: t.plan.live,
+    price: quotePriceText(q) || t.plan.discuss,
+    // A struck range next to a discounted range is unreadable at this size; step 4 has the full breakdown.
+    was: q.savings > 0 && q.status === 'fixed' ? formatPrice(q.price, q.region) : '',
+    save: q.savings > 0 && q.status !== 'discuss' ? t.plan.saveShort(q.savingsPercent) : '',
+    days: t.result.workdays(q.workdays[0], q.workdays[1]),
+  };
+}
+
 /** The running total next to the primary action, so every change shows its effect immediately. */
-export function LivePrice({ label, price, was, days }: { label: string; price: string; was?: string; days: string }) {
+export function LivePrice({ label, price, was, save, days }: { label: string; price: string; was?: string; save?: string; days: string }) {
   return (
     <div class="live" aria-live="polite">
-      <span>{label}</span>
+      <div class="live-top">
+        <span class="lbl">{label}</span>
+        {save && <span class="save">{save}</span>}
+      </div>
       <div class="live-now">
         {was && <s>{was}</s>}
         <b>{price}</b>

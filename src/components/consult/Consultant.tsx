@@ -6,7 +6,7 @@ import { THEMES, themeSwatchHtml } from '../../lib/mockup/themes';
 import { MULTIPLIER_COPY, NOT_INCLUDED_COPY, RECURRING_COPY } from '../../i18n/catalog';
 import { quote as computeQuote, defaultChoices, formatPrice, formatShort, quotePriceText, type Promo } from '../../lib/pricing';
 import { REGIONS, THEME_IDS, type Choices, type Locale, type Mockup, type Plan, type ThemeId } from '../../lib/schemas';
-import { LivePrice, PlanStep } from './PlanStep';
+import { LivePrice, PlanStep, livePrice } from './PlanStep';
 import { PromoField } from './PromoField';
 import { Segmented } from './Segmented';
 import { OrderStep, type ContactForm } from './OrderStep';
@@ -329,7 +329,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                 ← {t.theme.back}
               </button>
               <div class="next-wrap">
-                {q && <LivePrice label={t.plan.live} price={quotePriceText(q) || t.plan.discuss} was={q.savings > 0 ? formatPrice(q.price, q.region) : ''} days={t.result.workdays(q.workdays[0], q.workdays[1])} />}
+                {q && <LivePrice {...livePrice(q, t)} />}
                 <button type="button" class="btn btn-primary" onClick={generateMockup}>
                   {t.theme.next} →
                 </button>
