@@ -1,8 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import pricing from '../data/pricing.json';
-import { FEATURE_COPY, MULTIPLIER_COPY, RECURRING_COPY, SERVICE_COPY } from '../src/i18n/catalog';
+import { FEATURE_COPY, MULTIPLIER_COPY, NOT_INCLUDED_COPY, RECURRING_COPY, SERVICE_COPY } from '../src/i18n/catalog';
 import { SERVICE_KEYS } from '../src/i18n/routes';
-import { SERVICE_PRICING_ID, quote, type PricingData } from '../src/lib/pricing';
+import { SERVICE_PRICING_ID, quote, withEnv, type PricingData, type Promo } from '../src/lib/pricing';
+import { validatePromo } from '../src/lib/promo';
 import { PlanSchema, type Choices, type Plan } from '../src/lib/schemas';
 
 const pages = (n: number) => Array.from({ length: n }, (_, i) => ({ name: `Page ${i + 1}`, purpose: '', sections: [] }));
@@ -24,7 +25,7 @@ const plan = (over: Partial<Plan> & { pageCount?: number } = {}): Plan => {
   });
 };
 const feats = (...ids: string[]) => ids.map((id) => ({ id, reason: '' }));
-const choices = (over: Partial<Choices> = {}): Choices => ({ region: 'ID', design: 'template', content: 'ready', timeline: 'normal', ...over });
+const choices = (over: Partial<Choices> = {}): Choices => ({ region: 'ID', design: 'template', content: 'ready', timeline: 'normal', promoCode: '', ...over });
 const noDiscount: PricingData = { ...pricing, founding_offer: { ...pricing.founding_offer, active: false } };
 
 describe('quote: reference_cases in pricing.json', () => {
@@ -82,8 +83,8 @@ describe('quote', () => {
 
   it('applies the founding discount on the price, rounded', () => {
     const q = quote(plan(), choices(), 'id');
-    expect(q.discountPercent).toBe(pricing.founding_offer.percent);
-    expect(q.discount).toBe(500_000);
+    expect(q.discounts).toHaveLength(1);
+    expect(q.discounts[0]).toMatchObject({ kind: 'founding', percent: 20, amount: 500_000 });
     expect(q.total).toBe(2_000_000);
   });
 
@@ -114,10 +115,118 @@ describe('catalog copy', () => {
     for (const s of pricing.services) expect(SERVICE_COPY[s.id], s.id).toBeDefined();
     for (const f of pricing.features) expect(FEATURE_COPY[f.id], f.id).toBeDefined();
     for (const r of pricing.recurring) expect(RECURRING_COPY[r.id], r.id).toBeDefined();
+    for (const r of pricing.not_included) expect(NOT_INCLUDED_COPY[r.id], r.id).toBeDefined();
     for (const [key, opts] of Object.entries(pricing.multipliers)) for (const o of opts) expect(MULTIPLIER_COPY[key as keyof typeof MULTIPLIER_COPY].options[o.id], `${key}.${o.id}`).toBeDefined();
   });
 
   it('maps every website type to a service in pricing.json', () => {
     for (const k of SERVICE_KEYS) expect(pricing.services.some((s) => s.id === SERVICE_PRICING_ID[k]), k).toBe(true);
+  });
+});
+
+const promo = (percent: number): Promo => ({ code: 'KENALANCEO', percent });
+
+describe('stacked discounts', () => {
+  it('adds the founding and promo percentages instead of compounding them', () => {
+    const q = quote(plan(), choices(), 'id', pricing, promo(20));
+    // 20% + 20% off Rp 2.500.000, not 0.8 × 0.8
+    expect(q.discounts.map((d) => d.amount)).toEqual([500_000, 500_000]);
+    expect(q.savingsPercent).toBe(40);
+    expect(q.total).toBe(1_500_000);
+  });
+
+  it('applies the promo code alone once the founding spots are gone', () => {
+    const q = quote(plan(), choices(), 'id', noDiscount, promo(20));
+    expect(q.discounts).toHaveLength(1);
+    expect(q.discounts[0].kind).toBe('promo');
+    expect(q.total).toBe(2_000_000);
+  });
+
+  it('labels the promo row with the code', () => {
+    expect(quote(plan(), choices(), 'id', noDiscount, promo(20)).discounts[0].label).toBe('Kode promo KENALANCEO');
+    expect(quote(plan(), choices(), 'en', noDiscount, promo(20)).discounts[0].label).toBe('Promo code KENALANCEO');
+  });
+
+  it('never discounts below the region minimum and reports the real percentage', () => {
+    const q = quote(plan({ serviceId: 'landing_page', pageCount: 1 }), choices(), 'id', pricing, promo(20));
+    expect(q.price).toBe(1_200_000);
+    expect(q.total).toBe(pricing.regions.ID.min_price);
+    expect(q.savings).toBe(200_000);
+    expect(q.savingsPercent).toBe(17); // not 40: the minimum price capped it
+  });
+
+  it('caps the combined discount at max_discount_percent', () => {
+    const q = quote(plan({ serviceId: 'online_store', pageCount: 6 }), choices(), 'id', pricing, promo(90));
+    expect(q.discounts.reduce((s, d) => s + d.percent, 0)).toBe(pricing.max_discount_percent);
+    expect(q.total).toBe(6_000_000 * 0.6);
+  });
+
+  it('discounts the upper bound of a range too', () => {
+    const q = quote(plan({ customRequests: [{ name: 'Loyalty points', description: '' }] }), choices(), 'id', pricing, promo(20));
+    expect(q.status).toBe('range');
+    expect([q.total, q.totalHigh]).toEqual([1_500_000, 1_800_000]);
+  });
+});
+
+describe('validatePromo', () => {
+  const set = (v: string) => (process.env.PROMO_CODES = v);
+  afterEach(() => delete process.env.PROMO_CODES);
+
+  it('accepts a configured code regardless of case and spacing', () => {
+    set('KENALANCEO=20');
+    expect(validatePromo('kenalanceo')).toEqual({ code: 'KENALANCEO', percent: 20 });
+    expect(validatePromo('  Kenalan Ceo ')).toEqual({ code: 'KENALANCEO', percent: 20 });
+  });
+
+  it('reads several codes and clamps each to max_discount_percent', () => {
+    set('KENALANCEO=20,TEMANLAMA=90');
+    expect(validatePromo('TEMANLAMA')?.percent).toBe(pricing.max_discount_percent);
+    expect(validatePromo('KENALANCEO')?.percent).toBe(20);
+  });
+
+  it('rejects unknown, empty and malformed codes', () => {
+    set('KENALANCEO=20,BROKEN,ZERO=0');
+    expect(validatePromo('NOPE')).toBeNull();
+    expect(validatePromo('')).toBeNull();
+    expect(validatePromo(undefined)).toBeNull();
+    expect(validatePromo('BROKEN')).toBeNull();
+    expect(validatePromo('ZERO')).toBeNull();
+  });
+
+  it('rejects everything when no codes are configured', () => {
+    set('');
+    expect(validatePromo('KENALANCEO')).toBeNull();
+  });
+});
+
+describe('withEnv', () => {
+  it('keeps the pricing.json values when nothing is set', () => {
+    expect(withEnv(pricing, {})).toEqual(pricing);
+    expect(withEnv(pricing, { PUBLIC_FOUNDING_PERCENT: '' }).founding_offer.percent).toBe(pricing.founding_offer.percent);
+  });
+
+  it('overrides the discount knobs from the environment', () => {
+    const d = withEnv(pricing, { PUBLIC_FOUNDING_PERCENT: '30', PUBLIC_FOUNDING_SPOTS: '3', PUBLIC_FOUNDING_TAKEN: '1', PUBLIC_MAX_DISCOUNT_PERCENT: '50' });
+    expect(d.founding_offer).toMatchObject({ percent: 30, spots_total: 3, spots_taken: 1 });
+    expect(d.max_discount_percent).toBe(50);
+    expect(quote(plan(), choices(), 'id', d).total).toBe(2_500_000 * 0.7);
+  });
+
+  it('ignores values that are not usable numbers', () => {
+    const d = withEnv(pricing, { PUBLIC_FOUNDING_PERCENT: 'abc', PUBLIC_FOUNDING_SPOTS: '-2' });
+    expect(d.founding_offer.percent).toBe(pricing.founding_offer.percent);
+    expect(d.founding_offer.spots_total).toBe(pricing.founding_offer.spots_total);
+  });
+
+  it('switches the founding offer off when the percentage or the spots are zero', () => {
+    expect(quote(plan(), choices(), 'id', withEnv(pricing, { PUBLIC_FOUNDING_PERCENT: '0' })).discounts).toHaveLength(0);
+    expect(quote(plan(), choices(), 'id', withEnv(pricing, { PUBLIC_FOUNDING_SPOTS: '0' })).discounts).toHaveLength(0);
+  });
+
+  it('lets a bigger cap carry a bigger stack', () => {
+    const d = withEnv(pricing, { PUBLIC_FOUNDING_PERCENT: '30', PUBLIC_MAX_DISCOUNT_PERCENT: '50' });
+    const q = quote(plan({ serviceId: 'online_store', pageCount: 6 }), choices(), 'id', d, promo(20));
+    expect(q.savingsPercent).toBe(50);
+    expect(q.total).toBe(3_000_000);
   });
 });

@@ -2,7 +2,7 @@ import { useState } from 'preact/hooks';
 import pricing from '../../../data/pricing.json';
 import { FEATURE_COPY, SERVICE_COPY } from '../../i18n/catalog';
 import type { ConsultStrings } from '../../i18n/consult';
-import { featurePrice, formatShort, getService, quotePriceText, type Quote } from '../../lib/pricing';
+import { featurePrice, formatPrice, formatShort, getService, quotePriceText, type Quote } from '../../lib/pricing';
 import type { Locale, Plan } from '../../lib/schemas';
 
 interface Props {
@@ -245,7 +245,7 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
           ← {t.plan.back}
         </button>
         <div class="next-wrap">
-          <LivePrice label={t.plan.live} price={price} days={t.result.workdays(q.workdays[0], q.workdays[1])} />
+          <LivePrice label={t.plan.live} price={price} was={q.savings > 0 ? formatPrice(q.price, q.region) : ''} days={t.result.workdays(q.workdays[0], q.workdays[1])} />
           <button type="button" class="btn btn-primary" onClick={onNext}>
             {t.plan.next} →
           </button>
@@ -256,11 +256,14 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
 }
 
 /** The running total next to the primary action, so every change shows its effect immediately. */
-export function LivePrice({ label, price, days }: { label: string; price: string; days: string }) {
+export function LivePrice({ label, price, was, days }: { label: string; price: string; was?: string; days: string }) {
   return (
     <div class="live" aria-live="polite">
       <span>{label}</span>
-      <b>{price}</b>
+      <div class="live-now">
+        {was && <s>{was}</s>}
+        <b>{price}</b>
+      </div>
       <small>{days}</small>
     </div>
   );

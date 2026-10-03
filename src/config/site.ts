@@ -11,9 +11,9 @@ export const SITE = {
   },
   email: env.PUBLIC_CONTACT_EMAIL || '',
   whatsapp: (env.PUBLIC_WHATSAPP_NUMBER || '').replace(/\D/g, ''),
-  city: 'Bandung',
-  region: 'West Java',
-  country: 'ID',
+  city: 'Kanagawa',
+  region: 'Kanagawa',
+  country: 'JP',
   socials: {
     linkedin: '',
     github: '',

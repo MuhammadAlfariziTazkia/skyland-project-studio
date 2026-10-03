@@ -25,8 +25,8 @@ const row = (k: string, v: string) => `<tr><td style="padding:6px 12px 6px 0;col
 function priceTable(q: Quote, lang: 'en' | 'id') {
   const L =
     lang === 'id'
-      ? { inc: 'termasuk', free: 'gratis', price: 'Harga', disc: 'Diskon klien pertama', total: 'Total harga pasti', est: 'Estimasi (dikonfirmasi lewat obrolan singkat)', discuss: 'Perlu diskusi langsung' }
-      : { inc: 'included', free: 'free', price: 'Price', disc: 'Founding client discount', total: 'Fixed total', est: 'Estimate (confirmed in a short call)', discuss: 'To be discussed' };
+      ? { inc: 'termasuk', free: 'gratis', price: 'Harga normal', total: 'Total harga pasti', est: 'Estimasi (dikonfirmasi lewat obrolan singkat)', discuss: 'Perlu diskusi langsung' }
+      : { inc: 'included', free: 'free', price: 'Normal price', total: 'Fixed total', est: 'Estimate (confirmed in a short call)', discuss: 'To be discussed' };
   const money = (n: number) => (n < 0 ? `−${formatPrice(-n, q.region)}` : formatPrice(n, q.region));
   const lines = q.lines
     .map(
@@ -37,7 +37,10 @@ function priceTable(q: Quote, lang: 'en' | 'id') {
   const label = q.status === 'fixed' ? L.total : q.status === 'range' ? L.est : L.discuss;
   return `<table style="width:100%;border-collapse:collapse">${lines}
 <tr><td style="padding:8px 0;font-size:13.5px">${L.price}</td><td style="text-align:right;font-size:13.5px">${formatPrice(q.price, q.region)}</td></tr>
-${q.discount ? `<tr><td style="padding:4px 0;font-size:13.5px;color:#16a36a">${L.disc} (${q.discountPercent}%)</td><td style="text-align:right;font-size:13.5px;color:#16a36a">−${formatPrice(q.discount, q.region)}</td></tr>` : ''}
+${q.discounts
+    .filter((d) => d.amount > 0)
+    .map((d) => `<tr><td style="padding:4px 0;font-size:13.5px;color:#16a36a">${esc(d.label)} (${d.percent}%)</td><td style="text-align:right;font-size:13.5px;color:#16a36a">−${formatPrice(d.amount, q.region)}</td></tr>`)
+    .join('')}
 <tr><td style="padding:10px 0;font-size:16px;font-weight:800">${label}</td><td style="text-align:right;font-size:18px;font-weight:800">${quotePriceText(q) || '—'}</td></tr></table>`;
 }
 
@@ -73,7 +76,7 @@ export async function sendOrderEmails(o: OrderRequest, q: Quote, id: string, moc
   const ownerHtml = box(`
 <div style="background:#2459e0;color:#fff;padding:20px 24px"><div style="font-size:12px;letter-spacing:.1em;opacity:.8">ORDER BARU · ${id}</div><div style="font-size:22px;font-weight:800;margin-top:4px">${esc(o.plan.projectName || typeName)} — ${totalText}</div></div>
 <div style="padding:8px 24px 24px">
-${h('Kontak klien')}<table>${row('Nama', esc(c.name))}${c.company ? row('Perusahaan', esc(c.company)) : ''}${row('Email', `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`)}${row('WhatsApp', `<a href="https://wa.me/${waNum}?text=${encodeURIComponent(`Halo ${c.name}, saya Alfarizi dari Skyland. Terima kasih sudah memesan (${id}).`)}">${esc(c.whatsapp)}</a>`)}${row('Bahasa / region', `${o.locale.toUpperCase()} / ${q.region} (${q.currency})`)}${row('Tema', THEMES[o.theme].name.id)}${row('Desain', choice('design_level', o.choices.design))}${row('Konten', choice('content_readiness', o.choices.content))}${row('Waktu', `${choice('timeline', o.choices.timeline)} · ${q.workdays[0]}–${q.workdays[1]} hari kerja`)}</table>
+${h('Kontak klien')}<table>${row('Nama', esc(c.name))}${c.company ? row('Perusahaan', esc(c.company)) : ''}${row('Email', `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`)}${row('WhatsApp', `<a href="https://wa.me/${waNum}?text=${encodeURIComponent(`Halo ${c.name}, saya Alfarizi dari Skyland. Terima kasih sudah memesan (${id}).`)}">${esc(c.whatsapp)}</a>`)}${row('Bahasa / region', `${o.locale.toUpperCase()} / ${q.region} (${q.currency})`)}${row('Tema', THEMES[o.theme].name.id)}${row('Desain', choice('design_level', o.choices.design))}${row('Konten', choice('content_readiness', o.choices.content))}${row('Waktu', `${choice('timeline', o.choices.timeline)} · ${q.workdays[0]}–${q.workdays[1]} hari kerja`)}${o.choices.promoCode ? row('Kode promo', esc(o.choices.promoCode)) : ''}</table>
 ${c.notes ? `${h('Catatan klien')}<p style="margin:0;font-size:14px;color:#33415e">${nl2br(c.notes)}</p>` : ''}
 ${q.status !== 'fixed' ? `<p style="margin:16px 0 0;padding:12px 14px;background:#fff7e6;border:1px solid #f5d9a8;border-radius:10px;font-size:13.5px">⚠️ ${q.status === 'range' ? 'Ada kebutuhan di luar katalog: harga ditampilkan sebagai rentang, konfirmasi lewat obrolan singkat.' : 'Melebihi batas harga otomatis: angka tidak ditampilkan ke klien, perlu diskusi langsung.'}</p>` : ''}
 ${h('Brief asli')}<p style="margin:0;font-size:14px;color:#33415e;background:#f7faff;border-radius:10px;padding:12px 14px">${nl2br(o.description)}</p>
@@ -98,7 +101,15 @@ ${h('Rincian harga')}${priceTable(q, 'id')}
   }</p>
 ${planHtml(o, o.locale)}
 ${h(en ? 'Price breakdown' : 'Rincian harga')}${priceTable(q, o.locale)}
-<p style="font-size:13px;color:#6a7894;line-height:1.6">${en ? `Payment: ${pay.down_payment_percent}% to start, ${pay.final_payment_percent}% after you approve the finished website. Domain, hosting and third-party subscriptions are not included.` : `Pembayaran: ${pay.down_payment_percent}% di awal, ${pay.final_payment_percent}% setelah Anda menyetujui website yang sudah jadi. Domain, hosting, dan langganan pihak ketiga belum termasuk.`}</p>
+<p style="font-size:13px;color:#6a7894;line-height:1.6">${
+    pay.down_payment_percent === 0
+      ? en
+        ? 'Payment: nothing upfront. You pay in full after you approve the finished website, before it goes live. Hosting, domain and third-party subscriptions are paid directly to those providers.'
+        : 'Pembayaran: tanpa DP. Anda bayar penuh setelah menyetujui website yang sudah jadi, sebelum online. Hosting, domain, dan langganan pihak ketiga dibayar langsung ke penyedianya.'
+      : en
+        ? `Payment: ${pay.down_payment_percent}% to start, ${pay.final_payment_percent}% after you approve the finished website. Hosting, domain and third-party subscriptions are paid directly to those providers.`
+        : `Pembayaran: ${pay.down_payment_percent}% di awal, ${pay.final_payment_percent}% setelah Anda menyetujui website yang sudah jadi. Hosting, domain, dan langganan pihak ketiga dibayar langsung ke penyedianya.`
+  }</p>
 <p style="font-size:13px;color:#6a7894">${en ? 'Your homepage mockup is attached. Open it in any browser.' : 'Mockup homepage Anda terlampir. Buka di browser mana saja.'}</p>
 <p style="font-size:14px;margin-top:20px">— Muhammad Alfarizi Tazkia<br><span style="color:#6a7894">${SITE.name}</span></p>
 </div>`);

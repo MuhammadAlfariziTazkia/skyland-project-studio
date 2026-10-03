@@ -58,8 +58,12 @@ export const ChoicesSchema = z.object({
   design: z.enum(DESIGN_IDS),
   content: z.enum(CONTENT_IDS),
   timeline: z.enum(TIMELINE_IDS),
+  // Only the code travels. Its discount is always looked up server-side (src/lib/promo.ts).
+  promoCode: z.string().trim().max(32).optional().default(''),
 });
 export type Choices = z.infer<typeof ChoicesSchema>;
+
+export const PromoRequestSchema = z.object({ code: z.string().trim().min(1).max(32) });
 
 const hex = z.string().transform((s) => (/^#[0-9a-fA-F]{6}$/.test(s.trim()) ? s.trim() : '#2563eb'));
 

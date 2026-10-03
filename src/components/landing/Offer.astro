@@ -1,15 +1,14 @@
 ---
-import pricing from '../../../data/pricing.json';
 import { whatsappLink } from '../../config/site';
 import { getDict } from '../../i18n';
 import { ROUTES } from '../../i18n/routes';
-import { foundingSpotsLeft } from '../../lib/pricing';
+import { foundingOffer, foundingSpotsLeft } from '../../lib/pricing';
 import type { Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const t = getDict(locale);
-const o = pricing.founding_offer;
+const o = foundingOffer;
 const left = foundingSpotsLeft();
 const wa = whatsappLink(locale === 'id' ? 'Halo Skyland, saya tertarik dengan promo klien pertama.' : "Hi Skyland, I'm interested in the founding client offer.");
 ---

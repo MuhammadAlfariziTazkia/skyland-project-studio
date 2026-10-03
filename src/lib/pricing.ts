@@ -1,15 +1,51 @@
 // Deterministic price engine for data/pricing.json (calculation.steps). Pure and isomorphic: the consultant
 // UI imports it for a live preview, and the API recomputes with it on every order (the server is authoritative).
 // The AI never sees or produces prices; it only picks ids that this engine prices.
-import pricing from '../../data/pricing.json';
+import raw from '../../data/pricing.json';
 import { FEATURE_COPY, MULTIPLIER_COPY, SERVICE_COPY } from '../i18n/catalog';
 import type { ServiceKey } from '../i18n/routes';
 import type { Choices, Currency, Locale, Plan, Region } from './schemas';
 
-export type PricingData = typeof pricing;
+export type PricingData = typeof raw;
 type Service = PricingData['services'][number] & { includes?: string[] };
 type Feature = PricingData['features'][number] & { unit?: string };
 type MultiplierKey = keyof PricingData['multipliers'];
+
+/**
+ * pricing.json holds the defaults; these PUBLIC_* env vars override the discount knobs so they can be
+ * changed per deploy without editing the file. The percentages are advertised on the site anyway, so
+ * being readable in the browser is fine — only the promo CODES stay server-side (src/lib/promo.ts).
+ */
+export function withEnv(data: PricingData, e: Record<string, string | undefined>): PricingData {
+  const num = (value: string | undefined, fallback: number) => {
+    const n = Number(value);
+    return value !== undefined && value.trim() !== '' && Number.isFinite(n) && n >= 0 ? n : fallback;
+  };
+  const f = data.founding_offer;
+  return {
+    ...data,
+    founding_offer: {
+      ...f,
+      percent: num(e.PUBLIC_FOUNDING_PERCENT, f.percent),
+      spots_total: num(e.PUBLIC_FOUNDING_SPOTS, f.spots_total),
+      spots_taken: num(e.PUBLIC_FOUNDING_TAKEN, f.spots_taken),
+    },
+    max_discount_percent: num(e.PUBLIC_MAX_DISCOUNT_PERCENT, data.max_discount_percent),
+  };
+}
+
+// Each key is read as a literal so Vite inlines it into the browser bundle too, which keeps the
+// consultant's live price identical to the price the server recomputes on order.
+const pricing: PricingData = withEnv(raw, {
+  PUBLIC_FOUNDING_PERCENT: import.meta.env.PUBLIC_FOUNDING_PERCENT,
+  PUBLIC_FOUNDING_SPOTS: import.meta.env.PUBLIC_FOUNDING_SPOTS,
+  PUBLIC_FOUNDING_TAKEN: import.meta.env.PUBLIC_FOUNDING_TAKEN,
+  PUBLIC_MAX_DISCOUNT_PERCENT: import.meta.env.PUBLIC_MAX_DISCOUNT_PERCENT,
+});
+
+/** pricing.json with the env overrides applied. Always use this, never the raw JSON import. */
+export const PRICING = pricing;
+export const foundingOffer = pricing.founding_offer;
 
 /** Productive hours per workday, used to turn extra est_hours into extra days on the timeline. */
 export const HOURS_PER_DAY = 6;
@@ -28,7 +64,7 @@ export const SERVICE_PRICING_ID: Record<ServiceKey, string> = {
 
 export const regionFor = (locale: Locale): Region => (locale === 'id' ? 'ID' : 'GLOBAL');
 export const currencyOf = (region: Region) => pricing.regions[region].currency as Currency;
-export const defaultChoices = (locale: Locale): Choices => ({ region: regionFor(locale), design: 'semi_custom', content: 'partial', timeline: 'normal' });
+export const defaultChoices = (locale: Locale): Choices => ({ region: regionFor(locale), design: 'semi_custom', content: 'partial', timeline: 'normal', promoCode: '' });
 
 export function getService(id: string, data: PricingData = pricing): Service {
   const s = data.services.find((x) => x.id === id);
@@ -53,9 +89,22 @@ const parseDays = (s: string): [number, number] => {
   return [a, b ?? a];
 };
 
+export interface Promo {
+  code: string;
+  percent: number;
+}
+
+export interface Discount {
+  kind: 'founding' | 'promo';
+  label: string;
+  percent: number;
+  amount: number;
+}
+
 export function foundingSpotsLeft(data: PricingData = pricing): number {
   const f = data.founding_offer;
-  return f.active ? Math.max(0, f.spots_total - f.spots_taken) : 0;
+  // A zero percentage or zero spots switches the offer off, so it can be disabled from the env alone.
+  return f.active && f.percent > 0 ? Math.max(0, f.spots_total - f.spots_taken) : 0;
 }
 
 export interface QuoteLine {
@@ -82,9 +131,11 @@ export interface Quote {
   price: number;
   /** price_high = price × range_upper (shown only for "range") */
   priceHigh: number;
-  discountPercent: number;
-  discount: number;
-  /** What the client pays: price − founding discount */
+  /** Founding offer and promo code, each with the amount it actually took off. */
+  discounts: Discount[];
+  savings: number;
+  savingsPercent: number;
+  /** What the client pays: price − savings */
   total: number;
   totalHigh: number;
   workdays: [number, number];
@@ -103,7 +154,12 @@ const ADJUST: Record<MultiplierKey | 'round' | 'minimum', Record<Locale, string>
   minimum: { en: 'Minimum project price', id: 'Harga minimum proyek' },
 };
 
-export function quote(plan: Plan, choices: Choices, locale: Locale, data: PricingData = pricing): Quote {
+const DISCOUNT: Record<Discount['kind'], Record<Locale, string>> = {
+  founding: { en: 'Founding client discount', id: 'Diskon klien pertama' },
+  promo: { en: 'Promo code', id: 'Kode promo' },
+};
+
+export function quote(plan: Plan, choices: Choices, locale: Locale, data: PricingData = pricing, promo: Promo | null = null): Quote {
   const svc = getService(plan.serviceId, data);
   const region = choices.region;
   const reg = data.regions[region];
@@ -167,9 +223,31 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
 
   const status: QuoteStatus = price > reg.max_price ? 'discuss' : plan.customRequests.length > 0 ? 'range' : 'fixed';
 
-  const discountPercent = foundingSpotsLeft(data) > 0 ? data.founding_offer.percent : 0;
-  const discountOf = (p: number) => Math.max(0, Math.min(roundTo((p * discountPercent) / 100, reg.round_to), p - reg.min_price));
-  const discount = discountOf(price);
+  // Discounts stack additively (20% + 20% = 40% off the undiscounted price), capped twice:
+  // by max_discount_percent, and by the region minimum so a cheap project can never fall below it.
+  const stack: { kind: Discount['kind']; label: string; percent: number }[] = [];
+  if (foundingSpotsLeft(data) > 0) stack.push({ kind: 'founding', label: DISCOUNT.founding[locale], percent: data.founding_offer.percent });
+  if (promo && promo.percent > 0) stack.push({ kind: 'promo', label: `${DISCOUNT.promo[locale]} ${promo.code}`, percent: promo.percent });
+
+  let budget = data.max_discount_percent;
+  const capped = stack.map((d) => {
+    const percent = Math.max(0, Math.min(d.percent, budget));
+    budget -= percent;
+    return { ...d, percent };
+  });
+
+  const applyDiscounts = (p: number): { discounts: Discount[]; savings: number } => {
+    const room = Math.max(0, p - reg.min_price);
+    let savings = 0;
+    const discounts = capped.map((d) => {
+      const amount = Math.max(0, Math.min(roundTo((p * d.percent) / 100, reg.round_to), room - savings));
+      savings += amount;
+      return { ...d, amount };
+    });
+    return { discounts, savings };
+  };
+
+  const { discounts, savings } = applyDiscounts(price);
 
   // Timeline: the package's workdays, plus the extra work, scaled by design/content effort and the chosen pace.
   const [lo, hi] = parseDays(svc.workdays);
@@ -186,10 +264,11 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
     subtotal,
     price,
     priceHigh,
-    discountPercent,
-    discount,
-    total: price - discount,
-    totalHigh: priceHigh - discountOf(priceHigh),
+    discounts,
+    savings,
+    savingsPercent: price > 0 ? Math.round((savings / price) * 100) : 0,
+    total: price - savings,
+    totalHigh: priceHigh - applyDiscounts(priceHigh).savings,
     workdays: [days(lo), days(hi)],
     pagesCount,
     featuresCount: seen.size,

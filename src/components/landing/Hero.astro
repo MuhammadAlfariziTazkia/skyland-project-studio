@@ -4,15 +4,14 @@ import heroSiteEn from '../../assets/hero-site-en.png';
 import heroSiteId from '../../assets/hero-site-id.png';
 import { getDict } from '../../i18n';
 import { ROUTES } from '../../i18n/routes';
-import pricing from '../../../data/pricing.json';
 import { demoQuote } from '../../lib/demo';
-import { foundingSpotsLeft, formatPrice } from '../../lib/pricing';
+import { foundingOffer, foundingSpotsLeft, formatPrice } from '../../lib/pricing';
 import type { Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const t = getDict(locale);
-const offer = pricing.founding_offer;
+const offer = foundingOffer;
 const spotsLeft = foundingSpotsLeft();
 const heroSite = locale === 'id' ? heroSiteId : heroSiteEn;
 const demo = demoQuote(locale);

@@ -122,7 +122,22 @@ export const MULTIPLIER_COPY: Record<'design_level' | 'content_readiness' | 'tim
 };
 
 export const RECURRING_COPY: Record<string, Record<Locale, { name: string; billing: string }>> = {
-  hosting_domain: { en: { name: 'Hosting + domain (first year)', billing: 'year' }, id: { name: 'Hosting + domain (tahun pertama)', billing: 'tahun' } },
   maintenance_basic: { en: { name: 'Care plan: backups, security updates, 1 small fix', billing: 'month' }, id: { name: 'Perawatan: backup, update keamanan, 1 perbaikan kecil', billing: 'bulan' } },
   maintenance_plus: { en: { name: 'Care plan plus: also up to 3 content updates', billing: 'month' }, id: { name: 'Perawatan plus: termasuk 3 update konten', billing: 'bulan' } },
+};
+
+/** Costs the client pays to someone else, so they are never part of a Skyland quote. */
+export const NOT_INCLUDED_COPY: Record<string, Record<Locale, { name: string; billing: string; note: string }>> = {
+  hosting_domain: {
+    en: {
+      name: 'Hosting & domain',
+      billing: 'year',
+      note: 'You choose the provider and plan, and pay them directly so the accounts stay in your name. Setting it all up is on us, free.',
+    },
+    id: {
+      name: 'Hosting & domain',
+      billing: 'tahun',
+      note: 'Anda pilih provider dan paketnya, lalu bayar langsung ke mereka agar akunnya atas nama Anda. Setup-nya kami yang kerjakan, gratis.',
+    },
+  },
 };

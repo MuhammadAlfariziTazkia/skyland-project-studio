@@ -56,15 +56,16 @@
   },
   "region_detection": "Pakai 'ID' jika user memilih Indonesia, menulis dalam Bahasa Indonesia, atau menyebut lokasi/nomor Indonesia. Selain itu pakai 'GLOBAL'. Jika ragu, tanya sekali.",
   "founding_offer": {
-    "note": "Diskon dihitung oleh kode, bukan oleh LLM. Set active=false atau naikkan spots_taken saat slot terisi.",
+    "note": "Diskon dihitung oleh kode, bukan oleh LLM. Naikkan spots_taken setiap satu klien deal; saat sama dengan spots_total diskon berhenti sendiri.",
     "active": true,
     "percent": 20,
     "spots_total": 5,
     "spots_taken": 0
   },
   "payment_terms": {
-    "down_payment_percent": 50,
-    "final_payment_percent": 50
+    "note": "down_payment_percent 0 = klien tidak bayar apa pun di depan. Pelunasan sebelum website dipindahkan ke domain klien.",
+    "down_payment_percent": 0,
+    "final_payment_percent": 100
   },
   "quote_valid_days": 14,
   "services": [
@@ -362,15 +363,6 @@
   },
   "recurring": [
     {
-      "id": "hosting_domain",
-      "label": "Hosting + Domain (tahun pertama)",
-      "price": {
-        "ID": 600000,
-        "GLOBAL": 120
-      },
-      "billing": "per tahun"
-    },
-    {
       "id": "maintenance_basic",
       "label": "Maintenance Basic — backup, update keamanan, 1x minor fix",
       "price": {
@@ -517,5 +509,25 @@
       "confidence": "high | medium | low — 'low' jika meleset >30% dari reference_cases region yang sama.",
       "note_for_client": "Maksimal 2 kalimat, bahasa santai, hindari istilah teknis."
     }
-  }
+  },
+  "max_discount_percent": 40,
+  "not_included": [
+    {
+      "id": "hosting_domain",
+      "label": "Hosting + domain",
+      "paid_to": "provider",
+      "estimate": {
+        "ID": [
+          500000,
+          1500000
+        ],
+        "GLOBAL": [
+          60,
+          150
+        ]
+      },
+      "billing": "per tahun",
+      "note": "Klien memilih provider dan paketnya sendiri, akun atas nama klien. Setup oleh Skyland, gratis."
+    }
+  ]
 }

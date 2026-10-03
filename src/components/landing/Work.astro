@@ -6,11 +6,10 @@ import fikrmate from '../../assets/work/fikrmate.png';
 import fikrmateMobile from '../../assets/work/fikrmate-mobile.png';
 import bunsky from '../../assets/work/bunsky.png';
 import bunskyMobile from '../../assets/work/bunsky-mobile.png';
-import pricing from '../../../data/pricing.json';
 import { getDict } from '../../i18n';
 import type { ProjectCopy } from '../../i18n/en';
 import { servicePath } from '../../i18n/routes';
-import { foundingSpotsLeft } from '../../lib/pricing';
+import { foundingOffer, foundingSpotsLeft } from '../../lib/pricing';
 import type { Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale }
@@ -77,7 +76,7 @@ const total = String(w.projects.length).padStart(2, '0');
 
     {foundingSpotsLeft() > 0 && (
       <div class="next" data-reveal>
-        <div class="stack"><b>{w.nextTitle}</b><span>{w.nextText(pricing.founding_offer.percent)}</span></div>
+        <div class="stack"><b>{w.nextTitle}</b><span>{w.nextText(foundingOffer.percent)}</span></div>
         <a class="btn btn-primary btn-sm" href="#offer">{w.nextCta} →</a>
       </div>
     )}

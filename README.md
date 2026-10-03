@@ -50,6 +50,11 @@ Script screenshot memakai Chrome lokal (`/usr/bin/google-chrome`); ganti lewat `
 | `GMAIL_APP_PASSWORD` | ✓ | App Password Gmail (lihat di bawah) |
 | `OWNER_EMAIL` | | Tujuan order baru (default: `GMAIL_USER`) |
 | `QUOTE_SECRET` | ✓ | String acak, mis. `openssl rand -hex 24` |
+| `PROMO_CODES` | | Kode promo, format `KODE=persen` dipisah koma, mis. `KENALANCEO=20`. Divalidasi di server saja |
+| `PUBLIC_FOUNDING_PERCENT` | | Diskon klien pertama (default dari `pricing.json`). `0` mematikan promonya |
+| `PUBLIC_FOUNDING_SPOTS` | | Jumlah slot klien pertama |
+| `PUBLIC_FOUNDING_TAKEN` | | Slot yang sudah terpakai. Naikkan tiap satu klien deal |
+| `PUBLIC_MAX_DISCOUNT_PERCENT` | | Batas atas total diskon (founding + kode promo) |
 | `PUBLIC_SITE_URL` | ✓ | Domain final, mis. `https://skyland.id` (dipakai untuk canonical, sitemap, OG) |
 | `PUBLIC_WHATSAPP_NUMBER` | ✓ | Format internasional tanpa `+`, mis. `6281234567890` |
 | `PUBLIC_CONTACT_EMAIL` | | Email publik di footer & JSON-LD |
@@ -100,3 +105,14 @@ Perkiraan biaya: hosting Vercel Hobby gratis, Gmail gratis. Satu konsultasi leng
 - [ ] Minta review Google dari klien pertama, lalu tambahkan portofolio baru.
 - [ ] Dapatkan backlink awal: direktori bisnis, profil Sribulancer/Projects.co.id/Upwork, GitHub README, artikel di LinkedIn/Medium.
 - [ ] Uji halaman di [Rich Results Test](https://search.google.com/test/rich-results) dan PageSpeed Insights.
+
+## Harga, diskon, dan promo
+
+Semua angka ada di `data/pricing.json`; `src/lib/pricing.ts` yang menghitung, AI tidak pernah menyentuh harga.
+
+- **Diskon klien pertama.** `founding_offer.spots_total` slot dengan diskon `percent`. Bisa diatur tanpa menyentuh file, lewat `PUBLIC_FOUNDING_PERCENT`, `PUBLIC_FOUNDING_SPOTS`, dan `PUBLIC_FOUNDING_TAKEN` (angka di `pricing.json` jadi nilai default). Naikkan `PUBLIC_FOUNDING_TAKEN` setiap satu klien deal lalu deploy ulang; begitu sama dengan jumlah slot, diskon, badge hero, dan section Offer hilang sendiri. `PERCENT=0` atau `SPOTS=0` mematikannya.
+- **Kode promo.** Hanya dari env `PROMO_CODES` (`KODE=persen`, dipisah koma), tidak pernah di `pricing.json` karena file itu ikut terkirim ke browser dan repo ini publik. Browser hanya tahu persennya lewat `POST /api/promo`; saat order, server memvalidasi ulang kodenya.
+- **Penumpukan diskon bersifat aditif** (20% + 20% = 40%), dibatasi `max_discount_percent` (env: `PUBLIC_MAX_DISCOUNT_PERCENT`) dan tidak pernah menurunkan total di bawah `regions[].min_price`. Kalau batas ini lebih kecil dari penjumlahan diskon, potongan kode promo yang dipangkas.
+- Nilai `PUBLIC_*` memang ikut terkirim ke browser, dan itu disengaja: persentasenya diiklankan di website, sementara **kode promonya** tetap hanya di server.
+- **Pembayaran** mengikuti `payment_terms`. `down_payment_percent: 0` berarti tanpa DP, dan seluruh copy di website ikut menyesuaikan.
+- **Hosting & domain** ada di `not_included`: dibayar klien langsung ke providernya, setup oleh Skyland tanpa biaya.

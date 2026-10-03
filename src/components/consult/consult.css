@@ -42,6 +42,8 @@
 .cs .live { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; text-align: right; }
 .cs .live span { font-size: 11px; font-weight: 600; color: var(--muted-2); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
 .cs .live b { white-space: nowrap; }
+.cs .live-now { display: flex; align-items: baseline; gap: 6px; }
+.cs .live-now s { font-size: 12px; color: var(--faint); }
 .cs .live b { font-size: 17px; letter-spacing: -0.01em; }
 .cs .live small { font-size: 11.5px; color: var(--muted-2); }
 
@@ -78,6 +80,7 @@
   .cs .next-wrap { flex: 1; min-width: 0; }
   .cs .next-wrap { justify-content: flex-end; }
   .cs .live b { font-size: 15px; }
+  .cs .live-now s { display: none; }
   .cs .live small { display: none; }
   .cs-actions.sticky .btn-ghost { display: none; }
   .cs-actions.sticky .btn-primary { flex: 0 1 auto; padding: 12px 18px; font-size: 14.5px; white-space: nowrap; }
@@ -175,7 +178,22 @@
 .cs .price-card { position: relative; border: 1px solid #dbe5fb; border-radius: 20px; padding: 18px; background: linear-gradient(180deg, #fff, #f7faff); display: flex; flex-direction: column; gap: 12px; }
 @media (min-width: 1024px) { .cs .price-card { position: sticky; top: 88px; } }
 .cs .pc-head { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; color: var(--muted-2); font-weight: 600; }
-.cs .was { color: var(--faint); font-size: 15px; margin-bottom: -8px; }
+.cs .saves { display: grid; gap: 4px; font-size: 13px; }
+.cs .save-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.cs .save-row span { color: var(--muted-2); }
+.cs .save-row s { color: var(--faint); }
+.cs .save-row.off span, .cs .save-row.off b { color: var(--green); }
+.cs .saved { align-self: flex-start; background: var(--green-soft); color: #12804f; font-size: 12.5px; font-weight: 700; padding: 5px 11px; border-radius: 999px; }
+
+/* promo code */
+.cs .promo-ask { align-self: flex-start; }
+.cs .promo { display: flex; flex-direction: column; gap: 6px; }
+.cs .promo-row { display: flex; gap: 8px; }
+.cs .promo-row input { flex: 1; min-width: 0; padding: 9px 12px; font-size: 15px; text-transform: uppercase; }
+.cs .promo-bad { color: #b42318; }
+.cs .promo.applied { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; background: var(--green-soft); border-radius: 12px; padding: 8px 12px; font-size: 13px; color: #12804f; }
+.cs .promo.applied b { letter-spacing: .04em; }
+.cs .promo.applied .link { padding: 0; font-size: 13px; }
 .cs .total { font-size: clamp(30px, 4vw, 38px); letter-spacing: -0.03em; line-height: 1.1; }
 .cs .total.range { font-size: clamp(22px, 2.6vw, 27px); }
 .cs .final { align-self: flex-start; background: var(--green-soft); color: #12804f; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; }
@@ -198,6 +216,9 @@
 .cs .incl ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; color: var(--ink-2); }
 .cs .incl.muted ul { grid-template-columns: 1fr; color: var(--muted); }
 .cs .incl.muted span { color: var(--muted-2); white-space: nowrap; }
+.cs .incl.muted li { margin-bottom: 6px; }
+.cs .incl.muted em { display: block; font-style: normal; font-size: 12px; color: var(--faint); line-height: 1.5; margin-top: 2px; }
+.cs .pay { background: var(--green-soft); color: #12804f; border-radius: 12px; padding: 10px 12px; }
 @media (max-width: 639px) { .cs .price-card .cs-actions.sticky { margin: 0 -18px -18px; border-radius: 0 0 20px 20px; } .cs .result { padding-bottom: 20px; } }
 
 /* order + done */

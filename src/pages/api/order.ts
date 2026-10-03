@@ -3,6 +3,7 @@ import { clientIp, errorResponse, json, rateLimit, readJson, HttpError } from '.
 import { sendOrderEmails } from '../../lib/mail';
 import { renderMockup } from '../../lib/mockup/render';
 import { quote } from '../../lib/pricing';
+import { validatePromo } from '../../lib/promo';
 import { quoteId } from '../../lib/quote-id';
 import { OrderRequestSchema } from '../../lib/schemas';
 
@@ -13,8 +14,9 @@ export const POST: APIRoute = async ({ request }) => {
     const body = OrderRequestSchema.parse(await readJson(request));
     if (body.website) throw new HttpError(400, 'Invalid request');
     rateLimit(`order:${clientIp(request)}`, 5);
-    // Never trust a client-side total: the price is recomputed from the plan and pricing.json.
-    const q = quote(body.plan, body.choices, body.locale);
+    // Never trust a client-side total: the price is recomputed from the plan and pricing.json,
+    // and the promo code is re-validated here so a forged percentage can never reach the quote.
+    const q = quote(body.plan, body.choices, body.locale, undefined, validatePromo(body.choices.promoCode));
     const id = quoteId(body.plan, body.choices, q);
     const html = renderMockup(body.mockup, body.theme, { locale: body.locale, watermark: `Concept · ${id}` });
     await sendOrderEmails(body, q, id, html);

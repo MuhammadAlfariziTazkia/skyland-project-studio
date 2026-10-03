@@ -11,6 +11,8 @@ const { locale, kind } = Astro.props;
 const contact = SITE.email || (locale === 'id' ? 'email yang tercantum di website ini' : 'the email listed on this website');
 const p = pricing.payment_terms;
 const validDays = pricing.quote_valid_days;
+const noDeposit = p.down_payment_percent === 0;
+const base = `${SITE.city}, Japan`;
 const updated = locale === 'id' ? '27 September 2026' : 'September 27, 2026';
 
 const docs = {
@@ -24,7 +26,7 @@ const docs = {
         ['What we store', `This website has no database. Your in-progress consultation is saved only in your own browser (local storage) so you don’t lose it on refresh; clear it any time with “Start over”. Orders exist only in our email inbox.`],
         ['How we use it', `Only to prepare your quote, contact you about your project and deliver the work. We never sell your data or use it for unrelated marketing.`],
         ['Your rights', `You can ask us to see, correct or delete your data at any time by contacting ${contact}.`],
-        ['Contact', `${SITE.name}, ${SITE.city}, Indonesia · ${contact}`],
+        ['Contact', `${SITE.name}, ${base} · ${contact}`],
       ],
     },
     id: {
@@ -36,7 +38,7 @@ const docs = {
         ['Data yang kami simpan', 'Website ini tidak memakai database. Konsultasi yang sedang berjalan hanya disimpan di browser Anda sendiri (local storage) agar tidak hilang saat halaman dimuat ulang; hapus kapan saja dengan “Mulai ulang”. Pesanan hanya tersimpan di kotak masuk email kami.'],
         ['Penggunaan data', 'Hanya untuk menyiapkan penawaran, menghubungi Anda terkait proyek, dan mengerjakan website Anda. Kami tidak pernah menjual data Anda atau memakainya untuk pemasaran yang tidak berkaitan.'],
         ['Hak Anda', `Anda bisa meminta untuk melihat, memperbaiki, atau menghapus data Anda kapan saja dengan menghubungi ${contact}.`],
-        ['Kontak', `${SITE.name}, ${SITE.city}, Indonesia · ${contact}`],
+        ['Kontak', `${SITE.name}, ${base} · ${contact}`],
       ],
     },
   },
@@ -47,8 +49,12 @@ const docs = {
       sections: [
         ['AI consultation', 'The consultation is free and non-binding. The plan and homepage mockup are concepts generated from your description; the final design is refined together with you.'],
         ['Fixed price', `The price shown is calculated from our published price list for the exact scope and choices in your plan (website type, pages, features, design level, content help and delivery speed) and is valid for ${validDays} days. It does not change unless you change the scope. Plans with requests outside our catalog show a price range, and very large plans are scoped in a call; in both cases we confirm the price in writing before any payment.`],
-        ['Payment', `${p.down_payment_percent}% down payment to start and ${p.final_payment_percent}% after you approve the finished website, before launch.`],
-        ['Not included', 'Domain names, paid hosting, third-party subscriptions (e.g. payment gateway fees, paid APIs) and work outside the agreed scope are not included unless listed in your quote.'],
+        ['Payment', noDeposit
+          ? `No deposit is required. You pay the full ${p.final_payment_percent}% only after the finished website is presented to you and you approve it, and before it goes live on your domain. Larger projects that need scoping are split into phases, each with its own fixed price and its own payment.`
+          : `${p.down_payment_percent}% down payment to start and ${p.final_payment_percent}% after you approve the finished website, before launch.`],
+        ['During the build & handover', 'While we build, your website lives on a staging link owned by Skyland. After full payment we deploy it to your domain and hand over the source code, the content and every account created for the project. If a project is cancelled before payment, nothing is handed over and nothing is owed.'],
+        ['Hosting & domain', 'Hosting and your domain are not part of the price. You choose the provider and plan and pay them directly, so the accounts are registered in your name and are not tied to us. Setting up the hosting, domain and SSL certificate is included in the project at no extra cost.'],
+        ['Not included', 'Hosting, domain names, third-party subscriptions (e.g. payment gateway fees, paid APIs) and work outside the agreed scope are not included unless listed in your quote.'],
         ['Revisions & support', 'Each project includes two design revision rounds and 30 days of free support after launch for bug fixes and small changes.'],
         ['Ownership', 'After full payment, you own the website code, content, domain and accounts created for your project.'],
         ['Changes to scope', 'New features requested after approval are quoted separately using the same price list.'],
@@ -60,8 +66,12 @@ const docs = {
       sections: [
         ['Konsultasi AI', 'Konsultasi gratis dan tidak mengikat. Rencana dan mockup homepage adalah konsep yang dibuat dari deskripsi Anda; desain final disempurnakan bersama Anda.'],
         ['Harga pasti', `Harga dihitung dari daftar harga kami untuk scope dan pilihan yang persis sama dengan rencana Anda (jenis website, halaman, fitur, tingkat desain, bantuan konten, dan kecepatan pengerjaan) dan berlaku ${validDays} hari. Harga tidak berubah kecuali scope berubah. Rencana dengan kebutuhan di luar katalog menampilkan rentang harga, dan rencana yang sangat besar dibahas lewat obrolan; keduanya kami konfirmasi secara tertulis sebelum pembayaran.`],
-        ['Pembayaran', `DP ${p.down_payment_percent}% untuk memulai dan ${p.final_payment_percent}% setelah Anda menyetujui website yang sudah jadi, sebelum online.`],
-        ['Tidak termasuk', 'Nama domain, hosting berbayar, langganan pihak ketiga (misalnya biaya payment gateway, API berbayar), dan pekerjaan di luar scope yang disepakati tidak termasuk kecuali tercantum di penawaran.'],
+        ['Pembayaran', noDeposit
+          ? `Tidak ada DP. Anda membayar penuh ${p.final_payment_percent}% hanya setelah website yang sudah jadi kami tunjukkan dan Anda setujui, serta sebelum website online di domain Anda. Proyek besar yang perlu dibahas dulu dipecah per tahap, masing-masing dengan harga pasti dan pembayarannya sendiri.`
+          : `DP ${p.down_payment_percent}% untuk memulai dan ${p.final_payment_percent}% setelah Anda menyetujui website yang sudah jadi, sebelum online.`],
+        ['Selama pengerjaan & serah terima', 'Selama dikerjakan, website Anda berada di link staging milik Skyland. Setelah pelunasan, kami memindahkannya ke domain Anda dan menyerahkan kode sumber, konten, serta semua akun yang dibuat untuk proyek ini. Jika proyek dibatalkan sebelum pembayaran, tidak ada yang diserahkan dan tidak ada yang perlu Anda bayar.'],
+        ['Hosting & domain', 'Hosting dan domain tidak termasuk dalam harga. Anda memilih sendiri provider dan paketnya lalu membayar langsung ke mereka, sehingga akunnya terdaftar atas nama Anda dan tidak terikat ke kami. Setup hosting, domain, dan sertifikat SSL sudah termasuk dalam proyek tanpa biaya tambahan.'],
+        ['Tidak termasuk', 'Hosting, nama domain, langganan pihak ketiga (misalnya biaya payment gateway, API berbayar), dan pekerjaan di luar scope yang disepakati tidak termasuk kecuali tercantum di penawaran.'],
         ['Revisi & support', 'Setiap proyek mendapat dua putaran revisi desain dan support gratis 30 hari setelah online untuk perbaikan bug dan perubahan kecil.'],
         ['Kepemilikan', 'Setelah pelunasan, kode website, konten, domain, dan akun yang dibuat untuk proyek Anda sepenuhnya milik Anda.'],
         ['Perubahan scope', 'Fitur baru yang diminta setelah persetujuan dihitung terpisah memakai daftar harga yang sama.'],

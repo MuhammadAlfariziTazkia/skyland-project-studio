@@ -43,8 +43,19 @@ await page.click('.cs-actions .btn-primary');
 await page.waitForSelector('.cs .price-card');
 await page.waitForTimeout(1200);
 await shot('4-result');
-const total = await page.textContent('.cs .total');
-console.log('TOTAL', total);
+console.log('TOTAL', await page.textContent('.cs .total'));
+
+// Promo code: a wrong one must be rejected, the real one must cut the price further.
+await page.click('.cs .promo-ask');
+await page.fill('.cs .promo input', 'NOPE123');
+await page.click('.cs .promo button[type=submit]');
+await page.waitForSelector('.cs .promo-bad');
+console.log('BAD CODE rejected');
+await page.fill('.cs .promo input', 'kenalanceo');
+await page.click('.cs .promo button[type=submit]');
+await page.waitForSelector('.cs .promo.applied');
+console.log('TOTAL with promo', await page.textContent('.cs .total'), '|', await page.textContent('.cs .saved'));
+await shot('4b-promo');
 await page.click('.cs .price-card .btn-primary');
 await page.waitForSelector('.cs .order');
 await page.click('.cs .order button[type=submit]'); // should show validation

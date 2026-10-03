@@ -3,10 +3,11 @@ import pricing from '../../../data/pricing.json';
 import { consultStrings } from '../../i18n/consult';
 import { renderMockup } from '../../lib/mockup/render';
 import { THEMES, themeSwatchHtml } from '../../lib/mockup/themes';
-import { MULTIPLIER_COPY, RECURRING_COPY } from '../../i18n/catalog';
-import { quote as computeQuote, defaultChoices, formatPrice, quotePriceText } from '../../lib/pricing';
+import { MULTIPLIER_COPY, NOT_INCLUDED_COPY, RECURRING_COPY } from '../../i18n/catalog';
+import { quote as computeQuote, defaultChoices, formatPrice, formatShort, quotePriceText, type Promo } from '../../lib/pricing';
 import { REGIONS, THEME_IDS, type Choices, type Locale, type Mockup, type Plan, type ThemeId } from '../../lib/schemas';
 import { LivePrice, PlanStep } from './PlanStep';
+import { PromoField } from './PromoField';
 import { Segmented } from './Segmented';
 import { OrderStep, type ContactForm } from './OrderStep';
 import { MockupFrame } from './MockupFrame';
@@ -24,6 +25,7 @@ interface State {
   reviseNote: string;
   answers: Record<number, number>;
   choices: Choices;
+  promo: Promo | null;
   theme: ThemeId;
   mockup: Mockup | null;
   mockupKey: string;
@@ -81,6 +83,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
     reviseNote: '',
     answers: {},
     choices: defaultChoices(locale),
+    promo: null,
     theme: 'minimal',
     mockup: null,
     mockupKey: '',
@@ -127,7 +130,19 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
     document.head.appendChild(sc);
   }, [turnstileSiteKey, s.step]);
 
-  const q = useMemo(() => (s.plan ? computeQuote(s.plan, s.choices, locale) : null), [s.plan, s.choices, locale]);
+  const q = useMemo(() => (s.plan ? computeQuote(s.plan, s.choices, locale, undefined, s.promo) : null), [s.plan, s.choices, locale, s.promo]);
+
+  // The browser only learns the percentage; the code itself never ships in the bundle.
+  const applyPromo = async (code: string): Promise<boolean> => {
+    try {
+      const res = await post<{ ok: boolean; code?: string; percent?: number }>('/api/promo', { code }, t);
+      if (!res.ok || !res.code || !res.percent) return false;
+      set({ promo: { code: res.code, percent: res.percent } });
+      return true;
+    } catch {
+      return false;
+    }
+  };
   const choose = (patch: Partial<Choices>) => set({ choices: { ...s.choices, ...patch } });
   const multi = (key: keyof typeof MULTIPLIER_COPY) => Object.entries(MULTIPLIER_COPY[key].options).map(([id, o]) => ({ id, label: o[locale].label }));
   const mockHtml = useMemo(() => (s.mockup ? renderMockup(s.mockup, s.theme, { locale }) : ''), [s.mockup, s.theme, locale]);
@@ -171,7 +186,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
     run('order', async () => {
       const res = await post<{ quoteId: string }>(
         '/api/order',
-        { locale, choices: s.choices, description: s.description, revision: s.revisionUsed ? s.revision : '', plan: s.plan, theme: s.theme, mockup: s.mockup, contact: s.contact, website: honeypot },
+        { locale, choices: { ...s.choices, promoCode: s.promo?.code ?? '' }, description: s.description, revision: s.revisionUsed ? s.revision : '', plan: s.plan, theme: s.theme, mockup: s.mockup, contact: s.contact, website: honeypot },
         t,
       );
       set({ quoteId: res.quoteId });
@@ -314,7 +329,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                 ← {t.theme.back}
               </button>
               <div class="next-wrap">
-                {q && <LivePrice label={t.plan.live} price={quotePriceText(q) || t.plan.discuss} days={t.result.workdays(q.workdays[0], q.workdays[1])} />}
+                {q && <LivePrice label={t.plan.live} price={quotePriceText(q) || t.plan.discuss} was={q.savings > 0 ? formatPrice(q.price, q.region) : ''} days={t.result.workdays(q.workdays[0], q.workdays[1])} />}
                 <button type="button" class="btn btn-primary" onClick={generateMockup}>
                   {t.theme.next} →
                 </button>
@@ -352,9 +367,24 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                   <p class="warn">{t.result.discussNote}</p>
                 ) : (
                   <>
-                    {q.discount > 0 && <s class="was">{q.status === 'range' ? `${formatPrice(q.price, q.region)} – ${formatPrice(q.priceHigh, q.region)}` : formatPrice(q.price, q.region)}</s>}
+                    {q.savings > 0 && (
+                      <div class="saves">
+                        <div class="save-row">
+                          <span>{t.result.normalPrice}</span>
+                          <s>{q.status === 'range' ? `${formatPrice(q.price, q.region)} – ${formatPrice(q.priceHigh, q.region)}` : formatPrice(q.price, q.region)}</s>
+                        </div>
+                        {q.discounts.filter((d) => d.amount > 0).map((d) => (
+                          <div class="save-row off">
+                            <span>✓ {d.label} ({d.percent}%)</span>
+                            <b>−{formatPrice(d.amount, q.region)}</b>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <b class={`total ${q.status}`}>{quotePriceText(q)}</b>
+                    {q.savings > 0 && <span class="saved">{t.result.youSave(formatPrice(q.savings, q.region), q.savingsPercent)}</span>}
                     {q.status === 'range' ? <p class="warn">{t.result.rangeNote}</p> : <span class="final">{t.result.final}</span>}
+                    <PromoField t={t} promo={s.promo} onApply={applyPromo} onRemove={() => set({ promo: null })} />
                   </>
                 )}
                 <ul class="facts">
@@ -386,12 +416,12 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                           <td>{t.result.price}</td>
                           <td>{formatPrice(q.price, q.region)}</td>
                         </tr>
-                        {q.discount > 0 && (
+                        {q.discounts.filter((d) => d.amount > 0).map((d) => (
                           <tr class="disc">
-                            <td>{t.result.discount(q.discountPercent)}</td>
-                            <td>−{formatPrice(q.discount, q.region)}</td>
+                            <td>{d.label} ({d.percent}%)</td>
+                            <td>−{formatPrice(d.amount, q.region)}</td>
                           </tr>
-                        )}
+                        ))}
                         <tr class="tot">
                           <td>{t.result.total}</td>
                           <td>{formatPrice(q.total, q.region)}</td>
@@ -400,13 +430,32 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                     </table>
                   </details>
                 )}
-                <p class="fine">{t.result.payment(pricing.payment_terms.down_payment_percent, pricing.payment_terms.final_payment_percent)}</p>
+                <p class="fine pay">
+                  {pricing.payment_terms.down_payment_percent === 0
+                    ? t.result.paymentNoDeposit
+                    : t.result.payment(pricing.payment_terms.down_payment_percent, pricing.payment_terms.final_payment_percent)}
+                </p>
                 <div class="incl">
                   <b>{t.result.everyProject}</b>
                   <ul>
                     {t.result.everyItems.map((i) => (
                       <li>✓ {i}</li>
                     ))}
+                  </ul>
+                </div>
+                <div class="incl muted">
+                  <b>{t.result.notIncluded}</b>
+                  <ul>
+                    {pricing.not_included.map((r) => {
+                      const c = NOT_INCLUDED_COPY[r.id][locale];
+                      const [lo, hi] = r.estimate[q.region];
+                      return (
+                        <li>
+                          {c.name} · <span>{t.result.estimate(`${formatShort(lo, q.region)}–${formatShort(hi, q.region)}`, c.billing)}</span>
+                          <em>{c.note}</em>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
                 <div class="incl muted">
