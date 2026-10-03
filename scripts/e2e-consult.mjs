@@ -20,17 +20,24 @@ await page.goto(base + path, { waitUntil: 'networkidle' });
 await page.evaluate(() => localStorage.clear());
 await page.reload({ waitUntil: 'networkidle' });
 await page.fill('#cs-desc', 'I run a coffee shop in Bandung for students. I want a modern website with menu, story, location and online ordering for pickup.');
+await page.click('.cs .quick .q-row:nth-of-type(2) button:nth-child(3)'); // content: not yet
 await shot('1-describe');
 await page.click('.cs button[type=submit]');
 await page.waitForSelector('.cs .pages');
+const live = () => page.textContent('.cs .live b');
+console.log('LIVE', await live());
+await page.click('.cs .feats .feat:not(.on)'); // switch a suggestion on
+await page.click('.cs .ask .chip:nth-child(2)'); // answer a quick question
+console.log('LIVE after toggle + answer', await live());
 await shot('2-plan');
-await page.click('.cs .feat:nth-child(4) .x'); // remove one feature
 await page.fill('.cs .revise textarea', 'Add table reservation');
 await page.click('.cs .revise button');
 await page.waitForSelector('.cs .revise .fine');
 await page.click('.cs-actions .btn-primary');
 await page.waitForSelector('.cs .themes');
 await page.click('.cs .theme:nth-child(2)');
+await page.click('.cs .level:nth-child(3)'); // one-of-a-kind design
+console.log('LIVE after design', await live());
 await shot('3-theme');
 await page.click('.cs-actions .btn-primary');
 await page.waitForSelector('.cs .price-card');

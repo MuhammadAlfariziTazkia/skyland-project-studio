@@ -55,6 +55,18 @@
     }
   },
   "region_detection": "Pakai 'ID' jika user memilih Indonesia, menulis dalam Bahasa Indonesia, atau menyebut lokasi/nomor Indonesia. Selain itu pakai 'GLOBAL'. Jika ragu, tanya sekali.",
+  "founding_offer": {
+    "note": "Diskon dihitung oleh kode, bukan oleh LLM. Set active=false atau naikkan spots_taken saat slot terisi.",
+    "active": true,
+    "percent": 20,
+    "spots_total": 5,
+    "spots_taken": 0
+  },
+  "payment_terms": {
+    "down_payment_percent": 50,
+    "final_payment_percent": 50
+  },
+  "quote_valid_days": 14,
   "services": [
     {
       "id": "company_profile",
@@ -331,17 +343,20 @@
       {
         "id": "normal",
         "label": "Normal",
-        "value": 1
+        "value": 1,
+        "time_factor": 1
       },
       {
         "id": "priority",
         "label": "Dipercepat ~70% waktu",
-        "value": 1.25
+        "value": 1.25,
+        "time_factor": 0.7
       },
       {
         "id": "rush",
         "label": "Kilat ~50% waktu",
-        "value": 1.5
+        "value": 1.5,
+        "time_factor": 0.5
       }
     ]
   },

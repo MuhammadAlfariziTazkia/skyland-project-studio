@@ -15,7 +15,7 @@ export const POST: APIRoute = async ({ request }) => {
       await verifyTurnstile(body.turnstileToken, ip);
       return json({ plan: await createPlan(body.locale, body.description, body.reference) });
     }
-    return json({ plan: await revisePlan(body.locale, body.description, body.plan, body.instruction) });
+    return json(await revisePlan(body.locale, body.description, body.plan, body.instruction));
   } catch (err) {
     return errorResponse(err);
   }

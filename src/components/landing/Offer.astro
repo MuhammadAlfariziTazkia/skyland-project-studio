@@ -9,7 +9,7 @@ import type { Locale } from '../../lib/schemas';
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const t = getDict(locale);
-const o = pricing.foundingOffer;
+const o = pricing.founding_offer;
 const left = foundingSpotsLeft();
 const wa = whatsappLink(locale === 'id' ? 'Halo Skyland, saya tertarik dengan promo klien pertama.' : "Hi Skyland, I'm interested in the founding client offer.");
 ---
@@ -20,11 +20,11 @@ const wa = whatsappLink(locale === 'id' ? 'Halo Skyland, saya tertarik dengan pr
     <span class="tag">{t.offer.eyebrow}</span>
     {left > 0 ? (
       <>
-        <h2>{t.offer.title(o.spotsTotal)}</h2>
+        <h2>{t.offer.title(o.spots_total)}</h2>
         <p>{t.offer.lead(o.percent)}</p>
         <div class="spots">
-          <div class="bars" aria-hidden="true">{Array.from({ length: o.spotsTotal }, (_, i) => <span class:list={{ taken: i < o.spotsTaken }}></span>)}</div>
-          <span>{t.offer.left(left, o.spotsTotal)}</span>
+          <div class="bars" aria-hidden="true">{Array.from({ length: o.spots_total }, (_, i) => <span class:list={{ taken: i < o.spots_taken }}></span>)}</div>
+          <span>{t.offer.left(left, o.spots_total)}</span>
         </div>
       </>
     ) : (

@@ -9,7 +9,8 @@ import type { Locale } from '../../lib/schemas';
 interface Props { locale: Locale; kind: 'privacy' | 'terms' }
 const { locale, kind } = Astro.props;
 const contact = SITE.email || (locale === 'id' ? 'email yang tercantum di website ini' : 'the email listed on this website');
-const p = pricing.meta.paymentTerms;
+const p = pricing.payment_terms;
+const validDays = pricing.quote_valid_days;
 const updated = locale === 'id' ? '27 September 2026' : 'September 27, 2026';
 
 const docs = {
@@ -45,8 +46,8 @@ const docs = {
       desc: 'Terms for quotes, payment and delivery of website projects by Skyland Project Studio.',
       sections: [
         ['AI consultation', 'The consultation is free and non-binding. The plan and homepage mockup are concepts generated from your description; the final design is refined together with you.'],
-        ['Fixed price', `The price shown is calculated from our published price list for the exact scope in your plan and is valid for ${pricing.meta.quoteValidDays} days. It does not change unless you change the scope. Projects flagged as needing review show an estimate that we confirm in writing before any payment.`],
-        ['Payment', `${p.downPaymentPercent}% down payment to start and ${p.finalPaymentPercent}% after you approve the finished website, before launch.`],
+        ['Fixed price', `The price shown is calculated from our published price list for the exact scope and choices in your plan (website type, pages, features, design level, content help and delivery speed) and is valid for ${validDays} days. It does not change unless you change the scope. Plans with requests outside our catalog show a price range, and very large plans are scoped in a call; in both cases we confirm the price in writing before any payment.`],
+        ['Payment', `${p.down_payment_percent}% down payment to start and ${p.final_payment_percent}% after you approve the finished website, before launch.`],
         ['Not included', 'Domain names, paid hosting, third-party subscriptions (e.g. payment gateway fees, paid APIs) and work outside the agreed scope are not included unless listed in your quote.'],
         ['Revisions & support', 'Each project includes two design revision rounds and 30 days of free support after launch for bug fixes and small changes.'],
         ['Ownership', 'After full payment, you own the website code, content, domain and accounts created for your project.'],
@@ -58,8 +59,8 @@ const docs = {
       desc: 'Ketentuan penawaran harga, pembayaran, dan pengerjaan proyek website oleh Skyland Project Studio.',
       sections: [
         ['Konsultasi AI', 'Konsultasi gratis dan tidak mengikat. Rencana dan mockup homepage adalah konsep yang dibuat dari deskripsi Anda; desain final disempurnakan bersama Anda.'],
-        ['Harga pasti', `Harga dihitung dari daftar harga kami untuk scope yang persis sama dengan rencana Anda dan berlaku ${pricing.meta.quoteValidDays} hari. Harga tidak berubah kecuali scope berubah. Proyek yang ditandai perlu ditinjau menampilkan estimasi yang kami konfirmasi secara tertulis sebelum pembayaran.`],
-        ['Pembayaran', `DP ${p.downPaymentPercent}% untuk memulai dan ${p.finalPaymentPercent}% setelah Anda menyetujui website yang sudah jadi, sebelum online.`],
+        ['Harga pasti', `Harga dihitung dari daftar harga kami untuk scope dan pilihan yang persis sama dengan rencana Anda (jenis website, halaman, fitur, tingkat desain, bantuan konten, dan kecepatan pengerjaan) dan berlaku ${validDays} hari. Harga tidak berubah kecuali scope berubah. Rencana dengan kebutuhan di luar katalog menampilkan rentang harga, dan rencana yang sangat besar dibahas lewat obrolan; keduanya kami konfirmasi secara tertulis sebelum pembayaran.`],
+        ['Pembayaran', `DP ${p.down_payment_percent}% untuk memulai dan ${p.final_payment_percent}% setelah Anda menyetujui website yang sudah jadi, sebelum online.`],
         ['Tidak termasuk', 'Nama domain, hosting berbayar, langganan pihak ketiga (misalnya biaya payment gateway, API berbayar), dan pekerjaan di luar scope yang disepakati tidak termasuk kecuali tercantum di penawaran.'],
         ['Revisi & support', 'Setiap proyek mendapat dua putaran revisi desain dan support gratis 30 hari setelah online untuk perbaikan bug dan perubahan kecil.'],
         ['Kepemilikan', 'Setelah pelunasan, kode website, konten, domain, dan akun yang dibuat untuk proyek Anda sepenuhnya milik Anda.'],

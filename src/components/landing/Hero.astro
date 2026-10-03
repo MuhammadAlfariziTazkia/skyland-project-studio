@@ -2,19 +2,21 @@
 import { Image } from 'astro:assets';
 import heroSiteEn from '../../assets/hero-site-en.png';
 import heroSiteId from '../../assets/hero-site-id.png';
-import pricing from '../../../data/pricing.json';
 import { getDict } from '../../i18n';
 import { ROUTES } from '../../i18n/routes';
+import pricing from '../../../data/pricing.json';
+import { demoQuote } from '../../lib/demo';
 import { foundingSpotsLeft, formatPrice } from '../../lib/pricing';
 import type { Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const t = getDict(locale);
-const offer = pricing.foundingOffer;
+const offer = pricing.founding_offer;
 const spotsLeft = foundingSpotsLeft();
 const heroSite = locale === 'id' ? heroSiteId : heroSiteEn;
-const samplePrice = formatPrice(locale === 'id' ? 5_200_000 : 620, t.currency);
+const demo = demoQuote(locale);
+const samplePrice = formatPrice(demo.total, demo.region);
 const [planA, planB] = t.hero.planCard;
 const [priceA, priceB] = t.hero.priceCard(samplePrice);
 ---
@@ -22,7 +24,7 @@ const [priceA, priceB] = t.hero.priceCard(samplePrice);
   <div class="container grid">
     <div class="copy">
       {spotsLeft > 0 && (
-        <div class="pill badge" data-anim><span class="dot" aria-hidden="true"></span>{t.hero.badge(offer.percent, offer.spotsTotal)}</div>
+        <div class="pill badge" data-anim><span class="dot" aria-hidden="true"></span>{t.hero.badge(offer.percent, offer.spots_total)}</div>
       )}
       <h1 data-anim>{t.hero.titleA} <span class="shimmer">{t.hero.titleB}</span></h1>
       <p class="lead big" data-anim>{t.hero.lead}</p>

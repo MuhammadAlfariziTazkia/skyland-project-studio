@@ -2,6 +2,7 @@
 import ScaledFrame from '../ScaledFrame.astro';
 import { getDict } from '../../i18n';
 import { ROUTES } from '../../i18n/routes';
+import { demoQuote } from '../../lib/demo';
 import { formatPrice } from '../../lib/pricing';
 import { renderMockup } from '../../lib/mockup/render';
 import { SAMPLE_MOCKUP } from '../../lib/mockup/samples';
@@ -13,7 +14,8 @@ const { locale } = Astro.props;
 const t = getDict(locale);
 const d = t.how.demo;
 const mockHtml = renderMockup(SAMPLE_MOCKUP[locale], 'elegant', { locale });
-const price = formatPrice(locale === 'id' ? 5_200_000 : 620, t.currency);
+const demo = demoQuote(locale);
+const price = formatPrice(demo.total, demo.region);
 ---
 <section id="how" class="section how" data-how>
   <div class="container grid">

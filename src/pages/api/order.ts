@@ -14,11 +14,11 @@ export const POST: APIRoute = async ({ request }) => {
     if (body.website) throw new HttpError(400, 'Invalid request');
     rateLimit(`order:${clientIp(request)}`, 5);
     // Never trust a client-side total: the price is recomputed from the plan and pricing.json.
-    const q = quote(body.plan, body.currency, body.locale);
-    const id = quoteId(body.plan, q);
+    const q = quote(body.plan, body.choices, body.locale);
+    const id = quoteId(body.plan, body.choices, q);
     const html = renderMockup(body.mockup, body.theme, { locale: body.locale, watermark: `Concept · ${id}` });
     await sendOrderEmails(body, q, id, html);
-    return json({ ok: true, quoteId: id, total: q.total, currency: q.currency });
+    return json({ ok: true, quoteId: id, total: q.total, currency: q.currency, status: q.status });
   } catch (err) {
     return errorResponse(err);
   }

@@ -3,11 +3,11 @@ import Base from '../../layouts/Base.astro';
 import Header from '../landing/Header.astro';
 import Footer from '../landing/Footer.astro';
 import ServiceIllustration from '../illustrations/ServiceIllustration.astro';
-import pricing from '../../../data/pricing.json';
 import { getDict } from '../../i18n';
 import { ROUTES, SERVICE_KEYS, servicePath, type ServiceKey } from '../../i18n/routes';
 import { breadcrumbLd, faqLd, organizationLd, serviceLd } from '../../lib/jsonld';
-import { formatPrice, typicalRange } from '../../lib/pricing';
+import { FEATURE_COPY } from '../../i18n/catalog';
+import { SERVICE_PRICING_ID, formatPrice, getService, packageWorkdays, regionFor, startingPrice } from '../../lib/pricing';
 import type { Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale; service: ServiceKey }
@@ -15,8 +15,9 @@ const { locale, service } = Astro.props;
 const t = getDict(locale);
 const sp = t.servicePage;
 const s = t.services_list[service];
-const type = pricing.projectTypes[service];
-const feats = pricing.features as Record<string, { name: Record<Locale, string> }>;
+const pkg = getService(SERVICE_PRICING_ID[service]);
+const region = regionFor(locale);
+const [d0, d1] = packageWorkdays(service);
 const site = (Astro.site?.toString() ?? '').replace(/\/$/, '');
 const faqs = [...s.seo.faqs, ...t.faq.items.slice(1, 3)];
 const jsonLd = [
@@ -42,9 +43,9 @@ const jsonLd = [
           <h1>{s.seo.h1}</h1>
           <p class="lead big">{s.seo.intro}</p>
           <div class="facts">
-            <div><span>{sp.startsFrom}</span><b>{formatPrice(type.basePrice[t.currency], t.currency)}</b></div>
-            <div><span>{sp.typical}</span><b>{typicalRange(service, t.currency)}</b></div>
-            <div><span>{sp.timeline}</span><b>{sp.weeks(type.timelineWeeks[0], type.timelineWeeks[1])}</b></div>
+            <div><span>{sp.startsFrom}</span><b>{formatPrice(startingPrice(service, region), region)}</b></div>
+            <div><span>{sp.typical}</span><b>{sp.pages(pkg.pages_included)}</b></div>
+            <div><span>{sp.timeline}</span><b>{sp.workdays(d0, d1)}</b></div>
           </div>
           <div class="ctas">
             <a class="btn btn-primary" href={ROUTES.consult[locale]}>{t.how.cta} →</a>
@@ -69,8 +70,8 @@ const jsonLd = [
           <div class="card box">
             <h3>{sp.packageIncludes}</h3>
             <ul class="ticks">
-              <li>{sp.pages(type.includedPages)}</li>
-              {type.includedFeatures.map((f) => <li>{feats[f]?.name[locale]}</li>)}
+              <li>{sp.pages(pkg.pages_included)}</li>
+              {(pkg.includes ?? []).map((f) => <li>{FEATURE_COPY[f]?.[locale].name}</li>)}
             </ul>
           </div>
           <div class="card box">

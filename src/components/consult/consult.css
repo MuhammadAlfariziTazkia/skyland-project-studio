@@ -24,6 +24,26 @@
 @media (min-width: 640px) { .cs-body { padding: 28px; gap: 20px; } }
 .cs-head { display: flex; flex-direction: column; gap: 6px; }
 .cs-head p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
+.cs .type-pill { align-self: flex-start; font-size: 12px; font-weight: 700; color: var(--blue); background: var(--blue-soft); border-radius: 999px; padding: 4px 10px; }
+.cs .helps { background: #f7faff; border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; font-size: 14px; }
+.cs .helps ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; color: var(--ink-2); }
+.cs .helps li::before { content: '✓'; color: var(--green); font-weight: 700; margin-right: 8px; }
+
+/* quick questions (describe step) */
+.cs .quick { border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; margin: 0; display: grid; gap: 12px; }
+.cs .quick legend { padding: 0 6px; margin-left: -6px; font-size: 13.5px; font-weight: 700; color: var(--ink-2); }
+.cs .q-row { display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; }
+.cs .q-label { font-size: 14px; color: var(--ink-2); }
+.cs .q-seg { flex-wrap: wrap; }
+.cs .seg button[aria-checked='true'] { background: #fff; color: var(--blue); box-shadow: 0 2px 8px rgba(11, 26, 58, .08); }
+@media (max-width: 639px) { .cs .q-row { flex-direction: column; align-items: stretch; } .cs .q-seg { display: flex; } .cs .q-seg button { flex: 1; justify-content: center; } }
+
+/* live price next to the primary action */
+.cs .live { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; text-align: right; }
+.cs .live span { font-size: 11px; font-weight: 600; color: var(--muted-2); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+.cs .live b { white-space: nowrap; }
+.cs .live b { font-size: 17px; letter-spacing: -0.01em; }
+.cs .live small { font-size: 11.5px; color: var(--muted-2); }
 
 /* inputs */
 .cs textarea, .cs input[type='text'], .cs input[type='email'], .cs input[type='tel'], .cs input[type='number'], .cs select { width: 100%; border: 1.5px solid #d6e0f2; border-radius: 12px; padding: 12px 14px; font-size: 16px; background: #fff; color: var(--ink); transition: border-color .2s, box-shadow .2s; }
@@ -56,7 +76,12 @@
   .cs-actions.sticky:not(.col) { flex-wrap: nowrap; }
   .cs-actions.sticky .btn-primary { flex: 1; }
   .cs .next-wrap { flex: 1; min-width: 0; }
-  .cs .next-wrap .counts { display: none; }
+  .cs .next-wrap { justify-content: flex-end; }
+  .cs .live b { font-size: 15px; }
+  .cs .live small { display: none; }
+  .cs-actions.sticky .btn-ghost { display: none; }
+  .cs-actions.sticky .btn-primary { flex: 0 1 auto; padding: 12px 18px; font-size: 14.5px; white-space: nowrap; }
+  .cs .live span { font-size: 10px; letter-spacing: .02em; }
   .cs-actions:not(.sticky) .btn-primary { width: 100%; }
 }
 
@@ -78,30 +103,42 @@
 .cs .blk { display: flex; flex-direction: column; }
 .cs .pages, .cs .feats { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 @media (min-width: 720px) { .cs .pages { grid-template-columns: 1fr 1fr; } }
-.cs .page { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; background: #fff; }
+.cs .page { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; display: flex; gap: 12px; background: #fff; }
+.cs .pnum { flex: none; width: 24px; height: 24px; border-radius: 8px; background: var(--blue-soft); color: var(--blue); font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-top: 2px; }
+.cs .page-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .cs .page p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+.cs .add-page { display: flex; gap: 8px; margin-top: 10px; }
+.cs .add-page input { flex: 1; min-width: 0; padding: 9px 12px; font-size: 15px; }
+.cs .blk-note { margin: -4px 0 10px; }
 .cs .page-top { display: flex; align-items: center; gap: 8px; }
 .cs .page-top b { font-size: 15px; }
-.cs .cx { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #eef2f8; color: var(--muted); }
-.cs .cx.complex { background: #fff1e6; color: #b45309; }
-.cs .cx.standard { background: var(--blue-soft); color: var(--blue); }
 .cs .secs { display: flex; flex-wrap: wrap; gap: 6px; }
 .cs .secs span { font-size: 12px; background: var(--bg-soft); color: var(--ink-2); border-radius: 8px; padding: 3px 8px; }
 .cs .x { margin-left: auto; flex: none; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: #fff; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; }
 .cs .x:hover { border-color: #f3b4b4; color: #b42318; background: #fff6f6; }
-.cs .feat { display: flex; align-items: flex-start; gap: 12px; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: #fff; }
-.cs .feat.custom { border-style: dashed; }
-.cs .feat-main { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
-.cs .feat-main b { font-size: 14.5px; }
-.cs .feat-main p { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.cs .feat { width: 100%; display: flex; align-items: flex-start; gap: 12px; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: #fafcff; text-align: left; cursor: pointer; transition: border-color .2s, background .2s; }
+.cs .feat:hover { border-color: #b9ccf5; }
+.cs .feat.on { background: #fff; border-color: #c9d8fb; }
+.cs .feat-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cs .feat-main b { font-size: 14.5px; color: var(--ink); }
+.cs .feat-main span { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.cs .feat:not(.on) .feat-main b { color: var(--ink-2); }
+.cs .sw-toggle { flex: none; width: 36px; height: 22px; border-radius: 999px; background: #d6e0f2; position: relative; margin-top: 1px; transition: background .2s; }
+.cs .sw-toggle i { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(11, 26, 58, .25); transition: transform .2s var(--ease); }
+.cs .feat.on .sw-toggle { background: var(--blue); }
+.cs .feat.on .sw-toggle i { transform: translateX(14px); }
+.cs .ftag { flex: none; font-size: 12px; font-weight: 700; color: var(--ink-2); background: var(--bg-soft); border: 1px solid var(--line); padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.cs .ftag.inc { color: var(--green); background: var(--green-soft); border-color: transparent; }
+.cs .sub { margin: 16px 0 8px; font-size: 13px; font-weight: 700; color: var(--muted-2); letter-spacing: .02em; }
+.cs .creq { display: flex; align-items: flex-start; gap: 12px; border: 1px dashed #e0c48f; border-radius: 14px; padding: 12px 14px; background: #fff; }
+.cs .custom { background: #fffbf2; border: 1px solid #f3e3c3; border-radius: 16px; padding: 16px; }
+.cs .ask { background: #f7faff; border: 1px solid #dbe5fb; border-radius: 16px; padding: 14px 16px; gap: 8px; }
+.cs .ask p { margin: 0; font-weight: 600; font-size: 14.5px; }
+.cs .chip.sel { border-color: var(--blue); background: var(--blue-soft); color: var(--blue); font-weight: 600; }
+.cs .assume summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--muted); padding: 4px 0; }
+.cs .assume .dots { margin-top: 6px; font-size: 13.5px; color: var(--muted); }
 .cs .tag-inc { font-size: 11px; font-weight: 700; color: var(--green); background: var(--green-soft); padding: 2px 8px; border-radius: 999px; }
-.cs .tag-custom { font-size: 11px; font-weight: 700; color: #7c3aed; background: #f3ecff; padding: 2px 8px; border-radius: 999px; }
-.cs .qty { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted-2); }
-.cs .qty input { width: 64px; padding: 6px 8px; }
 .cs select.add { margin-top: 10px; color: var(--blue); font-weight: 600; cursor: pointer; }
-.cs .check-row { margin-top: 12px; }
-.cs .notes { display: grid; gap: 16px; background: #fffbf2; border: 1px solid #f3e3c3; border-radius: 16px; padding: 16px; }
-@media (min-width: 720px) { .cs .notes { grid-template-columns: 1fr 1fr; } }
 .cs .revise { background: #f7faff; border: 1px solid #dbe5fb; border-radius: 16px; padding: 16px; gap: 10px; }
 .cs .row-end { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 
@@ -114,6 +151,14 @@
 .cs .sw { aspect-ratio: 16 / 11; border-radius: 10px; overflow: hidden; border: 1px solid var(--line-2); }
 .cs .tn { display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 2px 6px 4px; font-size: 14px; }
 .cs .tn span { font-size: 12px; color: var(--muted-2); }
+.cs .design h3 { margin-bottom: 10px; }
+.cs .levels { display: grid; gap: 10px; }
+@media (min-width: 720px) { .cs .levels { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.cs .level { display: flex; flex-direction: column; gap: 4px; text-align: left; border: 2px solid var(--line); border-radius: 14px; padding: 12px 14px; background: #fff; cursor: pointer; transition: border-color .2s; }
+.cs .level b { font-size: 14.5px; }
+.cs .level span { font-size: 13px; color: var(--muted); line-height: 1.45; }
+.cs .level em { font-style: normal; font-size: 12px; font-weight: 700; color: var(--blue); margin-top: 2px; }
+.cs .level.sel { border-color: var(--blue); box-shadow: 0 0 0 4px #e3ebff; }
 
 /* result */
 .cs .res-grid { display: grid; gap: 22px; align-items: start; }
@@ -130,9 +175,9 @@
 .cs .price-card { position: relative; border: 1px solid #dbe5fb; border-radius: 20px; padding: 18px; background: linear-gradient(180deg, #fff, #f7faff); display: flex; flex-direction: column; gap: 12px; }
 @media (min-width: 1024px) { .cs .price-card { position: sticky; top: 88px; } }
 .cs .pc-head { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; color: var(--muted-2); font-weight: 600; }
-.cs .cur select { width: auto; padding: 6px 28px 6px 10px; font-size: 13px; border-radius: 999px; }
 .cs .was { color: var(--faint); font-size: 15px; margin-bottom: -8px; }
 .cs .total { font-size: clamp(30px, 4vw, 38px); letter-spacing: -0.03em; line-height: 1.1; }
+.cs .total.range { font-size: clamp(22px, 2.6vw, 27px); }
 .cs .final { align-self: flex-start; background: var(--green-soft); color: #12804f; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; }
 .cs .warn { margin: 0; font-size: 13px; background: #fff7e6; border: 1px solid #f5d9a8; border-radius: 12px; padding: 10px 12px; color: #7a4d0b; }
 .cs .facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
@@ -142,6 +187,8 @@
 .cs .bd summary { cursor: pointer; font-weight: 600; font-size: 14px; padding: 6px 0; color: var(--blue); }
 .cs .bd table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
 .cs .bd td { padding: 6px 0; border-bottom: 1px dashed var(--line-2); vertical-align: top; }
+.cs .bd td small { display: block; font-size: 11.5px; color: var(--muted-2); }
+.cs .bd .adjust td { color: var(--muted); }
 .cs .bd td:last-child { text-align: right; white-space: nowrap; padding-left: 12px; }
 .cs .bd .inc { color: var(--green); }
 .cs .bd .sub td { font-weight: 600; border-bottom: 0; }

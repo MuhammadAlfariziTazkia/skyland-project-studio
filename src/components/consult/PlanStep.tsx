@@ -1,144 +1,156 @@
+import { useState } from 'preact/hooks';
 import pricing from '../../../data/pricing.json';
+import { FEATURE_COPY, SERVICE_COPY } from '../../i18n/catalog';
 import type { ConsultStrings } from '../../i18n/consult';
+import { featurePrice, formatShort, getService, quotePriceText, type Quote } from '../../lib/pricing';
 import type { Locale, Plan } from '../../lib/schemas';
-
-type Feat = { name: { en: string; id: string }; unit?: string; category: string };
-const FEATURES = pricing.features as Record<string, Feat>;
-const TYPES = pricing.projectTypes as Record<string, { name: { en: string; id: string }; includedFeatures: string[] }>;
 
 interface Props {
   t: ConsultStrings;
   locale: Locale;
   plan: Plan;
+  q: Quote;
   onChange: (p: Plan) => void;
+  answers: Record<number, number>;
+  onAnswer: (answers: Record<number, number>) => void;
   revision: string;
   onRevision: (s: string) => void;
   revisionUsed: boolean;
+  reviseNote: string;
   onRevise: () => void;
   error: string;
   onBack: () => void;
   onNext: () => void;
 }
 
-export function PlanStep({ t, locale, plan, onChange, revision, onRevision, revisionUsed, onRevise, error, onBack, onNext }: Props) {
-  const type = TYPES[plan.projectType];
-  const included = new Set(type?.includedFeatures ?? []);
-  const inPlan = new Set(plan.features.map((f) => f.id));
-  const addable = Object.entries(FEATURES).filter(([id]) => !inPlan.has(id));
+type Feature = Plan['features'][number];
+
+export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revision, onRevision, revisionUsed, reviseNote, onRevise, error, onBack, onNext }: Props) {
+  const [newPage, setNewPage] = useState('');
+  const svc = getService(plan.serviceId);
+  const region = q.region;
   const update = (patch: Partial<Plan>) => onChange({ ...plan, ...patch });
-  const featureCount = plan.features.length + plan.customFeatures.length;
+  const listed = new Set([...plan.features, ...plan.suggestions].map((f) => f.id));
+  const addable = pricing.features.filter((f) => !listed.has(f.id));
+  const copy = (id: string) => FEATURE_COPY[id]?.[locale];
+
+  // Switching a feature off keeps it visible under "You could also add", so nothing silently disappears.
+  const toggle = (f: Feature, on: boolean) =>
+    on
+      ? update({ features: plan.features.filter((x) => x.id !== f.id), suggestions: [f, ...plan.suggestions] })
+      : update({ suggestions: plan.suggestions.filter((x) => x.id !== f.id), features: [...plan.features, f] });
+
+  const answer = (qi: number, oi: number) => {
+    const question = plan.questions[qi];
+    const prev = answers[qi] != null ? question.options[answers[qi]] : null;
+    const opt = question.options[oi];
+    const drop = new Set([...(prev?.add ?? []), ...opt.remove]);
+    let features = plan.features.filter((f) => !drop.has(f.id));
+    for (const id of opt.add) if (!features.some((f) => f.id === id)) features = [...features, { id, reason: '' }];
+    const on = new Set(features.map((f) => f.id));
+    update({ features, suggestions: plan.suggestions.filter((f) => !on.has(f.id)) });
+    onAnswer({ ...answers, [qi]: oi });
+  };
+
+  const addPage = (e: Event) => {
+    e.preventDefault();
+    const name = newPage.trim();
+    if (!name) return;
+    update({ pages: [...plan.pages, { name: name.slice(0, 60), purpose: '', sections: [] }] });
+    setNewPage('');
+  };
+
+  const priceTag = (id: string) => {
+    const p = featurePrice(plan.serviceId, id, region);
+    if (p.kind === 'included') return <span class="ftag inc">{t.plan.inPackage}</span>;
+    if (p.kind === 'free') return <span class="ftag inc">{t.plan.free}</span>;
+    return <span class="ftag">+{formatShort(p.amount, region)}{p.perPage ? t.plan.perPage : ''}</span>;
+  };
+
+  const row = (f: Feature, on: boolean) => (
+    <li>
+      <button type="button" role="switch" aria-checked={on} class={`feat ${on ? 'on' : ''}`} onClick={() => toggle(f, on)}>
+        <span class="sw-toggle" aria-hidden="true"><i /></span>
+        <span class="feat-main">
+          <b>{copy(f.id)?.name ?? f.id}</b>
+          <span>{f.reason || copy(f.id)?.plain}</span>
+        </span>
+        {priceTag(f.id)}
+      </button>
+    </li>
+  );
+
+  const price = quotePriceText(q) || t.plan.discuss;
 
   return (
     <div class="cs-body">
       <div class="cs-head">
+        <span class="type-pill">{SERVICE_COPY[plan.serviceId]?.[locale].name}</span>
         <h2>{plan.projectName || t.plan.title}</h2>
-        <p>{t.plan.hint}</p>
+        {plan.summary && <p>{plan.summary}</p>}
       </div>
 
-      <div class="summary">
-        <div>
-          <span class="k">{t.plan.type}</span>
-          <b>{type?.name[locale] ?? plan.projectType}</b>
+      {plan.goals.length > 0 && (
+        <div class="helps">
+          <b>{t.plan.helps}</b>
+          <ul>
+            {plan.goals.map((g) => (
+              <li>{g}</li>
+            ))}
+          </ul>
         </div>
-        {plan.summary && <p>{plan.summary}</p>}
-        {plan.audience && (
-          <div>
-            <span class="k">{t.plan.audience}</span>
-            <span>{plan.audience}</span>
-          </div>
-        )}
-        {plan.goals.length > 0 && (
-          <div>
-            <span class="k">{t.plan.goals}</span>
-            <ul class="dots">
-              {plan.goals.map((g) => (
-                <li>{g}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
+      )}
 
       <section class="blk">
         <h3>
           {t.plan.pages} <span class="count">{plan.pages.length}</span>
         </h3>
-        <ul class="pages">
+        <p class="fine blk-note">{t.plan.pagesNote(svc.pages_included, formatShort(pricing.extra_page.price[region], region))}</p>
+        <ol class="pages">
           {plan.pages.map((p, i) => (
             <li class="page">
-              <div class="page-top">
-                <b>{p.name}</b>
-                <span class={`cx ${p.complexity}`}>{t.plan.complexity[p.complexity]}</span>
-                {plan.pages.length > 1 && (
-                  <button type="button" class="x" aria-label={`${t.plan.remove}: ${p.name}`} onClick={() => update({ pages: plan.pages.filter((_, j) => j !== i) })}>
-                    ×
-                  </button>
+              <span class="pnum">{i + 1}</span>
+              <div class="page-body">
+                <div class="page-top">
+                  <b>{p.name}</b>
+                  {i >= svc.pages_included && <span class="ftag">{t.plan.extraTag(formatShort(pricing.extra_page.price[region], region))}</span>}
+                  {plan.pages.length > 1 && (
+                    <button type="button" class="x" aria-label={`${t.plan.remove}: ${p.name}`} onClick={() => update({ pages: plan.pages.filter((_, j) => j !== i) })}>
+                      ×
+                    </button>
+                  )}
+                </div>
+                {p.purpose && <p>{p.purpose}</p>}
+                {p.sections.length > 0 && (
+                  <div class="secs">
+                    {p.sections.map((sec) => (
+                      <span>{sec}</span>
+                    ))}
+                  </div>
                 )}
               </div>
-              {p.purpose && <p>{p.purpose}</p>}
-              {p.sections.length > 0 && (
-                <div class="secs">
-                  {p.sections.map((sec) => (
-                    <span>{sec}</span>
-                  ))}
-                </div>
-              )}
             </li>
           ))}
-        </ul>
+        </ol>
+        <form class="add-page" onSubmit={addPage}>
+          <input type="text" maxLength={60} placeholder={t.plan.addPagePh} aria-label={t.plan.addPagePh} value={newPage} onInput={(e) => setNewPage((e.target as HTMLInputElement).value)} />
+          <button type="submit" class="btn btn-ghost btn-sm" disabled={!newPage.trim()}>
+            + {t.plan.addPage}
+          </button>
+        </form>
       </section>
 
       <section class="blk">
         <h3>
-          {t.plan.features} <span class="count">{featureCount}</span>
+          {t.plan.features} <span class="count">{plan.features.length}</span>
         </h3>
-        <ul class="feats">
-          {plan.features.map((f, i) => {
-            const def = FEATURES[f.id];
-            const hasQty = def?.unit && def.unit !== 'page';
-            return (
-              <li class="feat">
-                <div class="feat-main">
-                  <b>{def?.name[locale] ?? f.id}</b>
-                  {included.has(f.id) && <span class="tag-inc">{t.plan.included}</span>}
-                  {f.reason && <p>{f.reason}</p>}
-                </div>
-                {hasQty && (
-                  <label class="qty">
-                    <span>{t.plan.qty}</span>
-                    <input
-                      type="number"
-                      min={1}
-                      max={10}
-                      value={f.quantity}
-                      onInput={(e) => {
-                        const v = Math.max(1, Math.min(10, Number((e.target as HTMLInputElement).value) || 1));
-                        update({ features: plan.features.map((x, j) => (j === i ? { ...x, quantity: v } : x)) });
-                      }}
-                    />
-                  </label>
-                )}
-                <button type="button" class="x" aria-label={`${t.plan.remove}: ${def?.name[locale] ?? f.id}`} onClick={() => update({ features: plan.features.filter((_, j) => j !== i) })}>
-                  ×
-                </button>
-              </li>
-            );
-          })}
-          {plan.customFeatures.map((c, i) => (
-            <li class="feat custom">
-              <div class="feat-main">
-                <b>{c.name}</b>
-                <span class="tag-custom">
-                  {t.plan.custom} · {c.tier}
-                </span>
-                {c.description && <p>{c.description}</p>}
-              </div>
-              <button type="button" class="x" aria-label={`${t.plan.remove}: ${c.name}`} onClick={() => update({ customFeatures: plan.customFeatures.filter((_, j) => j !== i) })}>
-                ×
-              </button>
-            </li>
-          ))}
-        </ul>
+        <ul class="feats">{plan.features.map((f) => row(f, true))}</ul>
+        {plan.suggestions.length > 0 && (
+          <>
+            <h4 class="sub">{t.plan.optional}</h4>
+            <ul class="feats">{plan.suggestions.map((f) => row(f, false))}</ul>
+          </>
+        )}
         {addable.length > 0 && (
           <select
             class="add"
@@ -146,46 +158,61 @@ export function PlanStep({ t, locale, plan, onChange, revision, onRevision, revi
             aria-label={t.plan.addFeature}
             onChange={(e) => {
               const id = (e.target as HTMLSelectElement).value;
-              if (id) update({ features: [...plan.features, { id, reason: '', quantity: 1 }] });
+              if (id) update({ features: [...plan.features, { id, reason: '' }] });
               (e.target as HTMLSelectElement).value = '';
             }}
           >
             <option value="">+ {t.plan.addFeature}</option>
-            {addable.map(([id, f]) => (
-              <option value={id}>{f.name[locale]}</option>
+            {addable.map((f) => (
+              <option value={f.id}>{copy(f.id)?.name ?? f.label}</option>
             ))}
           </select>
         )}
-        <label class="check-row">
-          <input type="checkbox" checked={plan.rush} onChange={(e) => update({ rush: (e.target as HTMLInputElement).checked })} />
-          <span>{t.plan.rush}</span>
-        </label>
       </section>
 
-      {(plan.assumptions.length > 0 || plan.questions.length > 0) && (
-        <section class="blk notes">
-          {plan.assumptions.length > 0 && (
-            <div>
-              <h3>{t.plan.assumptions}</h3>
-              <ul class="dots">
-                {plan.assumptions.map((a) => (
-                  <li>{a}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {plan.questions.length > 0 && (
-            <div>
-              <h3>{t.plan.questions}</h3>
-              <ul class="dots">
-                {plan.questions.map((a) => (
-                  <li>{a}</li>
-                ))}
-              </ul>
-              {!revisionUsed && <p class="fine">{t.plan.questionsHint}</p>}
-            </div>
-          )}
+      {plan.customRequests.length > 0 && (
+        <section class="blk custom">
+          <h3>{t.plan.custom}</h3>
+          <p class="fine blk-note">{t.plan.customNote}</p>
+          <ul class="feats">
+            {plan.customRequests.map((c, i) => (
+              <li class="creq">
+                <div class="feat-main">
+                  <b>{c.name}</b>
+                  {c.description && <span>{c.description}</span>}
+                </div>
+                <button type="button" class="x" aria-label={`${t.plan.remove}: ${c.name}`} onClick={() => update({ customRequests: plan.customRequests.filter((_, j) => j !== i) })}>
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
         </section>
+      )}
+
+      {plan.questions.map((qn, qi) => (
+        <section class="blk ask">
+          <span class="k">{t.plan.questions}</span>
+          <p>{qn.question}</p>
+          <div class="chips" role="radiogroup" aria-label={qn.question}>
+            {qn.options.map((o, oi) => (
+              <button type="button" role="radio" aria-checked={answers[qi] === oi} class={`chip ${answers[qi] === oi ? 'sel' : ''}`} onClick={() => answer(qi, oi)}>
+                {o.label}
+              </button>
+            ))}
+          </div>
+        </section>
+      ))}
+
+      {plan.assumptions.length > 0 && (
+        <details class="assume">
+          <summary>{t.plan.assumptions}</summary>
+          <ul class="dots">
+            {plan.assumptions.map((a) => (
+              <li>{a}</li>
+            ))}
+          </ul>
+        </details>
       )}
 
       <section class="blk revise">
@@ -193,7 +220,7 @@ export function PlanStep({ t, locale, plan, onChange, revision, onRevision, revi
           ✦ {t.plan.reviseTitle} <span class="count">{revisionUsed ? '0/1' : '1/1'}</span>
         </h3>
         {revisionUsed ? (
-          <p class="fine">{t.plan.reviseUsed}</p>
+          <p class="fine">{reviseNote ? `✓ ${reviseNote} ` : ''}{t.plan.reviseUsed}</p>
         ) : (
           <>
             <textarea rows={3} maxLength={800} placeholder={t.plan.revisePh} value={revision} onInput={(e) => onRevision((e.target as HTMLTextAreaElement).value)} />
@@ -218,12 +245,23 @@ export function PlanStep({ t, locale, plan, onChange, revision, onRevision, revi
           ← {t.plan.back}
         </button>
         <div class="next-wrap">
-          <span class="counts">{t.plan.counts(plan.pages.length, featureCount)}</span>
+          <LivePrice label={t.plan.live} price={price} days={t.result.workdays(q.workdays[0], q.workdays[1])} />
           <button type="button" class="btn btn-primary" onClick={onNext}>
             {t.plan.next} →
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** The running total next to the primary action, so every change shows its effect immediately. */
+export function LivePrice({ label, price, days }: { label: string; price: string; days: string }) {
+  return (
+    <div class="live" aria-live="polite">
+      <span>{label}</span>
+      <b>{price}</b>
+      <small>{days}</small>
     </div>
   );
 }

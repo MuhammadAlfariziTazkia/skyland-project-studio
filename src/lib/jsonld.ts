@@ -1,4 +1,5 @@
 import pricing from '../../data/pricing.json';
+import { regionFor, startingPrice } from './pricing';
 import { SITE, socialLinks } from '../config/site';
 import { getDict } from '../i18n';
 import { ROUTES, SERVICE_KEYS, servicePath, type ServiceKey } from '../i18n/routes';
@@ -9,7 +10,9 @@ const abs = (site: string, path: string) => site + path;
 export function organizationLd(site: string, locale: Locale) {
   const t = getDict(locale);
   const cur = t.currency;
-  const types = pricing.projectTypes;
+  const region = regionFor(locale);
+  const starts = SERVICE_KEYS.map((k) => startingPrice(k, region));
+  const fmt = (n: number) => (cur === 'IDR' ? `Rp ${n.toLocaleString('id-ID')}` : `$${n.toLocaleString('en-US')}`);
   return {
     '@context': 'https://schema.org',
     '@type': 'ProfessionalService',
@@ -22,7 +25,7 @@ export function organizationLd(site: string, locale: Locale) {
     description: t.meta.homeDescription,
     ...(SITE.email ? { email: SITE.email } : {}),
     ...(SITE.whatsapp ? { telephone: `+${SITE.whatsapp}` } : {}),
-    priceRange: cur === 'IDR' ? 'Rp 1.500.000 – Rp 60.000.000' : '$200 – $7,000',
+    priceRange: `${fmt(Math.min(...starts))} – ${fmt(pricing.regions[region].max_price)}`,
     currenciesAccepted: 'IDR, USD',
     address: { '@type': 'PostalAddress', addressLocality: SITE.city, addressRegion: SITE.region, addressCountry: SITE.country },
     areaServed: [{ '@type': 'Country', name: 'Indonesia' }, { '@type': 'Place', name: 'Worldwide' }],
@@ -38,8 +41,7 @@ export function organizationLd(site: string, locale: Locale) {
         priceSpecification: {
           '@type': 'PriceSpecification',
           priceCurrency: cur,
-          minPrice: types[k].typicalRange[cur][0],
-          maxPrice: types[k].typicalRange[cur][1],
+          minPrice: startingPrice(k, region),
         },
       })),
     },
@@ -83,7 +85,7 @@ export function serviceLd(site: string, locale: Locale, key: ServiceKey) {
   const t = getDict(locale);
   const s = t.services_list[key];
   const cur = t.currency;
-  const [lo, hi] = pricing.projectTypes[key].typicalRange[cur];
+  const lo = startingPrice(key, regionFor(locale));
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
@@ -93,7 +95,7 @@ export function serviceLd(site: string, locale: Locale, key: ServiceKey) {
     url: abs(site, servicePath(key, locale)),
     provider: { '@id': `${site}/#business` },
     areaServed: [{ '@type': 'Country', name: 'Indonesia' }, { '@type': 'Place', name: 'Worldwide' }],
-    offers: { '@type': 'AggregateOffer', priceCurrency: cur, lowPrice: lo, highPrice: hi },
+    offers: { '@type': 'AggregateOffer', priceCurrency: cur, lowPrice: lo },
   };
 }
 

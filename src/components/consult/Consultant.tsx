@@ -3,9 +3,11 @@ import pricing from '../../../data/pricing.json';
 import { consultStrings } from '../../i18n/consult';
 import { renderMockup } from '../../lib/mockup/render';
 import { THEMES, themeSwatchHtml } from '../../lib/mockup/themes';
-import { formatPrice, quote as computeQuote } from '../../lib/pricing';
-import { THEME_IDS, type Currency, type Locale, type Mockup, type Plan, type ThemeId } from '../../lib/schemas';
-import { PlanStep } from './PlanStep';
+import { MULTIPLIER_COPY, RECURRING_COPY } from '../../i18n/catalog';
+import { quote as computeQuote, defaultChoices, formatPrice, quotePriceText } from '../../lib/pricing';
+import { REGIONS, THEME_IDS, type Choices, type Locale, type Mockup, type Plan, type ThemeId } from '../../lib/schemas';
+import { LivePrice, PlanStep } from './PlanStep';
+import { Segmented } from './Segmented';
 import { OrderStep, type ContactForm } from './OrderStep';
 import { MockupFrame } from './MockupFrame';
 import { Loading } from './Loading';
@@ -19,10 +21,12 @@ interface State {
   plan: Plan | null;
   revision: string;
   revisionUsed: boolean;
+  reviseNote: string;
+  answers: Record<number, number>;
+  choices: Choices;
   theme: ThemeId;
   mockup: Mockup | null;
   mockupKey: string;
-  currency: Currency;
   contact: ContactForm;
   quoteId: string;
 }
@@ -34,7 +38,7 @@ interface Props {
   turnstileSiteKey: string;
 }
 
-const STORE = 'skyland-consult-v1';
+const STORE = 'skyland-consult-v2';
 const load = (): Partial<State> | null => {
   try {
     const raw = localStorage.getItem(STORE);
@@ -63,7 +67,7 @@ async function post<T>(url: string, body: unknown, t: typeof consultStrings.en):
   return data as T;
 }
 
-const planKey = (plan: Plan | null, theme: ThemeId) => JSON.stringify([plan?.projectType, plan?.pages.map((p) => p.name), plan?.features.map((f) => f.id), theme]);
+const planKey = (plan: Plan | null, theme: ThemeId) => JSON.stringify([plan?.serviceId, plan?.pages.map((p) => p.name), plan?.features.map((f) => f.id), theme]);
 
 export default function Consultant({ locale, whatsapp, privacyHref, turnstileSiteKey }: Props) {
   const t = consultStrings[locale];
@@ -74,10 +78,12 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
     plan: null,
     revision: '',
     revisionUsed: false,
+    reviseNote: '',
+    answers: {},
+    choices: defaultChoices(locale),
     theme: 'minimal',
     mockup: null,
     mockupKey: '',
-    currency: locale === 'id' ? 'IDR' : 'USD',
     contact: { name: '', email: '', whatsapp: '', company: '', notes: '', consent: false },
     quoteId: '',
   };
@@ -121,7 +127,9 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
     document.head.appendChild(sc);
   }, [turnstileSiteKey, s.step]);
 
-  const q = useMemo(() => (s.plan ? computeQuote(s.plan, s.currency, locale) : null), [s.plan, s.currency, locale]);
+  const q = useMemo(() => (s.plan ? computeQuote(s.plan, s.choices, locale) : null), [s.plan, s.choices, locale]);
+  const choose = (patch: Partial<Choices>) => set({ choices: { ...s.choices, ...patch } });
+  const multi = (key: keyof typeof MULTIPLIER_COPY) => Object.entries(MULTIPLIER_COPY[key].options).map(([id, o]) => ({ id, label: o[locale].label }));
   const mockHtml = useMemo(() => (s.mockup ? renderMockup(s.mockup, s.theme, { locale }) : ''), [s.mockup, s.theme, locale]);
 
   const run = async (kind: keyof typeof t.loading, fn: () => Promise<void>) => {
@@ -139,14 +147,14 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
   const generatePlan = () =>
     run('plan', async () => {
       const { plan } = await post<{ plan: Plan }>('/api/plan', { mode: 'create', locale, description: s.description, reference: s.reference, website: honeypot, turnstileToken: turnstileToken || undefined }, t);
-      set({ plan, revisionUsed: false, revision: '', mockup: null, mockupKey: '' });
+      set({ plan, revisionUsed: false, revision: '', reviseNote: '', answers: {}, mockup: null, mockupKey: '' });
       go('plan');
     });
 
   const revisePlan = () =>
     run('revise', async () => {
-      const { plan } = await post<{ plan: Plan }>('/api/plan', { mode: 'revise', locale, description: s.description, plan: s.plan, instruction: s.revision, website: honeypot }, t);
-      set({ plan, revisionUsed: true });
+      const { plan, note } = await post<{ plan: Plan; note: string }>('/api/plan', { mode: 'revise', locale, description: s.description, plan: s.plan, instruction: s.revision, website: honeypot }, t);
+      set({ plan, revisionUsed: true, reviseNote: note });
     });
 
   const generateMockup = () => {
@@ -163,7 +171,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
     run('order', async () => {
       const res = await post<{ quoteId: string }>(
         '/api/order',
-        { locale, currency: s.currency, description: s.description, revision: s.revisionUsed ? s.revision : '', plan: s.plan, theme: s.theme, mockup: s.mockup, contact: s.contact, website: honeypot },
+        { locale, choices: s.choices, description: s.description, revision: s.revisionUsed ? s.revision : '', plan: s.plan, theme: s.theme, mockup: s.mockup, contact: s.contact, website: honeypot },
         t,
       );
       set({ quoteId: res.quoteId });
@@ -227,6 +235,12 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                 </button>
               ))}
             </div>
+            <fieldset class="quick">
+              <legend>{t.describe.quick}</legend>
+              <Segmented label={t.describe.region} value={s.choices.region} options={REGIONS.map((id) => ({ id, label: t.describe.regions[id] }))} onChange={(region) => choose({ region: region as Choices['region'] })} />
+              <Segmented label={MULTIPLIER_COPY.content_readiness.question[locale]} value={s.choices.content} options={multi('content_readiness')} onChange={(content) => choose({ content })} />
+              <Segmented label={MULTIPLIER_COPY.timeline.question[locale]} value={s.choices.timeline} options={multi('timeline')} onChange={(timeline) => choose({ timeline })} />
+            </fieldset>
             <label class="field">
               <span>{t.describe.reference}</span>
               <input type="text" maxLength={200} placeholder={t.describe.referencePh} value={s.reference} onInput={(e) => set({ reference: (e.target as HTMLInputElement).value })} />
@@ -242,12 +256,16 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
           </form>
         )}
 
-        {!busy && s.step === 'plan' && s.plan && (
+        {!busy && s.step === 'plan' && s.plan && q && (
           <PlanStep
             t={t}
             locale={locale}
             plan={s.plan}
+            q={q}
             onChange={(plan) => set({ plan })}
+            answers={s.answers}
+            onAnswer={(answers) => set({ answers })}
+            reviseNote={s.reviseNote}
             revision={s.revision}
             onRevision={(revision) => set({ revision })}
             revisionUsed={s.revisionUsed}
@@ -275,14 +293,32 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                 </button>
               ))}
             </div>
+            <div class="design">
+              <h3>{MULTIPLIER_COPY.design_level.question[locale]}</h3>
+              <div class="levels" role="radiogroup" aria-label={MULTIPLIER_COPY.design_level.question[locale]}>
+                {pricing.multipliers.design_level.map((m) => {
+                  const c = MULTIPLIER_COPY.design_level.options[m.id][locale];
+                  return (
+                    <button type="button" role="radio" aria-checked={s.choices.design === m.id} class={`level ${s.choices.design === m.id ? 'sel' : ''}`} onClick={() => choose({ design: m.id })}>
+                      <b>{c.label}</b>
+                      <span>{c.hint}</span>
+                      <em>{m.value === 1 ? t.plan.inPackage : `+${Math.round((m.value - 1) * 100)}%`}</em>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             {error && <p class="err" role="alert">{error}</p>}
             <div class="cs-actions sticky">
               <button type="button" class="btn btn-ghost" onClick={() => go('plan')}>
                 ← {t.theme.back}
               </button>
-              <button type="button" class="btn btn-primary" onClick={generateMockup}>
-                {t.theme.next} →
-              </button>
+              <div class="next-wrap">
+                {q && <LivePrice label={t.plan.live} price={quotePriceText(q) || t.plan.discuss} days={t.result.workdays(q.workdays[0], q.workdays[1])} />}
+                <button type="button" class="btn btn-primary" onClick={generateMockup}>
+                  {t.theme.next} →
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -310,59 +346,61 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
 
               <aside class="price-card">
                 <div class="pc-head">
-                  <span>{q.needsReview ? t.result.reviewTitle : t.result.priceTitle}</span>
-                  <label class="cur">
-                    <span class="sr-only">{t.result.currency}</span>
-                    <select value={s.currency} onChange={(e) => set({ currency: (e.target as HTMLSelectElement).value as Currency })}>
-                      <option value="IDR">IDR</option>
-                      <option value="USD">USD</option>
-                    </select>
-                  </label>
+                  <span>{q.status === 'fixed' ? t.result.priceTitle : q.status === 'range' ? t.result.rangeTitle : t.result.discussTitle}</span>
                 </div>
-                {q.discount > 0 && <s class="was">{formatPrice(q.subtotal, q.currency)}</s>}
-                <b class="total">{q.needsReview && q.estimateRange ? `${formatPrice(q.estimateRange[0], q.currency)} – ${formatPrice(q.estimateRange[1], q.currency)}` : formatPrice(q.total, q.currency)}</b>
-                {q.needsReview ? <p class="warn">{t.result.reviewNote}</p> : <span class="final">{t.result.final}</span>}
+                {q.status === 'discuss' ? (
+                  <p class="warn">{t.result.discussNote}</p>
+                ) : (
+                  <>
+                    {q.discount > 0 && <s class="was">{q.status === 'range' ? `${formatPrice(q.price, q.region)} – ${formatPrice(q.priceHigh, q.region)}` : formatPrice(q.price, q.region)}</s>}
+                    <b class={`total ${q.status}`}>{quotePriceText(q)}</b>
+                    {q.status === 'range' ? <p class="warn">{t.result.rangeNote}</p> : <span class="final">{t.result.final}</span>}
+                  </>
+                )}
                 <ul class="facts">
                   <li>
                     <span>{t.result.timeline}</span>
-                    <b>{t.result.weeks(q.timelineWeeks[0], q.timelineWeeks[1])}</b>
+                    <b>{t.result.workdays(q.workdays[0], q.workdays[1])}</b>
                   </li>
                   <li>
-                    <span>{t.plan.counts(q.pagesCount, q.featuresCount)}</span>
+                    <span>{t.result.region[q.region]}</span>
                     <b>{t.result.valid(q.validDays)}</b>
                   </li>
                 </ul>
-                <details class="bd">
-                  <summary>{t.result.breakdown}</summary>
-                  <table>
-                    <tbody>
-                      {q.lines.map((l) => (
-                        <tr>
-                          <td>
-                            {l.label}
-                            {l.quantity > 1 ? ` × ${l.quantity}` : ''}
-                          </td>
-                          <td>{l.included ? <span class="inc">{t.result.included}</span> : formatPrice(l.amount, q.currency)}</td>
+                {q.status !== 'discuss' && (
+                  <details class="bd">
+                    <summary>{t.result.breakdown}</summary>
+                    <table>
+                      <tbody>
+                        {q.lines.map((l) => (
+                          <tr class={l.kind}>
+                            <td>
+                              {l.label}
+                              {l.quantity > 1 ? ` × ${l.quantity}` : ''}
+                              {l.detail && <small>{l.detail}</small>}
+                            </td>
+                            <td>{l.included ? <span class="inc">{t.result.included}</span> : l.amount === 0 ? <span class="inc">{t.result.free}</span> : `${l.amount < 0 ? '−' : ''}${formatPrice(Math.abs(l.amount), q.region)}`}</td>
+                          </tr>
+                        ))}
+                        <tr class="sub">
+                          <td>{t.result.price}</td>
+                          <td>{formatPrice(q.price, q.region)}</td>
                         </tr>
-                      ))}
-                      <tr class="sub">
-                        <td>{t.result.subtotal}</td>
-                        <td>{formatPrice(q.subtotal, q.currency)}</td>
-                      </tr>
-                      {q.discount > 0 && (
-                        <tr class="disc">
-                          <td>{t.result.discount(q.discountPercent)}</td>
-                          <td>−{formatPrice(q.discount, q.currency)}</td>
+                        {q.discount > 0 && (
+                          <tr class="disc">
+                            <td>{t.result.discount(q.discountPercent)}</td>
+                            <td>−{formatPrice(q.discount, q.region)}</td>
+                          </tr>
+                        )}
+                        <tr class="tot">
+                          <td>{t.result.total}</td>
+                          <td>{formatPrice(q.total, q.region)}</td>
                         </tr>
-                      )}
-                      <tr class="tot">
-                        <td>{t.result.total}</td>
-                        <td>{formatPrice(q.total, q.currency)}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </details>
-                <p class="fine">{t.result.payment(pricing.meta.paymentTerms.downPaymentPercent, pricing.meta.paymentTerms.finalPaymentPercent)}</p>
+                      </tbody>
+                    </table>
+                  </details>
+                )}
+                <p class="fine">{t.result.payment(pricing.payment_terms.down_payment_percent, pricing.payment_terms.final_payment_percent)}</p>
                 <div class="incl">
                   <b>{t.result.everyProject}</b>
                   <ul>
@@ -372,18 +410,18 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                   </ul>
                 </div>
                 <div class="incl muted">
-                  <b>{t.result.notIncluded}</b>
+                  <b>{t.result.recurring}</b>
                   <ul>
-                    {pricing.recurringNotIncluded.map((r) => (
+                    {pricing.recurring.map((r) => (
                       <li>
-                        {r.name[locale]} · <span>{r.estimate[s.currency]}</span>
+                        {RECURRING_COPY[r.id][locale].name} · <span>{formatPrice(r.price[q.region], q.region)}{t.result.per(RECURRING_COPY[r.id][locale].billing)}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div class="cs-actions sticky col">
                   <button type="button" class="btn btn-primary" onClick={() => go('order')}>
-                    {t.result.order} →
+                    {q.status === 'discuss' ? t.result.discussOrder : t.result.order} →
                   </button>
                   <div class="row">
                     <button type="button" class="link" onClick={() => go('plan')}>
@@ -400,7 +438,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
         )}
 
         {!busy && s.step === 'order' && q && (
-          <OrderStep t={t} contact={s.contact} onChange={(contact) => set({ contact })} privacyHref={privacyHref} error={error} onBack={() => go('result')} onSubmit={submitOrder} total={q.needsReview && q.estimateRange ? `${formatPrice(q.estimateRange[0], q.currency)} – ${formatPrice(q.estimateRange[1], q.currency)}` : formatPrice(q.total, q.currency)} />
+          <OrderStep t={t} contact={s.contact} onChange={(contact) => set({ contact })} privacyHref={privacyHref} error={error} onBack={() => go('result')} onSubmit={submitOrder} total={quotePriceText(q) || t.plan.discuss} />
         )}
 
         {!busy && s.step === 'done' && (

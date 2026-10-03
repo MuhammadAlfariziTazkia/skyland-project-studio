@@ -7,7 +7,7 @@ import { SITE } from '../../config/site';
 import { getDict } from '../../i18n';
 import { ROUTES, SERVICE_KEYS, servicePath } from '../../i18n/routes';
 import { breadcrumbLd, organizationLd } from '../../lib/jsonld';
-import { typicalRange } from '../../lib/pricing';
+import { formatShort, regionFor, startingPrice } from '../../lib/pricing';
 import type { Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale }
@@ -20,16 +20,16 @@ const copy = {
     h1: 'Get your website plan and fixed price in minutes',
     lead: 'Describe what you need. Our AI consultant maps it to pages and features from our public price list, shows you a homepage mockup and calculates a fixed price. No sign-up, no commitment.',
     how: 'How your price is calculated',
-    howText: 'Every project starts from a base package for its website type. Extra pages are priced by complexity, and each feature has a fixed price in our catalog. The AI only picks the items; the total is calculated by code, so the same plan always gets the same price.',
-    ranges: 'Typical price ranges',
+    howText: 'Every project starts from a base package for its website type, which already covers a set number of pages. Extra pages and each feature have a fixed price in our catalog, and your choices for design level, content help and delivery speed adjust the total by a set percentage. The AI only picks the items; the total is calculated by code, so the same plan always gets the same price.',
+    ranges: 'Starting prices',
   },
   id: {
     eyebrow: '✦ KONSULTASI AI GRATIS',
     h1: 'Dapatkan rencana website dan harga pasti dalam hitungan menit',
     lead: 'Ceritakan kebutuhan Anda. Konsultan AI kami mencocokkannya dengan halaman dan fitur dari daftar harga kami, menampilkan mockup homepage, dan menghitung harga pasti. Tanpa daftar, tanpa komitmen.',
     how: 'Bagaimana harga Anda dihitung',
-    howText: 'Setiap proyek dimulai dari paket dasar sesuai jenis website. Halaman tambahan dihitung berdasarkan kompleksitas, dan setiap fitur punya harga tetap di katalog kami. AI hanya memilih item; totalnya dihitung oleh sistem, sehingga rencana yang sama selalu mendapat harga yang sama.',
-    ranges: 'Kisaran harga umum',
+    howText: 'Setiap proyek dimulai dari paket dasar sesuai jenis website, yang sudah mencakup sejumlah halaman. Halaman tambahan dan setiap fitur punya harga tetap di katalog kami, lalu pilihan Anda soal tingkat desain, bantuan konten, dan kecepatan pengerjaan menyesuaikan total dengan persentase yang tetap. AI hanya memilih item; totalnya dihitung oleh sistem, sehingga rencana yang sama selalu mendapat harga yang sama.',
+    ranges: 'Harga mulai dari',
   },
 }[locale];
 const jsonLd = [
@@ -59,7 +59,7 @@ const jsonLd = [
           <h2>{copy.ranges}</h2>
           <ul>
             {SERVICE_KEYS.map((k) => (
-              <li><a href={servicePath(k, locale)}>{t.services_list[k].name}</a><b>{typicalRange(k, t.currency)}</b></li>
+              <li><a href={servicePath(k, locale)}>{t.services_list[k].name}</a><b>{formatShort(startingPrice(k, regionFor(locale)), regionFor(locale))}</b></li>
             ))}
           </ul>
         </div>

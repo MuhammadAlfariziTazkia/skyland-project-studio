@@ -6,49 +6,60 @@ export type Locale = (typeof LOCALES)[number];
 export const CURRENCIES = ['IDR', 'USD'] as const;
 export type Currency = (typeof CURRENCIES)[number];
 
-export const PROJECT_TYPES = Object.keys(pricing.projectTypes) as [string, ...string[]];
-export const FEATURE_IDS = Object.keys(pricing.features) as [string, ...string[]];
+export const REGIONS = ['ID', 'GLOBAL'] as const;
+export type Region = (typeof REGIONS)[number];
+export const SERVICE_IDS = pricing.services.map((s) => s.id) as [string, ...string[]];
+export const FEATURE_IDS = pricing.features.map((f) => f.id) as [string, ...string[]];
+const ids = (list: { id: string }[]) => list.map((o) => o.id) as [string, ...string[]];
+export const DESIGN_IDS = ids(pricing.multipliers.design_level);
+export const CONTENT_IDS = ids(pricing.multipliers.content_readiness);
+export const TIMELINE_IDS = ids(pricing.multipliers.timeline);
 export const THEME_IDS = ['minimal', 'elegant', 'futuristic', 'vibrant'] as const;
 export type ThemeId = (typeof THEME_IDS)[number];
+export const MAX_PAGES = 15;
 
 // Strings and lists are clipped rather than rejected, so slightly verbose AI output still validates.
 const text = (max: number) => z.string().trim().transform((s) => s.slice(0, max));
 const list = <T extends z.ZodTypeAny>(item: T, max: number) => z.array(item).transform((a) => a.slice(0, max));
+const featureId = z.enum(FEATURE_IDS);
 
 export const PageSchema = z.object({
   name: z.string().trim().min(1).transform((s) => s.slice(0, 60)),
   purpose: text(240),
   sections: list(text(120), 10),
-  complexity: z.enum(['simple', 'standard', 'complex']),
 });
 
-export const FeatureSchema = z.object({
-  id: z.enum(FEATURE_IDS),
-  reason: text(240),
-  quantity: z.number().int().min(1).max(10).default(1),
+export const FeatureSchema = z.object({ id: featureId, reason: text(240) });
+export const CustomRequestSchema = z.object({ name: z.string().trim().min(1).transform((s) => s.slice(0, 80)), description: text(300) });
+export const QuestionSchema = z.object({
+  question: text(200),
+  options: list(z.object({ label: text(60), add: list(featureId, 4), remove: list(featureId, 4) }), 3),
 });
 
-export const CustomFeatureSchema = z.object({
-  name: z.string().trim().min(1).transform((s) => s.slice(0, 80)),
-  description: text(300),
-  tier: z.enum(['S', 'M', 'L']),
-  reason: text(240),
-});
-
+// `features` are switched on; `suggestions` are optional extras shown switched off (the client moves items between them).
 export const PlanSchema = z.object({
-  projectType: z.enum(PROJECT_TYPES),
+  serviceId: z.enum(SERVICE_IDS),
   projectName: text(80),
   summary: text(600),
   audience: text(300),
   goals: list(text(160), 6),
-  pages: z.array(PageSchema).min(1).transform((a) => a.slice(0, pricing.guardrails.maxPages)),
-  features: list(FeatureSchema, 30),
-  customFeatures: list(CustomFeatureSchema, pricing.guardrails.maxCustomFeatures),
-  rush: z.boolean(),
-  assumptions: list(text(240), 8),
-  questions: list(text(240), 5),
+  pages: z.array(PageSchema).min(1).transform((a) => a.slice(0, MAX_PAGES)),
+  features: list(FeatureSchema, FEATURE_IDS.length),
+  suggestions: list(FeatureSchema, FEATURE_IDS.length),
+  customRequests: list(CustomRequestSchema, 3),
+  questions: list(QuestionSchema, 2),
+  assumptions: list(text(240), 6),
 });
 export type Plan = z.output<typeof PlanSchema>;
+
+/** The price multipliers and region are chosen by the client in the UI, never guessed by the AI. */
+export const ChoicesSchema = z.object({
+  region: z.enum(REGIONS),
+  design: z.enum(DESIGN_IDS),
+  content: z.enum(CONTENT_IDS),
+  timeline: z.enum(TIMELINE_IDS),
+});
+export type Choices = z.infer<typeof ChoicesSchema>;
 
 const hex = z.string().transform((s) => (/^#[0-9a-fA-F]{6}$/.test(s.trim()) ? s.trim() : '#2563eb'));
 
@@ -121,7 +132,7 @@ export type Contact = z.infer<typeof ContactSchema>;
 
 export const OrderRequestSchema = z.object({
   locale: z.enum(LOCALES),
-  currency: z.enum(CURRENCIES),
+  choices: ChoicesSchema,
   description: text(1500),
   revision: text(800).optional().default(''),
   plan: PlanSchema,
