@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tegak Prima Konstruksi · Concept by Skyland</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="A concept company profile website for a fictional construction company, designed and built by Skyland Project Studio.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="/samples/tegak/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<script src="/samples/tegak/image-slot.js"></script>
+<script src="/samples/tegak/footprint-map.js"></script>
+<style>
+html{scroll-behavior:smooth}
+body{margin:0;background:#F3F1EC;color:#17181A;font-family:'Archivo',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+a:hover{color:#E2601B}
+input,select,textarea,button{font-family:inherit}
+::selection{background:#E2601B;color:#fff}
+@media (min-width:382px) and (max-width:552px){[data-stats]>div:last-child:nth-child(odd){grid-column:1 / -1}}
+</style>
+</helmet>
+
+<div style="position:relative;overflow-x:clip">
+
+<sc-if value="{{ showGrid }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;pointer-events:none;z-index:90;display:flex;justify-content:center">
+<div style="width:100%;max-width:1440px;padding:0 clamp(20px,4.5vw,64px);display:grid;grid-template-columns:repeat({{ gridN }},1fr);gap:clamp(12px,1.7vw,24px);height:100%">
+<sc-for list="{{ gridCols }}" as="c" hint-placeholder-count="12"><div style="background:rgba(226,96,27,.05);border-left:1px solid rgba(226,96,27,.18);border-right:1px solid rgba(226,96,27,.18)"></div></sc-for>
+</div>
+</div>
+</sc-if>
+
+<!-- NAV -->
+<header style="position:sticky;top:0;z-index:80;background:rgba(23,24,26,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(243,241,236,.10);color:#F3F1EC">
+<div style="max-width:1440px;margin:0 auto;padding:0 clamp(20px,4.5vw,64px);height:clamp(64px,6vw,76px);display:flex;align-items:center;gap:clamp(16px,3.3vw,48px)">
+<a href="#top" style="display:flex;align-items:center;gap:12px;color:#F3F1EC">
+<span style="width:30px;height:30px;border:2px solid #F3F1EC;position:relative;display:block;flex:none"><span style="position:absolute;left:5px;right:5px;bottom:5px;height:9px;background:#E2601B"></span></span>
+<span style="display:flex;flex-direction:column;gap:3px"><span style="font:800 17px/1 'Archivo';letter-spacing:.08em">TEGAK</span><span style="font:500 9px/1 'IBM Plex Mono';letter-spacing:.22em;opacity:.65">PRIMA KONSTRUKSI</span></span>
+</a>
+<nav style="display:{{ navLinks }};gap:clamp(18px,2.4vw,34px);margin-left:auto;font:500 13px/1 'Archivo';letter-spacing:.04em">
+<a href="#top" style="color:#F3F1EC">Home</a>
+<a href="#about" style="color:rgba(243,241,236,.72)">About</a>
+<a href="#services" style="color:rgba(243,241,236,.72)">Services</a>
+<a href="#projects" style="color:rgba(243,241,236,.72)">Projects</a>
+<a href="#capabilities" style="color:rgba(243,241,236,.72)">Capabilities</a>
+<a href="#insights" style="color:rgba(243,241,236,.72)">Insights</a>
+<a href="#contact" style="color:rgba(243,241,236,.72)">Contact</a>
+</nav>
+<a href="#contact" style="display:{{ navCta }};align-items:center;gap:12px;background:#E2601B;color:#fff;padding:0 22px;height:44px;font:700 12px/1 'Archivo';letter-spacing:.12em;white-space:nowrap;transition:gap .25s, background .25s" style-hover="gap:18px;background:#C9520F;color:#fff">DISCUSS YOUR PROJECT <span>→</span></a>
+<button onClick="{{ toggleMenu }}" aria-label="Menu" style="display:{{ menuBtn }};margin-left:auto;width:44px;height:44px;border:1px solid rgba(243,241,236,.3);background:transparent;color:#F3F1EC;align-items:center;justify-content:center;font:500 18px/1 'Archivo';cursor:pointer">{{ menuIcon }}</button>
+</div>
+<div style="display:{{ menuPanel }};flex-direction:column;border-top:1px solid rgba(243,241,236,.12);padding:8px clamp(20px,4.5vw,64px) 24px;background:#17181A">
+<sc-for list="{{ navItems }}" as="n" hint-placeholder-count="7">
+<a href="{{ n.href }}" onClick="{{ closeMenu }}" style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid rgba(243,241,236,.12);font:700 22px/1 'Archivo';letter-spacing:-.01em;color:#F3F1EC"><span>{{ n.label }}</span><span style="font:500 11px/1 'IBM Plex Mono';color:#E2601B">{{ n.num }}</span></a>
+</sc-for>
+<a href="#contact" onClick="{{ closeMenu }}" style="margin-top:20px;display:flex;align-items:center;justify-content:center;gap:12px;background:#E2601B;color:#fff;height:54px;font:700 13px/1 'Archivo';letter-spacing:.12em">DISCUSS YOUR PROJECT →</a>
+<a href="https://wa.me/6281219870450" target="_blank" style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:12px;background:#25D366;color:#0B2E17;height:54px;font:700 13px/1 'Archivo';letter-spacing:.12em">CHAT VIA WHATSAPP ↗</a>
+</div>
+</header>
+
+<!-- HERO -->
+<section id="top" data-screen-label="01 Hero" style="position:relative;background:#17181A;color:#F3F1EC;overflow:hidden">
+<div ref="{{ heroImg }}" style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(243,241,236,.045) 0 1px,transparent 1px 12px)">
+<img src="https://images.unsplash.com/photo-1485083269755-a7b559a4fe5e?auto=format&amp;fit=crop&amp;w=2000&amp;q=80" alt="Construction site with tower cranes at dusk" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></img>
+</div>
+<div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(23,24,26,.55) 0%,rgba(23,24,26,.05) 30%,rgba(23,24,26,.35) 55%,rgba(23,24,26,.92) 100%)"></div>
+<div style="position:relative;pointer-events:none;max-width:1440px;margin:0 auto;padding:clamp(24px,3vw,40px) clamp(20px,4.5vw,64px) 0;min-height:calc(100svh - clamp(64px,6vw,76px));max-height:1000px;display:flex;flex-direction:column;gap:clamp(40px,6vh,72px)">
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;font:500 11px/1.4 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.7)">
+<span>06°17′S — 106°48′E</span>
+<span>EST. 2010 · JAKARTA, INDONESIA</span>
+</div>
+<div style="margin-top:auto;display:flex;flex-direction:column;gap:clamp(24px,3vw,40px)">
+<h1 style="margin:0;font:900 clamp(46px, min(11vw, 17vh), 172px)/.88 'Archivo';letter-spacing:-.045em">
+<span style="display:block;overflow:hidden;padding-bottom:6px"><span data-reveal="line" style="display:block">BUILDING</span></span>
+<span style="display:block;overflow:hidden;padding-bottom:6px"><span data-reveal="line" style="display:block">WITH CERTAINTY<span style="color:#E2601B">.</span></span></span>
+</h1>
+<div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:28px 48px">
+<p data-reveal="fade" style="margin:0;flex:1 1 360px;max-width:520px;font:400 clamp(16px,1.4vw,19px)/1.55 'Archivo';color:rgba(243,241,236,.88);text-wrap:pretty">General construction, civil works, and design &amp; build services for commercial, industrial, and corporate projects across Indonesia.</p>
+<div data-reveal="fade" style="display:flex;flex-wrap:wrap;gap:12px;pointer-events:auto;flex:0 1 auto">
+<a href="#contact" style="flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:14px;background:#E2601B;color:#fff;padding:0 28px;height:58px;font:700 13px/1 'Archivo';letter-spacing:.12em;white-space:nowrap;transition:gap .25s" style-hover="gap:22px;color:#fff">DISCUSS YOUR PROJECT <span>→</span></a>
+<a href="#projects" style="flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:14px;border:1px solid rgba(243,241,236,.45);color:#F3F1EC;padding:0 28px;height:58px;font:700 13px/1 'Archivo';letter-spacing:.12em;white-space:nowrap;transition:gap .25s, border-color .25s" style-hover="gap:22px;border-color:#F3F1EC;color:#F3F1EC">EXPLORE OUR PROJECTS <span>↘</span></a>
+</div>
+</div>
+</div>
+<div style="display:flex;align-items:stretch;border-top:1px solid rgba(243,241,236,.18)">
+<div style="flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+<div style="display:flex;flex-direction:column;gap:8px;padding:clamp(20px,3vw,40px) 20px clamp(20px,3vw,40px) 0"><span style="font:500 11px/1 'IBM Plex Mono';color:#E2601B;letter-spacing:.14em">S—01</span><span style="font:600 15px/1.2 'Archivo';letter-spacing:.02em">Commercial</span></div>
+<div style="display:flex;flex-direction:column;gap:8px;padding:clamp(20px,3vw,40px) 20px clamp(20px,3vw,40px) 0"><span style="font:500 11px/1 'IBM Plex Mono';color:#E2601B;letter-spacing:.14em">S—02</span><span style="font:600 15px/1.2 'Archivo';letter-spacing:.02em">Industrial</span></div>
+<div style="display:flex;flex-direction:column;gap:8px;padding:clamp(20px,3vw,40px) 20px clamp(20px,3vw,40px) 0"><span style="font:500 11px/1 'IBM Plex Mono';color:#E2601B;letter-spacing:.14em">S—03</span><span style="font:600 15px/1.2 'Archivo';letter-spacing:.02em">Civil Works</span></div>
+<div style="display:flex;flex-direction:column;gap:8px;padding:clamp(20px,3vw,40px) 20px clamp(20px,3vw,40px) 0"><span style="font:500 11px/1 'IBM Plex Mono';color:#E2601B;letter-spacing:.14em">S—04</span><span style="font:600 15px/1.2 'Archivo';letter-spacing:.02em">Design &amp; Build</span></div>
+</div>
+<div style="display:{{ scrollCue }};align-items:center;justify-content:flex-end;gap:14px;padding-left:24px;font:500 10px/1 'IBM Plex Mono';letter-spacing:.18em;color:rgba(243,241,236,.7)">SCROLL<span style="width:1px;height:44px;background:rgba(243,241,236,.3);position:relative;overflow:hidden;display:block"><span style="position:absolute;left:0;top:0;width:1px;height:16px;background:#E2601B;display:block"></span></span></div>
+</div>
+</div>
+</section>
+
+<!-- METRICS -->
+<section ref="{{ statRef }}" data-screen-label="02 Credibility" style="background:#F3F1EC;border-bottom:1px solid rgba(23,24,26,.12)">
+<div style="max-width:1440px;margin:0 auto;padding:0 clamp(20px,4.5vw,64px)">
+<div data-stats="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:1px;background:rgba(23,24,26,.12);border-bottom:1px solid rgba(23,24,26,.12)">
+<sc-for list="{{ stats }}" as="s" hint-placeholder-count="5">
+<div style="background:#F3F1EC;padding:clamp(32px,4.5vw,64px) clamp(16px,2vw,28px) clamp(28px,4vw,56px);display:flex;flex-direction:column;gap:clamp(10px,1.3vw,18px)">
+<span style="font:500 11px/1 'IBM Plex Mono';letter-spacing:.14em;color:#8B8A85">{{ s.code }}</span>
+<div style="display:flex;align-items:baseline;font:800 clamp(48px,5.8vw,84px)/.9 'Archivo';letter-spacing:-.04em;font-variant-numeric:tabular-nums">{{ s.val }}<span style="color:#E2601B;font-size:.62em;letter-spacing:-.02em">{{ s.suf }}</span></div>
+<span style="font:500 15px/1.3 'Archivo';color:#4A4946">{{ s.label }}</span>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;align-items:center;padding:clamp(28px,3vw,40px) 0 clamp(32px,3vw,44px);gap:20px 40px">
+<span style="flex:0 0 200px;font:500 11px/1.5 'IBM Plex Mono';letter-spacing:.16em;color:#5E5D59">TRUSTED BY LEADING COMPANIES</span>
+<div style="flex:1 1 560px;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:rgba(23,24,26,.12);border:1px solid rgba(23,24,26,.12);color:#6B6A66">
+<div style="background:#F3F1EC;height:64px;display:flex;align-items:center;justify-content:center;gap:10px"><span style="width:16px;height:16px;background:currentColor;transform:rotate(45deg)"></span><span style="font:800 15px/1 'Archivo';letter-spacing:.06em">ARKALOG</span></div>
+<div style="background:#F3F1EC;height:64px;display:flex;align-items:center;justify-content:center;gap:8px"><span style="font:400 20px/1 Georgia,serif;font-style:italic">Selaras</span><span style="font:700 10px/1 'Archivo';letter-spacing:.2em">LAND</span></div>
+<div style="background:#F3F1EC;height:64px;display:flex;align-items:center;justify-content:center;gap:10px"><span style="width:20px;height:20px;border:3px solid currentColor;border-radius:50%"></span><span style="font:600 16px/1 'Archivo';letter-spacing:-.01em">sinarwira</span></div>
+<div style="background:#F3F1EC;height:64px;display:flex;align-items:center;justify-content:center;gap:8px"><span style="font:900 22px/1 'Archivo';letter-spacing:-.06em">KVX</span><span style="font:500 9px/1.2 'IBM Plex Mono';letter-spacing:.1em">KAVEX<br>GROUP</span></div>
+<div style="background:#F3F1EC;height:64px;display:flex;align-items:center;justify-content:center;gap:10px"><span style="width:22px;height:14px;border-top:4px solid currentColor;border-bottom:4px solid currentColor"></span><span style="font:700 13px/1 'Archivo';letter-spacing:.24em">ARVENTA</span></div>
+<div style="background:#F3F1EC;height:64px;display:flex;align-items:center;justify-content:center;gap:6px"><span style="font:600 15px/1 'IBM Plex Mono'">lintas/</span><span style="font:800 15px/1 'Archivo'">PARK</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- WHO WE ARE -->
+<section id="about" data-screen-label="03 Who we are" style="background:#F3F1EC">
+<div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,140px) clamp(20px,4.5vw,64px);display:flex;flex-wrap:wrap;gap:clamp(56px,6vw,96px);align-items:flex-start">
+<div style="flex:1 1 480px;min-width:0;display:flex;flex-direction:column;gap:clamp(28px,3vw,40px)">
+<div style="display:flex;align-items:center;gap:14px;font:500 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:#5E5D59"><span style="color:#E2601B">03</span><span style="width:40px;height:1px;background:currentColor"></span>WHO WE ARE</div>
+<h2 style="margin:0;font:800 clamp(36px,4.6vw,64px)/.98 'Archivo';letter-spacing:-.035em;text-transform:uppercase">
+<span style="display:block;overflow:hidden"><span data-reveal="line" style="display:block">A construction partner</span></span>
+<span style="display:block;overflow:hidden"><span data-reveal="line" style="display:block">built for complex</span></span>
+<span style="display:block;overflow:hidden"><span data-reveal="line" style="display:block">projects.</span></span>
+</h2>
+<p data-reveal="fade" style="margin:0;max-width:540px;font:400 clamp(16px,1.3vw,18px)/1.65 'Archivo';color:#3E3D3A;text-wrap:pretty">We manage the full delivery cycle — from feasibility, methodology and procurement through construction, commissioning and handover. One accountable team, one schedule, one line of reporting to the client.</p>
+<div data-reveal="fade" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:0 24px;border-top:1px solid rgba(23,24,26,.14);max-width:600px">
+<div style="display:flex;gap:16px;padding:18px 0;border-bottom:1px solid rgba(23,24,26,.14)"><span style="font:500 12px/1.5 'IBM Plex Mono';color:#E2601B">A.1</span><span style="font:600 16px/1.4 'Archivo'">Project Planning</span></div>
+<div style="display:flex;gap:16px;padding:18px 0;border-bottom:1px solid rgba(23,24,26,.14)"><span style="font:500 12px/1.5 'IBM Plex Mono';color:#E2601B">A.2</span><span style="font:600 16px/1.4 'Archivo'">Construction Management</span></div>
+<div style="display:flex;gap:16px;padding:18px 0;border-bottom:1px solid rgba(23,24,26,.14)"><span style="font:500 12px/1.5 'IBM Plex Mono';color:#E2601B">A.3</span><span style="font:600 16px/1.4 'Archivo'">Civil Engineering</span></div>
+<div style="display:flex;gap:16px;padding:18px 0;border-bottom:1px solid rgba(23,24,26,.14)"><span style="font:500 12px/1.5 'IBM Plex Mono';color:#E2601B">A.4</span><span style="font:600 16px/1.4 'Archivo'">Quality Control</span></div>
+<div style="display:flex;gap:16px;padding:18px 0;border-bottom:1px solid rgba(23,24,26,.14)"><span style="font:500 12px/1.5 'IBM Plex Mono';color:#E2601B">A.5</span><span style="font:600 16px/1.4 'Archivo'">Safety Management</span></div>
+</div>
+<a href="#about" style="align-self:flex-start;display:flex;align-items:center;gap:12px;font:700 13px/1 'Archivo';letter-spacing:.12em;padding-bottom:8px;border-bottom:2px solid #17181A;transition:gap .25s" style-hover="gap:20px">ABOUT OUR COMPANY <span>→</span></a>
+</div>
+<div style="flex:1 1 400px;min-width:0;position:relative;padding-top:24px">
+<div style="position:absolute;top:0;right:0;font:500 11px/1 'IBM Plex Mono';letter-spacing:.12em;color:#8B8A85">FIG. 03 — SITE COORDINATION</div>
+<div style="position:relative;height:clamp(380px,50vw,720px);background:repeating-linear-gradient(135deg,rgba(23,24,26,.05) 0 1px,transparent 1px 12px);background-color:#E6E3DC">
+<img src="https://images.unsplash.com/photo-1626885930974-4b69aa21bbf9?auto=format&amp;fit=crop&amp;w=2000&amp;q=80" alt="Site engineers coordinating on deck" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></img>
+</div>
+<div style="position:{{ aboutCardPos }};left:-72px;bottom:56px;background:#17181A;color:#F3F1EC;padding:28px 32px;width:{{ aboutCardW }};display:flex;flex-direction:column;gap:14px">
+<span style="font:500 11px/1 'IBM Plex Mono';letter-spacing:.14em;color:#E2601B">IN-HOUSE TEAM</span>
+<span style="font:800 44px/1 'Archivo';letter-spacing:-.03em">210+</span>
+<span style="font:400 14px/1.5 'Archivo';color:rgba(243,241,236,.78)">Project managers, engineers, site supervisors and HSE officers on permanent staff.</span>
+</div>
+</div>
+</div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" data-screen-label="04 Services" style="background:#17181A;color:#F3F1EC">
+<div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,140px) clamp(20px,4.5vw,64px)">
+<div style="display:flex;flex-wrap:wrap;gap:24px 64px;align-items:flex-end;justify-content:space-between;margin-bottom:clamp(40px,5vw,72px)">
+<div style="flex:1 1 480px;display:flex;flex-direction:column;gap:clamp(20px,2.4vw,32px)">
+<div style="display:flex;align-items:center;gap:14px;font:500 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.65)"><span style="color:#E2601B">04</span><span style="width:40px;height:1px;background:currentColor"></span>SERVICES</div>
+<h2 style="margin:0;font:800 clamp(44px,6.7vw,96px)/.92 'Archivo';letter-spacing:-.04em"><span style="display:block;overflow:hidden"><span data-reveal="line" style="display:block">WHAT WE BUILD</span></span></h2>
+</div>
+<p style="flex:0 1 380px;margin:0;font:400 clamp(15px,1.2vw,17px)/1.6 'Archivo';color:rgba(243,241,236,.72)">Six disciplines delivered by one integrated team — so structure, envelope and services are planned together, not coordinated after the fact.</p>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:32px clamp(32px,4vw,64px);align-items:flex-start">
+<div style="flex:1.4 1 520px;min-width:0;border-top:1px solid rgba(243,241,236,.16)">
+<sc-for list="{{ services }}" as="s" hint-placeholder-count="6">
+<div onMouseEnter="{{ s.select }}" onClick="{{ s.select }}" style="border-bottom:1px solid rgba(243,241,236,.16);padding:clamp(20px,2.2vw,30px) 0;cursor:pointer;display:grid;grid-template-columns:clamp(40px,5.5vw,80px) minmax(0,1fr) 32px;gap:0 clamp(12px,1.7vw,24px)">
+<span style="font:500 13px/1 'IBM Plex Mono';color:{{ s.numColor }};padding-top:10px;transition:color .3s">{{ s.num }}</span>
+<div style="display:flex;flex-direction:column;min-width:0">
+<span style="font:700 clamp(22px,2.4vw,34px)/1.1 'Archivo';letter-spacing:-.02em;color:{{ s.titleColor }};transition:color .3s">{{ s.title }}</span>
+<div style="display:grid;grid-template-rows:{{ s.rows }};transition:grid-template-rows .4s ease">
+<div style="overflow:hidden">
+<p style="margin:16px 0 18px;max-width:520px;font:400 16px/1.6 'Archivo';color:rgba(243,241,236,.75)">{{ s.desc }}</p>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<sc-for list="{{ s.tags }}" as="t" hint-placeholder-count="3"><span style="font:500 11px/1 'IBM Plex Mono';letter-spacing:.06em;padding:8px 10px;border:1px solid rgba(243,241,236,.22);color:rgba(243,241,236,.85)">{{ t }}</span></sc-for>
+</div>
+</div>
+</div>
+</div>
+<span style="font:400 24px/1 'Archivo';color:{{ s.numColor }};padding-top:6px;text-align:right;transition:color .3s">{{ s.arrow }}</span>
+</div>
+</sc-for>
+</div>
+<div style="flex:1 1 380px;min-width:0;position:{{ stickyPos }};top:116px;order:{{ svcOrder }}">
+<div style="position:relative;height:clamp(260px,42vw,600px);background:#232528;overflow:hidden">
+<sc-for list="{{ services }}" as="s" hint-placeholder-count="1">
+<div style="position:absolute;inset:0;opacity:{{ s.opacity }};transition:opacity .5s ease;background:repeating-linear-gradient(135deg,rgba(243,241,236,.05) 0 1px,transparent 1px 12px);pointer-events:{{ s.pe }}">
+<img src="{{ s.img }}" alt="{{ s.title }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></img>
+</div>
+</sc-for>
+<div style="position:absolute;left:0;top:0;width:28px;height:28px;border-left:2px solid #E2601B;border-top:2px solid #E2601B;pointer-events:none"></div>
+<div style="position:absolute;right:0;bottom:0;width:28px;height:28px;border-right:2px solid #E2601B;border-bottom:2px solid #E2601B;pointer-events:none"></div>
+</div>
+<div style="display:flex;justify-content:space-between;gap:16px;padding-top:16px;font:500 11px/1.4 'IBM Plex Mono';letter-spacing:.12em;color:rgba(243,241,236,.6)"><span>{{ svcCaption }}</span><span>{{ svcCount }}</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- FEATURED PROJECTS -->
+<section id="projects" data-screen-label="05 Selected projects" style="background:#F3F1EC;overflow:hidden">
+<div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,140px) clamp(20px,4.5vw,64px) clamp(32px,4vw,56px);display:flex;flex-wrap:wrap;gap:28px;align-items:flex-end;justify-content:space-between">
+<div style="flex:1 1 520px;display:flex;flex-direction:column;gap:clamp(20px,2.4vw,32px)">
+<div style="display:flex;align-items:center;gap:14px;font:500 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:#5E5D59"><span style="color:#E2601B">05</span><span style="width:40px;height:1px;background:currentColor"></span>SELECTED PROJECTS</div>
+<h2 style="margin:0;font:800 clamp(36px,5.6vw,80px)/.94 'Archivo';letter-spacing:-.04em">
+<span style="display:block;overflow:hidden"><span data-reveal="line" style="display:block">PROJECTS THAT DEFINE</span></span>
+<span style="display:block;overflow:hidden"><span data-reveal="line" style="display:block">OUR CAPABILITIES.</span></span>
+</h2>
+</div>
+<div style="display:flex;align-items:center;gap:16px">
+<span style="font:500 13px/1 'IBM Plex Mono';letter-spacing:.1em"><span style="color:#E2601B">{{ projNum }}</span> / 03</span>
+<button onClick="{{ projPrev }}" aria-label="Previous project" style="width:52px;height:52px;border:1px solid #17181A;background:transparent;font-size:20px;cursor:pointer;color:#17181A" style-hover="background:#17181A;color:#F3F1EC">←</button>
+<button onClick="{{ projNext }}" aria-label="Next project" style="width:52px;height:52px;border:1px solid #17181A;background:#17181A;color:#F3F1EC;font-size:20px;cursor:pointer" style-hover="background:#E2601B;border-color:#E2601B">→</button>
+</div>
+</div>
+<div ref="{{ trackRef }}" onScroll="{{ onTrackScroll }}" style="display:flex;gap:clamp(16px,2.2vw,32px);overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:0 max(clamp(20px,4.5vw,64px), calc((100vw - 1440px) / 2 + 64px)) 24px;scroll-padding:0 max(clamp(20px,4.5vw,64px), calc((100vw - 1440px) / 2 + 64px))">
+<sc-for list="{{ projects }}" as="p" hint-placeholder-count="3">
+<article data-proj="1" style="flex:none;width:min(1000px, 86vw);scroll-snap-align:start;display:flex;flex-direction:column">
+<div style="position:relative;height:clamp(260px,40vw,580px);overflow:hidden;background:#E3E0D9">
+<div style="position:absolute;inset:0;transition:transform 1.2s cubic-bezier(.2,.7,.2,1);background:repeating-linear-gradient(135deg,rgba(23,24,26,.05) 0 1px,transparent 1px 12px)" style-hover="transform:scale(1.035)">
+<img src="{{ p.img }}" alt="{{ p.title }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></img>
+</div>
+<div data-mask="1" style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(5,1fr);pointer-events:none">
+<span style="background:#F3F1EC;transform-origin:top"></span><span style="background:#F3F1EC;transform-origin:top"></span><span style="background:#F3F1EC;transform-origin:top"></span><span style="background:#F3F1EC;transform-origin:top"></span><span style="background:#F3F1EC;transform-origin:top"></span>
+</div>
+<div style="position:absolute;top:clamp(12px,1.7vw,24px);left:clamp(12px,1.7vw,24px);background:#17181A;color:#F3F1EC;padding:10px 14px;font:600 12px/1 'IBM Plex Mono';letter-spacing:.1em;pointer-events:none"><span style="color:#E2601B">{{ p.num }}</span> — {{ p.sector }}</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 24px;padding:clamp(20px,2vw,28px) 0 clamp(16px,1.6vw,20px)">
+<h3 style="margin:0;font:800 clamp(22px,2.2vw,30px)/1.05 'Archivo';letter-spacing:-.02em">{{ p.title }}</h3>
+<span style="font:400 15px/1.4 'Archivo';color:#5E5D59">{{ p.loc }}</span>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr));gap:1px;background:rgba(23,24,26,.14);border-top:1px solid rgba(23,24,26,.14);border-bottom:1px solid rgba(23,24,26,.14)">
+<div style="background:#F3F1EC;padding:18px 16px 18px 0;display:flex;flex-direction:column;gap:10px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.14em;color:#8B8A85">SCOPE</span><span style="font:600 15px/1.35 'Archivo'">{{ p.scope }}</span></div>
+<div style="background:#F3F1EC;padding:18px 16px;display:flex;flex-direction:column;gap:10px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.14em;color:#8B8A85">GFA</span><span style="font:700 22px/1 'Archivo';letter-spacing:-.01em">{{ p.area }}</span></div>
+<div style="background:#F3F1EC;padding:18px 16px;display:flex;flex-direction:column;gap:10px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.14em;color:#8B8A85">COMPLETED</span><span style="font:700 22px/1 'Archivo'">{{ p.year }}</span></div>
+<a href="#case" style="background:#F3F1EC;padding:18px 16px;display:flex;align-items:center;justify-content:space-between;font:700 12px/1.3 'Archivo';letter-spacing:.12em;color:#17181A" style-hover="color:#E2601B">VIEW PROJECT <span style="font-size:18px">→</span></a>
+</div>
+</article>
+</sc-for>
+</div>
+<div style="max-width:1440px;margin:0 auto;padding:24px clamp(20px,4.5vw,64px) clamp(80px,10vw,140px);display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:center">
+<div style="flex:1 1 200px;height:2px;background:rgba(23,24,26,.12);position:relative;max-width:420px"><div style="position:absolute;left:0;top:0;height:2px;background:#E2601B;width:{{ projBar }};transition:width .4s"></div></div>
+<a href="#projects" style="display:flex;align-items:center;gap:12px;font:700 13px/1 'Archivo';letter-spacing:.12em;padding-bottom:8px;border-bottom:2px solid #17181A;transition:gap .25s" style-hover="gap:20px">VIEW ALL 120+ PROJECTS <span>→</span></a>
+</div>
+</section>
+
+<!-- CASE STUDY -->
+<section id="case" data-screen-label="06 Case study" style="background:#1E2023;color:#F3F1EC">
+<div style="position:relative;height:clamp(460px,50vw,720px);overflow:hidden;background:repeating-linear-gradient(135deg,rgba(243,241,236,.045) 0 1px,transparent 1px 12px)">
+<img src="https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&amp;fit=crop&amp;w=2000&amp;q=80" alt="Manufacturing and storage facility interior" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></img>
+<div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(30,32,35,.88) 0%,rgba(30,32,35,.35) 60%,rgba(30,32,35,.1) 100%)"></div>
+<div style="position:absolute;inset:0;pointer-events:none;max-width:1440px;margin:0 auto;padding:clamp(40px,5vw,72px) clamp(20px,4.5vw,64px) clamp(36px,4.5vw,64px);display:flex;flex-direction:column;justify-content:space-between">
+<div style="display:flex;align-items:center;gap:14px;font:500 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.75)"><span style="color:#E2601B">06</span><span style="width:40px;height:1px;background:currentColor"></span>CASE STUDY</div>
+<h2 style="margin:0;font:800 clamp(38px,6.1vw,88px)/.94 'Archivo';letter-spacing:-.04em;max-width:820px"><span style="display:block;overflow:hidden"><span data-reveal="line" style="display:block">18,400 m² of</span></span><span style="display:block;overflow:hidden"><span data-reveal="line" style="display:block">production floor,</span></span><span style="display:block;overflow:hidden"><span data-reveal="line" style="display:block">in 14 months.</span></span></h2>
+</div>
+</div>
+<div style="max-width:1440px;margin:0 auto;padding:0 clamp(20px,4.5vw,64px) clamp(80px,10vw,140px)">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:1px;background:rgba(243,241,236,.16);border-bottom:1px solid rgba(243,241,236,.16)">
+<div style="background:#1E2023;padding:28px 20px 28px 0;display:flex;flex-direction:column;gap:12px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:#E2601B">PROJECT</span><span style="font:600 17px/1.3 'Archivo'">Industrial Manufacturing Facility</span></div>
+<div style="background:#1E2023;padding:28px 20px;display:flex;flex-direction:column;gap:12px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:#E2601B">LOCATION</span><span style="font:600 17px/1.3 'Archivo'">Karawang, West Java</span></div>
+<div style="background:#1E2023;padding:28px 20px;display:flex;flex-direction:column;gap:12px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:#E2601B">SCOPE</span><span style="font:600 17px/1.3 'Archivo'">Design &amp; Build</span></div>
+<div style="background:#1E2023;padding:28px 20px;display:flex;flex-direction:column;gap:12px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:#E2601B">AREA</span><span style="font:700 24px/1 'Archivo'">18,400 m²</span></div>
+<div style="background:#1E2023;padding:28px 20px;display:flex;flex-direction:column;gap:12px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:#E2601B">DURATION</span><span style="font:700 24px/1 'Archivo'">14 Months</span></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:40px clamp(32px,4.5vw,64px);padding:clamp(48px,5vw,72px) 0">
+<div data-reveal="fade" style="display:flex;flex-direction:column;gap:18px"><span style="font:600 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">01 — CHALLENGE</span><p style="margin:0;font:400 clamp(16px,1.3vw,18px)/1.6 'Archivo';color:rgba(243,241,236,.86);text-wrap:pretty">A fixed production start date, soft reclaimed ground, and a 24 m clear-span requirement for overhead cranes — with design still incomplete at award.</p></div>
+<div data-reveal="fade" style="display:flex;flex-direction:column;gap:18px"><span style="font:600 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">02 — OUR APPROACH</span><p style="margin:0;font:400 clamp(16px,1.3vw,18px)/1.6 'Archivo';color:rgba(243,241,236,.86);text-wrap:pretty">Bored-pile foundations designed in parallel with the steel package; prefabricated portal frames erected in two fronts while MEP rough-in followed bay by bay.</p></div>
+<div data-reveal="fade" style="display:flex;flex-direction:column;gap:18px"><span style="font:600 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">03 — RESULT</span><p style="margin:0;font:400 clamp(16px,1.3vw,18px)/1.6 'Archivo';color:rgba(243,241,236,.86);text-wrap:pretty">Handed over 9 days ahead of the contract date with zero lost-time incidents across 610,000 working hours.</p></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;justify-content:space-between;font:500 11px/1 'IBM Plex Mono';letter-spacing:.12em;color:rgba(243,241,236,.55)"><span>M01</span><span>M04</span><span>M08</span><span>M12</span><span>M14</span></div>
+<div style="display:grid;grid-template-columns:minmax(min-content,3fr) 9fr minmax(min-content,2fr);gap:4px;height:56px">
+<div style="background:rgba(243,241,236,.12);display:flex;align-items:center;padding:0 clamp(8px,1.2vw,18px);font:700 clamp(10px,.9vw,13px)/1 'Archivo';letter-spacing:.1em">PLANNING</div>
+<div style="background:rgba(243,241,236,.22);display:flex;align-items:center;padding:0 clamp(8px,1.2vw,18px);font:700 clamp(10px,.9vw,13px)/1 'Archivo';letter-spacing:.1em">→ CONSTRUCTION</div>
+<div style="background:#E2601B;display:flex;align-items:center;padding:0 clamp(8px,1.2vw,18px);font:700 clamp(10px,.9vw,13px)/1 'Archivo';letter-spacing:.1em;color:#fff">→ DELIVERY</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:20px 32px;justify-content:space-between;align-items:center;padding-top:28px">
+<span style="font:400 14px/1.5 'Archivo';color:rgba(243,241,236,.6)">Client: PT Arventa Manufaktur · Construction manager appointed by owner</span>
+<a href="#case" style="display:flex;align-items:center;gap:12px;font:700 13px/1 'Archivo';letter-spacing:.12em;padding-bottom:8px;border-bottom:2px solid #E2601B;color:#F3F1EC;transition:gap .25s" style-hover="gap:20px;color:#F3F1EC">READ FULL CASE STUDY <span>→</span></a>
+</div>
+</div>
+</div>
+</section>
+
+<!-- BLUEPRINT TO BUILDING -->
+<section ref="{{ bpRef }}" data-screen-label="07 Plan to reality" style="background:#F3F1EC;height:{{ bpSecH }};position:relative">
+<div style="position:{{ stickyPos }};top:clamp(64px,6vw,76px);height:{{ bpInnerH }};min-height:{{ bpInnerMin }};display:flex;flex-direction:column;max-width:1440px;margin:0 auto;padding:{{ bpPad }};gap:clamp(20px,2vw,28px)">
+<div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px 40px">
+<div style="display:flex;flex-direction:column;gap:clamp(16px,1.7vw,24px)">
+<div style="display:flex;align-items:center;gap:14px;font:500 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:#5E5D59"><span style="color:#E2601B">07</span><span style="width:40px;height:1px;background:currentColor"></span>METHOD</div>
+<h2 style="margin:0;font:800 clamp(38px,5vw,72px)/.92 'Archivo';letter-spacing:-.04em">FROM PLAN<br>TO REALITY.</h2>
+</div>
+<div style="display:flex;border:1px solid rgba(23,24,26,.18);flex:0 1 auto">
+<sc-for list="{{ phases }}" as="ph" hint-placeholder-count="3">
+<div style="flex:1;padding:clamp(12px,1.1vw,16px) clamp(14px,1.5vw,22px);min-width:clamp(96px,10vw,150px);display:flex;flex-direction:column;gap:8px;background:{{ ph.bg }};color:{{ ph.fg }};transition:background .3s,color .3s;border-left:{{ ph.border }}"><span style="font:500 11px/1 'IBM Plex Mono';letter-spacing:.14em;opacity:.8">{{ ph.num }}</span><span style="font:800 clamp(15px,1.3vw,18px)/1 'Archivo';letter-spacing:.06em">{{ ph.name }}</span></div>
+</sc-for>
+</div>
+</div>
+<div ref="{{ bpFrame }}" style="position:relative;flex:1;min-height:clamp(380px,40vw,420px);overflow:hidden;background:#1B1D20">
+<div style="position:absolute;inset:0;background-image:linear-gradient(rgba(243,241,236,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(243,241,236,.06) 1px,transparent 1px);background-size:40px 40px"></div>
+<svg viewBox="0 0 1400 620" preserveAspectRatio="{{ bpAspect }}" style="position:absolute;inset:0;width:100%;height:100%">
+<g fill="none" stroke="rgba(243,241,236,.75)" stroke-width="1.2" style="stroke-dasharray:1400;stroke-dashoffset:{{ bpDash }}">
+<line x1="120" y1="520" x2="1280" y2="520" stroke-width="2"></line>
+<line x1="200" y1="520" x2="200" y2="150"></line><line x1="400" y1="520" x2="400" y2="150"></line><line x1="600" y1="520" x2="600" y2="150"></line><line x1="800" y1="520" x2="800" y2="150"></line><line x1="1000" y1="520" x2="1000" y2="150"></line><line x1="1200" y1="520" x2="1200" y2="150"></line>
+<line x1="200" y1="430" x2="1200" y2="430"></line><line x1="200" y1="340" x2="1200" y2="340"></line><line x1="200" y1="250" x2="1200" y2="250"></line><line x1="200" y1="150" x2="1200" y2="150" stroke-width="2"></line>
+<line x1="200" y1="430" x2="400" y2="340"></line><line x1="400" y1="430" x2="600" y2="340"></line><line x1="800" y1="340" x2="1000" y2="250"></line><line x1="1000" y1="340" x2="1200" y2="250"></line>
+<rect x="250" y="450" width="100" height="70"></rect><rect x="650" y="370" width="100" height="50"></rect><rect x="1050" y="270" width="100" height="50"></rect>
+</g>
+<g stroke="rgba(243,241,236,.3)" stroke-width="1" stroke-dasharray="6 6">
+<line x1="200" y1="90" x2="200" y2="540"></line><line x1="400" y1="90" x2="400" y2="540"></line><line x1="600" y1="90" x2="600" y2="540"></line><line x1="800" y1="90" x2="800" y2="540"></line><line x1="1000" y1="90" x2="1000" y2="540"></line><line x1="1200" y1="90" x2="1200" y2="540"></line>
+</g>
+<g fill="none" stroke="#E2601B" stroke-width="1.2">
+<circle cx="200" cy="70" r="16"></circle><circle cx="400" cy="70" r="16"></circle><circle cx="600" cy="70" r="16"></circle><circle cx="800" cy="70" r="16"></circle><circle cx="1000" cy="70" r="16"></circle><circle cx="1200" cy="70" r="16"></circle>
+<line x1="200" y1="575" x2="1200" y2="575"></line>
+<line x1="200" y1="565" x2="200" y2="585"></line><line x1="400" y1="565" x2="400" y2="585"></line><line x1="600" y1="565" x2="600" y2="585"></line><line x1="800" y1="565" x2="800" y2="585"></line><line x1="1000" y1="565" x2="1000" y2="585"></line><line x1="1200" y1="565" x2="1200" y2="585"></line>
+</g>
+<g fill="#E2601B" font-family="IBM Plex Mono, monospace" font-size="13" text-anchor="middle">
+<text x="200" y="75">A</text><text x="400" y="75">B</text><text x="600" y="75">C</text><text x="800" y="75">D</text><text x="1000" y="75">E</text><text x="1200" y="75">F</text>
+<text x="300" y="600">6 000</text><text x="500" y="600">6 000</text><text x="700" y="600">6 000</text><text x="900" y="600">6 000</text><text x="1100" y="600">6 000</text>
+</g>
+<g fill="rgba(243,241,236,.6)" font-family="IBM Plex Mono, monospace" font-size="12">
+<text x="1220" y="524">±0.00</text><text x="1220" y="434">+4.50</text><text x="1220" y="344">+9.00</text><text x="1220" y="254">+13.50</text><text x="1220" y="154">+18.00</text>
+<text x="120" y="140">ELEV. NORTH — 1:200</text>
+</g>
+</svg>
+<div style="position:absolute;inset:0;clip-path:inset(0 0 0 {{ bpB }}%);background:#2A2C30">
+<div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(243,241,236,.05) 0 1px,transparent 1px 12px)"></div>
+<img src="https://images.unsplash.com/photo-1599707254554-027aeb4deacd?auto=format&amp;fit=crop&amp;w=2000&amp;q=80" alt="Structure mid-erection with tower cranes" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></img>
+</div>
+<div style="position:absolute;inset:0;clip-path:inset(0 0 0 {{ bpC }}%);background:#D9D6CF">
+<div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(23,24,26,.05) 0 1px,transparent 1px 12px)"></div>
+<img src="https://images.unsplash.com/photo-1541976590-713941681591?auto=format&amp;fit=crop&amp;w=2000&amp;q=80" alt="Completed building façade in daylight" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"></img>
+</div>
+<div style="position:absolute;top:0;bottom:0;left:{{ bpB }}%;width:2px;background:#E2601B;pointer-events:none"></div>
+<div style="position:absolute;top:0;bottom:0;left:{{ bpC }}%;width:2px;background:#E2601B;pointer-events:none"></div>
+<div style="position:absolute;top:16px;left:12px;font:600 11px/1 'IBM Plex Mono';letter-spacing:.12em;color:#F3F1EC;background:rgba(23,24,26,.8);padding:7px 9px;white-space:nowrap;pointer-events:none">{{ bpL1 }}</div>
+<div style="position:absolute;top:16px;left:calc({{ bpB }}% + 12px);font:600 11px/1 'IBM Plex Mono';letter-spacing:.12em;color:#F3F1EC;background:rgba(23,24,26,.8);padding:7px 9px;white-space:nowrap;pointer-events:none">{{ bpL2 }}</div>
+<div style="position:absolute;top:16px;left:calc({{ bpC }}% + 12px);font:600 11px/1 'IBM Plex Mono';letter-spacing:.12em;color:#F3F1EC;background:rgba(23,24,26,.8);padding:7px 9px;white-space:nowrap;pointer-events:none">{{ bpL3 }}</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px 24px">
+<p style="margin:0;font:400 15px/1.5 'Archivo';color:#4A4946"><b style="color:#17181A">Plan.</b> Shop drawings, methodology and a resource-loaded schedule are signed off before mobilisation.</p>
+<p style="margin:0;font:400 15px/1.5 'Archivo';color:#4A4946"><b style="color:#17181A">Build.</b> Weekly progress against baseline, inspection test plans and photo logs per work package.</p>
+<p style="margin:0;font:400 15px/1.5 'Archivo';color:#4A4946"><b style="color:#17181A">Deliver.</b> Testing &amp; commissioning, as-built drawings, O&amp;M manuals and a defects-liability plan.</p>
+</div>
+</div>
+</section>
+
+<!-- WHY US -->
+<section id="capabilities" data-screen-label="08 Why us" style="background:#EAE7E1;border-top:1px solid rgba(23,24,26,.12)">
+<div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,140px) clamp(20px,4.5vw,64px);display:flex;flex-wrap:wrap;gap:48px clamp(40px,6vw,96px);align-items:flex-start">
+<div style="flex:1 1 300px;position:{{ stickyPos }};top:140px;display:flex;flex-direction:column;gap:clamp(20px,2.4vw,32px)">
+<div style="display:flex;align-items:center;gap:14px;font:500 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:#5E5D59"><span style="color:#E2601B">08</span><span style="width:40px;height:1px;background:currentColor"></span>CAPABILITY</div>
+<h2 style="margin:0;font:800 clamp(40px,4.5vw,64px)/.95 'Archivo';letter-spacing:-.04em">WHY WORK<br>WITH US</h2>
+<p style="margin:0;font:400 clamp(15px,1.2vw,17px)/1.6 'Archivo';color:#4A4946;max-width:360px">Six operating controls we apply on every site — documented, audited, and reported to the client.</p>
+<a href="#capabilities" style="align-self:flex-start;display:flex;align-items:center;gap:12px;font:700 13px/1 'Archivo';letter-spacing:.12em;padding-bottom:8px;border-bottom:2px solid #17181A;transition:gap .25s" style-hover="gap:20px">VIEW CAPABILITIES <span>→</span></a>
+</div>
+<div style="flex:2 1 560px;min-width:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:1px;background:rgba(23,24,26,.18);border:1px solid rgba(23,24,26,.18)">
+<sc-for list="{{ reasons }}" as="r" hint-placeholder-count="6">
+<div data-reveal="fade" style="background:#EAE7E1;padding:clamp(28px,2.8vw,40px) clamp(22px,2.5vw,36px) clamp(30px,3vw,44px);display:flex;flex-direction:column;gap:20px;min-height:clamp(220px,20vw,280px);transition:background .3s" style-hover="background:#F3F1EC">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font:600 13px/1 'IBM Plex Mono';color:#E2601B">{{ r.num }}</span><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.14em;color:#8B8A85">{{ r.tag }}</span></div>
+<h3 style="margin:0;font:800 clamp(20px,1.7vw,24px)/1.1 'Archivo';letter-spacing:.01em">{{ r.title }}</h3>
+<p style="margin:0;font:400 16px/1.55 'Archivo';color:#4A4946">{{ r.desc }}</p>
+<span style="margin-top:auto;font:500 12px/1.4 'IBM Plex Mono';color:#17181A;padding-top:16px;border-top:1px dashed rgba(23,24,26,.25)">{{ r.proof }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<!-- PROCESS -->
+<section ref="{{ procRef }}" data-screen-label="09 Process" style="background:#17181A;color:#F3F1EC">
+<div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,140px) clamp(20px,4.5vw,64px)">
+<div style="display:flex;flex-wrap:wrap;gap:24px 64px;align-items:flex-end;justify-content:space-between;margin-bottom:clamp(48px,6.5vw,96px)">
+<div style="flex:1 1 480px;display:flex;flex-direction:column;gap:clamp(20px,2.4vw,32px)">
+<div style="display:flex;align-items:center;gap:14px;font:500 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.65)"><span style="color:#E2601B">09</span><span style="width:40px;height:1px;background:currentColor"></span>PROCESS</div>
+<h2 style="margin:0;font:800 clamp(44px,6.7vw,96px)/.92 'Archivo';letter-spacing:-.04em"><span style="display:block;overflow:hidden"><span data-reveal="line" style="display:block">HOW WE WORK</span></span></h2>
+</div>
+<p style="flex:0 1 380px;margin:0;font:400 clamp(15px,1.2vw,17px)/1.6 'Archivo';color:rgba(243,241,236,.72)">Six stages, each closed with a documented deliverable before the next begins. Typical consultation-to-proposal time: 10–14 working days.</p>
+</div>
+<div style="position:relative">
+<div style="display:{{ procHLine }};position:absolute;left:0;right:0;top:27px;height:2px;background:rgba(243,241,236,.14)"></div>
+<div style="display:{{ procHLine }};position:absolute;left:0;top:27px;height:2px;background:#E2601B;width:{{ procW }};transition:width .15s linear"></div>
+<div style="display:{{ procVLine }};position:absolute;left:27px;top:0;bottom:0;width:2px;background:rgba(243,241,236,.14)"></div>
+<div style="display:{{ procVLine }};position:absolute;left:27px;top:0;width:2px;background:#E2601B;height:{{ procW }};transition:height .15s linear"></div>
+<div style="display:grid;grid-template-columns:{{ procCols }};gap:{{ procGap }};position:relative">
+<sc-for list="{{ steps }}" as="st" hint-placeholder-count="6">
+<div style="display:flex;flex-direction:{{ procDir }};gap:24px">
+<div style="flex:none;width:56px;height:56px;display:flex;align-items:center;justify-content:center;background:{{ st.dotBg }};border:2px solid {{ st.dotBorder }};color:{{ st.dotFg }};font:600 14px/1 'IBM Plex Mono';transition:all .35s">{{ st.num }}</div>
+<div style="display:flex;flex-direction:column;gap:12px;opacity:{{ st.op }};transition:opacity .4s;padding-top:{{ procTextPad }}">
+<h3 style="margin:0;font:800 20px/1.15 'Archivo';letter-spacing:.02em">{{ st.title }}</h3>
+<p style="margin:0;font:400 15px/1.55 'Archivo';color:rgba(243,241,236,.72)">{{ st.desc }}</p>
+<span style="font:500 11px/1.4 'IBM Plex Mono';letter-spacing:.08em;color:#E2601B;padding-top:12px;border-top:1px solid rgba(243,241,236,.14)">{{ st.out }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</section>
+
+<!-- CERTIFICATIONS -->
+<section id="credentials" data-screen-label="10 Certifications" style="background:#F3F1EC">
+<div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,140px) clamp(20px,4.5vw,64px)">
+<div style="display:flex;flex-wrap:wrap;gap:24px 64px;align-items:flex-end;justify-content:space-between;margin-bottom:clamp(40px,5vw,72px)">
+<div style="flex:1 1 520px;display:flex;flex-direction:column;gap:clamp(20px,2.4vw,32px)">
+<div style="display:flex;align-items:center;gap:14px;font:500 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:#5E5D59"><span style="color:#E2601B">10</span><span style="width:40px;height:1px;background:currentColor"></span>CREDENTIALS</div>
+<h2 style="margin:0;font:800 clamp(34px,5vw,72px)/.94 'Archivo';letter-spacing:-.04em"><span style="display:block;overflow:hidden"><span data-reveal="line" style="display:block">BUILT ON PROFESSIONAL</span></span><span style="display:block;overflow:hidden"><span data-reveal="line" style="display:block">STANDARDS.</span></span></h2>
+</div>
+<p style="flex:0 1 380px;margin:0;font:400 clamp(15px,1.2vw,17px)/1.6 'Archivo';color:#4A4946">Prequalification documents for tender and procurement teams are available on request, typically within one working day.</p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:16px">
+<sc-for list="{{ certs }}" as="c" hint-placeholder-count="6">
+<div data-reveal="fade" style="background:#FAF9F6;border:1px solid rgba(23,24,26,.14);padding:24px 22px;display:flex;flex-direction:column;gap:18px;min-height:clamp(240px,20vw,280px)">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="width:44px;height:44px;border:1.5px solid #17181A;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 9px/1 'IBM Plex Mono';letter-spacing:.06em">{{ c.seal }}</span><span style="font:600 9px/1 'IBM Plex Mono';letter-spacing:.14em;color:#2E7D4F;border:1px solid #2E7D4F;padding:5px 6px">● VALID</span></div>
+<span style="font:800 clamp(28px,2.4vw,34px)/1 'Archivo';letter-spacing:-.02em">{{ c.code }}</span>
+<span style="font:500 14px/1.4 'Archivo';color:#3E3D3A">{{ c.name }}</span>
+<div style="margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:14px;border-top:1px dashed rgba(23,24,26,.25)">
+<span style="font:500 10px/1.3 'IBM Plex Mono';color:#5E5D59">{{ c.issuer }}</span>
+<span style="font:500 10px/1.3 'IBM Plex Mono';color:#17181A">{{ c.no }}</span>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:0 32px;margin-top:clamp(40px,4vw,56px);border-top:1px solid rgba(23,24,26,.18)">
+<sc-for list="{{ compliance }}" as="c" hint-placeholder-count="6">
+<div style="padding:24px 0;border-bottom:1px solid rgba(23,24,26,.18);display:grid;grid-template-columns:40px 1fr;gap:4px 16px">
+<span style="font:600 12px/1.6 'IBM Plex Mono';color:#E2601B">{{ c.num }}</span>
+<span style="font:700 17px/1.4 'Archivo'">{{ c.title }}</span>
+<span></span>
+<span style="font:400 15px/1.5 'Archivo';color:#5E5D59">{{ c.desc }}</span>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-top:48px;gap:24px">
+<span style="flex:1 1 320px;font:500 12px/1.6 'IBM Plex Mono';letter-spacing:.06em;color:#5E5D59">NIB 9120301847562 · NPWP 03.187.452.6-017.000 · GAPENSI Member No. 31.01.0417.0912</span>
+<div style="display:flex;flex-wrap:wrap;gap:12px">
+<a href="#" style="flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:12px;border:1px solid #17181A;padding:0 24px;height:52px;font:700 12px/1 'Archivo';letter-spacing:.12em;white-space:nowrap;transition:gap .25s" style-hover="gap:18px;color:#17181A;background:#EAE7E1">COMPANY PROFILE PDF <span>↓</span></a>
+<a href="#" style="flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:12px;background:#17181A;color:#F3F1EC;padding:0 24px;height:52px;font:700 12px/1 'Archivo';letter-spacing:.12em;white-space:nowrap;transition:gap .25s" style-hover="gap:18px;color:#F3F1EC;background:#E2601B">VIEW COMPANY CREDENTIALS <span>→</span></a>
+</div>
+</div>
+</div>
+</section>
+
+<!-- FOOTPRINT -->
+<section data-screen-label="11 Footprint" style="background:#EAE7E1;border-top:1px solid rgba(23,24,26,.12)">
+<div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,140px) clamp(20px,4.5vw,64px);display:flex;flex-wrap:wrap;gap:40px clamp(32px,4vw,64px);align-items:flex-start">
+<div style="flex:1 1 320px;display:flex;flex-direction:column;gap:clamp(24px,2.4vw,32px)">
+<div style="display:flex;align-items:center;gap:14px;font:500 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:#5E5D59"><span style="color:#E2601B">11</span><span style="width:40px;height:1px;background:currentColor"></span>REACH</div>
+<h2 style="margin:0;font:800 clamp(38px,4.2vw,60px)/.95 'Archivo';letter-spacing:-.04em">OUR PROJECT<br>FOOTPRINT</h2>
+<div style="border-top:1px solid rgba(23,24,26,.18)">
+<sc-for list="{{ regions }}" as="r" hint-placeholder-count="5">
+<div onMouseEnter="{{ r.select }}" onClick="{{ r.select }}" style="display:grid;grid-template-columns:1fr auto;align-items:center;padding:16px {{ r.pad }};border-bottom:1px solid rgba(23,24,26,.18);cursor:pointer;background:{{ r.bg }};transition:all .25s">
+<span style="font:700 18px/1.2 'Archivo';color:{{ r.fg }}">{{ r.name }}</span>
+<span style="font:600 13px/1 'IBM Plex Mono';color:{{ r.numFg }}">{{ r.n }} PROJECTS</span>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="flex:2 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px">
+<div style="font:500 10px/1.6 'IBM Plex Mono';letter-spacing:.12em;color:#5E5D59;text-align:right">INDONESIA — PROJECT DISTRIBUTION · 2010 — 2026</div>
+<footprint-map active="wj" style="min-height:clamp(200px,28vw,380px)"></footprint-map>
+<div style="background:#17181A;color:#F3F1EC;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:1px;background-color:rgba(243,241,236,.16);border:1px solid #17181A">
+<div style="background:#17181A;padding:24px;display:flex;flex-direction:column;gap:10px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:#E2601B">SELECTED REGION</span><span style="font:800 26px/1 'Archivo';letter-spacing:-.01em">{{ region.name }}</span><span style="font:400 14px/1.4 'Archivo';color:rgba(243,241,236,.7)">{{ region.n }} projects · {{ region.area }}</span></div>
+<div style="background:#17181A;padding:24px;display:flex;flex-direction:column;gap:10px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">MAIN SECTORS</span><span style="font:500 15px/1.45 'Archivo'">{{ region.sectors }}</span></div>
+<div style="background:#17181A;padding:24px;display:flex;flex-direction:column;gap:10px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">LANDMARK PROJECT</span><span style="font:500 15px/1.45 'Archivo'">{{ region.landmark }}</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section id="insights" data-screen-label="12 Testimonial" style="background:#F3F1EC">
+<div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,140px) clamp(20px,4.5vw,64px);display:flex;flex-wrap:wrap;gap:40px clamp(40px,7vw,120px);align-items:flex-start">
+<div style="flex:1 1 260px;max-width:360px;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;align-items:center;gap:14px;font:500 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:#5E5D59"><span style="color:#E2601B">12</span><span style="width:40px;height:1px;background:currentColor"></span>CLIENT PROOF</div>
+<div style="height:clamp(120px,12vw,180px);border:1px solid rgba(23,24,26,.18);background:#FAF9F6;display:flex;align-items:center;justify-content:center;gap:12px;color:#3E3D3A">
+<span style="width:24px;height:24px;background:currentColor;transform:rotate(45deg)"></span><span style="font:800 22px/1 'Archivo';letter-spacing:.06em">{{ testi.logo }}</span>
+</div>
+<div style="display:flex;gap:8px">
+<sc-for list="{{ testis }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.select }}" style="flex:1;height:44px;border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};font:600 12px/1 'IBM Plex Mono';cursor:pointer">{{ t.num }}</button></sc-for>
+</div>
+</div>
+<div style="flex:3 1 520px;min-width:0;display:flex;flex-direction:column;gap:clamp(28px,3.3vw,48px)">
+<span style="font:800 clamp(80px,8vw,120px)/.6 'Archivo';color:#E2601B;height:clamp(40px,4vw,56px)">“</span>
+<blockquote style="margin:0;font:600 clamp(24px,3.2vw,46px)/1.2 'Archivo';letter-spacing:-.025em;text-wrap:pretty">{{ testi.quote }}</blockquote>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:20px 24px;border-top:1px solid rgba(23,24,26,.18);padding-top:24px">
+<div style="display:flex;flex-direction:column;gap:8px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:#5E5D59">ATTRIBUTION</span><span style="font:700 16px/1.35 'Archivo'">{{ testi.role }}</span><span style="font:400 14px/1.35 'Archivo';color:#5E5D59">{{ testi.company }}</span></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:#5E5D59">PROJECT</span><span style="font:700 16px/1.35 'Archivo'">{{ testi.project }}</span><span style="font:400 14px/1.35 'Archivo';color:#5E5D59">{{ testi.loc }}</span></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:#5E5D59">RELATIONSHIP</span><span style="font:700 16px/1.35 'Archivo'">{{ testi.rel }}</span><span style="font:400 14px/1.35 'Archivo';color:#5E5D59">{{ testi.scope }}</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- CONSULTATION CTA -->
+<section id="contact" data-screen-label="13 Consultation" style="background:#17181A;color:#F3F1EC;position:relative">
+<div style="position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(243,241,236,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(243,241,236,.04) 1px,transparent 1px);background-size:80px 80px"></div>
+<div style="position:relative;max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,140px) clamp(20px,4.5vw,64px);display:flex;flex-wrap:wrap;gap:56px clamp(40px,6vw,96px);align-items:flex-start">
+<div style="flex:1 1 360px;display:flex;flex-direction:column;gap:clamp(24px,2.5vw,36px);position:{{ stickyPos }};top:140px">
+<div style="display:flex;align-items:center;gap:14px;font:500 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.65)"><span style="color:#E2601B">13</span><span style="width:40px;height:1px;background:currentColor"></span>START A PROJECT</div>
+<h2 style="margin:0;font:800 clamp(44px,5.3vw,76px)/.92 'Archivo';letter-spacing:-.04em">PLANNING<br>YOUR NEXT<br>PROJECT<span style="color:#E2601B">?</span></h2>
+<p style="margin:0;font:400 clamp(16px,1.3vw,18px)/1.6 'Archivo';color:rgba(243,241,236,.78);max-width:440px">Tell us about your project and our team will help evaluate the requirements, scope, and next steps.</p>
+<a href="https://wa.me/6281219870450" target="_blank" style="display:flex;align-items:center;gap:18px;padding:20px 22px;border:1px solid rgba(243,241,236,.22);background:rgba(243,241,236,.04);max-width:440px;transition:border-color .25s" style-hover="border-color:#25D366;color:#F3F1EC">
+<span style="width:52px;height:52px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;flex:none"><span style="width:20px;height:20px;border:2.5px solid #fff;border-radius:50% 50% 50% 4px"></span></span>
+<span style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0"><span style="font:700 14px/1 'Archivo';letter-spacing:.12em">CHAT VIA WHATSAPP</span><span style="font:500 14px/1 'IBM Plex Mono';color:rgba(243,241,236,.7)">+62 812 1987 0450</span></span>
+<span style="font-size:20px">→</span>
+</a>
+<div style="display:flex;flex-direction:column;gap:10px;font:500 12px/1.5 'IBM Plex Mono';letter-spacing:.04em;color:rgba(243,241,236,.6)">
+<span>— Response within 1 working day</span>
+<span>— Site survey scheduled within the week</span>
+<span>— NDA available before drawings are shared</span>
+</div>
+</div>
+<div style="flex:1.3 1 480px;min-width:0">
+<sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+<div style="border:1px solid rgba(243,241,236,.22);padding:clamp(32px,4vw,56px) clamp(24px,3.3vw,48px);display:flex;flex-direction:column;gap:20px">
+<span style="font:500 12px/1 'IBM Plex Mono';letter-spacing:.16em;color:#E2601B">REF. TPK-26-0412 — RECEIVED</span>
+<span style="font:800 clamp(26px,2.8vw,40px)/1.1 'Archivo';letter-spacing:-.02em">Thank you. A project engineer will contact you within one working day.</span>
+<button onClick="{{ reset }}" style="align-self:flex-start;background:transparent;border:0;border-bottom:2px solid #E2601B;color:#F3F1EC;padding:0 0 8px;font:700 12px/1 'Archivo';letter-spacing:.12em;cursor:pointer">SUBMIT ANOTHER PROJECT</button>
+</div>
+</sc-if>
+<sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+<form onSubmit="{{ submit }}" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:0 24px;border-top:1px solid rgba(243,241,236,.22)">
+<label style="display:flex;flex-direction:column;gap:10px;padding:20px 0;border-bottom:1px solid rgba(243,241,236,.22)"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">NAME *</span><input required="" placeholder="Full name" style="background:transparent;border:0;outline:none;color:#F3F1EC;font:500 17px/1.3 'Archivo';padding:0;min-width:0"></input></label>
+<label style="display:flex;flex-direction:column;gap:10px;padding:20px 0;border-bottom:1px solid rgba(243,241,236,.22)"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">COMPANY</span><input placeholder="PT …" style="background:transparent;border:0;outline:none;color:#F3F1EC;font:500 17px/1.3 'Archivo';padding:0;min-width:0"></input></label>
+<label style="display:flex;flex-direction:column;gap:10px;padding:20px 0;border-bottom:1px solid rgba(243,241,236,.22)"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">PHONE / WHATSAPP *</span><input required="" type="tel" placeholder="+62" style="background:transparent;border:0;outline:none;color:#F3F1EC;font:500 17px/1.3 'Archivo';padding:0;min-width:0"></input></label>
+<label style="display:flex;flex-direction:column;gap:10px;padding:20px 0;border-bottom:1px solid rgba(243,241,236,.22)"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">EMAIL *</span><input required="" type="email" placeholder="name@company.co.id" style="background:transparent;border:0;outline:none;color:#F3F1EC;font:500 17px/1.3 'Archivo';padding:0;min-width:0"></input></label>
+<label style="display:flex;flex-direction:column;gap:10px;padding:20px 0;border-bottom:1px solid rgba(243,241,236,.22)"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">PROJECT TYPE</span><select style="background:transparent;border:0;outline:none;color:#F3F1EC;font:500 17px/1.3 'Archivo';padding:0;appearance:none;cursor:pointer"><option style="color:#17181A">Industrial / Warehouse</option><option style="color:#17181A">Commercial / Office</option><option style="color:#17181A">Civil &amp; Infrastructure</option><option style="color:#17181A">Design &amp; Build</option><option style="color:#17181A">Renovation / Fit-Out</option><option style="color:#17181A">MEP Works</option></select></label>
+<label style="display:flex;flex-direction:column;gap:10px;padding:20px 0;border-bottom:1px solid rgba(243,241,236,.22)"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">PROJECT LOCATION</span><input placeholder="City / industrial estate" style="background:transparent;border:0;outline:none;color:#F3F1EC;font:500 17px/1.3 'Archivo';padding:0;min-width:0"></input></label>
+<label style="display:flex;flex-direction:column;gap:10px;padding:20px 0;border-bottom:1px solid rgba(243,241,236,.22)"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">ESTIMATED SIZE</span><select style="background:transparent;border:0;outline:none;color:#F3F1EC;font:500 17px/1.3 'Archivo';padding:0;appearance:none;cursor:pointer"><option style="color:#17181A">Under 1,000 m²</option><option style="color:#17181A">1,000 – 5,000 m²</option><option style="color:#17181A">5,000 – 15,000 m²</option><option style="color:#17181A">Above 15,000 m²</option></select></label>
+<label style="display:flex;flex-direction:column;gap:10px;padding:20px 0;border-bottom:1px solid rgba(243,241,236,.22)"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">EXPECTED START</span><select style="background:transparent;border:0;outline:none;color:#F3F1EC;font:500 17px/1.3 'Archivo';padding:0;appearance:none;cursor:pointer"><option style="color:#17181A">Within 3 months</option><option style="color:#17181A">3 – 6 months</option><option style="color:#17181A">6 – 12 months</option><option style="color:#17181A">Still in planning</option></select></label>
+<label style="grid-column:1 / -1;display:flex;flex-direction:column;gap:10px;padding:20px 0;border-bottom:1px solid rgba(243,241,236,.22)"><span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:rgba(243,241,236,.6)">PROJECT DESCRIPTION</span><textarea rows="3" placeholder="Building type, key requirements, current design stage…" style="background:transparent;border:0;outline:none;color:#F3F1EC;font:500 17px/1.45 'Archivo';padding:0;resize:vertical"></textarea></label>
+<label style="grid-column:1 / -1;margin-top:24px;border:1px dashed rgba(243,241,236,.3);padding:20px;display:flex;align-items:center;gap:16px;cursor:pointer" style-hover="border-color:#E2601B">
+<span style="flex:none;width:40px;height:40px;border:1px solid rgba(243,241,236,.4);display:flex;align-items:center;justify-content:center;font-size:18px">↑</span>
+<span style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0"><span style="font:600 15px/1.2 'Archivo';overflow:hidden;text-overflow:ellipsis">{{ fileLabel }}</span><span style="font:500 11px/1.3 'IBM Plex Mono';color:rgba(243,241,236,.55)">OPTIONAL · PDF, DWG, XLSX · MAX 25 MB</span></span>
+<input type="file" onChange="{{ onFile }}" style="display:none"></input>
+</label>
+<div style="grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:12px;margin-top:28px">
+<button type="submit" style="flex:1 1 240px;display:flex;align-items:center;justify-content:center;gap:14px;background:#E2601B;color:#fff;border:0;height:60px;font:700 14px/1 'Archivo';letter-spacing:.12em;cursor:pointer;transition:gap .25s,background .25s" style-hover="gap:22px;background:#C9520F">DISCUSS YOUR PROJECT <span>→</span></button>
+<a href="https://wa.me/6281219870450" target="_blank" style="flex:1 1 240px;display:flex;align-items:center;justify-content:center;gap:12px;background:#25D366;color:#0B2E17;height:60px;font:700 14px/1 'Archivo';letter-spacing:.12em" style-hover="color:#0B2E17;background:#3BE07A">CHAT VIA WHATSAPP <span>↗</span></a>
+</div>
+</form>
+</sc-if>
+</div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer data-screen-label="14 Footer" style="background:#0F1011;color:#F3F1EC;position:relative;overflow:hidden">
+<div style="position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(243,241,236,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(243,241,236,.035) 1px,transparent 1px);background-size:24px 24px"></div>
+<div style="position:relative;max-width:1440px;margin:0 auto;padding:clamp(64px,6.7vw,96px) clamp(20px,4.5vw,64px) 0">
+<div style="display:flex;flex-wrap:wrap;gap:48px clamp(32px,4vw,64px);padding-bottom:clamp(48px,5vw,72px);border-bottom:1px solid rgba(243,241,236,.14)">
+<div style="flex:2 1 300px;display:flex;flex-direction:column;gap:22px">
+<span style="font:800 22px/1.1 'Archivo';letter-spacing:.02em">PT Tegak Prima Konstruksi</span>
+<span style="font:400 15px/1.6 'Archivo';color:rgba(243,241,236,.7)">Graha Tegak Prima, Lt. 12<br>Jl. TB Simatupang Kav. 18<br>Jakarta Selatan 12430, Indonesia</span>
+<div style="display:flex;flex-direction:column;gap:8px;font:500 13px/1.4 'IBM Plex Mono';color:rgba(243,241,236,.85)">
+<span>T  +62 21 5795 2180</span>
+<a href="https://wa.me/6281219870450">WA +62 812 1987 0450</a>
+<a href="mailto:project@tegakprima.co.id">E  project@tegakprima.co.id</a>
+</div>
+<span style="font:500 11px/1.5 'IBM Plex Mono';letter-spacing:.08em;color:rgba(243,241,236,.55)">OPERATING AREA — JAVA, BALI, SUMATRA, KALIMANTAN</span>
+</div>
+<div style="flex:1 1 140px;display:flex;flex-direction:column;gap:14px;font:500 15px/1.3 'Archivo';color:rgba(243,241,236,.8)">
+<span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:#E2601B;margin-bottom:8px">NAVIGATE</span>
+<a href="#about">Company</a><a href="#services">Services</a><a href="#projects">Projects</a><a href="#capabilities">Capabilities</a><a href="#insights">Insights</a><a href="#contact">Contact</a>
+</div>
+<div style="flex:1 1 160px;display:flex;flex-direction:column;gap:14px;font:500 15px/1.3 'Archivo';color:rgba(243,241,236,.8)">
+<span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:#E2601B;margin-bottom:8px">RESOURCES</span>
+<a href="#">Company Profile PDF</a><a href="#credentials">Certifications</a><a href="#">Careers</a><a href="#">Privacy Policy</a>
+</div>
+<div style="flex:1.5 1 260px;display:flex;flex-direction:column;gap:14px">
+<span style="font:500 10px/1 'IBM Plex Mono';letter-spacing:.16em;color:#E2601B;margin-bottom:8px">FOLLOW</span>
+<div style="display:flex;flex-wrap:wrap;gap:10px">
+<a href="https://www.linkedin.com/company/tegak-prima-konstruksi" target="_blank" style="height:44px;padding:0 18px;border:1px solid rgba(243,241,236,.25);display:flex;align-items:center;font:600 13px/1 'Archivo'" style-hover="border-color:#E2601B">LinkedIn ↗</a>
+<a href="https://www.instagram.com/tegakprima" target="_blank" style="height:44px;padding:0 18px;border:1px solid rgba(243,241,236,.25);display:flex;align-items:center;font:600 13px/1 'Archivo'" style-hover="border-color:#E2601B">Instagram ↗</a>
+</div>
+<a href="#contact" style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;background:#E2601B;color:#fff;padding:0 22px;height:56px;font:700 12px/1 'Archivo';letter-spacing:.12em" style-hover="color:#fff;background:#C9520F">DISCUSS YOUR PROJECT <span>→</span></a>
+</div>
+</div>
+<div style="font:900 clamp(64px,19vw,290px)/.78 'Archivo';letter-spacing:-.06em;color:rgba(243,241,236,.07);padding-top:48px;white-space:nowrap;user-select:none">TEGAK PRIMA</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between;padding:24px 0 32px;border-top:1px solid rgba(243,241,236,.14);font:500 11px/1.5 'IBM Plex Mono';letter-spacing:.1em;color:rgba(243,241,236,.55)">
+<span>© 2026 PT TEGAK PRIMA KONSTRUKSI</span><span>COMPANY, CLIENTS, PROJECTS &amp; FIGURES ARE ILLUSTRATIVE SAMPLES</span><span>SBU · ISO 9001 · ISO 45001 · SMK3</span>
+</div>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;motion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;showGrid&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;}}">
+class Component extends DCLogic {
+  state = { svc: 0, statP: 0, procP: 0, bpP: 0, region: 'wj', testi: 0, proj: 0, sent: false, file: null, w: typeof window !== 'undefined' ? window.innerWidth : 1440, menu: false };
+  heroImg = React.createRef(); statRef = React.createRef(); procRef = React.createRef(); bpRef = React.createRef(); bpFrame = React.createRef(); trackRef = React.createRef();
+
+  get motion() { return this.props.motion ?? true; }
+
+  componentDidMount() {
+    this.onScroll = () => {
+      const vh = window.innerHeight, m = this.state.w < 900;
+      const p = this.procRef.current, b = this.bpRef.current, f = this.bpFrame.current;
+      const next = {};
+      if (p) { const r = p.getBoundingClientRect(); next.procP = Math.max(0, Math.min(1, (vh * 0.75 - r.top - 300) / (r.height - 400))); }
+      if (m && f) { const r = f.getBoundingClientRect(); next.bpP = Math.max(0, Math.min(1, (vh * 0.95 - r.top) / (vh * 0.85))); }
+      else if (b) { const r = b.getBoundingClientRect(); next.bpP = Math.max(0, Math.min(1, -r.top / (r.height - vh))); }
+      if (!this.motion) { next.procP = 1; next.bpP = 1; }
+      if (Math.abs((next.procP ?? 0) - this.state.procP) > .002 || Math.abs((next.bpP ?? 0) - this.state.bpP) > .002) this.setState(next);
+    };
+    this.onResize = () => { if (window.innerWidth !== this.state.w) this.setState({ w: window.innerWidth, menu: window.innerWidth < 1100 && this.state.menu }, this.onScroll); };
+    window.addEventListener('scroll', this.onScroll, true);
+    window.addEventListener('resize', this.onResize);
+    this.onResize(); this.onScroll();
+    this.onRegion = e => this.setState({ region: e.detail });
+    window.addEventListener('footprint:select', this.onRegion);
+
+    if (!this.motion) { this.setState({ statP: 1 }); return; }
+    const h = this.heroImg.current;
+    if (h) { h.style.transform = 'scale(1.08)'; requestAnimationFrame(() => requestAnimationFrame(() => { h.style.transition = 'transform 9s cubic-bezier(.2,.6,.2,1)'; h.style.transform = 'scale(1)'; })); }
+
+    this.io = new IntersectionObserver(entries => entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      this.io.unobserve(en.target); const el = en.target.__reveal || en.target;
+      if (el === this.statRef.current) return this.countUp();
+      if (el.dataset.mask) { [...el.children].forEach((c, i) => { c.style.transition = `transform .9s cubic-bezier(.7,0,.2,1) ${i * 80}ms`; c.style.transform = 'scaleY(0)'; }); return; }
+      el.style.opacity = '1'; el.style.transform = 'none';
+    }), { threshold: 0.12 });
+    setTimeout(() => {
+      document.querySelectorAll('[data-reveal]').forEach((el, i) => {
+        const line = el.dataset.reveal === 'line';
+        el.style.opacity = line ? '1' : '0';
+        el.style.transform = line ? 'translateY(105%)' : 'translateY(24px)';
+        el.style.transition = `transform ${line ? 1 : .8}s cubic-bezier(.2,.7,.2,1) ${line ? (i % 3) * 90 : 0}ms, opacity .8s ease`;
+        // Line reveals sit translated outside an overflow:hidden wrapper, so watch the wrapper instead.
+        if (line) { el.parentElement.__reveal = el; this.io.observe(el.parentElement); } else this.io.observe(el);
+      });
+      document.querySelectorAll('[data-mask]').forEach(el => this.io.observe(el));
+      if (this.statRef.current) this.io.observe(this.statRef.current);
+    }, 30);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.onScroll, true);
+    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('footprint:select', this.onRegion);
+    this.io && this.io.disconnect();
+  }
+  countUp() {
+    const t0 = performance.now(), D = 1800;
+    const tick = t => { const k = Math.min(1, (t - t0) / D); this.setState({ statP: 1 - Math.pow(1 - k, 3) }); if (k < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }
+  goProj(i) {
+    const tr = this.trackRef.current; if (!tr) return;
+    const n = Math.max(0, Math.min(2, i));
+    const card = tr.querySelectorAll('[data-proj]')[n];
+    if (card) tr.scrollTo({ left: card.offsetLeft - tr.firstElementChild.offsetLeft, behavior: 'smooth' });
+    this.setState({ proj: n });
+  }
+
+  renderVals() {
+    const S = this.state;
+    const m = S.w < 900, navCompact = S.w < 1100, pv = S.w < 1000;
+    const unsplash = (id, w = 1400) => 'https://images.unsplash.com/photo-' + id + '?auto=format&fit=crop&w=' + w + '&q=80';
+    const statsRaw = [
+      ['Y—', 15, '+', 'Years Experience'], ['P—', 120, '+', 'Projects Completed'], ['A—', 500, 'K+', 'Square Meters Built'],
+      ['C—', 8, '', 'Cities Across Indonesia'], ['R—', 95, '%', 'Repeat & Referral Clients']
+    ];
+    const servicesRaw = [
+      ['General Construction', 'Main-contractor delivery of commercial and corporate buildings — structure, architecture and finishes under one schedule.', ['Office towers', 'Retail & mixed-use', 'Hospitals', 'Schools'], '1429497419816-9ca5cfb4571a'],
+      ['Design & Build', 'Single-point responsibility from concept design and permits (PBG) through construction — faster starts and a fixed scope.', ['Factories', 'Warehouses', 'Corporate HQ'], '1503387762-592deb58ef4e'],
+      ['Civil & Structural Works', 'Earthworks, piling, foundations, reinforced concrete and steel structures, site roads and drainage.', ['Bored piles', 'Retaining walls', 'Industrial estates', 'Site infrastructure'], '1517089596392-fb9a9033e05b'],
+      ['Industrial Construction', 'Pre-engineered steel buildings, heavy-load slabs and crane-ready structures for manufacturing and logistics.', ['Distribution centres', 'Cold storage', 'Plants'], '1513828583688-c52646db42da'],
+      ['MEP Works', 'Electrical, HVAC, plumbing, fire protection and BMS — installed, tested and commissioned in-house.', ['Substations', 'Fire systems', 'Clean utilities'], '1621905251189-08b45d6a269e'],
+      ['Renovation & Fit-Out', 'Live-environment refurbishment and interior fit-out for offices, banks and retail, with phased handovers.', ['Office fit-out', 'Banking halls', 'Façade upgrades'], '1497366216548-37526070297c']
+    ];
+    const projectsRaw = [
+      ['Logistics Distribution Center', 'Cikarang, West Java', 'Industrial Construction', '12,500 m²', '2026', 'Industrial', 'Distribution center — long-span steel shed, loading docks, aerial', '1586528116311-ad8dd3c8310d'],
+      ['Corporate Office Development', 'Jakarta', 'Commercial Construction', '8,200 m²', '2025', 'Commercial', 'Corporate office — glazed façade, street-level hero shot', '1486406146926-c627a92ad1ab'],
+      ['Manufacturing Facility', 'Karawang, West Java', 'Industrial · Design & Build', '18,400 m²', '2025', 'Industrial', 'Manufacturing plant — interior with overhead cranes', '1567789884554-0b844b597180']
+    ];
+    const regionsRaw = {
+      jk: ['Jakarta', 32, '410,000 m²', 'Office, banking fit-out, mixed-use', 'Corporate Office Development · 8,200 m²'],
+      wj: ['West Java', 41, '1.2M m²', 'Manufacturing, logistics, industrial estates', 'Manufacturing Facility, Karawang · 18,400 m²'],
+      cj: ['Central Java', 14, '230,000 m²', 'Garment & footwear plants, warehousing', 'Export Garment Plant, Kendal · 9,600 m²'],
+      ej: ['East Java', 18, '310,000 m²', 'Food processing, cold storage, civil works', 'Cold Chain Hub, Pasuruan · 7,800 m²'],
+      ba: ['Bali', 7, '64,000 m²', 'Hospitality renovation, commercial', 'Resort Renovation, Nusa Dua · 5,100 m²']
+    };
+    const testisRaw = [
+      ['The project team maintained strong communication and quality control throughout the entire construction period. Weekly reports matched what we saw on site.', 'Project Director', 'PT Selaras Land', 'Commercial Office Development', 'Jakarta', 'SELARAS', '3 projects since 2019', 'Main contractor'],
+      ['They redesigned the foundation package without moving our production date. That is the kind of contractor you hire a second time.', 'Plant Manager', 'PT Arventa Manufaktur', 'Manufacturing Facility', 'Karawang, West Java', 'ARVENTA', 'Repeat client', 'Design & Build'],
+      ['Handover documentation was complete on day one — as-builts, test certificates, O&M manuals. Our facilities team had nothing to chase.', 'Head of Facilities', 'PT Arkalog Indonesia', 'Logistics Distribution Center', 'Cikarang, West Java', 'ARKALOG', 'Framework agreement', 'Industrial construction']
+    ];
+    const t = testisRaw[S.testi];
+    const r = regionsRaw[S.region];
+    const selRegion = k => () => { if (this.state.region === k) return; this.setState({ region: k }); window.dispatchEvent(new CustomEvent('footprint:set', { detail: k })); };
+    const bp = S.bpP;
+    const phaseIdx = bp < .33 ? 0 : bp < .8 ? 1 : 2;
+    const navItems = [['Home', '#top'], ['About', '#about'], ['Services', '#services'], ['Projects', '#projects'], ['Capabilities', '#capabilities'], ['Insights', '#insights'], ['Contact', '#contact']];
+    return {
+      showGrid: this.props.showGrid ?? false,
+      gridN: m ? 4 : 12,
+      gridCols: Array.from({ length: m ? 4 : 12 }, (_, i) => i),
+      heroImg: this.heroImg, statRef: this.statRef, procRef: this.procRef, bpRef: this.bpRef, bpFrame: this.bpFrame, trackRef: this.trackRef,
+      navLinks: navCompact ? 'none' : 'flex', navCta: m ? 'none' : 'flex', menuBtn: navCompact ? 'flex' : 'none',
+      menuPanel: navCompact && S.menu ? 'flex' : 'none', menuIcon: S.menu ? '✕' : '☰',
+      toggleMenu: () => this.setState({ menu: !this.state.menu }), closeMenu: () => this.setState({ menu: false }),
+      navItems: navItems.map(([label, href], i) => ({ label, href, num: '0' + (i + 1) })),
+      scrollCue: m ? 'none' : 'flex',
+      stickyPos: m ? 'static' : 'sticky',
+      aboutCardPos: m ? 'relative' : 'absolute', aboutCardW: m ? 'auto' : '300px',
+      svcOrder: m ? -1 : 0,
+      bpSecH: m ? 'auto' : '240vh', bpInnerH: m ? 'auto' : 'calc(100vh - 76px)', bpInnerMin: m ? '0' : '700px',
+      bpPad: m ? 'clamp(80px,10vw,140px) clamp(20px,4.5vw,64px)' : '48px clamp(20px,4.5vw,64px) 40px',
+      bpAspect: m ? 'xMidYMid slice' : 'xMidYMid meet',
+      bpL1: m ? '01 PLAN' : '01 — STRUCTURAL DRAWING', bpL2: m ? '02 BUILD' : '02 — ON SITE, M07', bpL3: m ? '03' : '03 — HANDOVER, M14',
+      stats: statsRaw.map(([code, v, suf, label], i) => ({ code: code + '0' + (i + 1), val: Math.round(v * S.statP), suf, label })),
+      services: servicesRaw.map(([title, desc, tags, photo], i) => {
+        const on = S.svc === i;
+        return { num: '0' + (i + 1), title, desc, tags, select: () => this.setState({ svc: i }),
+          numColor: on ? '#E2601B' : 'rgba(243,241,236,.5)', titleColor: on ? '#F3F1EC' : 'rgba(243,241,236,.6)', rows: on ? '1fr' : '0fr', arrow: on ? '→' : '+',
+          opacity: on ? 1 : 0, pe: on ? 'auto' : 'none', slot: 'svc-' + (i + 1), ph: title + ' — representative site photo', img: unsplash(photo) };
+      }),
+      svcCaption: 'FIG. 04.' + (S.svc + 1) + ' — ' + servicesRaw[S.svc][0].toUpperCase(),
+      svcCount: '0' + (S.svc + 1) + ' / 06',
+      projects: projectsRaw.map(([title, loc, scope, area, year, sector, ph, photo], i) => ({ num: '0' + (i + 1), title: title.toUpperCase(), loc, scope, area, year, sector: sector.toUpperCase(), slot: 'proj-' + (i + 1), ph, img: unsplash(photo, 1600) })),
+      projNum: '0' + (S.proj + 1), projBar: ((S.proj + 1) / 3 * 100) + '%',
+      projPrev: () => this.goProj(S.proj - 1), projNext: () => this.goProj(S.proj + 1 > 2 ? 0 : S.proj + 1),
+      onTrackScroll: e => { const tr = e.currentTarget; const cards = tr.querySelectorAll('[data-proj]'); if (cards.length < 2) return; const w = cards[1].offsetLeft - cards[0].offsetLeft; const i = Math.round(tr.scrollLeft / w); if (i !== this.state.proj && i >= 0 && i < 3) this.setState({ proj: i }); },
+      bpDash: Math.round(1400 * (1 - Math.min(1, bp * 2.4))),
+      bpB: (100 - Math.min(1, Math.max(0, (bp - .25) / .45)) * 67).toFixed(2),
+      bpC: (100 - Math.min(1, Math.max(0, (bp - .55) / .4)) * 34).toFixed(2),
+      phases: ['PLAN', 'BUILD', 'DELIVER'].map((name, i) => ({ name, num: '0' + (i + 1), bg: i === phaseIdx ? '#17181A' : 'transparent', fg: i === phaseIdx ? '#F3F1EC' : '#5E5D59', border: i ? '1px solid rgba(23,24,26,.18)' : '0' })),
+      reasons: [
+        ['Project Control', 'Clear progress monitoring and structured reporting.', 'Weekly S-curve vs. baseline · monthly steering review', 'CTRL'],
+        ['Quality Assurance', 'Documented inspections and quality control process.', 'ITP per work package · third-party material testing', 'QA/QC'],
+        ['Safety First', 'Strong HSE implementation across project sites.', 'SMK3 certified · 2.1M+ hours without lost-time injury', 'HSE'],
+        ['Transparent Communication', 'Clear project updates and coordination.', 'Single PM point of contact · shared photo & document log', 'COMM'],
+        ['Experienced Team', 'Experienced project managers, engineers, and supervisors.', 'SKK-certified engineers · avg. 12 years in role', 'TEAM'],
+        ['On-Time Delivery', 'Structured scheduling and project monitoring.', '92% of projects handed over on or before contract date', 'SCHED']
+      ].map(([title, desc, proof, tag], i) => ({ num: '0' + (i + 1), title: title.toUpperCase(), desc, proof, tag })),
+      procCols: pv ? '1fr' : 'repeat(6,minmax(0,1fr))', procGap: pv ? '40px' : '24px', procDir: pv ? 'row' : 'column',
+      procHLine: pv ? 'none' : 'block', procVLine: pv ? 'block' : 'none', procTextPad: pv ? '14px' : '0',
+      steps: [
+        ['Consultation', 'Understand project requirements and objectives.', 'OUTPUT — BRIEF & NDA'],
+        ['Site Survey', 'Site assessment and technical evaluation.', 'OUTPUT — SURVEY REPORT'],
+        ['Proposal & Estimation', 'Scope definition, RAB, timeline, and project proposal.', 'OUTPUT — RAB + SCHEDULE'],
+        ['Planning', 'Construction methodology, scheduling, procurement, and manpower planning.', 'OUTPUT — METHOD STATEMENT'],
+        ['Construction', 'Execution, supervision, quality control, and progress reporting.', 'OUTPUT — WEEKLY REPORTS'],
+        ['Handover', 'Final inspection, documentation, and project completion.', 'OUTPUT — BAST + AS-BUILT']
+      ].map(([title, desc, out], i) => {
+        const on = S.procP * 6 > i + 0.15;
+        return { num: '0' + (i + 1), title: title.toUpperCase(), desc, out, dotBg: on ? '#E2601B' : '#17181A', dotBorder: on ? '#E2601B' : 'rgba(243,241,236,.3)', dotFg: on ? '#fff' : 'rgba(243,241,236,.7)', op: on ? 1 : .45 };
+      }),
+      procW: (S.procP * 100).toFixed(1) + '%',
+      certs: [
+        ['SBU', 'Sertifikat Badan Usaha — Konstruksi, Kualifikasi Besar (B1)', 'LPJK · Kementerian PUPR', 'No. 3-3174-02-005-1-09-018742', 'SBU'],
+        ['SKK', 'Sertifikat Kompetensi Kerja — engineers & site managers', 'LSP terakreditasi BNSP', '46 holders on staff', 'SKK'],
+        ['ISO 9001', 'Quality Management System, 2015 edition', 'KAN-accredited certification body', 'Cert. QMS-41872 · valid to 2028', 'QMS'],
+        ['ISO 45001', 'Occupational Health & Safety Management System', 'KAN-accredited certification body', 'Cert. OHS-41873 · valid to 2028', 'OHS'],
+        ['K3', 'SMK3 — Sistem Manajemen K3', 'Kementerian Ketenagakerjaan', 'Audit score 92% · Gold flag · 2025', 'K3'],
+        ['ASOSIASI', 'GAPENSI — national contractor association', 'Gabungan Pelaksana Konstruksi Nasional Indonesia', 'Member No. 31.01.0417.0912', 'ASSN']
+      ].map(([code, name, issuer, no, seal]) => ({ code, name, issuer, no, seal })),
+      compliance: [
+        ['Company Legal Status', 'PT (Perseroan Terbatas), NIB-registered, audited financials available.'],
+        ['Contractor Classification', 'Large-qualification general contractor (B1) for building & civil sub-classes.'],
+        ['HSE Policy', 'Site-specific HSE plan, daily toolbox talks, permit-to-work system.'],
+        ['QA/QC Process', 'Inspection test plans, hold points and material test records per package.'],
+        ['Equipment & Resources', 'Owned fleet: tower cranes, excavators, concrete pumps; registered workshop.'],
+        ['Documentation Standards', 'Daily/weekly/monthly reports, as-built drawings and O&M handover pack.']
+      ].map(([title, desc], i) => ({ num: 'C' + (i + 1), title, desc })),
+      regions: Object.entries(regionsRaw).map(([k, v]) => { const on = k === S.region; return { name: v[0], n: v[1], select: selRegion(k), bg: on ? '#17181A' : 'transparent', fg: on ? '#F3F1EC' : '#17181A', numFg: on ? '#E2601B' : '#5E5D59', pad: on ? '20px' : '0px' }; }),
+      region: { name: r[0], n: r[1], area: r[2], sectors: r[3], landmark: r[4] },
+      testi: { quote: t[0], role: t[1], company: t[2], project: t[3], loc: t[4], logo: t[5], rel: t[6], scope: t[7] },
+      testis: testisRaw.map((_, i) => { const on = i === S.testi; return { num: '0' + (i + 1), select: () => this.setState({ testi: i }), bg: on ? '#17181A' : 'transparent', fg: on ? '#F3F1EC' : '#17181A', border: on ? '#17181A' : 'rgba(23,24,26,.25)' }; }),
+      sent: S.sent, notSent: !S.sent,
+      submit: e => { e.preventDefault(); this.setState({ sent: true }); },
+      reset: () => this.setState({ sent: false, file: null }),
+      fileLabel: S.file ? S.file : 'Upload Drawing / BOQ',
+      onFile: e => { const f = e.target.files && e.target.files[0]; this.setState({ file: f ? f.name : null }); }
+    };
+  }
+}
+</script>
+<!-- Skyland concept banner (not part of the Tegak design) -->
+<style>
+#sky-bar{position:fixed;left:50%;bottom:16px;transform:translate(-50%,0);z-index:200;display:flex;align-items:center;gap:6px 14px;max-width:calc(100% - 24px);width:max-content;padding:8px 8px 8px 16px;border-radius:999px;background:#fff;color:#0b1a3a;box-shadow:0 18px 40px rgba(11,26,58,.28),0 0 0 1px rgba(11,26,58,.08);font:500 13.5px/1.3 system-ui,-apple-system,'Segoe UI',sans-serif;transition:opacity .3s,transform .3s}
+#sky-bar.hide{opacity:0;transform:translate(-50%,24px);pointer-events:none}
+#sky-bar .sky-txt{white-space:nowrap}
+#sky-bar b{font-weight:700}
+#sky-bar a.sky-home{color:#2459e0;font-weight:700}
+#sky-bar a.sky-home:hover{color:#1a44b8}
+#sky-bar a.sky-cta{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:999px;background:#2459e0;color:#fff;font-weight:700;white-space:nowrap}
+#sky-bar a.sky-cta:hover{background:#1a44b8;color:#fff}
+#sky-bar button{flex:none;width:32px;height:32px;border:0;border-radius:50%;background:#f0f3f9;color:#4a5876;font:500 18px/1 system-ui,sans-serif;cursor:pointer}
+#sky-bar button:hover{background:#e3eaf6}
+#sky-bar .sky-s{display:none}
+@media (max-width:640px){#sky-bar{left:12px;right:12px;width:auto;transform:none;border-radius:18px;padding:10px 10px 10px 14px}#sky-bar.hide{transform:translateY(24px)}#sky-bar .sky-txt{flex:1;min-width:0;white-space:normal}#sky-bar .sky-ask,#sky-bar .sky-l{display:none}#sky-bar .sky-s{display:inline}}
+</style>
+<div id="sky-bar" role="complementary" aria-label="Skyland">
+<span class="sky-txt"><span class="sky-l" data-t="by">Concept website by</span><span class="sky-s" data-t="byS">Concept by</span> <a class="sky-home" href="/">Skyland</a><span class="sky-ask"> · <span data-t="ask">Want one like this?</span></span></span>
+<a class="sky-cta" href="/consult/"><span class="sky-l" data-t="cta">Get your fixed price</span><span class="sky-s" data-t="ctaS">Get a price</span> →</a>
+<button type="button" aria-label="Close">×</button>
+</div>
+<script>
+(function(){
+  var bar=document.getElementById('sky-bar');
+  if(new URLSearchParams(location.search).get('lang')==='id'){
+    var t={by:'Konsep website oleh',byS:'Konsep oleh',ask:'Mau website seperti ini?',cta:'Dapatkan harga pasti',ctaS:'Cek harga'};
+    bar.querySelectorAll('[data-t]').forEach(function(el){el.textContent=t[el.dataset.t];});
+    bar.querySelector('.sky-home').href='/id/';
+    bar.querySelector('.sky-cta').href='/id/konsultasi/';
+    bar.querySelector('button').setAttribute('aria-label','Tutup');
+  }
+  bar.querySelector('button').addEventListener('click',function(){bar.classList.add('hide');});
+})();
+</script>
+</body>
+</html>

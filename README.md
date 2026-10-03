@@ -35,7 +35,7 @@ Kalau `OPENAI_API_KEY` / `GMAIL_APP_PASSWORD` kosong saat `npm run dev`, konsult
 | `node scripts/e2e-consult.mjs http://localhost:4321 id 375` | Menjalankan seluruh alur konsultasi di browser |
 | `node scripts/make-assets.mjs` | Membuat ulang gambar OG, apple-touch-icon, dan `public/founder.jpg` |
 | `node scripts/make-hero.mjs` | Membuat ulang mockup company profile di laptop hero (EN + ID). Teks & desain ada di dalam script |
-| `node scripts/capture-portfolio.mjs` | Mengambil ulang screenshot desktop + HP semua proyek portofolio |
+| `node scripts/capture-portfolio.mjs [key]` | Mengambil ulang screenshot desktop + HP proyek portofolio. Konsep (`public/samples/*`, mis. `tegak`) diambil dari `npm run dev` sebagai satu screenshot tinggi |
 
 Script screenshot memakai Chrome lokal (`/usr/bin/google-chrome`); ganti lewat `CHROME_PATH` bila perlu.
 

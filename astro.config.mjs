@@ -25,4 +25,19 @@ export default defineConfig({
     }),
   ],
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
+  vite: {
+    plugins: [
+      {
+        // Vercel serves public/samples/<name>/index.html at /samples/<name>/; mirror that in `astro dev`.
+        name: 'samples-dir-index',
+        configureServer(server) {
+          server.middlewares.use((req, _res, next) => {
+            const m = req.url?.match(/^(\/samples\/[\w-]+)\/?(\?.*)?$/);
+            if (m) req.url = `${m[1]}/index.html${m[2] ?? ''}`;
+            next();
+          });
+        },
+      },
+    ],
+  },
 });

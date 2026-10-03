@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import Concepts from './Concepts.astro';
 import type { ImageMetadata } from 'astro';
 import fikrmate from '../../assets/work/fikrmate.png';
 import fikrmateMobile from '../../assets/work/fikrmate-mobile.png';
@@ -71,6 +72,8 @@ const total = String(w.projects.length).padStart(2, '0');
         );
       })}
     </div>
+
+    <Concepts locale={locale} />
 
     {foundingSpotsLeft() > 0 && (
       <div class="next" data-reveal>

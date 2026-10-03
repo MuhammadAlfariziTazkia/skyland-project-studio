@@ -15,6 +15,19 @@ export interface ProjectCopy {
   service: ServiceKey;
 }
 
+export interface ConceptCopy {
+  key: 'tegak';
+  name: string;
+  category: string;
+  type: string;
+  tagline: string;
+  desc: string;
+  highlights: string[];
+  url: string;
+  host: string;
+  service: ServiceKey;
+}
+
 export interface ServiceCopy {
   name: string;
   desc: string;
@@ -155,6 +168,25 @@ const en = {
         service: 'landing',
       },
     ] as ProjectCopy[],
+    conceptsEyebrow: 'STUDIO CONCEPTS',
+    conceptsLead: "Not client work, yet. Design explorations for industries we'd love to build for next.",
+    demo: 'Explore live demo',
+    hoverHint: 'Hover to scroll',
+    tapHint: 'Tap to open the live demo',
+    concepts: [
+      {
+        key: 'tegak',
+        name: 'Tegak Prima Konstruksi',
+        category: 'Concept · Construction',
+        type: 'Company profile for a general contractor',
+        tagline: 'Building with certainty.',
+        desc: 'A bold, editorial company profile that makes a contractor look as solid as the buildings it delivers.',
+        highlights: ['Interactive project map', 'Scroll-driven blueprint', 'Project consultation form'],
+        url: '/samples/tegak/',
+        host: 'tegak-prima-konstruksi.concept',
+        service: 'company_profile',
+      },
+    ] as ConceptCopy[],
     nextTitle: 'Your project could be next.',
     nextText: (pct: number) => `Founding clients get ${pct}% off and priority attention.`,
     nextCta: 'See the founding offer',
