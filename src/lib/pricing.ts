@@ -105,20 +105,24 @@ const AREA_FALLBACK: Record<'member' | 'admin', string[]> = {
 };
 
 /**
- * Pages the client actually gets. Public pages always; a member/admin screen only while the feature that
- * provides it is on, so switching "Update the site yourself" off hides the admin screens (and back on restores them).
+ * Pages the client actually gets. Content pages always; a page that comes with a feature (cart, article,
+ * admin screens...) only while that feature is on, so switching a feature off hides its pages and back on
+ * restores them.
  */
 export function visiblePages(plan: Plan, data: PricingData = pricing): Page[] {
   const active = activeFeatureIds(plan, data);
   return plan.pages.filter((p) => {
-    if (p.area === 'public') return true;
     if (p.feature && data.features.some((f) => f.id === p.feature)) return active.has(p.feature);
+    if (p.area === 'public') return true;
     return AREA_FALLBACK[p.area].some((id) => active.has(id));
   });
 }
 
-/** Public pages: the only ones that count against pages_included and per-page features. */
+/** Everything a visitor can open: content pages plus public pages that come with a feature. */
 export const publicPages = (plan: Plan, data: PricingData = pricing): Page[] => visiblePages(plan, data).filter((p) => p.area === 'public');
+
+/** Content pages: public pages that no feature brings. The only pages counted against pages_included and per-page features. */
+export const contentPages = (plan: Plan, data: PricingData = pricing): Page[] => publicPages(plan, data).filter((p) => !p.feature);
 
 export interface Promo {
   code: string;
@@ -194,7 +198,7 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
   const svc = getService(plan.serviceId, data);
   const region = choices.region;
   const reg = data.regions[region];
-  const pagesCount = publicPages(plan, data).length;
+  const pagesCount = contentPages(plan, data).length;
   const lines: QuoteLine[] = [];
   let hours = 0;
 

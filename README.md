@@ -5,6 +5,24 @@ Bilingual (EN di `/`, ID di `/id/`), USD untuk EN dan IDR untuk ID, tanpa databa
 
 **Stack:** Astro 5 (static, SEO-first) · Preact (hanya untuk konsultan) · OpenAI Chat Completions + Structured Outputs (via `fetch`, tanpa SDK) · Nodemailer + Gmail SMTP · Vercel serverless (hanya `/api/*`).
 
+## Dokumentasi produk, teknis, dan AI agent
+
+Mulai dari **[docs/README.md](docs/README.md)** untuk peta dokumentasi dan urutan
+catch up. Panduan lintas agent ada di **[AGENTS.md](AGENTS.md)**; Claude Code
+membacanya melalui **[CLAUDE.md](CLAUDE.md)**.
+
+- [Produk dan konteks bisnis](docs/PRODUCT.md)
+- [Arsitektur dan stack](docs/ARCHITECTURE.md)
+- [Domain dan aturan harga](docs/DOMAIN_PRICING.md)
+- [Kontrak API dan integrasi AI](docs/API_AI.md)
+- [Panduan pengembangan](docs/DEVELOPMENT.md) dan [operasional](docs/OPERATIONS.md)
+- [Keputusan arsitektur](docs/DECISIONS.md)
+- [Status terverifikasi dan gap](docs/PROJECT_STATUS.md)
+- [Template handoff antar chat/provider](docs/HANDOFF_TEMPLATE.md)
+
+Dokumen tersebut menjelaskan implementasi working tree per 4 Oktober 2026,
+termasuk batasan serta perbedaan antara metadata lama dan perilaku runtime.
+
 ## Alur konsultasi
 
 1. User menceritakan kebutuhan website → `POST /api/plan` → AI menyusun jenis website, halaman (beserta isinya), dan fitur.
@@ -74,9 +92,14 @@ Script screenshot memakai Chrome lokal (`/usr/bin/google-chrome`); ganti lewat `
     - `"item"` → harga × kuantitas yang dipilih klien/AI, 1–10 (mis. bahasa tambahan, layanan yang diintegrasikan).
     Harga fitur mengikuti `est_hours × pricing_basis.hourly_rate` (dibulatkan); test memastikan selisihnya wajar.
   - `multipliers`: pengali desain, kesiapan konten, dan kecepatan yang dipilih klien.
+  - `page_types`: katalog jenis halaman (±36). **Halaman** = 1 layar dengan URL & tujuan sendiri, berisi beberapa section. **Section** = blok konten di dalam halaman; konten pendek (cerita, lokasi, testimoni, FAQ singkat) digabung jadi section, bukan halaman. Setiap jenis punya `area` (public / member / admin), `sections` lazim (panduan AI & engineer), dan opsional `feature`:
+    - tanpa `feature` → **halaman konten** (Beranda, Tentang, Layanan, Kontak…), dihitung ke `pages_included` / `extra_page`;
+    - dengan `feature` → halaman yang **ikut fitur** (keranjang, detail produk, artikel, booking, layar admin/member), gratis karena sudah termasuk harga fitur, dan hanya muncul kalau fiturnya aktif.
+    Halaman template (detail produk, artikel) dihitung 1. AI hanya memilih `type`; area & fitur diturunkan oleh kode. Menambah jenis halaman: tambah entri di `page_types` + label EN/ID di `PAGE_COPY` (`src/i18n/catalog.ts`).
   - `founding_offer`: diskon klien pertama. **Naikkan `spots_taken` setiap kali dapat klien** (atau env `PUBLIC_FOUNDING_TAKEN`). Kode promo ada di env `PROMO_CODES`, bukan di file ini.
   - **Menambah fitur:** tambahkan objek di `features` (id baru, kategori yang ada), lalu tambahkan nama & penjelasan EN/ID di `FEATURE_COPY` pada `src/i18n/catalog.ts` (untuk `unit: "item"` sertakan juga label `unit`, mis. "bahasa"). AI otomatis bisa memilihnya, dan dropdown di konsultan otomatis mengelompokkannya.
   - Setelah mengubah harga, jalankan `npm run test` (test memeriksa copy, kategori, `includes`, dan kewajaran harga).
+- **Gaya mockup (12 tema):** `src/lib/mockup/themes.ts`. Setiap tema berisi warna, font (Google Fonts, hanya yang dipakai), dan karakter visual: gaya kartu (`soft`/`outline`/`hard`/`glass`/`flat`), bentuk hero, pola latar, `bento`, `rules`, dan `accentLock` (tema yang selalu memakai warnanya sendiri). Konsultan menampilkan 4 gaya yang disarankan AI untuk bisnis klien (field `styles` di rencana, dengan fallback per layanan di `SERVICE_STYLES`); sisanya ada di balik "Lihat semua gaya". Teks mockup tidak bergantung pada tema, jadi klien bisa mengganti gaya di langkah Mockup tanpa panggilan AI baru.
 - **Teks website:** `src/i18n/en.ts` & `src/i18n/id.ts` (landing + halaman layanan), `src/i18n/consult.ts` (UI konsultan).
 - **Logo:** mark ada di `src/components/Logo.astro` (header/footer), `public/favicon.svg` (ikon), dan `public/logo.svg` (logo lengkap untuk dipakai di luar website). Setelah mengubah logo, jalankan `node scripts/make-assets.mjs` agar favicon PNG, `logo.png`, dan gambar OG ikut diperbarui.
 - **Kontak & sosial media:** `src/config/site.ts`. Link sosial yang kosong otomatis disembunyikan.

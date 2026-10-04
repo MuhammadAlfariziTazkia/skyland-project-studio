@@ -2,11 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import pricing from '../../../data/pricing.json';
 import { consultStrings } from '../../i18n/consult';
 import { renderMockup } from '../../lib/mockup/render';
-import { THEMES, themeSwatchHtml } from '../../lib/mockup/themes';
 import { MULTIPLIER_COPY, NOT_INCLUDED_COPY, RECURRING_COPY } from '../../i18n/catalog';
 import { quote as computeQuote, defaultChoices, formatPrice, formatShort, quotePriceText, type Promo } from '../../lib/pricing';
-import { REGIONS, THEME_IDS, type Choices, type Locale, type Mockup, type Plan, type ThemeId } from '../../lib/schemas';
+import { PlanSchema, REGIONS, type Choices, type Locale, type Mockup, type Plan, type ThemeId } from '../../lib/schemas';
 import { LivePrice, PlanStep, livePrice } from './PlanStep';
+import { StylePicker } from './StylePicker';
 import { PromoField } from './PromoField';
 import { Segmented } from './Segmented';
 import { OrderStep, type ContactForm } from './OrderStep';
@@ -44,7 +44,16 @@ const STORE = 'skyland-consult-v2';
 const load = (): Partial<State> | null => {
   try {
     const raw = localStorage.getItem(STORE);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const saved = JSON.parse(raw) as Partial<State>;
+    // A plan saved by an older version may miss newer fields (page areas, flows): run it through the schema
+    // so defaults are filled in, and drop it if it no longer fits rather than crash the consultant.
+    if (saved.plan) {
+      const parsed = PlanSchema.safeParse(saved.plan);
+      if (parsed.success) saved.plan = parsed.data;
+      else return { ...saved, plan: null, mockup: null, step: 'describe' };
+    }
+    return saved;
   } catch {
     return null;
   }
@@ -69,7 +78,8 @@ async function post<T>(url: string, body: unknown, t: typeof consultStrings.en):
   return data as T;
 }
 
-const planKey = (plan: Plan | null, theme: ThemeId) => JSON.stringify([plan?.serviceId, plan?.pages.map((p) => p.name), plan?.features.map((f) => f.id), theme]);
+// The mockup copy only depends on the plan; switching styles re-renders it locally without a new AI call.
+const planKey = (plan: Plan | null) => JSON.stringify([plan?.serviceId, plan?.pages.map((p) => p.name), plan?.features.map((f) => f.id)]);
 
 export default function Consultant({ locale, whatsapp, privacyHref, turnstileSiteKey }: Props) {
   const t = consultStrings[locale];
@@ -145,7 +155,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
   };
   const choose = (patch: Partial<Choices>) => set({ choices: { ...s.choices, ...patch } });
   const multi = (key: keyof typeof MULTIPLIER_COPY) => Object.entries(MULTIPLIER_COPY[key].options).map(([id, o]) => ({ id, label: o[locale].label }));
-  const mockHtml = useMemo(() => (s.mockup ? renderMockup(s.mockup, s.theme, { locale }) : ''), [s.mockup, s.theme, locale]);
+  const mockHtml = useMemo(() => (s.mockup ? renderMockup(s.mockup, s.theme, { locale, watermark: t.result.draftRibbon }) : ''), [s.mockup, s.theme, locale, t]);
 
   const run = async (kind: keyof typeof t.loading, fn: () => Promise<void>) => {
     setBusy(kind);
@@ -173,10 +183,10 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
     });
 
   const generateMockup = () => {
-    const key = planKey(s.plan, s.theme);
+    const key = planKey(s.plan);
     if (s.mockup && s.mockupKey === key) return go('result');
     run('mockup', async () => {
-      const { mockup } = await post<{ mockup: Mockup }>('/api/mockup', { locale, plan: s.plan, theme: s.theme, description: s.description }, t);
+      const { mockup } = await post<{ mockup: Mockup }>('/api/mockup', { locale, plan: s.plan, description: s.description }, t);
       set({ mockup, mockupKey: key });
       go('result');
     });
@@ -297,17 +307,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
               <h2>{t.theme.title}</h2>
               <p>{t.theme.hint}</p>
             </div>
-            <div class="themes" role="radiogroup" aria-label={t.theme.title}>
-              {THEME_IDS.map((id) => (
-                <button type="button" role="radio" aria-checked={s.theme === id} class={`theme ${s.theme === id ? 'sel' : ''}`} onClick={() => set({ theme: id })}>
-                  <div class="sw" dangerouslySetInnerHTML={{ __html: themeSwatchHtml(id) }} />
-                  <div class="tn">
-                    <b>{THEMES[id].name[locale]}</b>
-                    <span>{THEMES[id].sub[locale]}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
+            <StylePicker t={t} locale={locale} plan={s.plan} value={s.theme} onChange={(theme) => set({ theme })} />
             <div class="design">
               <h3>{MULTIPLIER_COPY.design_level.question[locale]}</h3>
               <div class="levels" role="radiogroup" aria-label={MULTIPLIER_COPY.design_level.question[locale]}>
@@ -343,7 +343,10 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
             <div class="res-grid">
               <div class="res-mock">
                 <div class="res-top">
-                  <h2>{t.result.title}</h2>
+                  <div class="res-title">
+                    <h2>{t.result.title}</h2>
+                    <span class="draft-badge">⚡ {t.result.draftBadge}</span>
+                  </div>
                   <div class="seg" role="group">
                     <button type="button" aria-pressed={device === 'desktop'} onClick={() => setDevice('desktop')}>
                       <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><rect x="2" y="3" width="16" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M7 17h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
@@ -355,8 +358,21 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                     </button>
                   </div>
                 </div>
+                <div class="try-styles">
+                  <span class="k">{t.result.tryStyles}</span>
+                  <StylePicker t={t} locale={locale} plan={s.plan} value={s.theme} onChange={(theme) => set({ theme })} compact />
+                </div>
                 <MockupFrame html={mockHtml} device={device} title={s.mockup.brandName} />
                 <p class="fine">{t.result.concept}</p>
+                <details class="draft-more">
+                  <summary>{t.result.notYet}</summary>
+                  <ul>
+                    {t.result.notYetItems.map((i) => (
+                      <li>{i}</li>
+                    ))}
+                  </ul>
+                  <p class="fine">{t.result.notYetNote}</p>
+                </details>
               </div>
 
               <aside class="price-card">
@@ -469,6 +485,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                   </ul>
                 </div>
                 <div class="cs-actions sticky col">
+                  <p class="fine from-draft">{t.result.fromDraft}</p>
                   <button type="button" class="btn btn-primary" onClick={() => go('order')}>
                     {q.status === 'discuss' ? t.result.discussOrder : t.result.order} →
                   </button>

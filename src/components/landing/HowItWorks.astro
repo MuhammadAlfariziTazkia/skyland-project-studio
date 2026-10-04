@@ -6,8 +6,8 @@ import { demoQuote } from '../../lib/demo';
 import { formatPrice } from '../../lib/pricing';
 import { renderMockup } from '../../lib/mockup/render';
 import { SAMPLE_MOCKUP } from '../../lib/mockup/samples';
-import { THEMES, themeSwatchHtml } from '../../lib/mockup/themes';
-import { THEME_IDS, type Locale } from '../../lib/schemas';
+import { FEATURED_THEMES, THEMES, themeSwatchHtml } from '../../lib/mockup/themes';
+import type { Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
@@ -65,7 +65,7 @@ const price = formatPrice(demo.total, demo.region);
         <div class="view" data-how-view="2" hidden>
           <span class="vs">{d.pickStyle}</span>
           <div class="themes">
-            {THEME_IDS.map((id) => (
+            {FEATURED_THEMES.map((id) => (
               <div class:list={['theme', { sel: id === 'elegant' }]}>
                 <div class="sw" set:html={themeSwatchHtml(id)} />
                 <div class="tn"><b>{THEMES[id].name[locale]}</b><span>{THEMES[id].sub[locale]}</span></div>

@@ -133,8 +133,10 @@
 .cs .blk-note { margin: -4px 0 10px; }
 .cs .page-top { display: flex; align-items: center; gap: 8px; }
 .cs .page-top b { font-size: 15px; }
-.cs .secs { display: flex; flex-wrap: wrap; gap: 6px; }
-.cs .secs span { font-size: 12px; background: var(--bg-soft); color: var(--ink-2); border-radius: 8px; padding: 3px 8px; }
+.cs .page p.secs { font-size: 12.5px; color: var(--muted-2); line-height: 1.5; }
+.cs .page p.secs span { font-weight: 600; color: var(--ink-2); }
+.cs .page-top { flex-wrap: wrap; row-gap: 4px; }
+.cs .page-top .ftag { min-width: 0; flex: 0 1 auto; white-space: normal; }
 .cs .x { margin-left: auto; flex: none; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border-radius: 50%; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
 .cs .x svg { display: block; }
 .cs .x:hover { border-color: #f3b4b4; color: #b42318; background: #fff6f6; }
@@ -171,6 +173,22 @@
 .cs .row-end { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 
 /* themes */
+/* Style picker: four suggestions up front, the rest behind "See all" */
+.cs .style-picker { display: flex; flex-direction: column; gap: 10px; }
+.cs .rec-label { color: var(--blue); }
+.cs .more-toggle { align-self: flex-start; }
+.cs .all-styles { display: flex; flex-direction: column; gap: 12px; padding: 14px; border: 1px dashed #c9d8fb; border-radius: 16px; background: #fbfcff; }
+.cs .moods { display: flex; flex-wrap: wrap; gap: 8px; }
+.cs .moods .chip.sel { border-color: var(--blue); background: var(--blue-soft); color: var(--blue); font-weight: 600; }
+@media (min-width: 900px) { .cs .themes.more { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.cs .style-picker.compact { gap: 8px; }
+.cs .chips-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cs .style-chip { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px 4px 4px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; min-height: 36px; }
+.cs .style-chip:hover { border-color: #b9ccf5; }
+.cs .style-chip.sel { border-color: var(--blue); box-shadow: 0 0 0 3px #e3ebff; color: var(--ink); }
+.cs .style-chip .mini { width: 40px; height: 28px; border-radius: 999px; overflow: hidden; flex: none; border: 1px solid var(--line-2); }
+.cs .style-chip .mini > div { transform: scale(.45); transform-origin: 0 0; width: 222%; height: 222%; }
+.cs .try-styles { display: flex; flex-direction: column; gap: 6px; }
 .cs .themes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 @media (min-width: 900px) { .cs .themes { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .cs .theme { border: 2px solid var(--line); border-radius: 16px; padding: 6px; background: #fff; display: flex; flex-direction: column; gap: 8px; cursor: pointer; text-align: left; transition: border-color .2s, transform .2s; }
@@ -193,6 +211,17 @@
 @media (min-width: 1024px) { .cs .res-grid { grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); } }
 .cs .res-mock { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .cs .res-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.cs .res-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-width: 0; }
+/* Says the mockup is a quick draft right where the eye already is, so nobody reads it as the final design. */
+.cs .draft-badge { flex: none; font-size: 11.5px; font-weight: 700; color: #7a4d0b; background: #fff7e6; border: 1px solid #f5d9a8; border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+.cs .draft-more { margin-top: -4px; }
+.cs .draft-more summary { cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--blue); padding: 2px 0; width: fit-content; }
+.cs .draft-more[open] summary { margin-bottom: 8px; }
+.cs .draft-more ul { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 6px; font-size: 13px; color: var(--ink-2); }
+@media (min-width: 640px) { .cs .draft-more ul { grid-template-columns: 1fr 1fr; gap: 6px 18px; } }
+.cs .draft-more li { display: flex; gap: 8px; line-height: 1.45; }
+.cs .draft-more li::before { content: '+'; flex: none; color: var(--blue); font-weight: 700; }
+.cs .from-draft { text-align: center; }
 .cs .seg { display: inline-flex; background: var(--bg-soft); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
 .cs .seg button { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
 .cs .seg button[aria-pressed='true'] { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(11, 26, 58, .08); }

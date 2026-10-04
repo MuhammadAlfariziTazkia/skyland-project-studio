@@ -8,7 +8,7 @@ const DEMO_PLAN = PlanSchema.parse({
   projectName: 'Demo',
   summary: '',
   audience: '',
-  pages: ['Home', 'Menu', 'Story', 'Location', 'Contact'].map((name) => ({ name, purpose: '', sections: [] })),
+  pages: ['Home', 'Menu', 'About', 'Gallery', 'Contact'].map((name) => ({ type: 'custom', name, purpose: '', sections: [] })),
   features: ['whatsapp_button', 'google_maps', 'gallery', 'contact_form', 'seo_basic', 'analytics'].map((id) => ({ id, reason: '', quantity: 1 })),
   suggestions: [],
   customRequests: [],

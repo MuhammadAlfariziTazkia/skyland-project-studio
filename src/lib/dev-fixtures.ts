@@ -20,18 +20,16 @@ export function devPlan(locale: Locale, revised = false): Plan {
       { who: 'owner', does: id ? 'Mengganti menu dan harga sendiri' : 'Update the menu and prices yourself' },
     ],
     pages: [
-      { name: id ? 'Beranda' : 'Home', purpose: id ? 'Pengunjung langsung melihat menu favorit dan suasana kafe.' : 'Visitors see the best sellers and the café vibe right away.', sections: ['Hero', id ? 'Menu favorit' : 'Best sellers', id ? 'Ajakan pesan' : 'Order call-to-action'] },
-      { name: 'Menu', purpose: id ? 'Pengunjung melihat semua menu lengkap dengan foto dan harga.' : 'Visitors browse the full menu with photos and prices.', sections: [id ? 'Kategori' : 'Categories', id ? 'Foto & harga' : 'Photos & prices'] },
-      { name: id ? 'Cerita Kami' : 'Our Story', purpose: id ? 'Pengunjung mengenal cerita dan tim di balik kafe.' : 'Visitors get to know the story and team.', sections: [id ? 'Cerita' : 'Story', id ? 'Tim' : 'Team'] },
-      { name: id ? 'Lokasi' : 'Location', purpose: id ? 'Pengunjung menemukan alamat dan jam buka.' : 'Visitors find the address and opening hours.', sections: [id ? 'Peta' : 'Map', id ? 'Jam buka' : 'Hours'] },
-      { name: id ? 'Kontak' : 'Contact', purpose: id ? 'Pengunjung bisa bertanya atau memesan.' : 'Visitors can ask questions or order.', sections: [id ? 'Form' : 'Form', 'WhatsApp'] },
-      { name: id ? 'Kelola Menu' : 'Manage Menu', area: 'admin', feature: 'cms_admin', covers: [3], purpose: id ? 'Anda menambah, mengubah, atau menyembunyikan menu.' : 'You add, edit or hide menu items.', sections: [id ? 'Daftar menu' : 'Menu list', id ? 'Ubah harga & foto' : 'Edit price & photo'] },
-      ...(revised ? [{ name: id ? 'Reservasi' : 'Reservations', purpose: id ? 'Pelanggan meminta reservasi meja.' : 'Customers request a table.', sections: [id ? 'Form reservasi' : 'Booking form'] }] : []),
+      { type: 'home', name: id ? 'Beranda' : 'Home', covers: [1], purpose: id ? 'Pengunjung langsung melihat menu favorit, cerita, dan lokasi kafe.' : 'Visitors see the best sellers, the story and where the café is.', sections: ['Hero', id ? 'Menu favorit' : 'Best sellers', id ? 'Cerita kami' : 'Our story', id ? 'Lokasi & jam buka' : 'Location & hours'] },
+      { type: 'services', name: 'Menu', covers: [0, 2], purpose: id ? 'Pengunjung melihat semua menu lengkap dengan foto dan harga, lalu pesan lewat WhatsApp.' : 'Visitors browse the full menu with photos and prices, then order on WhatsApp.', sections: [id ? 'Kategori' : 'Categories', id ? 'Foto & harga' : 'Photos & prices', id ? 'Tombol pesan' : 'Order button'] },
+      { type: 'manage_content', name: id ? 'Kelola Menu' : 'Manage Menu', covers: [3], purpose: id ? 'Anda menambah, mengubah, atau menyembunyikan menu.' : 'You add, edit or hide menu items.', sections: [id ? 'Daftar menu' : 'Menu list', id ? 'Ubah harga & foto' : 'Edit price & photo'] },
+      ...(revised ? [{ type: 'booking', name: id ? 'Reservasi' : 'Reservations', purpose: id ? 'Pelanggan memesan meja.' : 'Customers book a table.', sections: [id ? 'Pilih tanggal & jam' : 'Pick date & time'] }] : []),
     ],
     features: [
       { id: 'gallery', reason: id ? 'Agar menu dan suasana kafe terlihat menggoda.' : 'So the menu and café look tempting.' },
       { id: 'google_maps', reason: id ? 'Agar pelanggan mudah menemukan kafe.' : 'So customers can find the café.' },
       { id: 'whatsapp_button', reason: id ? 'Agar pelanggan bisa pesan pickup lewat chat.' : 'So customers can order pickup by chat.' },
+      ...(revised ? [{ id: 'booking_calendar', reason: id ? 'Agar pelanggan bisa reservasi meja.' : 'So customers can book a table.' }] : []),
     ],
     suggestions: [
       { id: 'seo_basic', reason: id ? 'Agar kafe muncul saat orang mencari “kopi dekat sini”.' : 'So the café shows up when people search “coffee near me”.' },

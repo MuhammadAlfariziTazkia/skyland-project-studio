@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import pricing from '../data/pricing.json';
-import { CATEGORY_COPY, FEATURE_COPY, MULTIPLIER_COPY, NOT_INCLUDED_COPY, RECURRING_COPY, SERVICE_COPY } from '../src/i18n/catalog';
+import { CATEGORY_COPY, FEATURE_COPY, MULTIPLIER_COPY, NOT_INCLUDED_COPY, PAGE_COPY, RECURRING_COPY, SERVICE_COPY } from '../src/i18n/catalog';
 import { SERVICE_KEYS } from '../src/i18n/routes';
-import { SERVICE_PRICING_ID, publicPages, quote, visiblePages, withEnv, type PricingData, type Promo } from '../src/lib/pricing';
+import { SERVICE_PRICING_ID, contentPages, publicPages, quote, visiblePages, withEnv, type PricingData, type Promo } from '../src/lib/pricing';
 import { validatePromo } from '../src/lib/promo';
 import { PlanSchema, type Choices, type Plan } from '../src/lib/schemas';
 
@@ -186,6 +186,57 @@ describe('page areas', () => {
     const old = PlanSchema.parse({ ...plan(), pages: [{ name: 'Home', purpose: '', sections: [] }], goals: ['old field'] });
     expect(old.pages[0].area).toBe('public');
     expect(old.flows).toEqual([]);
+  });
+});
+
+describe('page types', () => {
+  const typed = (type: string, name = type) => PlanSchema.shape.pages.parse([{ type, name, purpose: '', sections: [] }])[0];
+
+  it('references only catalog features and has copy in both languages', () => {
+    const ids = new Set(pricing.features.map((f) => f.id));
+    for (const t of pricing.page_types) {
+      const feature = (t as { feature?: string }).feature;
+      if (feature) expect(ids.has(feature), `${t.id} → ${feature}`).toBe(true);
+      expect(PAGE_COPY[t.id]?.en && PAGE_COPY[t.id]?.id, t.id).toBeTruthy();
+      expect(['public', 'member', 'admin'], t.id).toContain(t.area);
+    }
+    expect(new Set(pricing.page_types.map((t) => t.id)).size).toBe(pricing.page_types.length);
+  });
+
+  it('derives area and feature from the type, ignoring what the AI wrote', () => {
+    const cart = PlanSchema.shape.pages.parse([{ type: 'cart', name: 'Cart', area: 'admin', feature: 'gallery', purpose: '', sections: [] }])[0];
+    expect([cart.area, cart.feature]).toEqual(['public', 'shopping_cart']);
+    expect([typed('about').area, typed('about').feature]).toEqual(['public', '']);
+    expect([typed('orders').area, typed('orders').feature]).toEqual(['admin', 'cms_admin']);
+  });
+
+  it('counts only content pages, not pages that come with a feature', () => {
+    // Company Profile (5 pages included) with a shop: 3 content pages + 4 shop pages → no extra page charge
+    const p = plan({
+      pages: ['home', 'about', 'contact', 'product_list', 'product_detail', 'cart', 'checkout'].map((t) => typed(t)),
+      features: feats('product_catalog', 'shopping_cart'),
+    });
+    expect(contentPages(p)).toHaveLength(3);
+    expect(publicPages(p)).toHaveLength(7);
+    expect(quote(p, choices(), 'id', noDiscount).total).toBe(1_750_000 + 650_000 + 900_000);
+  });
+
+  it('hides feature pages when the feature is off', () => {
+    const p = plan({ pages: ['home', 'blog_list', 'article'].map((t) => typed(t)) });
+    expect(visiblePages(p).map((x) => x.type)).toEqual(['home']);
+    expect(visiblePages({ ...p, features: feats('blog_section') }).map((x) => x.type)).toEqual(['home', 'blog_list', 'article']);
+  });
+
+  it('shows feature pages that the package includes (blog in Blog & Media)', () => {
+    const p = plan({ serviceId: 'blog_media', pages: ['home', 'blog_list', 'article', 'about'].map((t) => typed(t)) });
+    expect(contentPages(p)).toHaveLength(2);
+    expect(publicPages(p)).toHaveLength(4);
+  });
+
+  it('keeps plans without page types working (older saved plans)', () => {
+    const p = plan({ pages: [{ name: 'Old page', area: 'public', feature: '', covers: [], purpose: '', sections: [] }] });
+    expect(p.pages[0].type).toBeUndefined();
+    expect(contentPages(p)).toHaveLength(1);
   });
 });
 

@@ -201,6 +201,252 @@
       "GLOBAL": 75
     }
   },
+  "page_types_note": "Halaman = 1 layar dengan URL & tujuan sendiri, berisi beberapa section yang relevan. Section = blok konten di dalam halaman; konten pendek (cerita, lokasi, testimoni, FAQ singkat) digabung jadi section, bukan halaman. Halaman template (mis. detail produk) dihitung 1. Hanya halaman konten (area public tanpa feature) yang dihitung ke pages_included & extra_page; halaman yang punya 'feature' sudah termasuk harga fitur itu dan hanya muncul kalau fiturnya aktif.",
+  "page_types": [
+    {
+      "id": "home",
+      "area": "public",
+      "label": "Beranda / Landing",
+      "sections": "hero, keunggulan, cuplikan produk/layanan, testimoni, lokasi singkat, ajakan kontak"
+    },
+    {
+      "id": "about",
+      "area": "public",
+      "label": "Tentang",
+      "sections": "cerita, visi & nilai, tim inti, pencapaian"
+    },
+    {
+      "id": "services",
+      "area": "public",
+      "label": "Layanan / Produk / Menu",
+      "sections": "daftar layanan atau produk dengan penjelasan singkat, ajakan pesan"
+    },
+    {
+      "id": "service_detail",
+      "area": "public",
+      "label": "Detail Layanan (template)",
+      "sections": "penjelasan lengkap satu layanan, manfaat, proses, harga, ajakan pesan"
+    },
+    {
+      "id": "team",
+      "area": "public",
+      "label": "Tim",
+      "sections": "profil anggota tim (untuk tim besar)"
+    },
+    {
+      "id": "pricing",
+      "area": "public",
+      "label": "Harga & Paket",
+      "sections": "tabel paket, perbandingan, FAQ harga"
+    },
+    {
+      "id": "faq",
+      "area": "public",
+      "label": "FAQ",
+      "sections": "pertanyaan umum per kategori (untuk FAQ panjang)"
+    },
+    {
+      "id": "contact",
+      "area": "public",
+      "label": "Kontak & Lokasi",
+      "sections": "form/tombol kontak, alamat & peta, jam buka"
+    },
+    {
+      "id": "custom",
+      "area": "public",
+      "label": "Halaman konten lain",
+      "sections": "konten khusus yang tidak cocok jenis lain"
+    },
+    {
+      "id": "product_list",
+      "area": "public",
+      "feature": "product_catalog",
+      "label": "Daftar Produk",
+      "sections": "kategori & filter, grid produk, pencarian"
+    },
+    {
+      "id": "product_detail",
+      "area": "public",
+      "feature": "product_catalog",
+      "label": "Detail Produk (template)",
+      "sections": "foto, deskripsi, harga & varian, tombol beli"
+    },
+    {
+      "id": "cart",
+      "area": "public",
+      "feature": "shopping_cart",
+      "label": "Keranjang",
+      "sections": "daftar item, ubah jumlah, total"
+    },
+    {
+      "id": "checkout",
+      "area": "public",
+      "feature": "shopping_cart",
+      "label": "Checkout",
+      "sections": "data pembeli, pengiriman/pickup, pembayaran, konfirmasi pesanan"
+    },
+    {
+      "id": "blog_list",
+      "area": "public",
+      "feature": "blog_section",
+      "label": "Daftar Artikel",
+      "sections": "artikel terbaru, kategori"
+    },
+    {
+      "id": "article",
+      "area": "public",
+      "feature": "blog_section",
+      "label": "Artikel (template)",
+      "sections": "isi artikel, penulis, artikel terkait"
+    },
+    {
+      "id": "project_list",
+      "area": "public",
+      "feature": "portfolio_filter",
+      "label": "Daftar Portofolio",
+      "sections": "filter, grid proyek"
+    },
+    {
+      "id": "project_detail",
+      "area": "public",
+      "feature": "portfolio_filter",
+      "label": "Detail Proyek (template)",
+      "sections": "foto, cerita proyek, hasil"
+    },
+    {
+      "id": "booking",
+      "area": "public",
+      "feature": "booking_calendar",
+      "label": "Booking",
+      "sections": "pilih layanan/staf, pilih tanggal & jam, data pemesan, konfirmasi"
+    },
+    {
+      "id": "events",
+      "area": "public",
+      "feature": "events_calendar",
+      "label": "Acara",
+      "sections": "daftar acara & jadwal, detail, link daftar"
+    },
+    {
+      "id": "search_results",
+      "area": "public",
+      "feature": "search",
+      "label": "Hasil Pencarian",
+      "sections": "hasil pencarian & filter"
+    },
+    {
+      "id": "legal",
+      "area": "public",
+      "feature": "legal_pages",
+      "label": "Privasi & Syarat",
+      "sections": "kebijakan privasi, syarat & ketentuan"
+    },
+    {
+      "id": "course_list",
+      "area": "public",
+      "feature": "course_player",
+      "label": "Daftar Kursus",
+      "sections": "katalog kursus, detail singkat, tombol daftar"
+    },
+    {
+      "id": "login",
+      "area": "member",
+      "feature": "user_login",
+      "label": "Masuk / Daftar",
+      "sections": "login, daftar, lupa password"
+    },
+    {
+      "id": "account",
+      "area": "member",
+      "feature": "user_login",
+      "label": "Akun Saya",
+      "sections": "profil, ubah data, ganti password"
+    },
+    {
+      "id": "my_orders",
+      "area": "member",
+      "feature": "user_login",
+      "label": "Pesanan Saya",
+      "sections": "riwayat & status pesanan"
+    },
+    {
+      "id": "my_bookings",
+      "area": "member",
+      "feature": "user_login",
+      "label": "Booking Saya",
+      "sections": "jadwal mendatang, riwayat, batal/ubah"
+    },
+    {
+      "id": "my_courses",
+      "area": "member",
+      "feature": "course_player",
+      "label": "Kursus Saya",
+      "sections": "kursus yang diikuti, progres"
+    },
+    {
+      "id": "lesson",
+      "area": "member",
+      "feature": "course_player",
+      "label": "Materi Kursus (template)",
+      "sections": "video/teks materi, navigasi modul"
+    },
+    {
+      "id": "member_content",
+      "area": "member",
+      "feature": "member_area",
+      "label": "Konten Member",
+      "sections": "konten khusus member"
+    },
+    {
+      "id": "custom_member",
+      "area": "member",
+      "feature": "user_login",
+      "label": "Layar member lain",
+      "sections": "layar khusus member lainnya"
+    },
+    {
+      "id": "manage_content",
+      "area": "admin",
+      "feature": "cms_admin",
+      "label": "Kelola Konten",
+      "sections": "ubah teks, foto, artikel, halaman"
+    },
+    {
+      "id": "manage_products",
+      "area": "admin",
+      "feature": "cms_admin",
+      "label": "Kelola Produk",
+      "sections": "tambah/ubah produk, harga, stok, kategori"
+    },
+    {
+      "id": "orders",
+      "area": "admin",
+      "feature": "cms_admin",
+      "label": "Pesanan",
+      "sections": "daftar pesanan, detail, ubah status"
+    },
+    {
+      "id": "manage_bookings",
+      "area": "admin",
+      "feature": "booking_calendar",
+      "label": "Kelola Booking",
+      "sections": "kalender booking, atur jadwal & slot, ubah status"
+    },
+    {
+      "id": "reports",
+      "area": "admin",
+      "feature": "reports_dashboard",
+      "label": "Laporan",
+      "sections": "grafik penjualan/pendaftaran, ringkasan"
+    },
+    {
+      "id": "custom_admin",
+      "area": "admin",
+      "feature": "cms_admin",
+      "label": "Layar admin lain",
+      "sections": "layar pengelolaan lainnya"
+    }
+  ],
   "feature_categories": [
     "contact",
     "content",

@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 import pricing from '../../../data/pricing.json';
-import { CATEGORY_COPY, FEATURE_COPY, SERVICE_COPY } from '../../i18n/catalog';
+import { CATEGORY_COPY, FEATURE_COPY, PAGE_COPY, SERVICE_COPY } from '../../i18n/catalog';
 import type { ConsultStrings } from '../../i18n/consult';
 import { featurePrice, featuresByCategory, formatPrice, formatShort, getService, quotePriceText, visiblePages, type Quote } from '../../lib/pricing';
 import { MAX_QUANTITY, type Locale, type Plan } from '../../lib/schemas';
@@ -67,7 +67,7 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
     e.preventDefault();
     const name = newPage.trim();
     if (!name) return;
-    update({ pages: [...plan.pages, { name: name.slice(0, 60), area: 'public', feature: '', covers: [], purpose: '', sections: [] }] });
+    update({ pages: [...plan.pages, { type: 'custom', name: name.slice(0, 60), area: 'public', feature: '', covers: [], purpose: '', sections: [] }] });
     setNewPage('');
   };
 
@@ -112,6 +112,9 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
 
   const pages = visiblePages(plan);
   const pub = pages.filter((p) => p.area === 'public');
+  const content = pub.filter((p) => !p.feature);
+  const pageName = (p: Page) => p.name || (p.type ? PAGE_COPY[p.type]?.[locale] : '') || '';
+  const contentCount = content.length;
   const removePage = (p: Page) => update({ pages: plan.pages.filter((x) => x !== p) });
   const customersDo = plan.flows.filter((f) => f.who !== 'owner');
   const ownerDo = plan.flows.filter((f) => f.who === 'owner');
@@ -132,12 +135,9 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
           {list.map((p) => (
             <li>
               <div>
-                <b>{p.name}</b>
+                <b>{pageName(p)}</b>
                 {p.purpose && <span>{p.purpose}</span>}
               </div>
-              <button type="button" class="x" aria-label={`${t.plan.remove}: ${p.name}`} onClick={() => removePage(p)}>
-                <XIcon />
-              </button>
             </li>
           ))}
         </ul>
@@ -182,32 +182,38 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
         <h3>
           {t.plan.pages} <span class="count">{pub.length}</span>
         </h3>
-        <p class="fine blk-note">{t.plan.pagesNote(svc.pages_included, formatShort(pricing.extra_page.price[region], region))}</p>
+        <p class="fine blk-note">{t.plan.pagesNote(svc.pages_included, formatShort(pricing.extra_page.price[region], region), pub.length > contentCount)}</p>
         <ol class="pages">
-          {pub.map((p, i) => (
-            <li class="page">
-              <span class="pnum">{i + 1}</span>
-              <div class="page-body">
-                <div class="page-top">
-                  <b>{p.name}</b>
-                  {i >= svc.pages_included && <span class="ftag">{t.plan.extraTag(formatShort(pricing.extra_page.price[region], region))}</span>}
-                  {pub.length > 1 && (
-                    <button type="button" class="x" aria-label={`${t.plan.remove}: ${p.name}`} onClick={() => removePage(p)}>
-                      <XIcon />
-                    </button>
+          {pub.map((p, i) => {
+            // Only content pages count against the package; pages that come with a feature say which one.
+            const nth = p.feature ? -1 : content.indexOf(p);
+            return (
+              <li class="page">
+                <span class="pnum">{i + 1}</span>
+                <div class="page-body">
+                  <div class="page-top">
+                    <b>{pageName(p)}</b>
+                    {p.feature ? (
+                      <span class="ftag inc">{t.plan.withFeature(copy(p.feature)?.name ?? p.feature)}</span>
+                    ) : (
+                      nth >= svc.pages_included && <span class="ftag">{t.plan.extraTag(formatShort(pricing.extra_page.price[region], region))}</span>
+                    )}
+                    {!p.feature && contentCount > 1 && (
+                      <button type="button" class="x" aria-label={`${t.plan.remove}: ${pageName(p)}`} onClick={() => removePage(p)}>
+                        <XIcon />
+                      </button>
+                    )}
+                  </div>
+                  {p.purpose && <p>{p.purpose}</p>}
+                  {p.sections.length > 0 && (
+                    <p class="secs">
+                      <span>{t.plan.contains}</span> {p.sections.join(' · ')}
+                    </p>
                   )}
                 </div>
-                {p.purpose && <p>{p.purpose}</p>}
-                {p.sections.length > 0 && (
-                  <div class="secs">
-                    {p.sections.map((sec) => (
-                      <span>{sec}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ol>
         <form class="add-page" onSubmit={addPage}>
           <input type="text" maxLength={60} placeholder={t.plan.addPagePh} aria-label={t.plan.addPagePh} value={newPage} onInput={(e) => setNewPage((e.target as HTMLInputElement).value)} />

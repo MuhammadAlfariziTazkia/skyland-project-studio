@@ -14,7 +14,7 @@ const ids = (list: { id: string }[]) => list.map((o) => o.id) as [string, ...str
 export const DESIGN_IDS = ids(pricing.multipliers.design_level);
 export const CONTENT_IDS = ids(pricing.multipliers.content_readiness);
 export const TIMELINE_IDS = ids(pricing.multipliers.timeline);
-export const THEME_IDS = ['minimal', 'elegant', 'futuristic', 'vibrant'] as const;
+export const THEME_IDS = ['minimal', 'bento', 'corporate', 'editorial', 'elegant', 'organic', 'retro', 'vibrant', 'neo_brutal', 'futuristic', 'aurora', 'luxury'] as const;
 export type ThemeId = (typeof THEME_IDS)[number];
 // Public pages plus member/admin screens.
 export const MAX_PAGES = 24;
@@ -32,16 +32,28 @@ export const FLOW_ACTORS = ['visitor', 'member', 'owner'] as const;
 // first, then derives features and pages from them, so nothing the business needs is forgotten.
 export const FlowSchema = z.object({ who: z.enum(FLOW_ACTORS).catch('visitor'), does: z.string().trim().min(1).transform((s) => s.slice(0, 120)) });
 
-// area: public pages are priced (extra pages, copywriting); member/admin screens come with the feature
-// named in `feature` and add no page cost. Defaults keep plans saved before these fields valid.
-export const PageSchema = z.object({
-  name: z.string().trim().min(1).transform((s) => s.slice(0, 60)),
-  area: z.enum(PAGE_AREAS).catch('public').default('public'),
-  feature: z.string().trim().max(40).catch('').default(''),
-  covers: list(z.number().int().min(0).max(30), 12).catch([]).default([]),
-  purpose: text(240),
-  sections: list(text(120), 10),
-});
+// Page types (pricing.json page_types) say what a page is for engineers, and decide its area and the
+// feature that brings it. Only public pages without a feature ("content pages") are priced as pages.
+type PageTypeDef = { id: string; area: PageArea; feature?: string };
+export const PAGE_TYPES = new Map((pricing.page_types as PageTypeDef[]).map((t) => [t.id, t]));
+export const PAGE_TYPE_IDS = pricing.page_types.map((t) => t.id) as [string, ...string[]];
+
+// area/feature are derived from `type` (the AI only picks the type). Plans saved before page types
+// existed keep their own area/feature, and defaults keep even older plans valid.
+export const PageSchema = z
+  .object({
+    type: z.enum(PAGE_TYPE_IDS).optional().catch(undefined),
+    name: z.string().trim().min(1).transform((s) => s.slice(0, 60)),
+    area: z.enum(PAGE_AREAS).catch('public').default('public'),
+    feature: z.string().trim().max(40).catch('').default(''),
+    covers: list(z.number().int().min(0).max(30), 12).catch([]).default([]),
+    purpose: text(240),
+    sections: list(text(120), 10),
+  })
+  .transform((p) => {
+    const t = p.type ? PAGE_TYPES.get(p.type) : undefined;
+    return t ? { ...p, area: t.area, feature: t.feature ?? '' } : p;
+  });
 
 export const MAX_QUANTITY = 10;
 // quantity only matters for features with unit "item" (e.g. extra languages, connected services).
@@ -60,6 +72,12 @@ export const PlanSchema = z.object({
   audience: text(300),
   business: text(240).catch('').default(''),
   flows: list(FlowSchema, 12).catch([]).default([]),
+  // Up to 3 visual styles the AI thinks fit this business (theme ids); invalid ids are dropped.
+  styles: z
+    .array(z.string())
+    .catch([])
+    .default([])
+    .transform((a) => a.filter((id): id is ThemeId => (THEME_IDS as readonly string[]).includes(id)).slice(0, 3)),
   pages: z.array(PageSchema).min(1).transform((a) => a.slice(0, MAX_PAGES)),
   features: list(FeatureSchema, FEATURE_IDS.length),
   suggestions: list(FeatureSchema, FEATURE_IDS.length),
@@ -134,7 +152,7 @@ export const PlanRequestSchema = z.discriminatedUnion('mode', [
 export const MockupRequestSchema = z.object({
   locale: z.enum(LOCALES),
   plan: PlanSchema,
-  theme: z.enum(THEME_IDS),
+  theme: z.enum(THEME_IDS).optional(), // ignored: the copy is style-independent
   description: text(1500),
 });
 

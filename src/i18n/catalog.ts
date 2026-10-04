@@ -299,6 +299,46 @@ export const CATEGORY_COPY: Record<string, Record<Locale, string>> = {
   trust: { en: 'Security, legal & performance', id: 'Keamanan, legal & performa' },
 };
 
+/** Short names for each page type in pricing.json (page_types), shown when the AI's own page name is missing. */
+export const PAGE_COPY: Record<string, Record<Locale, string>> = {
+  home: { en: 'Home', id: 'Beranda' },
+  about: { en: 'About', id: 'Tentang' },
+  services: { en: 'Services / Products', id: 'Layanan / Produk' },
+  service_detail: { en: 'Service details', id: 'Detail layanan' },
+  team: { en: 'Team', id: 'Tim' },
+  pricing: { en: 'Pricing', id: 'Harga & paket' },
+  faq: { en: 'FAQ', id: 'FAQ' },
+  contact: { en: 'Contact & location', id: 'Kontak & lokasi' },
+  custom: { en: 'Content page', id: 'Halaman konten' },
+  product_list: { en: 'Product list', id: 'Daftar produk' },
+  product_detail: { en: 'Product page', id: 'Detail produk' },
+  cart: { en: 'Cart', id: 'Keranjang' },
+  checkout: { en: 'Checkout', id: 'Checkout' },
+  blog_list: { en: 'Articles', id: 'Daftar artikel' },
+  article: { en: 'Article page', id: 'Halaman artikel' },
+  project_list: { en: 'Portfolio', id: 'Portofolio' },
+  project_detail: { en: 'Project page', id: 'Detail proyek' },
+  booking: { en: 'Booking', id: 'Booking' },
+  events: { en: 'Events', id: 'Acara' },
+  search_results: { en: 'Search results', id: 'Hasil pencarian' },
+  legal: { en: 'Privacy & terms', id: 'Privasi & syarat' },
+  course_list: { en: 'Courses', id: 'Daftar kursus' },
+  login: { en: 'Log in / Sign up', id: 'Masuk / Daftar' },
+  account: { en: 'My account', id: 'Akun saya' },
+  my_orders: { en: 'My orders', id: 'Pesanan saya' },
+  my_bookings: { en: 'My bookings', id: 'Booking saya' },
+  my_courses: { en: 'My courses', id: 'Kursus saya' },
+  lesson: { en: 'Lesson', id: 'Materi kursus' },
+  member_content: { en: 'Members-only content', id: 'Konten member' },
+  custom_member: { en: 'Member screen', id: 'Layar member' },
+  manage_content: { en: 'Manage content', id: 'Kelola konten' },
+  manage_products: { en: 'Manage products', id: 'Kelola produk' },
+  orders: { en: 'Orders', id: 'Pesanan' },
+  manage_bookings: { en: 'Manage bookings', id: 'Kelola booking' },
+  reports: { en: 'Reports', id: 'Laporan' },
+  custom_admin: { en: 'Admin screen', id: 'Layar admin' },
+};
+
 type Option = Record<Locale, { label: string; hint: string }>;
 
 /** Copy for the three price multipliers the client picks in the consultation. */

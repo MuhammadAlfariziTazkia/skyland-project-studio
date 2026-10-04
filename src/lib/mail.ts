@@ -48,18 +48,22 @@ function planHtml(o: OrderRequest, lang: 'en' | 'id') {
   const p = o.plan;
   const L =
     lang === 'id'
-      ? { flows: 'Yang bisa dilakukan', visitor: 'Pengunjung', member: 'Member', owner: 'Pemilik', public: 'Halaman publik', memberArea: 'Area member (setelah login)', admin: 'Panel admin', feats: 'Fitur', custom: 'Perlu diskusi', ass: 'Asumsi' }
-      : { flows: 'What people can do', visitor: 'Visitor', member: 'Member', owner: 'Owner', public: 'Public pages', memberArea: 'Member area (after login)', admin: 'Admin panel', feats: 'Features', custom: 'To discuss', ass: 'Assumptions' };
+      ? { flows: 'Yang bisa dilakukan', visitor: 'Pengunjung', member: 'Member', owner: 'Pemilik', content: 'Halaman konten (dihitung)', featurePages: 'Halaman yang ikut fitur', memberArea: 'Area member (setelah login)', admin: 'Panel admin', feats: 'Fitur', custom: 'Perlu diskusi', ass: 'Asumsi' }
+      : { flows: 'What people can do', visitor: 'Visitor', member: 'Member', owner: 'Owner', content: 'Content pages (counted)', featurePages: 'Pages that come with a feature', memberArea: 'Member area (after login)', admin: 'Admin panel', feats: 'Features', custom: 'To discuss', ass: 'Assumptions' };
   const pages = visiblePages(p);
-  const pageList = (area: 'public' | 'member' | 'admin', title: string) => {
-    const list = pages.filter((pg) => pg.area === area);
+  // The page type (e.g. product_detail) tells the developer which template to build.
+  const pageList = (list: typeof pages, title: string) => {
     if (!list.length) return '';
     return `${h(title)}<ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.55">${list
-      .map((pg) => `<li style="margin-bottom:6px"><b>${esc(pg.name)}</b>${pg.feature && area !== 'public' ? ` <span style="color:#8a97b0;font-size:12px">(${esc(FEATURE_COPY[pg.feature]?.[lang].name ?? pg.feature)})</span>` : ''}<br><span style="color:#4a5876">${esc(pg.purpose)}</span>${pg.sections.length ? `<br><span style="color:#6a7894;font-size:13px">${pg.sections.map(esc).join(' · ')}</span>` : ''}</li>`)
+      .map(
+        (pg) =>
+          `<li style="margin-bottom:6px"><b>${esc(pg.name)}</b>${pg.type ? ` <code style="color:#8a97b0;font-size:12px">${esc(pg.type)}</code>` : ''}${pg.feature ? ` <span style="color:#8a97b0;font-size:12px">(${esc(FEATURE_COPY[pg.feature]?.[lang].name ?? pg.feature)})</span>` : ''}<br><span style="color:#4a5876">${esc(pg.purpose)}</span>${pg.sections.length ? `<br><span style="color:#6a7894;font-size:13px">${pg.sections.map(esc).join(' · ')}</span>` : ''}</li>`,
+      )
       .join('')}</ol>`;
   };
+  const pub = pages.filter((pg) => pg.area === 'public');
   return `${p.flows.length ? `${h(L.flows)}<ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.55">${p.flows.map((f) => `<li><span style="color:#6a7894">${L[f.who]}:</span> ${esc(f.does)}</li>`).join('')}</ul>` : ''}
-${pageList('public', L.public)}${pageList('member', L.memberArea)}${pageList('admin', L.admin)}
+${pageList(pub.filter((pg) => !pg.feature), L.content)}${pageList(pub.filter((pg) => pg.feature), L.featurePages)}${pageList(pages.filter((pg) => pg.area === 'member'), L.memberArea)}${pageList(pages.filter((pg) => pg.area === 'admin'), L.admin)}
 ${h(L.feats)}<ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.55">${p.features.map((f) => `<li><b>${esc(FEATURE_COPY[f.id]?.[lang].name ?? f.id)}</b>${f.quantity > 1 ? ` × ${f.quantity}` : ''}${f.reason ? ` <span style="color:#6a7894">– ${esc(f.reason)}</span>` : ''}</li>`).join('')}</ul>
 ${p.customRequests.length ? `${h(L.custom)}<ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.55">${p.customRequests.map((c) => `<li><b>${esc(c.name)}</b> – ${esc(c.description)}</li>`).join('')}</ul>` : ''}
 ${p.assumptions.length ? `${h(L.ass)}<ul style="margin:0;padding-left:20px;font-size:13.5px;color:#4a5876">${p.assumptions.map((a) => `<li>${esc(a)}</li>`).join('')}</ul>` : ''}`;
@@ -120,7 +124,11 @@ ${h(en ? 'Price breakdown' : 'Rincian harga')}${priceTable(q, o.locale)}
         ? `Payment: ${pay.down_payment_percent}% to start, ${pay.final_payment_percent}% after you approve the finished website. Hosting, domain and third-party subscriptions are paid directly to those providers.`
         : `Pembayaran: ${pay.down_payment_percent}% di awal, ${pay.final_payment_percent}% setelah Anda menyetujui website yang sudah jadi. Hosting, domain, dan langganan pihak ketiga dibayar langsung ke penyedianya.`
   }</p>
-<p style="font-size:13px;color:#6a7894">${en ? 'Your homepage mockup is attached. Open it in any browser.' : 'Mockup homepage Anda terlampir. Buka di browser mana saja.'}</p>
+<p style="font-size:13px;color:#6a7894">${
+    en
+      ? 'Your homepage draft is attached — open it in any browser. It is an automatic draft made in seconds, without your real photos or content; the design we build starts there and gets better with you.'
+      : 'Draft homepage Anda terlampir — buka di browser mana saja. Ini draft otomatis yang dibuat dalam hitungan detik, tanpa foto dan konten asli Anda; desain yang kami kerjakan dimulai dari sana lalu ditingkatkan bersama Anda.'
+  }</p>
 <p style="font-size:14px;margin-top:20px">— Muhammad Alfarizi Tazkia<br><span style="color:#6a7894">${SITE.name}</span></p>
 </div>`);
 
