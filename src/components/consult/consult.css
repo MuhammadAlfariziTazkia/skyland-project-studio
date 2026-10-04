@@ -25,9 +25,23 @@
 .cs-head { display: flex; flex-direction: column; gap: 6px; }
 .cs-head p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
 .cs .type-pill { align-self: flex-start; font-size: 12px; font-weight: 700; color: var(--blue); background: var(--blue-soft); border-radius: 999px; padding: 4px 10px; }
-.cs .helps { background: #f7faff; border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; font-size: 14px; }
-.cs .helps ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; color: var(--ink-2); }
-.cs .helps li::before { content: '✓'; color: var(--green); font-weight: 700; margin-right: 8px; }
+/* What customers / the owner can do (from the AI's flow analysis) */
+.cs .flows { display: grid; gap: 12px; background: #f7faff; border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; font-size: 14px; }
+@media (min-width: 720px) { .cs .flows { grid-template-columns: 1fr 1fr; gap: 20px; } }
+.cs .flows ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; color: var(--ink-2); }
+.cs .flows li { display: flex; gap: 8px; line-height: 1.45; }
+.cs .flows li::before { content: '✓'; flex: none; color: var(--green); font-weight: 700; }
+/* Member area / admin panel: screens that come with a feature, listed compactly */
+.cs .area-card { margin-top: 12px; border: 1px dashed #c9d8fb; border-radius: 14px; padding: 14px; background: #fbfcff; display: flex; flex-direction: column; gap: 8px; }
+.cs .area-card.admin { background: #f9fbff; }
+.cs .area-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.cs .area-head b { font-size: 15px; }
+.cs .screens { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 8px; }
+@media (min-width: 720px) { .cs .screens { grid-template-columns: 1fr 1fr; } }
+.cs .screens li { display: flex; align-items: flex-start; gap: 10px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.cs .screens li > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cs .screens b { font-size: 14px; }
+.cs .screens span { font-size: 13px; color: var(--muted); line-height: 1.45; }
 
 /* quick questions (describe step) */
 .cs .quick { border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; margin: 0; display: grid; gap: 12px; }
@@ -121,7 +135,8 @@
 .cs .page-top b { font-size: 15px; }
 .cs .secs { display: flex; flex-wrap: wrap; gap: 6px; }
 .cs .secs span { font-size: 12px; background: var(--bg-soft); color: var(--ink-2); border-radius: 8px; padding: 3px 8px; }
-.cs .x { margin-left: auto; flex: none; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: #fff; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; }
+.cs .x { margin-left: auto; flex: none; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border-radius: 50%; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; }
+.cs .x svg { display: block; }
 .cs .x:hover { border-color: #f3b4b4; color: #b42318; background: #fff6f6; }
 .cs .feat { width: 100%; display: flex; align-items: flex-start; gap: 12px; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: #fafcff; text-align: left; cursor: pointer; transition: border-color .2s, background .2s; }
 .cs .feat:hover { border-color: #b9ccf5; }
@@ -136,6 +151,12 @@
 .cs .feat.on .sw-toggle i { transform: translateX(14px); }
 .cs .ftag { flex: none; font-size: 12px; font-weight: 700; color: var(--ink-2); background: var(--bg-soft); border: 1px solid var(--line); padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
 .cs .ftag.inc { color: var(--green); background: var(--green-soft); border-color: transparent; }
+/* Quantity stepper under a per-item feature (extra languages, connected services) */
+.cs .qty { display: inline-flex; align-items: center; gap: 4px; margin: 6px 0 2px 58px; border: 1px solid #c9d8fb; border-radius: 999px; background: #fff; padding: 3px; }
+.cs .qty button { width: 32px; height: 32px; border: 0; border-radius: 50%; background: var(--blue-soft); color: var(--blue); font-size: 18px; font-weight: 700; line-height: 1; cursor: pointer; }
+.cs .qty button:disabled { opacity: .4; cursor: default; }
+.cs .qty span { min-width: 84px; text-align: center; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+@media (max-width: 639px) { .cs .qty { margin-left: 50px; } }
 .cs .sub { margin: 16px 0 8px; font-size: 13px; font-weight: 700; color: var(--muted-2); letter-spacing: .02em; }
 .cs .creq { display: flex; align-items: flex-start; gap: 12px; border: 1px dashed #e0c48f; border-radius: 14px; padding: 12px 14px; background: #fff; }
 .cs .custom { background: #fffbf2; border: 1px solid #f3e3c3; border-radius: 16px; padding: 16px; }

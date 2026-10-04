@@ -6,9 +6,12 @@ import { FEATURE_COPY, MULTIPLIER_COPY, SERVICE_COPY } from '../i18n/catalog';
 import type { ServiceKey } from '../i18n/routes';
 import type { Choices, Currency, Locale, Plan, Region } from './schemas';
 
+type Page = Plan['pages'][number];
+
 export type PricingData = typeof raw;
 type Service = PricingData['services'][number] & { includes?: string[] };
-type Feature = PricingData['features'][number] & { unit?: string };
+export type FeatureUnit = 'page' | 'item';
+type Feature = Omit<PricingData['features'][number], 'unit'> & { unit?: FeatureUnit };
 type MultiplierKey = keyof PricingData['multipliers'];
 
 /**
@@ -75,7 +78,7 @@ export function getService(id: string, data: PricingData = pricing): Service {
 export function getFeature(id: string, data: PricingData = pricing): Feature {
   const f = data.features.find((x) => x.id === id);
   if (!f) throw new Error(`Unknown feature: ${id}`);
-  return f;
+  return f as Feature;
 }
 
 const multiplier = (key: MultiplierKey, id: string, data: PricingData) => {
@@ -88,6 +91,34 @@ const parseDays = (s: string): [number, number] => {
   const [a, b] = s.split('-').map(Number);
   return [a, b ?? a];
 };
+
+/** Features the client gets: the ones switched on plus everything the package already includes. */
+export function activeFeatureIds(plan: Plan, data: PricingData = pricing): Set<string> {
+  const svc = data.services.find((s) => s.id === plan.serviceId) as Service | undefined;
+  return new Set([...plan.features.map((f) => f.id), ...(svc?.includes ?? [])]);
+}
+
+// When the AI leaves `feature` empty on a member/admin screen, these features can provide it.
+const AREA_FALLBACK: Record<'member' | 'admin', string[]> = {
+  member: ['user_login', 'member_area'],
+  admin: ['cms_admin'],
+};
+
+/**
+ * Pages the client actually gets. Public pages always; a member/admin screen only while the feature that
+ * provides it is on, so switching "Update the site yourself" off hides the admin screens (and back on restores them).
+ */
+export function visiblePages(plan: Plan, data: PricingData = pricing): Page[] {
+  const active = activeFeatureIds(plan, data);
+  return plan.pages.filter((p) => {
+    if (p.area === 'public') return true;
+    if (p.feature && data.features.some((f) => f.id === p.feature)) return active.has(p.feature);
+    return AREA_FALLBACK[p.area].some((id) => active.has(id));
+  });
+}
+
+/** Public pages: the only ones that count against pages_included and per-page features. */
+export const publicPages = (plan: Plan, data: PricingData = pricing): Page[] => visiblePages(plan, data).filter((p) => p.area === 'public');
 
 export interface Promo {
   code: string;
@@ -163,7 +194,7 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
   const svc = getService(plan.serviceId, data);
   const region = choices.region;
   const reg = data.regions[region];
-  const pagesCount = plan.pages.length;
+  const pagesCount = publicPages(plan, data).length;
   const lines: QuoteLine[] = [];
   let hours = 0;
 
@@ -186,7 +217,7 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
 
   const included = new Set(svc.includes ?? []);
   const seen = new Set<string>();
-  for (const { id } of plan.features) {
+  for (const { id, quantity } of plan.features) {
     if (seen.has(id)) continue;
     seen.add(id);
     const def = getFeature(id, data);
@@ -195,7 +226,7 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
       lines.push({ kind: 'feature', label, quantity: 1, unitPrice: 0, amount: 0, included: true });
       continue;
     }
-    const qty = def.unit ? pagesCount : 1; // the only unit in the catalog is "per halaman"
+    const qty = def.unit === 'page' ? pagesCount : def.unit === 'item' ? Math.max(1, quantity ?? 1) : 1;
     hours += def.est_hours * qty;
     lines.push({ kind: 'feature', label, quantity: qty, unitPrice: def.price[region], amount: def.price[region] * qty });
   }
@@ -277,11 +308,16 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
 }
 
 /** How a feature affects the price inside a given package, for tags in the plan UI. */
-export function featurePrice(serviceId: string, featureId: string, region: Region): { kind: 'included' | 'free' | 'price'; amount: number; perPage: boolean } {
+export function featurePrice(serviceId: string, featureId: string, region: Region): { kind: 'included' | 'free' | 'price'; amount: number; unit?: FeatureUnit } {
   const def = getFeature(featureId);
-  if ((getService(serviceId).includes ?? []).includes(featureId)) return { kind: 'included', amount: 0, perPage: false };
+  if ((getService(serviceId).includes ?? []).includes(featureId)) return { kind: 'included', amount: 0 };
   const amount = def.price[region];
-  return { kind: amount === 0 ? 'free' : 'price', amount, perPage: !!def.unit };
+  return { kind: amount === 0 ? 'free' : 'price', amount, unit: def.unit };
+}
+
+/** Feature ids grouped in the order of feature_categories, for grouped pickers. */
+export function featuresByCategory(data: PricingData = pricing): { category: string; ids: string[] }[] {
+  return data.feature_categories.map((category) => ({ category, ids: data.features.filter((f) => f.category === category).map((f) => f.id) }));
 }
 
 export function formatPrice(amount: number, region: Region): string {

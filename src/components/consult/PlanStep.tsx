@@ -1,9 +1,9 @@
 import { useState } from 'preact/hooks';
 import pricing from '../../../data/pricing.json';
-import { FEATURE_COPY, SERVICE_COPY } from '../../i18n/catalog';
+import { CATEGORY_COPY, FEATURE_COPY, SERVICE_COPY } from '../../i18n/catalog';
 import type { ConsultStrings } from '../../i18n/consult';
-import { featurePrice, formatPrice, formatShort, getService, quotePriceText, type Quote } from '../../lib/pricing';
-import type { Locale, Plan } from '../../lib/schemas';
+import { featurePrice, featuresByCategory, formatPrice, formatShort, getService, quotePriceText, visiblePages, type Quote } from '../../lib/pricing';
+import { MAX_QUANTITY, type Locale, type Plan } from '../../lib/schemas';
 
 interface Props {
   t: ConsultStrings;
@@ -24,6 +24,15 @@ interface Props {
 }
 
 type Feature = Plan['features'][number];
+type Page = Plan['pages'][number];
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** Drawn as two strokes so it sits exactly in the middle of the round button (a text "×" follows the font baseline). */
+const XIcon = () => (
+  <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+    <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+  </svg>
+);
 
 export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revision, onRevision, revisionUsed, reviseNote, onRevise, error, onBack, onNext }: Props) {
   const [newPage, setNewPage] = useState('');
@@ -31,7 +40,9 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
   const region = q.region;
   const update = (patch: Partial<Plan>) => onChange({ ...plan, ...patch });
   const listed = new Set([...plan.features, ...plan.suggestions].map((f) => f.id));
-  const addable = pricing.features.filter((f) => !listed.has(f.id));
+  const addable = featuresByCategory()
+    .map((g) => ({ ...g, ids: g.ids.filter((id) => !listed.has(id)) }))
+    .filter((g) => g.ids.length > 0);
   const copy = (id: string) => FEATURE_COPY[id]?.[locale];
 
   // Switching a feature off keeps it visible under "You could also add", so nothing silently disappears.
@@ -46,7 +57,7 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
     const opt = question.options[oi];
     const drop = new Set([...(prev?.add ?? []), ...opt.remove]);
     let features = plan.features.filter((f) => !drop.has(f.id));
-    for (const id of opt.add) if (!features.some((f) => f.id === id)) features = [...features, { id, reason: '' }];
+    for (const id of opt.add) if (!features.some((f) => f.id === id)) features = [...features, { id, reason: '', quantity: 1 }];
     const on = new Set(features.map((f) => f.id));
     update({ features, suggestions: plan.suggestions.filter((f) => !on.has(f.id)) });
     onAnswer({ ...answers, [qi]: oi });
@@ -56,7 +67,7 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
     e.preventDefault();
     const name = newPage.trim();
     if (!name) return;
-    update({ pages: [...plan.pages, { name: name.slice(0, 60), purpose: '', sections: [] }] });
+    update({ pages: [...plan.pages, { name: name.slice(0, 60), area: 'public', feature: '', covers: [], purpose: '', sections: [] }] });
     setNewPage('');
   };
 
@@ -64,7 +75,25 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
     const p = featurePrice(plan.serviceId, id, region);
     if (p.kind === 'included') return <span class="ftag inc">{t.plan.inPackage}</span>;
     if (p.kind === 'free') return <span class="ftag inc">{t.plan.free}</span>;
-    return <span class="ftag">+{formatShort(p.amount, region)}{p.perPage ? t.plan.perPage : ''}</span>;
+    const per = p.unit === 'page' ? t.plan.perPage : p.unit === 'item' ? `/${copy(id)?.unit ?? ''}` : '';
+    return <span class="ftag">+{formatShort(p.amount, region)}{per}</span>;
+  };
+
+  const setQty = (id: string, quantity: number) =>
+    update({ features: plan.features.map((x) => (x.id === id ? { ...x, quantity: Math.max(1, Math.min(MAX_QUANTITY, quantity)) } : x)) });
+
+  // Per-item features (extra languages, connected services) get a stepper once they are switched on.
+  const stepper = (f: Feature) => {
+    const p = featurePrice(plan.serviceId, f.id, region);
+    if (p.unit !== 'item' || p.kind === 'included') return null;
+    const name = copy(f.id)?.name ?? f.id;
+    return (
+      <div class="qty" role="group" aria-label={`${t.plan.qty}: ${name}`}>
+        <button type="button" aria-label={`${t.plan.less}: ${name}`} disabled={f.quantity <= 1} onClick={() => setQty(f.id, f.quantity - 1)}>−</button>
+        <span aria-live="polite">{f.quantity} × {copy(f.id)?.unit}</span>
+        <button type="button" aria-label={`${t.plan.more}: ${name}`} disabled={f.quantity >= MAX_QUANTITY} onClick={() => setQty(f.id, f.quantity + 1)}>+</button>
+      </div>
+    );
   };
 
   const row = (f: Feature, on: boolean) => (
@@ -77,10 +106,44 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
         </span>
         {priceTag(f.id)}
       </button>
+      {on && stepper(f)}
     </li>
   );
 
-  const price = quotePriceText(q) || t.plan.discuss;
+  const pages = visiblePages(plan);
+  const pub = pages.filter((p) => p.area === 'public');
+  const removePage = (p: Page) => update({ pages: plan.pages.filter((x) => x !== p) });
+  const customersDo = plan.flows.filter((f) => f.who !== 'owner');
+  const ownerDo = plan.flows.filter((f) => f.who === 'owner');
+
+  // Member and owner screens come with a feature, so they are listed compactly and never priced as pages.
+  const areaCard = (area: 'member' | 'admin') => {
+    const list = pages.filter((p) => p.area === area);
+    if (!list.length) return null;
+    const names = [...new Set(list.map((p) => copy(p.feature)?.name).filter(Boolean))] as string[];
+    return (
+      <div class={`area-card ${area}`}>
+        <div class="area-head">
+          <b>{area === 'admin' ? t.plan.adminArea : t.plan.memberArea}</b>
+          <span class="ftag inc">{t.plan.noExtraCost}</span>
+        </div>
+        <p class="fine">{area === 'admin' ? t.plan.adminNote : t.plan.memberNote}{names.length ? ` ${t.plan.includedWith(names.join(', '))}` : ''}</p>
+        <ul class="screens">
+          {list.map((p) => (
+            <li>
+              <div>
+                <b>{p.name}</b>
+                {p.purpose && <span>{p.purpose}</span>}
+              </div>
+              <button type="button" class="x" aria-label={`${t.plan.remove}: ${p.name}`} onClick={() => removePage(p)}>
+                <XIcon />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
 
   return (
     <div class="cs-body">
@@ -90,33 +153,47 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
         {plan.summary && <p>{plan.summary}</p>}
       </div>
 
-      {plan.goals.length > 0 && (
-        <div class="helps">
-          <b>{t.plan.helps}</b>
-          <ul>
-            {plan.goals.map((g) => (
-              <li>{g}</li>
-            ))}
-          </ul>
+      {plan.flows.length > 0 && (
+        <div class="flows">
+          {customersDo.length > 0 && (
+            <div>
+              <b>{t.plan.customersCan}</b>
+              <ul>
+                {customersDo.map((f) => (
+                  <li>{cap(f.does)}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {ownerDo.length > 0 && (
+            <div>
+              <b>{t.plan.youCan}</b>
+              <ul>
+                {ownerDo.map((f) => (
+                  <li>{cap(f.does)}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
 
       <section class="blk">
         <h3>
-          {t.plan.pages} <span class="count">{plan.pages.length}</span>
+          {t.plan.pages} <span class="count">{pub.length}</span>
         </h3>
         <p class="fine blk-note">{t.plan.pagesNote(svc.pages_included, formatShort(pricing.extra_page.price[region], region))}</p>
         <ol class="pages">
-          {plan.pages.map((p, i) => (
+          {pub.map((p, i) => (
             <li class="page">
               <span class="pnum">{i + 1}</span>
               <div class="page-body">
                 <div class="page-top">
                   <b>{p.name}</b>
                   {i >= svc.pages_included && <span class="ftag">{t.plan.extraTag(formatShort(pricing.extra_page.price[region], region))}</span>}
-                  {plan.pages.length > 1 && (
-                    <button type="button" class="x" aria-label={`${t.plan.remove}: ${p.name}`} onClick={() => update({ pages: plan.pages.filter((_, j) => j !== i) })}>
-                      ×
+                  {pub.length > 1 && (
+                    <button type="button" class="x" aria-label={`${t.plan.remove}: ${p.name}`} onClick={() => removePage(p)}>
+                      <XIcon />
                     </button>
                   )}
                 </div>
@@ -138,6 +215,8 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
             + {t.plan.addPage}
           </button>
         </form>
+        {areaCard('member')}
+        {areaCard('admin')}
       </section>
 
       <section class="blk">
@@ -158,13 +237,19 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
             aria-label={t.plan.addFeature}
             onChange={(e) => {
               const id = (e.target as HTMLSelectElement).value;
-              if (id) update({ features: [...plan.features, { id, reason: '' }] });
+              if (id) update({ features: [...plan.features, { id, reason: '', quantity: 1 }], suggestions: plan.suggestions.filter((x) => x.id !== id) });
               (e.target as HTMLSelectElement).value = '';
             }}
           >
             <option value="">+ {t.plan.addFeature}</option>
-            {addable.map((f) => (
-              <option value={f.id}>{copy(f.id)?.name ?? f.label}</option>
+            {addable.map((g) => (
+              <optgroup label={CATEGORY_COPY[g.category]?.[locale] ?? g.category}>
+                {g.ids.map((id) => {
+                  const p = featurePrice(plan.serviceId, id, region);
+                  const tag = p.kind === 'price' ? ` (+${formatShort(p.amount, region)}${p.unit === 'page' ? t.plan.perPage : p.unit === 'item' ? `/${copy(id)?.unit ?? ''}` : ''})` : ` (${p.kind === 'included' ? t.plan.inPackage : t.plan.free})`;
+                  return <option value={id}>{(copy(id)?.name ?? id) + tag}</option>;
+                })}
+              </optgroup>
             ))}
           </select>
         )}
@@ -182,7 +267,7 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
                   {c.description && <span>{c.description}</span>}
                 </div>
                 <button type="button" class="x" aria-label={`${t.plan.remove}: ${c.name}`} onClick={() => update({ customRequests: plan.customRequests.filter((_, j) => j !== i) })}>
-                  ×
+                  <XIcon />
                 </button>
               </li>
             ))}

@@ -12,13 +12,20 @@ export function devPlan(locale: Locale, revised = false): Plan {
     projectName: 'Kopi Senja',
     summary: id ? 'Website modern untuk coffee shop yang menampilkan menu, cerita, dan lokasi, serta memudahkan pelanggan memesan untuk diambil.' : 'A modern coffee shop website that shows the menu, story and location, and makes pickup orders easy.',
     audience: id ? 'Mahasiswa dan pekerja muda di Bandung' : 'Students and young workers in Bandung',
-    goals: id ? ['Menambah pesanan pickup', 'Memudahkan orang menemukan lokasi'] : ['Get more pickup orders', 'Help people find the café'],
+    business: id ? 'Coffee shop di Bandung untuk mahasiswa dan pekerja muda.' : 'A Bandung coffee shop for students and young workers.',
+    flows: [
+      { who: 'visitor', does: id ? 'Melihat menu lengkap dengan foto dan harga' : 'Browse the full menu with photos and prices' },
+      { who: 'visitor', does: id ? 'Menemukan lokasi dan jam buka' : 'Find the location and opening hours' },
+      { who: 'visitor', does: id ? 'Pesan untuk diambil lewat WhatsApp' : 'Order for pickup via WhatsApp' },
+      { who: 'owner', does: id ? 'Mengganti menu dan harga sendiri' : 'Update the menu and prices yourself' },
+    ],
     pages: [
       { name: id ? 'Beranda' : 'Home', purpose: id ? 'Pengunjung langsung melihat menu favorit dan suasana kafe.' : 'Visitors see the best sellers and the café vibe right away.', sections: ['Hero', id ? 'Menu favorit' : 'Best sellers', id ? 'Ajakan pesan' : 'Order call-to-action'] },
       { name: 'Menu', purpose: id ? 'Pengunjung melihat semua menu lengkap dengan foto dan harga.' : 'Visitors browse the full menu with photos and prices.', sections: [id ? 'Kategori' : 'Categories', id ? 'Foto & harga' : 'Photos & prices'] },
       { name: id ? 'Cerita Kami' : 'Our Story', purpose: id ? 'Pengunjung mengenal cerita dan tim di balik kafe.' : 'Visitors get to know the story and team.', sections: [id ? 'Cerita' : 'Story', id ? 'Tim' : 'Team'] },
       { name: id ? 'Lokasi' : 'Location', purpose: id ? 'Pengunjung menemukan alamat dan jam buka.' : 'Visitors find the address and opening hours.', sections: [id ? 'Peta' : 'Map', id ? 'Jam buka' : 'Hours'] },
       { name: id ? 'Kontak' : 'Contact', purpose: id ? 'Pengunjung bisa bertanya atau memesan.' : 'Visitors can ask questions or order.', sections: [id ? 'Form' : 'Form', 'WhatsApp'] },
+      { name: id ? 'Kelola Menu' : 'Manage Menu', area: 'admin', feature: 'cms_admin', covers: [3], purpose: id ? 'Anda menambah, mengubah, atau menyembunyikan menu.' : 'You add, edit or hide menu items.', sections: [id ? 'Daftar menu' : 'Menu list', id ? 'Ubah harga & foto' : 'Edit price & photo'] },
       ...(revised ? [{ name: id ? 'Reservasi' : 'Reservations', purpose: id ? 'Pelanggan meminta reservasi meja.' : 'Customers request a table.', sections: [id ? 'Form reservasi' : 'Booking form'] }] : []),
     ],
     features: [

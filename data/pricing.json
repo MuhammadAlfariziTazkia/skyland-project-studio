@@ -2,7 +2,7 @@
   "$schema_version": "2.1.0",
   "meta": {
     "studio": "Skyland Project Studio",
-    "last_updated": "2026-10-03",
+    "last_updated": "2026-10-04",
     "positioning": "Freelancer tahap awal (belum ada portfolio proyek riil) — harga sengaja sedikit di bawah rata-rata pasar freelancer.",
     "note": "LLM hanya boleh menghitung dari angka di file ini, tidak boleh mengarang."
   },
@@ -106,7 +106,9 @@
       "workdays": "12-21",
       "includes": [
         "payment",
-        "cms_admin"
+        "cms_admin",
+        "product_catalog",
+        "shopping_cart"
       ]
     },
     {
@@ -134,7 +136,9 @@
       "workdays": "18-30",
       "includes": [
         "user_login",
-        "cms_admin"
+        "cms_admin",
+        "course_player",
+        "progress_tracking"
       ]
     },
     {
@@ -150,7 +154,9 @@
       "workdays": "10-16",
       "includes": [
         "contact_form",
-        "cms_admin"
+        "cms_admin",
+        "booking_calendar",
+        "email_notifications"
       ]
     },
     {
@@ -182,7 +188,9 @@
       "pages_included": 5,
       "workdays": "6-10",
       "includes": [
-        "cms_admin"
+        "cms_admin",
+        "blog_section",
+        "search"
       ]
     }
   ],
@@ -193,9 +201,22 @@
       "GLOBAL": 75
     }
   },
+  "feature_categories": [
+    "contact",
+    "content",
+    "marketing",
+    "accounts",
+    "admin",
+    "commerce",
+    "booking",
+    "learning",
+    "integration",
+    "trust"
+  ],
   "features": [
     {
       "id": "whatsapp_button",
+      "category": "contact",
       "label": "Tombol WhatsApp / Chat Langsung",
       "est_hours": 0,
       "price": {
@@ -205,6 +226,7 @@
     },
     {
       "id": "google_maps",
+      "category": "contact",
       "label": "Integrasi Peta",
       "est_hours": 1,
       "price": {
@@ -213,16 +235,8 @@
       }
     },
     {
-      "id": "analytics",
-      "label": "Setup Analytics & Tracking",
-      "est_hours": 2,
-      "price": {
-        "ID": 100000,
-        "GLOBAL": 40
-      }
-    },
-    {
       "id": "contact_form",
+      "category": "contact",
       "label": "Form Kontak ke Email",
       "est_hours": 3,
       "price": {
@@ -231,7 +245,58 @@
       }
     },
     {
+      "id": "live_chat",
+      "category": "contact",
+      "label": "Widget Live Chat",
+      "est_hours": 2,
+      "price": {
+        "ID": 100000,
+        "GLOBAL": 40
+      }
+    },
+    {
+      "id": "newsletter",
+      "category": "contact",
+      "label": "Form Langganan Newsletter",
+      "est_hours": 3,
+      "price": {
+        "ID": 150000,
+        "GLOBAL": 60
+      }
+    },
+    {
+      "id": "multi_step_form",
+      "category": "contact",
+      "label": "Form Multi-langkah / Kuesioner / Pendaftaran",
+      "est_hours": 8,
+      "price": {
+        "ID": 450000,
+        "GLOBAL": 160
+      }
+    },
+    {
+      "id": "email_notifications",
+      "category": "contact",
+      "label": "Notifikasi Email Otomatis (klien & admin)",
+      "est_hours": 6,
+      "price": {
+        "ID": 350000,
+        "GLOBAL": 120
+      }
+    },
+    {
+      "id": "whatsapp_notifications",
+      "category": "contact",
+      "label": "Notifikasi WhatsApp Otomatis (biaya API WA dibayar klien)",
+      "est_hours": 10,
+      "price": {
+        "ID": 550000,
+        "GLOBAL": 200
+      }
+    },
+    {
       "id": "gallery",
+      "category": "content",
       "label": "Galeri Foto / Produk",
       "est_hours": 3,
       "price": {
@@ -241,34 +306,29 @@
     },
     {
       "id": "copywriting",
+      "category": "content",
       "label": "Copywriting",
       "est_hours": 3,
       "price": {
         "ID": 150000,
         "GLOBAL": 60
       },
-      "unit": "per halaman"
-    },
-    {
-      "id": "seo_basic",
-      "label": "SEO Dasar & Optimasi Kecepatan",
-      "est_hours": 6,
-      "price": {
-        "ID": 350000,
-        "GLOBAL": 125
-      }
+      "unit": "page"
     },
     {
       "id": "multilang",
-      "label": "Multi-bahasa (2 bahasa)",
+      "category": "content",
+      "label": "Bahasa Tambahan (per bahasa)",
       "est_hours": 10,
       "price": {
         "ID": 550000,
         "GLOBAL": 200
-      }
+      },
+      "unit": "item"
     },
     {
       "id": "custom_animation",
+      "category": "content",
       "label": "Animasi & Interaksi Custom",
       "est_hours": 10,
       "price": {
@@ -277,8 +337,79 @@
       }
     },
     {
-      "id": "cms_admin",
-      "label": "Panel Admin (klien update sendiri)",
+      "id": "blog_section",
+      "category": "content",
+      "label": "Blog / Berita dengan Kategori",
+      "est_hours": 12,
+      "price": {
+        "ID": 650000,
+        "GLOBAL": 240
+      }
+    },
+    {
+      "id": "portfolio_filter",
+      "category": "content",
+      "label": "Portofolio / Katalog dengan Filter & Halaman Detail",
+      "est_hours": 8,
+      "price": {
+        "ID": 450000,
+        "GLOBAL": 160
+      }
+    },
+    {
+      "id": "search",
+      "category": "content",
+      "label": "Pencarian di Website",
+      "est_hours": 6,
+      "price": {
+        "ID": 350000,
+        "GLOBAL": 120
+      }
+    },
+    {
+      "id": "events_calendar",
+      "category": "content",
+      "label": "Kalender Acara / Event",
+      "est_hours": 8,
+      "price": {
+        "ID": 450000,
+        "GLOBAL": 160
+      }
+    },
+    {
+      "id": "content_migration",
+      "category": "content",
+      "label": "Pindahkan Konten dari Website Lama",
+      "est_hours": 8,
+      "price": {
+        "ID": 450000,
+        "GLOBAL": 160
+      }
+    },
+    {
+      "id": "analytics",
+      "category": "marketing",
+      "label": "Setup Analytics & Tracking",
+      "est_hours": 2,
+      "price": {
+        "ID": 100000,
+        "GLOBAL": 40
+      }
+    },
+    {
+      "id": "seo_basic",
+      "category": "marketing",
+      "label": "SEO Dasar & Optimasi Kecepatan",
+      "est_hours": 6,
+      "price": {
+        "ID": 350000,
+        "GLOBAL": 125
+      }
+    },
+    {
+      "id": "seo_advanced",
+      "category": "marketing",
+      "label": "SEO Lanjutan (riset keyword, schema, optimasi tiap halaman)",
       "est_hours": 16,
       "price": {
         "ID": 900000,
@@ -286,7 +417,38 @@
       }
     },
     {
+      "id": "conversion_tracking",
+      "category": "marketing",
+      "label": "Pixel Iklan & Tracking Konversi (Meta/Google/TikTok)",
+      "est_hours": 4,
+      "price": {
+        "ID": 200000,
+        "GLOBAL": 80
+      }
+    },
+    {
+      "id": "popup_promo",
+      "category": "marketing",
+      "label": "Pop-up Promo / Lead Magnet",
+      "est_hours": 4,
+      "price": {
+        "ID": 200000,
+        "GLOBAL": 80
+      }
+    },
+    {
+      "id": "social_feed",
+      "category": "marketing",
+      "label": "Feed Instagram / Sosial Media",
+      "est_hours": 3,
+      "price": {
+        "ID": 150000,
+        "GLOBAL": 60
+      }
+    },
+    {
       "id": "user_login",
+      "category": "accounts",
       "label": "Login & Akun User",
       "est_hours": 16,
       "price": {
@@ -295,16 +457,318 @@
       }
     },
     {
+      "id": "social_login",
+      "category": "accounts",
+      "label": "Login dengan Google",
+      "est_hours": 6,
+      "price": {
+        "ID": 350000,
+        "GLOBAL": 120
+      }
+    },
+    {
+      "id": "roles_permissions",
+      "category": "accounts",
+      "label": "Role & Hak Akses (admin, staf, member)",
+      "est_hours": 12,
+      "price": {
+        "ID": 650000,
+        "GLOBAL": 240
+      }
+    },
+    {
+      "id": "member_area",
+      "category": "accounts",
+      "label": "Area & Dashboard Member (riwayat, konten khusus)",
+      "est_hours": 12,
+      "price": {
+        "ID": 650000,
+        "GLOBAL": 240
+      }
+    },
+    {
+      "id": "cms_admin",
+      "category": "admin",
+      "label": "Panel Admin (klien update sendiri)",
+      "est_hours": 16,
+      "price": {
+        "ID": 900000,
+        "GLOBAL": 325
+      }
+    },
+    {
+      "id": "reports_dashboard",
+      "category": "admin",
+      "label": "Laporan & Grafik",
+      "est_hours": 16,
+      "price": {
+        "ID": 900000,
+        "GLOBAL": 325
+      }
+    },
+    {
+      "id": "data_export",
+      "category": "admin",
+      "label": "Export Data ke Excel / CSV",
+      "est_hours": 4,
+      "price": {
+        "ID": 200000,
+        "GLOBAL": 80
+      }
+    },
+    {
+      "id": "file_upload",
+      "category": "admin",
+      "label": "Upload File / Dokumen",
+      "est_hours": 6,
+      "price": {
+        "ID": 350000,
+        "GLOBAL": 120
+      }
+    },
+    {
       "id": "payment",
+      "category": "commerce",
       "label": "Payment Gateway",
       "est_hours": 20,
       "price": {
         "ID": 1100000,
         "GLOBAL": 400
       }
+    },
+    {
+      "id": "manual_payment",
+      "category": "commerce",
+      "label": "Transfer Manual + Upload Bukti + Konfirmasi Admin",
+      "est_hours": 8,
+      "price": {
+        "ID": 450000,
+        "GLOBAL": 160
+      }
+    },
+    {
+      "id": "product_catalog",
+      "category": "commerce",
+      "label": "Katalog Produk (kategori, filter, detail)",
+      "est_hours": 12,
+      "price": {
+        "ID": 650000,
+        "GLOBAL": 240
+      }
+    },
+    {
+      "id": "shopping_cart",
+      "category": "commerce",
+      "label": "Keranjang & Checkout",
+      "est_hours": 16,
+      "price": {
+        "ID": 900000,
+        "GLOBAL": 325
+      }
+    },
+    {
+      "id": "product_variants",
+      "category": "commerce",
+      "label": "Varian Produk (ukuran/warna) & Stok",
+      "est_hours": 8,
+      "price": {
+        "ID": 450000,
+        "GLOBAL": 160
+      }
+    },
+    {
+      "id": "shipping_calculator",
+      "category": "commerce",
+      "label": "Ongkir Otomatis (kurir)",
+      "est_hours": 10,
+      "price": {
+        "ID": 550000,
+        "GLOBAL": 200
+      }
+    },
+    {
+      "id": "discount_voucher",
+      "category": "commerce",
+      "label": "Kode Diskon / Voucher",
+      "est_hours": 8,
+      "price": {
+        "ID": 450000,
+        "GLOBAL": 160
+      }
+    },
+    {
+      "id": "invoice_pdf",
+      "category": "commerce",
+      "label": "Invoice / Kuitansi PDF Otomatis",
+      "est_hours": 6,
+      "price": {
+        "ID": 350000,
+        "GLOBAL": 120
+      }
+    },
+    {
+      "id": "subscription_billing",
+      "category": "commerce",
+      "label": "Langganan / Tagihan Berulang",
+      "est_hours": 24,
+      "price": {
+        "ID": 1300000,
+        "GLOBAL": 475
+      }
+    },
+    {
+      "id": "booking_calendar",
+      "category": "booking",
+      "label": "Kalender Booking dengan Slot Waktu",
+      "est_hours": 20,
+      "price": {
+        "ID": 1100000,
+        "GLOBAL": 400
+      }
+    },
+    {
+      "id": "booking_reminder",
+      "category": "booking",
+      "label": "Pengingat Jadwal Otomatis",
+      "est_hours": 4,
+      "price": {
+        "ID": 200000,
+        "GLOBAL": 80
+      }
+    },
+    {
+      "id": "multi_staff_schedule",
+      "category": "booking",
+      "label": "Jadwal per Staf / Cabang",
+      "est_hours": 12,
+      "price": {
+        "ID": 650000,
+        "GLOBAL": 240
+      }
+    },
+    {
+      "id": "calendar_sync",
+      "category": "booking",
+      "label": "Sinkron Google Calendar",
+      "est_hours": 8,
+      "price": {
+        "ID": 450000,
+        "GLOBAL": 160
+      }
+    },
+    {
+      "id": "course_player",
+      "category": "learning",
+      "label": "Modul & Materi Kursus (video/teks)",
+      "est_hours": 20,
+      "price": {
+        "ID": 1100000,
+        "GLOBAL": 400
+      }
+    },
+    {
+      "id": "progress_tracking",
+      "category": "learning",
+      "label": "Progres Belajar",
+      "est_hours": 8,
+      "price": {
+        "ID": 450000,
+        "GLOBAL": 160
+      }
+    },
+    {
+      "id": "quiz",
+      "category": "learning",
+      "label": "Kuis & Nilai Otomatis",
+      "est_hours": 12,
+      "price": {
+        "ID": 650000,
+        "GLOBAL": 240
+      }
+    },
+    {
+      "id": "certificate",
+      "category": "learning",
+      "label": "Sertifikat Otomatis",
+      "est_hours": 6,
+      "price": {
+        "ID": 350000,
+        "GLOBAL": 120
+      }
+    },
+    {
+      "id": "api_integration",
+      "category": "integration",
+      "label": "Integrasi Layanan Pihak Ketiga (per layanan)",
+      "est_hours": 20,
+      "price": {
+        "ID": 1100000,
+        "GLOBAL": 400
+      },
+      "unit": "item"
+    },
+    {
+      "id": "sheets_sync",
+      "category": "integration",
+      "label": "Sinkron Data ke Google Sheets",
+      "est_hours": 6,
+      "price": {
+        "ID": 350000,
+        "GLOBAL": 120
+      }
+    },
+    {
+      "id": "ai_chatbot",
+      "category": "integration",
+      "label": "Chatbot AI (biaya API AI dibayar klien)",
+      "est_hours": 20,
+      "price": {
+        "ID": 1100000,
+        "GLOBAL": 400
+      }
+    },
+    {
+      "id": "ai_generator",
+      "category": "integration",
+      "label": "Fitur AI Custom (generator / rekomendasi)",
+      "est_hours": 24,
+      "price": {
+        "ID": 1300000,
+        "GLOBAL": 475
+      }
+    },
+    {
+      "id": "spam_protection",
+      "category": "trust",
+      "label": "Anti-spam (captcha) di Form",
+      "est_hours": 2,
+      "price": {
+        "ID": 100000,
+        "GLOBAL": 40
+      }
+    },
+    {
+      "id": "legal_pages",
+      "category": "trust",
+      "label": "Halaman Privasi/Syarat + Cookie Banner",
+      "est_hours": 3,
+      "price": {
+        "ID": 150000,
+        "GLOBAL": 60
+      }
+    },
+    {
+      "id": "pwa",
+      "category": "trust",
+      "label": "Bisa Di-install di HP (PWA)",
+      "est_hours": 8,
+      "price": {
+        "ID": 450000,
+        "GLOBAL": 160
+      }
     }
   ],
-  "features_note": "Fitur yang tercantum di 'includes' sebuah layanan TIDAK dihitung lagi sebagai biaya tambahan.",
+  "features_note": "Fitur yang tercantum di 'includes' sebuah layanan TIDAK dihitung lagi sebagai biaya tambahan. unit 'page' = harga x jumlah halaman; unit 'item' = harga x kuantitas (mis. jumlah bahasa tambahan / layanan yang diintegrasikan, 1-10). Harga fitur ≈ est_hours x pricing_basis.hourly_rate, dibulatkan.",
   "multipliers": {
     "design_level": [
       {

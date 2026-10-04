@@ -3,7 +3,7 @@ import { env } from './env';
 import pricing from '../../data/pricing.json';
 import { SITE } from '../config/site';
 import { FEATURE_COPY, MULTIPLIER_COPY, SERVICE_COPY } from '../i18n/catalog';
-import { formatPrice, quotePriceText, type Quote } from './pricing';
+import { formatPrice, visiblePages, quotePriceText, type Quote } from './pricing';
 import type { OrderRequest } from './schemas';
 import { THEMES } from './mockup/themes';
 
@@ -46,11 +46,21 @@ ${q.discounts
 
 function planHtml(o: OrderRequest, lang: 'en' | 'id') {
   const p = o.plan;
-  const L = lang === 'id' ? { pages: 'Halaman', feats: 'Fitur', custom: 'Perlu diskusi', ass: 'Asumsi' } : { pages: 'Pages', feats: 'Features', custom: 'To discuss', ass: 'Assumptions' };
-  return `${h(L.pages)}<ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.55">${p.pages
-    .map((pg) => `<li style="margin-bottom:6px"><b>${esc(pg.name)}</b><br><span style="color:#4a5876">${esc(pg.purpose)}</span>${pg.sections.length ? `<br><span style="color:#6a7894;font-size:13px">${pg.sections.map(esc).join(' · ')}</span>` : ''}</li>`)
-    .join('')}</ol>
-${h(L.feats)}<ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.55">${p.features.map((f) => `<li><b>${esc(FEATURE_COPY[f.id]?.[lang].name ?? f.id)}</b>${f.reason ? ` <span style="color:#6a7894">– ${esc(f.reason)}</span>` : ''}</li>`).join('')}</ul>
+  const L =
+    lang === 'id'
+      ? { flows: 'Yang bisa dilakukan', visitor: 'Pengunjung', member: 'Member', owner: 'Pemilik', public: 'Halaman publik', memberArea: 'Area member (setelah login)', admin: 'Panel admin', feats: 'Fitur', custom: 'Perlu diskusi', ass: 'Asumsi' }
+      : { flows: 'What people can do', visitor: 'Visitor', member: 'Member', owner: 'Owner', public: 'Public pages', memberArea: 'Member area (after login)', admin: 'Admin panel', feats: 'Features', custom: 'To discuss', ass: 'Assumptions' };
+  const pages = visiblePages(p);
+  const pageList = (area: 'public' | 'member' | 'admin', title: string) => {
+    const list = pages.filter((pg) => pg.area === area);
+    if (!list.length) return '';
+    return `${h(title)}<ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.55">${list
+      .map((pg) => `<li style="margin-bottom:6px"><b>${esc(pg.name)}</b>${pg.feature && area !== 'public' ? ` <span style="color:#8a97b0;font-size:12px">(${esc(FEATURE_COPY[pg.feature]?.[lang].name ?? pg.feature)})</span>` : ''}<br><span style="color:#4a5876">${esc(pg.purpose)}</span>${pg.sections.length ? `<br><span style="color:#6a7894;font-size:13px">${pg.sections.map(esc).join(' · ')}</span>` : ''}</li>`)
+      .join('')}</ol>`;
+  };
+  return `${p.flows.length ? `${h(L.flows)}<ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.55">${p.flows.map((f) => `<li><span style="color:#6a7894">${L[f.who]}:</span> ${esc(f.does)}</li>`).join('')}</ul>` : ''}
+${pageList('public', L.public)}${pageList('member', L.memberArea)}${pageList('admin', L.admin)}
+${h(L.feats)}<ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.55">${p.features.map((f) => `<li><b>${esc(FEATURE_COPY[f.id]?.[lang].name ?? f.id)}</b>${f.quantity > 1 ? ` × ${f.quantity}` : ''}${f.reason ? ` <span style="color:#6a7894">– ${esc(f.reason)}</span>` : ''}</li>`).join('')}</ul>
 ${p.customRequests.length ? `${h(L.custom)}<ul style="margin:0;padding-left:20px;font-size:14px;line-height:1.55">${p.customRequests.map((c) => `<li><b>${esc(c.name)}</b> – ${esc(c.description)}</li>`).join('')}</ul>` : ''}
 ${p.assumptions.length ? `${h(L.ass)}<ul style="margin:0;padding-left:20px;font-size:13.5px;color:#4a5876">${p.assumptions.map((a) => `<li>${esc(a)}</li>`).join('')}</ul>` : ''}`;
 }
@@ -81,7 +91,7 @@ ${c.notes ? `${h('Catatan klien')}<p style="margin:0;font-size:14px;color:#33415
 ${q.status !== 'fixed' ? `<p style="margin:16px 0 0;padding:12px 14px;background:#fff7e6;border:1px solid #f5d9a8;border-radius:10px;font-size:13.5px">⚠️ ${q.status === 'range' ? 'Ada kebutuhan di luar katalog: harga ditampilkan sebagai rentang, konfirmasi lewat obrolan singkat.' : 'Melebihi batas harga otomatis: angka tidak ditampilkan ke klien, perlu diskusi langsung.'}</p>` : ''}
 ${h('Brief asli')}<p style="margin:0;font-size:14px;color:#33415e;background:#f7faff;border-radius:10px;padding:12px 14px">${nl2br(o.description)}</p>
 ${o.revision ? `${h('Permintaan revisi')}<p style="margin:0;font-size:14px;color:#33415e">${nl2br(o.revision)}</p>` : ''}
-${h('Ringkasan')}<table>${row('Jenis', typeName)}${row('Ringkasan', esc(o.plan.summary))}${row('Target', esc(o.plan.audience))}${o.plan.goals.length ? row('Tujuan', o.plan.goals.map(esc).join('<br>')) : ''}</table>
+${h('Ringkasan')}<table>${row('Jenis', typeName)}${row('Ringkasan', esc(o.plan.summary))}${row('Target', esc(o.plan.audience))}${o.plan.business ? row('Bisnis', esc(o.plan.business)) : ''}</table>
 ${planHtml(o, 'id')}
 ${h('Rincian harga')}${priceTable(q, 'id')}
 <p style="margin:20px 0 0;font-size:12.5px;color:#8a97b0">Lampiran: mockup homepage (buka file .html di browser) dan data konsultasi lengkap (.json).</p>

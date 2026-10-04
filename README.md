@@ -45,7 +45,7 @@ Script screenshot memakai Chrome lokal (`/usr/bin/google-chrome`); ganti lewat `
 | --- | --- | --- |
 | `OPENAI_API_KEY` | ✓ | API key OpenAI |
 | `OPENAI_MODEL` | | Default `gpt-5-mini`. Model apa pun yang mendukung Structured Outputs (`json_schema`) |
-| `OPENAI_REASONING_EFFORT` | | `minimal`/`low`/`medium` untuk model reasoning (gpt-5*, o*). **Kosongkan** untuk gpt-4.x |
+| `OPENAI_REASONING_EFFORT` | | Untuk langkah **rencana** saja (default `low`; `minimal` ±40% lebih hemat tapi lebih sering salah pilih fitur). Revisi & mockup otomatis memakai `minimal` di model gpt-5. Diabaikan untuk model non-reasoning (gpt-4.x) |
 | `GMAIL_USER` | ✓ | Alamat Gmail pengirim |
 | `GMAIL_APP_PASSWORD` | ✓ | App Password Gmail (lihat di bawah) |
 | `OWNER_EMAIL` | | Tujuan order baru (default: `GMAIL_USER`) |
@@ -65,14 +65,18 @@ Script screenshot memakai Chrome lokal (`/usr/bin/google-chrome`); ganti lewat `
 
 ## Mengubah harga dan konten
 
-- **`data/pricing.json`** adalah knowledge base harga Anda:
-  - `projectTypes`: harga dasar, jumlah halaman termasuk, fitur termasuk, estimasi minggu, dan kisaran harga yang tampil di website.
-  - `extraPage`: harga halaman tambahan per kompleksitas.
-  - `features`: katalog fitur, masing-masing dengan harga IDR **dan** USD. Menambah fitur baru cukup menambah entri; AI otomatis bisa memilihnya.
-  - `customTiers`: harga S/M/L untuk kebutuhan di luar katalog. Tier L membuat penawaran ditandai "perlu call".
-  - `foundingOffer`: diskon klien pertama. **Naikkan `spotsTaken` setiap kali dapat klien**; badge dan diskon otomatis hilang saat slot habis (set `active: false` untuk mematikan).
-  - `guardrails.maxAutoQuote`: di atas angka ini, harga ditampilkan sebagai estimasi.
-  - Setelah mengubah harga, jalankan `npm run test` (beberapa test mengasumsikan nilai default).
+- **`data/pricing.json`** adalah knowledge base harga Anda. Angka dihitung oleh `src/lib/pricing.ts`; AI hanya memilih id.
+  - `regions`: mata uang, pembulatan, harga minimum & maksimum per region (ID / GLOBAL).
+  - `services`: 8 paket — `base` (harga dasar), `pages_included`, `workdays`, dan `includes` (fitur yang sudah termasuk paket, jadi gratis di paket itu).
+  - `extra_page`: harga per halaman di atas jatah paket.
+  - `feature_categories` + `features`: katalog 55 fitur dalam 10 kategori. Setiap fitur punya `id`, `category`, `label`, `est_hours`, `price` (ID & GLOBAL), dan opsional `unit`:
+    - `"page"` → harga × jumlah halaman (mis. copywriting);
+    - `"item"` → harga × kuantitas yang dipilih klien/AI, 1–10 (mis. bahasa tambahan, layanan yang diintegrasikan).
+    Harga fitur mengikuti `est_hours × pricing_basis.hourly_rate` (dibulatkan); test memastikan selisihnya wajar.
+  - `multipliers`: pengali desain, kesiapan konten, dan kecepatan yang dipilih klien.
+  - `founding_offer`: diskon klien pertama. **Naikkan `spots_taken` setiap kali dapat klien** (atau env `PUBLIC_FOUNDING_TAKEN`). Kode promo ada di env `PROMO_CODES`, bukan di file ini.
+  - **Menambah fitur:** tambahkan objek di `features` (id baru, kategori yang ada), lalu tambahkan nama & penjelasan EN/ID di `FEATURE_COPY` pada `src/i18n/catalog.ts` (untuk `unit: "item"` sertakan juga label `unit`, mis. "bahasa"). AI otomatis bisa memilihnya, dan dropdown di konsultan otomatis mengelompokkannya.
+  - Setelah mengubah harga, jalankan `npm run test` (test memeriksa copy, kategori, `includes`, dan kewajaran harga).
 - **Teks website:** `src/i18n/en.ts` & `src/i18n/id.ts` (landing + halaman layanan), `src/i18n/consult.ts` (UI konsultan).
 - **Logo:** mark ada di `src/components/Logo.astro` (header/footer), `public/favicon.svg` (ikon), dan `public/logo.svg` (logo lengkap untuk dipakai di luar website). Setelah mengubah logo, jalankan `node scripts/make-assets.mjs` agar favicon PNG, `logo.png`, dan gambar OG ikut diperbarui.
 - **Kontak & sosial media:** `src/config/site.ts`. Link sosial yang kosong otomatis disembunyikan.
