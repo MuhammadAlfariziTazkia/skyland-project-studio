@@ -181,12 +181,13 @@ export interface Quote {
 
 const roundTo = (n: number, step: number) => Math.round(n / step) * step;
 
-const ADJUST: Record<MultiplierKey | 'round' | 'minimum', Record<Locale, string>> = {
+const ADJUST: Record<MultiplierKey | 'round' | 'minimum' | 'cap', Record<Locale, string>> = {
   design_level: { en: 'Design', id: 'Desain' },
   content_readiness: { en: 'Content help', id: 'Bantuan konten' },
   timeline: { en: 'Faster delivery', id: 'Pengerjaan lebih cepat' },
   round: { en: 'Rounding', id: 'Pembulatan' },
   minimum: { en: 'Minimum project price', id: 'Harga minimum proyek' },
+  cap: { en: 'Combined options capped', id: 'Batas gabungan opsi' },
 };
 
 const DISCOUNT: Record<Discount['kind'], Record<Locale, string>> = {

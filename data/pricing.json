@@ -34,7 +34,8 @@
           "GLOBAL": 45
         }
       }
-    ]
+    ],
+    "note": "Tarif di atas berlaku untuk fitur dan paket kecil. Layanan dengan est_hours >= 64 (booking, toko online, LMS, web app) memakai tarif efektif lebih tinggi di region GLOBAL ($25-28/jam) karena risiko, koordinasi, QA, dan revisi lebih besar; harga IDR tetap memakai tarif dasar."
   },
   "regions": {
     "ID": {
@@ -51,7 +52,7 @@
       "locale": "en-US",
       "round_to": 25,
       "min_price": 250,
-      "max_price": 9000
+      "max_price": 12000
     }
   },
   "region_detection": "Pakai 'ID' jika user memilih Indonesia, menulis dalam Bahasa Indonesia, atau menyebut lokasi/nomor Indonesia. Selain itu pakai 'GLOBAL'. Jika ragu, tanya sekali.",
@@ -100,7 +101,7 @@
       "est_hours": 80,
       "base": {
         "ID": 4400000,
-        "GLOBAL": 1600
+        "GLOBAL": 2200
       },
       "pages_included": 6,
       "workdays": "12-21",
@@ -130,7 +131,7 @@
       "est_hours": 120,
       "base": {
         "ID": 6600000,
-        "GLOBAL": 2400
+        "GLOBAL": 3400
       },
       "pages_included": 7,
       "workdays": "18-30",
@@ -148,7 +149,7 @@
       "est_hours": 64,
       "base": {
         "ID": 3500000,
-        "GLOBAL": 1275
+        "GLOBAL": 1600
       },
       "pages_included": 5,
       "workdays": "10-16",
@@ -166,7 +167,7 @@
       "est_hours": 180,
       "base": {
         "ID": 10000000,
-        "GLOBAL": 3600
+        "GLOBAL": 5000
       },
       "pages_included": 6,
       "workdays": "20-40",
@@ -1014,7 +1015,7 @@
       }
     }
   ],
-  "features_note": "Fitur yang tercantum di 'includes' sebuah layanan TIDAK dihitung lagi sebagai biaya tambahan. unit 'page' = harga x jumlah halaman; unit 'item' = harga x kuantitas (mis. jumlah bahasa tambahan / layanan yang diintegrasikan, 1-10). Harga fitur ≈ est_hours x pricing_basis.hourly_rate, dibulatkan.",
+  "features_note": "Fitur yang tercantum di 'includes' sebuah layanan TIDAK dihitung lagi sebagai biaya tambahan. unit 'page' = harga x jumlah halaman; unit 'item' = harga x kuantitas (mis. jumlah bahasa tambahan / layanan yang diintegrasikan, 1-10). Harga fitur ≈ est_hours x pricing_basis.hourly_rate, dibulatkan. Saat content_readiness = 'none', fitur copywriting tidak ditagih terpisah karena pengali konten sudah mencakup penulisan.",
   "multipliers": {
     "design_level": [
       {
@@ -1030,7 +1031,7 @@
       {
         "id": "full_custom",
         "label": "Desain dari nol + animasi khas",
-        "value": 1.45
+        "value": 1.4
       }
     ],
     "content_readiness": [
@@ -1047,7 +1048,7 @@
       {
         "id": "none",
         "label": "Belum ada sama sekali",
-        "value": 1.25
+        "value": 1.2
       }
     ],
     "timeline": [
@@ -1066,7 +1067,7 @@
       {
         "id": "rush",
         "label": "Kilat ~50% waktu",
-        "value": 1.5,
+        "value": 1.35,
         "time_factor": 0.5
       }
     ]
@@ -1095,12 +1096,13 @@
     "steps": [
       "1. Tentukan region (ID / GLOBAL) dan layanan yang paling cocok dari services[].",
       "2. subtotal = base + (max(0, jumlah_halaman - pages_included) x extra_page.price) + total harga fitur tambahan (kecuali yang ada di includes).",
-      "3. total = subtotal x design_level x content_readiness x timeline.",
+      "3. total = subtotal x design_level x content_readiness x timeline, dengan hasil kali pengali dibatasi maksimal calculation.max_multiplier.",
       "4. price_low = bulatkan(total, region.round_to); price_high = bulatkan(price_low x range_upper, region.round_to).",
       "5. Validasi ke region.min_price dan region.max_price.",
       "6. Bandingkan dengan reference_cases region yang sama — jika meleset >30%, tetap pakai hasil hitungan tapi set confidence 'low'."
     ],
-    "range_upper": 1.2
+    "range_upper": 1.2,
+    "max_multiplier": 2.0
   },
   "reference_cases": [
     {
@@ -1137,10 +1139,10 @@
       "region": "GLOBAL",
       "desc": "Small course platform, 7 pages, + payment, semi custom design, content partial.",
       "service": "online_course",
-      "math": "(2400 + 400) x 1.2 x 1.1 = 3696",
+      "math": "(3400 + 400) x 1.2 x 1.1 = 5016",
       "agreed": [
-        3700,
-        4450
+        5000,
+        6000
       ]
     }
   ],
