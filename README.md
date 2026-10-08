@@ -50,11 +50,12 @@ Kalau `OPENAI_API_KEY` / `GMAIL_APP_PASSWORD` kosong saat `npm run dev`, konsult
 | `npm run check` | Type-check Astro/TS |
 | `npm run build` | Build production (output Vercel) |
 | `node scripts/shots.mjs http://localhost:4321 / /id/ /consult/` | Screenshot 375/768/1440px + cek horizontal overflow |
-| `node scripts/audit-responsive.mjs http://localhost:4321` | Audit responsif semua halaman + tiap langkah konsultasi di 320–1440px: horizontal overflow, elemen keluar layar, target sentuh < 32px, teks terpotong. Tambahkan `--shots` untuk screenshot |
+| `node scripts/audit-responsive.mjs http://localhost:4321` | Audit responsif semua halaman, keempat demo konsep, dan tiap langkah konsultasi di 320–1440px: horizontal overflow, elemen keluar layar, target sentuh < 32px, teks terpotong. Tambahkan `--shots` untuk screenshot, `--no-consult` untuk melewati langkah konsultasi, atau `PAGES=/a/,/b/` untuk membatasi rute. Khusus demo konsep ada satu lintasan tambahan **tanpa** reduced-motion yang melaporkan konten yang tetap transparan (`STUCK`) — bug reveal tidak terlihat pada lintasan utama |
 | `node scripts/e2e-consult.mjs http://localhost:4321 id 375` | Menjalankan seluruh alur konsultasi di browser |
 | `node scripts/make-assets.mjs` | Membuat ulang gambar OG, apple-touch-icon, dan `public/founder.jpg` |
 | `node scripts/make-hero.mjs` | Membuat ulang mockup company profile di laptop hero (EN + ID). Teks & desain ada di dalam script |
-| `node scripts/capture-portfolio.mjs [key]` | Mengambil ulang screenshot desktop + HP proyek portofolio. Konsep (`public/samples/*`, mis. `tegak`) diambil dari `npm run dev` sebagai satu screenshot tinggi |
+| `node scripts/capture-portfolio.mjs [key]` | Mengambil ulang screenshot desktop + HP proyek portofolio. Konsep (`public/samples/*`: `tegak`, `lembar`, `arden`, `kurohane`) diambil dari `npm run dev` sebagai satu screenshot tinggi |
+| `node scripts/fetch-sample-photos.mjs [arden\|kurohane]` | Mengunduh ulang foto demo konsep dari Pexels, memotong ke ukuran final, dan menulis ulang `CREDITS.md`. Tambahkan `--force` untuk menimpa file yang sudah ada |
 
 Script screenshot memakai Chrome lokal (`/usr/bin/google-chrome`); ganti lewat `CHROME_PATH` bila perlu.
 

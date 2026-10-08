@@ -11,6 +11,8 @@ const projects = {
   bunsky: { url: 'https://rumah-belajar-bunsky.vercel.app/' },
   tegak: { url: `${base}/samples/tegak/`, long: 3600 },
   lembar: { url: `${base}/samples/lembar/`, long: 3600 },
+  arden: { url: `${base}/samples/arden/`, long: 3600 },
+  kurohane: { url: `${base}/samples/kurohane/`, long: 3600 },
 };
 const only = process.argv.slice(2);
 
@@ -25,6 +27,21 @@ async function revealAll(page) {
     window.scrollTo(0, 0);
   });
   await page.waitForTimeout(2500);
+  await settleForCapture(page);
+}
+
+// A fullPage screenshot resizes the viewport, which makes Chrome re-evaluate loading="lazy"
+// and can paint those images as empty boxes. Promote them to eager and wait for the decode.
+// Reveal scripts park not-yet-seen elements at inline opacity:0 and un-park them from an
+// IntersectionObserver; a scripted scroll can outrun that observer, so anything still parked
+// is un-parked by hand. Both only ever affect the capture, never a real visit.
+async function settleForCapture(page) {
+  await page.evaluate(async () => {
+    document.querySelectorAll('img[loading="lazy"]').forEach((i) => { i.loading = 'eager'; });
+    document.querySelectorAll('[style*="opacity"]').forEach((el) => { if (el.style.opacity === '0') el.style.opacity = ''; });
+    await Promise.all([...document.images].map((i) => i.decode().catch(() => {})));
+  });
+  await page.waitForTimeout(500);
 }
 
 const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/usr/bin/google-chrome' });
@@ -33,13 +50,15 @@ for (const [key, { url, long }] of Object.entries(projects)) {
   const shots = [['', { width: 1440, height: 900 }, 1]];
   if (!long) shots.push(['-mobile', { width: 390, height: 844 }, 2]);
   for (const [suffix, viewport, deviceScaleFactor] of shots) {
-    const page = await browser.newPage({ viewport, deviceScaleFactor, isMobile: suffix === '-mobile' });
+    // reducedMotion makes the capture deterministic: reveal and count-up code paths jump
+    // straight to their finished state instead of being caught mid-animation.
+    const page = await browser.newPage({ viewport, deviceScaleFactor, isMobile: suffix === '-mobile', reducedMotion: 'reduce' });
     await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
     await page.evaluate(() => document.fonts.ready);
     await page.addStyleTag({ content: '#sky-bar{display:none!important}' }); // Skyland banner on concept pages
     const tall = long && suffix === '';
     if (tall) await revealAll(page);
-    else await page.waitForTimeout(2500); // let entrance animations finish
+    else { await page.waitForTimeout(2500); await settleForCapture(page); } // let entrance animations finish
     const path = `src/assets/work/${key}${suffix}.png`;
     if (tall) await page.screenshot({ path, fullPage: true, clip: { x: 0, y: 0, width: viewport.width, height: long } });
     else await page.screenshot({ path });

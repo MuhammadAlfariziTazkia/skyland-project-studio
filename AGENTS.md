@@ -67,7 +67,7 @@ ini; instruksi terbaru pemilik menentukan perilaku yang diinginkan.
 | URL/SEO | `src/i18n/routes.ts`, `Seo.astro`, `src/lib/jsonld.ts` |
 | Tema/mockup | `src/lib/mockup/themes.ts`, `render.ts`, `MockupFrame.tsx` |
 | Styling | `src/styles/global.css`, `src/components/consult/consult.css`, scoped Astro CSS |
-| Konsep portfolio | `public/samples/`, `Concepts.astro`, `scripts/capture-portfolio.mjs` |
+| Konsep portfolio | `public/samples/`, `Concepts.astro`, `scripts/capture-portfolio.mjs`, `scripts/fetch-sample-photos.mjs` |
 
 `public/samples/*` adalah demo HTML terpisah dengan runtime React 18 dari CDN.
 Jangan menganggap runtime itu bagian dari konsultan Preact. File `*.dc.html` di

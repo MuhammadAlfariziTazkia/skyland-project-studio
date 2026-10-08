@@ -19,7 +19,7 @@ tugas penyusunan dokumentasi ini.
   unit page/item, package inclusion, harga deterministik, fixed/range/discuss.
 - Founding offer, kode promo server, cap aditif, minimum regional.
 - SMTP pemilik/klien dengan lampiran HTML/JSON, draft localStorage, dev fixtures.
-- Portfolio yang ditampilkan dan dua demo konsep terpisah.
+- Portfolio yang ditampilkan dan empat demo konsep terpisah.
 - Tooling test/check/build, responsive capture, dan walkthrough browser.
 
 ## Hasil verifikasi
@@ -27,18 +27,20 @@ tugas penyusunan dokumentasi ini.
 | Pemeriksaan | Hasil |
 | --- | --- |
 | Node/npm lokal | Node 22.12.0, npm 10.9.0 |
-| `npm run test` | 1 file, **52 test lulus** |
-| `npm run check` | **0 error, 0 warning, 3 hints**, 76 file |
+| `npm run test` | 2 file, **53 lulus / 4 gagal** — keempatnya di `tests/pricing.test.ts` dan sudah gagal sebelum penambahan konsep Arden/Kurohane |
+| `npm run check` | **0 error, 0 warning, 5 hints**, 84 file |
 | `npm run build` | Berhasil; 24 halaman utama + robots, assets, sitemap, fungsi Vercel |
 | E2E EN 1.440px | Sampai done/reference, invalid contact dan lookup promo berjalan |
 | E2E ID 375px | Sampai done/reference, invalid contact dan lookup promo berjalan |
-| Responsive 375/768/1.440px | 6 route × 3 width: tidak ada horizontal overflow |
+| Responsive 320–1.440px | `/`, `/id/`, `/samples/arden/`, `/samples/kurohane/` × 6 width: bersih |
+| Responsive demo lama | `/samples/tegak/`, `/samples/lembar/` × 6 width: **11 view bermasalah** (lihat G-17) |
 
 Route responsive: `/`, `/id/`, `/consult/`, `/id/konsultasi/`, dan halaman company
 profile EN/ID. Ini bukan audit visual/accessibility menyeluruh seluruh layanan.
-Tiga hint berasal dari unused NS di sample Lembar dan window.React di kedua
-support.js demo. Pemeriksa merendernya sebagai diagnostic hint; ringkasan
-akhir check tidak menghitungnya sebagai warning/error.
+Lima hint berasal dari unused NS di sample Lembar dan `window.React` pada empat
+salinan `support.js` demo (satu per konsep). Pemeriksa merendernya sebagai
+diagnostic hint; ringkasan akhir check tidak menghitungnya sebagai warning/error.
+Jumlah ini bertambah satu untuk setiap konsep baru yang membawa `support.js`.
 
 E2E dijalankan memakai salinan sementara source tanpa `.env*` dan tanpa
 kredensial AI/SMTP/Turnstile, dengan promo fixture `KENALANCEO=20`. Tidak ada
@@ -174,9 +176,21 @@ atau mengikuti checklist lama dapat membuat metadata/konteks bisnis salah.
 ### G-15 — Preview dan demo memiliki dependency eksternal sendiri
 
 **Bukti:** renderMockup memuat Google Fonts; sample support memuat React CDN
-dan new Function; Tegak memuat gambar eksternal. **Dampak:** artifact konsep
-tidak sepenuhnya offline; strategi CSP/hosting offline harus memperhitungkan
-runtime sample terpisah dari Astro/Preact.
+dan new Function; Tegak memuat gambar eksternal dari images.unsplash.com.
+Arden dan Kurohane menyimpan fotonya sendiri di `public/samples/<key>/img/`
+sehingga dependency eksternalnya tinggal Google Fonts dan React CDN.
+**Dampak:** artifact konsep tidak sepenuhnya offline; strategi CSP/hosting
+offline harus memperhitungkan runtime sample terpisah dari Astro/Preact.
+
+### G-17 — Demo Tegak dan Lembar belum lolos audit responsif
+
+**Bukti:** `scripts/audit-responsive.mjs` kini ikut menjalankan keempat demo
+konsep. Arden dan Kurohane bersih di 320/375/414/768/1.024/1.440px; Tegak dan
+Lembar menghasilkan 11 view bermasalah — overflow horizontal di Lembar pada 320px
+(+12px) dan 1.024px (+97px), elemen keluar layar dan teks terpotong di Tegak pada
+1.024/1.440px, serta sejumlah target sentuh di bawah 32px pada keduanya.
+**Dampak:** temuan ini sudah ada sebelum penambahan Arden/Kurohane dan hanya
+menjadi terlihat karena cakupan audit diperluas. Perbaikannya belum dikerjakan.
 
 ### G-16 — Cakupan test dan observability belum penuh
 

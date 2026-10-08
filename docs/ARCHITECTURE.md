@@ -90,7 +90,7 @@ nilai rahasia tidak menjadi dokumentasi proyek.
 | Privacy | `/privacy/` | `/id/privasi/` | Static |
 | Terms | `/terms/` | `/id/syarat-ketentuan/` | Static |
 | API | `/api/plan`, `/api/mockup`, `/api/promo`, `/api/order` | Sama | POST serverless |
-| Konsep | `/samples/tegak/`, `/samples/lembar/` | Tidak dilokalkan berpasangan | File public |
+| Konsep | `/samples/tegak/`, `/samples/lembar/`, `/samples/arden/`, `/samples/kurohane/` | Tidak dilokalkan berpasangan | File public |
 
 Ada 24 halaman utama berbahasa: 4 jenis umum × 2 + 8 layanan × 2. Robots,
 sitemap, dan demo konsep berada di luar hitungan itu. `trailingSlash: 'ignore'`;

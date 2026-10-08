@@ -16,7 +16,7 @@ export interface ProjectCopy {
 }
 
 export interface ConceptCopy {
-  key: 'tegak' | 'lembar';
+  key: 'tegak' | 'lembar' | 'arden' | 'kurohane';
   name: string;
   category: string;
   type: string;
@@ -170,11 +170,37 @@ const en = {
       },
     ] as ProjectCopy[],
     conceptsEyebrow: 'STUDIO CONCEPTS',
-    conceptsLead: "Not client work, yet. Design explorations for industries we'd love to build for next.",
+    conceptsLead: "Not client work, yet. Four design explorations for industries we'd love to build for next.",
+    conceptsPrev: 'Previous concept',
+    conceptsNext: 'Next concept',
     demo: 'Explore live demo',
     hoverHint: 'Hover to scroll',
     tapHint: 'Tap to open the live demo',
     concepts: [
+      {
+        key: 'arden',
+        name: 'Arden Property Auction',
+        category: 'Concept · Property auction',
+        type: 'Auction platform for a property auction house',
+        tagline: 'Exceptional properties. Transparently auctioned.',
+        desc: 'A catalogue that behaves like a trading floor: live status on every lot, a calendar that rolls forward on its own, and a watchlist the browser remembers.',
+        highlights: ['Live lot filtering', 'Watchlist & alerts', 'Site-wide search'],
+        url: '/samples/arden/',
+        host: 'arden-auction.concept',
+        service: 'web_app',
+      },
+      {
+        key: 'kurohane',
+        name: '黒羽 Kurohane Barber Studio',
+        category: 'Concept · Barbershop, Tokyo',
+        type: 'Booking site for a two-chair barber studio',
+        tagline: 'Precision in every detail.',
+        desc: 'A Japanese-language booking site where the calendar is real: pick a service and a barber, and the free slots recalculate against the shop\u2019s own opening hours.',
+        highlights: ['Real-time slot booking', 'Barber & style selection', 'Japanese-language site'],
+        url: '/samples/kurohane/',
+        host: 'kurohane-barber.concept',
+        service: 'booking',
+      },
       {
         key: 'tegak',
         name: 'Tegak Prima Konstruksi',

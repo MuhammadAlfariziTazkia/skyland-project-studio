@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arden Property Auction · Concept by Skyland</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="A concept auction website for a fictional property auction house, designed and built by Skyland Project Studio.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="/samples/arden/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500&display=swap" rel="stylesheet">
+<script src="/samples/arden/arden-data.js"></script>
+<style>
+html{scroll-behavior:smooth}
+body{margin:0;background:#F5F2EB;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+img{max-width:100%}
+a{color:#172333}a:hover{color:#84643F}
+button[disabled]{cursor:not-allowed}
+:focus-visible{outline:2px solid #9A7754;outline-offset:2px}
+/* the header is sticky, so anchored sections need to clear it */
+section[id],div[id]{scroll-margin-top:124px}
+/* This design is built from inline styles, so the responsive overrides below have to be
+   !important to win against them. */
+/* The hero runs a 12-column layout that only has room on a wide screen. */
+@media (max-width:1023px){
+  [data-hero-lead],[data-hero-cta]{grid-column:1 / -1 !important}
+  [data-hero-cta]{justify-content:flex-start !important}
+  [data-hero-frame]{min-height:0 !important}
+}
+[data-reg-short]{display:none}
+@media (max-width:900px){
+  [data-signin]{display:none !important}
+  [data-reg-long]{display:none}
+  [data-reg-short]{display:inline}
+}
+/* The header bar never wraps, so the lockup sheds detail as the room runs out. */
+@media (max-width:520px){
+  [data-hdr-bar]{gap:12px !important}
+  [data-logo-sub]{display:none !important}
+}
+@media (max-width:380px){
+  [data-logo-words]{display:none !important}
+}
+@media (max-width:620px){
+  [data-footer-brand]{grid-column:auto !important}
+}
+@media (max-width:700px){
+  [data-divider]{border-left:0 !important;padding-left:0 !important}
+}
+/* On a phone the 21:9 band is a letterbox and the next-auction card covers it, so the
+   band turns portrait and the card drops underneath. */
+@media (max-width:759px){
+  [data-hero-frame]{aspect-ratio:4 / 5 !important}
+  [data-next-card]{position:static !important;width:100% !important;margin-top:16px !important}
+  [data-feat-img]{min-height:280px !important}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+</style>
+</helmet>
+
+<div style="font-family:'IBM Plex Sans',sans-serif;color:#202326;background:#F5F2EB">
+<div id="top" style="position:sticky;top:0;z-index:50">
+<header style="font-family:'IBM Plex Sans',sans-serif;color:#202326;position:relative">
+  <div style="background:#172333;color:#C9CED4;font-size:12px;letter-spacing:.02em">
+    <div style="max-width:1440px;margin:0 auto;padding:7px clamp(20px,4vw,48px);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <span>Prototype — all properties, prices, people and dates shown are fictional.</span>
+      <div style="display:flex;gap:20px">
+        <a href="#auctions" onClick="{{ demoOnly }}" style="color:#C9CED4;text-decoration:none;display:inline-block;padding:9px 0">Trust &amp; Compliance</a>
+        <a href="#auctions" onClick="{{ demoOnly }}" style="color:#C9CED4;text-decoration:none;display:inline-block;padding:9px 0">Design System</a>
+        <span>Support +81 3 0000 0000</span>
+      </div>
+    </div>
+  </div>
+  <div style="background:rgba(245,242,235,.96);backdrop-filter:blur(12px);border-bottom:1px solid #DDDAD3" onMouseLeave="{{ closeMenu }}">
+    <div data-hdr-bar="" style="max-width:1440px;margin:0 auto;padding:0 clamp(20px,4vw,48px);height:{{ barH }};transition:height .3s cubic-bezier(.2,.7,.2,1);display:flex;align-items:center;gap:28px">
+      <a href="#top" aria-label="Arden Property Auction — home" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:#172333;flex:none">
+        <span style="width:34px;height:34px;border:1.5px solid #172333;display:grid;place-items:center;font-family:'Source Serif 4',serif;font-size:21px;line-height:1">A</span>
+        <span data-logo-words="" style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-family:'Source Serif 4',serif;font-size:21px;line-height:1;letter-spacing:.01em">Arden</span>
+          <span data-logo-sub="" style="font-size:9.5px;letter-spacing:.24em;line-height:1;color:#5E666E;white-space:nowrap">PROPERTY AUCTION</span>
+        </span>
+      </a>
+      <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+        <nav aria-label="Primary" style="display:flex;gap:22px;flex:1;justify-content:center">
+          <sc-for list="{{ nav }}" as="n" hint-placeholder-count="8">
+            <a href="{{ n.href }}" onMouseEnter="{{ n.onEnter }}" onFocus="{{ n.onEnter }}" aria-current="{{ n.current }}" style="font-size:13.5px;color:#202326;text-decoration:none;padding:6px 0;border-bottom:1px solid {{ n.bd }};white-space:nowrap">{{ n.label }}</a>
+          </sc-for>
+        </nav>
+      </sc-if>
+      <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}"><span style="flex:1"></span></sc-if>
+      <div data-hdr-actions="" style="display:flex;align-items:center;gap:6px;flex:none;min-width:0">
+        <button onClick="{{ openSearch }}" aria-label="Search properties, auctions and insights" style="height:40px;padding:0 12px;display:flex;align-items:center;gap:8px;background:none;border:1px solid transparent;color:#202326;font:inherit;font-size:13.5px;cursor:pointer" style-hover="border-color:#DDDAD3">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7" cy="7" r="5"></circle><path d="M11 11l3.5 3.5"></path></svg>
+          <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}"><span>Search</span></sc-if>
+        </button>
+        <sc-if value="{{ signedIn }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ openDrawer }}" aria-label="Notifications, 3 unread" style="position:relative;width:40px;height:40px;display:grid;place-items:center;background:none;border:1px solid transparent;color:#202326;cursor:pointer" style-hover="border-color:#DDDAD3">
+            <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 11V7a4 4 0 018 0v4l1 1.5H3z"></path><path d="M6.5 14h3"></path></svg>
+            <span style="position:absolute;top:6px;right:6px;min-width:15px;height:15px;border-radius:8px;background:#A63D2A;color:#fff;font-size:9.5px;font-weight:600;display:grid;place-items:center">3</span>
+          </button>
+          <a href="#auctions" onClick="{{ demoOnly }}" style="height:40px;display:flex;align-items:center;gap:10px;padding:0 12px 0 6px;text-decoration:none;color:#202326;font-size:13.5px;border:1px solid #DDDAD3;background:#FAFAF7">
+            <span style="width:28px;height:28px;border-radius:50%;background:#172333;color:#FAFAF7;display:grid;place-items:center;font-size:11px;font-weight:600">KT</span>
+            <span>My Auctions</span>
+          </a>
+        </sc-if>
+        <sc-if value="{{ signedOut }}" hint-placeholder-val="{{ true }}">
+          <a href="#how" data-signin="" style="height:40px;display:flex;align-items:center;padding:0 12px;font-size:13.5px;color:#202326;text-decoration:none;white-space:nowrap">Sign In</a>
+          <a href="#how" style="height:40px;display:flex;align-items:center;padding:0 18px;font-size:13.5px;font-weight:500;color:#FAFAF7;background:#172333;text-decoration:none;white-space:nowrap" style-hover="background:#24364D"><span data-reg-long="">Register to Bid</span><span data-reg-short="">Register</span></a>
+        </sc-if>
+        <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ toggleMobile }}" aria-label="Menu" aria-expanded="{{ mobileNav }}" style="width:40px;height:40px;display:grid;place-items:center;background:none;border:1px solid #DDDAD3;cursor:pointer;color:#202326">
+            <svg width="16" height="12" viewBox="0 0 16 12" stroke="currentColor" stroke-width="1.4"><path d="M0 1h16M0 6h16M0 11h16"></path></svg>
+          </button>
+        </sc-if>
+      </div>
+    </div>
+
+    <sc-if value="{{ megaOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:0;right:0;top:100%;background:#FAFAF7;border-bottom:1px solid #DDDAD3;box-shadow:0 30px 60px -40px rgba(23,35,51,.35);z-index:5">
+        <div style="max-width:1440px;margin:0 auto;padding:36px clamp(20px,4vw,48px) 40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:40px">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <span style="font-size:11px;letter-spacing:.16em;color:#84643F;font-weight:500">BY STATUS</span>
+            <a href="#auctions" onClick="{{ demoOnly }}" style="display:flex;align-items:center;gap:10px;color:#202326;text-decoration:none;font-size:15px"><span style="width:7px;height:7px;border-radius:50%;background:#A63D2A"></span>Live now — 1 auction</a>
+            <a href="#auctions" style="color:#202326;text-decoration:none;font-size:15px">Registration open</a>
+            <a href="#auctions" style="color:#202326;text-decoration:none;font-size:15px">Upcoming auctions</a>
+            <a href="#results" style="color:#202326;text-decoration:none;font-size:15px">Completed &amp; results</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <span style="font-size:11px;letter-spacing:.16em;color:#84643F;font-weight:500">BY ASSET TYPE</span>
+            <a href="#auctions" style="color:#202326;text-decoration:none;font-size:15px">Residential</a>
+            <a href="#auctions" style="color:#202326;text-decoration:none;font-size:15px">Commercial</a>
+            <a href="#auctions" style="color:#202326;text-decoration:none;font-size:15px">Land</a>
+            <a href="#auctions" style="color:#202326;text-decoration:none;font-size:15px">Investment</a>
+            <a href="#auctions" style="color:#202326;text-decoration:none;font-size:15px">Institutional &amp; corporate</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <span style="font-size:11px;letter-spacing:.16em;color:#84643F;font-weight:500">FOR BIDDERS</span>
+            <a href="#how" style="color:#202326;text-decoration:none;font-size:15px">How to register</a>
+            <a href="#insights" style="color:#202326;text-decoration:none;font-size:15px">Guide prices explained</a>
+            <a href="#auctions" onClick="{{ demoOnly }}" style="color:#202326;text-decoration:none;font-size:15px">Fees &amp; deposits</a>
+            <a href="#calendar" style="color:#202326;text-decoration:none;font-size:15px">Auction calendar</a>
+          </div>
+          <a href="#calendar" data-card="" style="display:flex;flex-direction:column;gap:12px;background:#172333;color:#FAFAF7;padding:24px;text-decoration:none">
+            <span style="font-size:11px;letter-spacing:.16em;color:#D9C2A5">NEXT AUCTION</span>
+            <span style="font-family:'Source Serif 4',serif;font-size:24px;line-height:1.15">{{ next.name }}</span>
+            <span style="font-size:13.5px;color:#C9CED4">{{ next.shortDate }} · {{ next.time }} · {{ next.lots }} lots · {{ next.mode }}</span>
+            <span style="margin-top:auto;font-size:13.5px;display:flex;gap:8px">View auction <span data-card-arrow="" style="transition:transform .3s">→</span></span>
+          </a>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ mobileNav }}" hint-placeholder-val="{{ false }}">
+      <nav aria-label="Mobile" style="position:absolute;left:0;right:0;top:100%;background:#FAFAF7;border-bottom:1px solid #DDDAD3;padding:12px clamp(20px,4vw,48px) 24px;display:flex;flex-direction:column;z-index:5">
+        <sc-for list="{{ nav }}" as="n" hint-placeholder-count="0">
+          <a href="{{ n.href }}" style="padding:14px 0;border-bottom:1px solid #DDDAD3;font-size:17px;color:#202326;text-decoration:none">{{ n.label }}</a>
+        </sc-for>
+      </nav>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ search }}" hint-placeholder-val="{{ false }}">
+    <div role="dialog" aria-modal="true" aria-label="Search" style="position:fixed;inset:0;z-index:100;background:rgba(23,35,51,.42);display:flex;justify-content:center;align-items:flex-start;padding:9vh 20px 20px" onClick="{{ closeSearch }}">
+      <div onClick="{{ stop }}" style="width:100%;max-width:760px;background:#FAFAF7;box-shadow:0 40px 80px -30px rgba(23,35,51,.5)">
+        <div style="display:flex;align-items:center;gap:14px;padding:0 24px;border-bottom:1px solid #DDDAD3">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#172333" stroke-width="1.4"><circle cx="7" cy="7" r="5"></circle><path d="M11 11l3.5 3.5"></path></svg>
+          <input ref="{{ inputRef }}" value="{{ q }}" onInput="{{ onQ }}" aria-label="Search" placeholder="Search properties, auctions, locations, insights" style="flex:1;height:68px;border:0;background:transparent;font:400 22px/1 'Source Serif 4',serif;color:#202326;outline:none">
+          <button onClick="{{ closeSearch }}" style="font:500 11px 'IBM Plex Mono',monospace;color:#5E666E;border:1px solid #DDDAD3;background:none;padding:5px 8px;cursor:pointer">ESC</button>
+        </div>
+        <div style="max-height:60vh;overflow:auto;padding:12px 0 18px">
+          <sc-for list="{{ groups }}" as="g" hint-placeholder-count="0">
+            <div style="padding:12px 24px 4px;font-size:11px;letter-spacing:.16em;color:#84643F;font-weight:500">{{ g.label }} <span style="color:#69727B">· {{ g.count }}</span></div>
+            <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="0">
+              <a href="{{ it.href }}" style="display:flex;justify-content:space-between;gap:20px;padding:11px 24px;text-decoration:none;color:#202326" style-hover="background:#F1EEE6">
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:15px">{{ it.title }}</span>
+                  <span style="font-size:12.5px;color:#5E666E">{{ it.meta }}</span>
+                </span>
+                <span style="color:#69727B;align-self:center">→</span>
+              </a>
+            </sc-for>
+          </sc-for>
+          <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:28px 24px;font-size:14px;color:#5E666E">No matches for “{{ q }}”. Try a location such as West Harbor, or an asset type such as Land.</div>
+          </sc-if>
+        </div>
+        <div style="border-top:1px solid #DDDAD3;padding:12px 24px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:#5E666E">
+          <span>Try</span>
+          <sc-for list="{{ tries }}" as="t" hint-placeholder-count="4">
+            <button onClick="{{ t.go }}" style="font:inherit;font-size:12.5px;border:1px solid #DDDAD3;background:#F5F2EB;padding:5px 10px;cursor:pointer;color:#202326">{{ t.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ drawer }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:100;background:rgba(23,35,51,.32)" onClick="{{ closeDrawer }}">
+      <aside role="dialog" aria-label="Notifications" onClick="{{ stop }}" style="position:absolute;top:0;right:0;bottom:0;width:min(440px,100%);background:#FAFAF7;display:flex;flex-direction:column;box-shadow:-30px 0 60px -30px rgba(23,35,51,.4)">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:22px 26px;border-bottom:1px solid #DDDAD3">
+          <span style="font-family:'Source Serif 4',serif;font-size:24px">Notifications</span>
+          <button onClick="{{ closeDrawer }}" aria-label="Close" style="width:36px;height:36px;border:1px solid #DDDAD3;background:none;cursor:pointer;font-size:16px;color:#202326">×</button>
+        </div>
+        <div style="flex:1;overflow:auto">
+          <sc-for list="{{ notes }}" as="n" hint-placeholder-count="0">
+            <a href="{{ n.href }}" style="display:grid;grid-template-columns:10px 1fr;gap:14px;padding:18px 26px;border-bottom:1px solid #E8E5DE;text-decoration:none;color:#202326;background:{{ n.bg }}" style-hover="background:#F1EEE6">
+              <span style="width:7px;height:7px;border-radius:50%;margin-top:7px;background:{{ n.dot }}"></span>
+              <span style="display:flex;flex-direction:column;gap:4px">
+                <span style="font-size:11px;letter-spacing:.12em;color:#5E666E">{{ n.kindU }} · {{ n.time }}</span>
+                <span style="font-size:15px;font-weight:500;color:{{ n.color }}">{{ n.title }}</span>
+                <span style="font-size:13.5px;color:#4E565D;line-height:1.45">{{ n.body }}</span>
+              </span>
+            </a>
+          </sc-for>
+        </div>
+        <a href="#auctions" onClick="{{ demoOnly }}" style="padding:18px 26px;border-top:1px solid #DDDAD3;font-size:14px;color:#172333">Notification preferences →</a>
+      </aside>
+    </div>
+  </sc-if>
+</header>
+</div>
+
+<main>
+<section data-screen-label="Home — Hero" style="max-width:1440px;margin:0 auto;padding:clamp(48px,7vw,96px) clamp(20px,4vw,48px) 0">
+  <div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:24px;align-items:end">
+    <div style="grid-column:span 12;display:flex;flex-direction:column;gap:28px;max-width:1100px">
+      <span data-reveal="" data-delay="100" style="font-size:12px;letter-spacing:.2em;color:#84643F;font-weight:500">RESIDENTIAL · COMMERCIAL · LAND · INVESTMENT · INSTITUTIONAL</span>
+      <h1 data-settle="" data-delay="180" style="margin:0;font:300 clamp(48px,7.4vw,112px)/.98 'Source Serif 4',serif;letter-spacing:-.022em;color:#172333">Exceptional properties.<br>Transparently auctioned.</h1>
+    </div>
+    <p data-reveal="" data-delay="320" data-hero-lead="" style="grid-column:1 / span 6;margin:12px 0 0;font-size:18px;line-height:1.6;color:#3C4248;max-width:560px;text-wrap:pretty">Discover carefully selected residential, commercial and investment properties through a clear and professionally managed auction process.</p>
+    <div data-reveal="" data-delay="420" data-hero-cta="" style="grid-column:8 / span 5;display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end">
+      <a href="#auctions" style="height:52px;display:flex;align-items:center;gap:10px;padding:0 26px;background:#172333;color:#FAFAF7;font-size:15px;font-weight:500;text-decoration:none" style-hover="background:#24364D">Browse Auctions <span>→</span></a>
+      <a href="#selling" style="height:52px;display:flex;align-items:center;padding:0 26px;border:1px solid #172333;color:#172333;font-size:15px;font-weight:500;text-decoration:none" style-hover="background:#EBE7DE">Sell Your Property</a>
+    </div>
+  </div>
+  <div data-reveal="" data-delay="520" style="position:relative;margin-top:clamp(40px,5vw,64px)">
+    <div data-hero-frame="" style="position:relative;width:100%;aspect-ratio:21 / 9;min-height:380px;overflow:hidden;background:#6F7670">
+      <img data-zoom="" src="img/hero.webp" width="2400" height="1030" alt="A contemporary residence lit from within at dusk" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+    </div>
+    <a href="#calendar" data-card="" data-next-card="" style="position:absolute;right:clamp(16px,3vw,40px);bottom:clamp(16px,3vw,40px);width:min(400px,calc(100% - 32px));background:#FAFAF7;padding:clamp(20px,3vw,28px);display:flex;flex-direction:column;gap:18px;text-decoration:none;color:#202326;box-shadow:0 30px 60px -30px rgba(23,35,51,.5)">
+      <span style="display:flex;justify-content:space-between;font-size:11px;letter-spacing:.18em;color:#84643F;font-weight:500"><span>NEXT AUCTION</span><span style="color:#2F5240">● REGISTRATION OPEN</span></span>
+      <span style="font:400 clamp(23px,2.4vw,27px)/1.15 'Source Serif 4',serif;color:#172333">{{ next.name }}</span>
+      <span style="display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #DDDAD3;border-bottom:1px solid #DDDAD3">
+        <span style="padding:14px 0;display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font-size:11px;color:#5E666E;letter-spacing:.08em">DATE</span><span style="font-size:15px;font-weight:500">{{ next.shortDate }}</span></span>
+        <span style="padding:14px 0 14px 14px;border-left:1px solid #DDDAD3;display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;color:#5E666E;letter-spacing:.08em">TIME</span><span style="font-size:15px;font-weight:500">{{ next.time }}</span></span>
+        <span style="padding:14px 0 14px 14px;border-left:1px solid #DDDAD3;display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;color:#5E666E;letter-spacing:.08em">LOTS</span><span style="font-size:15px;font-weight:500">{{ next.lots }} properties</span></span>
+      </span>
+      <span style="display:flex;justify-content:space-between;align-items:center;font-size:14px"><span style="color:#4E565D;white-space:nowrap">Begins in {{ nextIn }}</span><span style="font-weight:500;color:#172333;display:flex;gap:6px">View Auction <span data-card-arrow="" style="transition:transform .3s">→</span></span></span>
+    </a>
+  </div>
+</section>
+
+<section aria-label="Track record" style="max-width:1440px;margin:0 auto;padding:0 clamp(20px,4vw,48px)">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));border-bottom:1px solid #DDDAD3">
+    <div style="padding:44px 28px 40px 0;display:flex;flex-direction:column;gap:8px"><span data-count="18" data-suffix="+" style="font:300 56px/1 'Source Serif 4',serif;color:#172333;font-variant-numeric:tabular-nums">18+</span><span style="font-size:14px;color:#4E565D">Years of auction experience</span></div>
+    <div data-divider="" style="padding:44px 28px 40px;border-left:1px solid #DDDAD3;display:flex;flex-direction:column;gap:8px"><span data-count="42" data-prefix="¥" data-suffix="B" style="font:300 56px/1 'Source Serif 4',serif;color:#172333;font-variant-numeric:tabular-nums">¥42B</span><span style="font-size:14px;color:#4E565D">Assets facilitated</span></div>
+    <div data-divider="" style="padding:44px 28px 40px;border-left:1px solid #DDDAD3;display:flex;flex-direction:column;gap:8px"><span data-count="1240" data-suffix="+" style="font:300 56px/1 'Source Serif 4',serif;color:#172333;font-variant-numeric:tabular-nums">1,240+</span><span style="font-size:14px;color:#4E565D">Properties auctioned</span></div>
+    <div data-divider="" style="padding:44px 28px 40px;border-left:1px solid #DDDAD3;display:flex;flex-direction:column;gap:8px"><span data-count="96" data-suffix="%" style="font:300 56px/1 'Source Serif 4',serif;color:#172333;font-variant-numeric:tabular-nums">96%</span><span style="font-size:14px;color:#4E565D">Completed transactions</span></div>
+  </div>
+  <p style="margin:12px 0 0;font:400 11px 'IBM Plex Mono',monospace;color:#69727B">Fictional prototype figures.</p>
+</section>
+
+<section id="auctions" data-screen-label="Home — Auctions" style="max-width:1440px;margin:0 auto;padding:clamp(80px,9vw,128px) clamp(20px,4vw,48px) 0">
+  <div data-reveal="" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:40px">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:12px;letter-spacing:.2em;color:#84643F;font-weight:500">LIVE &amp; UPCOMING</span>
+      <h2 style="margin:0;font:300 clamp(36px,4vw,56px)/1.05 'Source Serif 4',serif;color:#172333;letter-spacing:-.015em">Properties at auction</h2>
+    </div>
+    <div style="display:flex;gap:28px;align-items:center;flex-wrap:wrap;min-width:0;max-width:100%">
+      <div role="tablist" aria-label="Filter by status" style="display:flex;border:1px solid #DDDAD3;background:#FAFAF7;min-width:0;max-width:100%;overflow-x:auto;scrollbar-width:none">
+        <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+          <button role="tab" aria-selected="{{ t.on }}" onClick="{{ t.go }}" style="height:40px;padding:0 16px;border:0;font:inherit;font-size:13.5px;cursor:pointer;background:{{ t.bg }};color:{{ t.fg }}">{{ t.label }}</button>
+        </sc-for>
+      </div>
+      <a href="#auctions" style="font-size:14px;font-weight:500;color:#172333;text-underline-offset:4px;display:inline-block;padding:8px 0">View all auctions →</a>
+    </div>
+  </div>
+  <div data-reveal="" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,310px),1fr));gap:24px">
+    <sc-for list="{{ lots }}" as="l" hint-placeholder-count="6">
+      <article data-card="" style="position:relative;display:flex;flex-direction:column;background:#FAFAF7;border:1px solid #DDDAD3;height:100%;font-family:'IBM Plex Sans',sans-serif;color:#202326;transition:box-shadow .3s,transform .3s" style-hover="box-shadow:0 22px 40px -28px rgba(23,35,51,.45);transform:translateY(-2px)">
+        <a href="{{ l.ctaHref }}" onClick="{{ l.onOpen }}" style="position:absolute;inset:0;z-index:1" aria-label="{{ l.cta }}: {{ l.name }}"></a>
+        <div style="position:relative;aspect-ratio:4/3;overflow:hidden">
+          <img data-card-img="" src="{{ l.img }}" width="800" height="600" loading="lazy" alt="{{ l.name }}, {{ l.loc }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:{{ l.tone }};transition:transform .35s cubic-bezier(.2,.7,.2,1)">
+          <span style="position:absolute;top:14px;left:14px;display:inline-flex;align-items:center;gap:7px;padding:5px 9px;font-size:11px;font-weight:600;letter-spacing:.08em;color:{{ l.sFg }};background:{{ l.sBg }};border:1px solid {{ l.sBd }}">
+            <span data-pulse="{{ l.pulse }}" style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>{{ l.sLabelU }}
+          </span>
+          <button onClick="{{ l.onWatch }}" aria-label="{{ l.wLabel }}" aria-pressed="{{ l.watched }}" style="position:absolute;z-index:2;top:10px;right:10px;width:40px;height:40px;display:grid;place-items:center;background:#FAFAF7;border:1px solid #DDDAD3;cursor:pointer;color:#172333">
+            <svg width="14" height="17" viewBox="0 0 14 17" fill="{{ l.wFill }}" stroke="#172333" stroke-width="1.4"><path d="M1 1h12v15l-6-4-6 4z"></path></svg>
+          </button>
+        </div>
+        <div style="padding:20px 22px 22px;display:flex;flex-direction:column;gap:14px;flex:1">
+          <div style="display:flex;justify-content:space-between;gap:12px;font-size:11.5px;letter-spacing:.1em;color:#5E666E"><span>{{ l.typeU }} · {{ l.tenureU }}</span><span style="white-space:nowrap">{{ l.lot }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <h3 style="margin:0;font:400 23px/1.18 'Source Serif 4',serif;color:#172333;text-wrap:balance">{{ l.name }}</h3>
+            <span style="font-size:14px;color:#4E565D">{{ l.loc }}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-top:14px;border-top:1px solid #E8E5DE;margin-top:auto">
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;letter-spacing:.1em;color:#5E666E">GUIDE PRICE</span><span style="font-size:16px;font-weight:500;font-variant-numeric:tabular-nums">{{ l.guide }}</span></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;letter-spacing:.1em;color:#5E666E">AUCTION</span><span style="font-size:16px;font-weight:500">{{ l.date }} · {{ l.time }}</span></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px">
+            <span style="color:#4E565D">{{ l.reg }}</span>
+            <span style="color:#172333;font-weight:500;display:flex;gap:6px;white-space:nowrap">{{ l.cta }}<span data-card-arrow="" style="transition:transform .3s">→</span></span>
+          </div>
+        </div>
+      </article>
+    </sc-for>
+  </div>
+</section>
+
+<section id="calendar" data-screen-label="Home — Calendar" style="max-width:1440px;margin:0 auto;padding:clamp(80px,9vw,128px) clamp(20px,4vw,48px) 0">
+  <div style="display:flex;flex-wrap:wrap;gap:clamp(40px,6vw,96px)">
+    <div data-reveal="" style="display:flex;flex-direction:column;gap:20px;flex:1 1 280px;max-width:420px">
+      <span style="font-size:12px;letter-spacing:.2em;color:#84643F;font-weight:500">AUCTION CALENDAR</span>
+      <h2 style="margin:0;font:300 clamp(36px,4vw,56px)/1.05 'Source Serif 4',serif;color:#172333;letter-spacing:-.015em">{{ calMonth }}<br>{{ calYear }}</h2>
+      <p style="margin:0;font-size:16px;line-height:1.6;color:#4E565D">Each session publishes its lots, inspection times and registration deadline at least three weeks in advance.</p>
+      <a href="#calendar" style="align-self:flex-start;height:48px;display:flex;align-items:center;padding:0 22px;border:1px solid #172333;color:#172333;font-size:14.5px;font-weight:500;text-decoration:none;margin-top:8px;white-space:nowrap" style-hover="background:#EBE7DE">View Full Auction Calendar</a>
+    </div>
+    <ol data-reveal="" style="list-style:none;margin:0;padding:0;border-top:1px solid #202326;flex:999 1 520px;min-width:0">
+      <sc-for list="{{ events }}" as="e" hint-placeholder-count="4">
+        <li>
+          <a href="#calendar" data-card="" style="display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:24px;align-items:center;padding:24px 0;border-bottom:1px solid #DDDAD3;text-decoration:none;color:#202326" style-hover="background:#EFEBE2">
+            <span style="display:flex;flex-direction:column;align-items:center"><span style="font:300 44px/1 'Source Serif 4',serif;color:#172333">{{ e.day }}</span><span style="font-size:11px;letter-spacing:.14em;color:#5E666E;margin-top:4px">{{ e.monU }} · {{ e.dowU }}</span></span>
+            <span style="display:flex;flex-direction:column;gap:8px;min-width:0">
+              <span style="font:400 21px/1.2 'Source Serif 4',serif;color:#172333">{{ e.name }}</span>
+              <span style="font-size:13.5px;color:#4E565D">{{ e.lots }} lots · {{ e.cats }} · {{ e.mode }} · {{ e.time }}</span>
+              <span style="align-self:flex-start;display:inline-flex;align-items:center;gap:7px;padding:4px 8px;font-size:11px;font-weight:600;letter-spacing:.06em;color:{{ e.rFg }};background:{{ e.rBg }};border:1px solid {{ e.rBd }};white-space:nowrap"><span data-pulse="{{ e.pulse }}" style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>{{ e.reg }}</span>
+            </span>
+            <span data-card-arrow="" style="transition:transform .3s;color:#172333;padding-right:8px">→</span>
+          </a>
+        </li>
+      </sc-for>
+    </ol>
+  </div>
+</section>
+
+<section id="why" data-screen-label="Home — Why Arden" style="max-width:1440px;margin:0 auto;padding:clamp(80px,9vw,128px) clamp(20px,4vw,48px) 0">
+  <div data-reveal="" style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:24px;margin-bottom:56px">
+    <span style="grid-column:span 12;font-size:12px;letter-spacing:.2em;color:#84643F;font-weight:500">WHY AUCTION WITH ARDEN</span>
+    <h2 style="grid-column:span 12;margin:0;font:300 clamp(34px,3.8vw,54px)/1.1 'Source Serif 4',serif;color:#172333;letter-spacing:-.015em;max-width:960px;text-wrap:balance">A public price, a fixed timetable and the same information for every bidder.</h2>
+  </div>
+  <div data-reveal="" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:0;border-top:1px solid #202326">
+    <div style="padding:32px 32px 8px 0;display:flex;flex-direction:column;gap:14px"><span style="font:400 13px 'IBM Plex Mono',monospace;color:#84643F">01</span><h3 style="margin:0;font:400 24px/1.2 'Source Serif 4',serif;color:#172333">Transparent process</h3><p style="margin:0;font-size:15px;line-height:1.65;color:#4E565D">Bids are visible in real time, increments are published before the auction, and every result is recorded in our public archive.</p></div>
+    <div data-divider="" style="padding:32px 32px 8px;border-left:1px solid #DDDAD3;display:flex;flex-direction:column;gap:14px"><span style="font:400 13px 'IBM Plex Mono',monospace;color:#84643F">02</span><h3 style="margin:0;font:400 24px/1.2 'Source Serif 4',serif;color:#172333">Qualified buyer network</h3><p style="margin:0;font-size:15px;line-height:1.65;color:#4E565D">Every bidder is identity-verified and has lodged a deposit before the auction opens. Sellers meet buyers who are ready to complete.</p></div>
+    <div data-divider="" style="padding:32px 32px 8px;border-left:1px solid #DDDAD3;display:flex;flex-direction:column;gap:14px"><span style="font:400 13px 'IBM Plex Mono',monospace;color:#84643F">03</span><h3 style="margin:0;font:400 24px/1.2 'Source Serif 4',serif;color:#172333">Structured due diligence</h3><p style="margin:0;font-size:15px;line-height:1.65;color:#4E565D">Title, legal, inspection and tenancy documents are assembled into one information pack, available to all registered parties.</p></div>
+    <div data-divider="" style="padding:32px 0 8px 32px;border-left:1px solid #DDDAD3;display:flex;flex-direction:column;gap:14px"><span style="font:400 13px 'IBM Plex Mono',monospace;color:#84643F">04</span><h3 style="margin:0;font:400 24px/1.2 'Source Serif 4',serif;color:#172333">Professional asset marketing</h3><p style="margin:0;font-size:15px;line-height:1.65;color:#4E565D">Architectural photography, measured plans and a four-week campaign to a buyer database segmented by asset class.</p></div>
+  </div>
+</section>
+
+<section id="featured" data-screen-label="Home — Featured" style="max-width:1440px;margin:0 auto;padding:clamp(80px,9vw,128px) clamp(20px,4vw,48px) 0">
+  <div data-reveal="" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:0;background:#FAFAF7;border:1px solid #DDDAD3">
+    <div data-feat-img="" style="position:relative;min-height:520px;overflow:hidden;grid-column:span 1;background:#857C6D">
+      <img src="img/feature-cedar.webp" width="1600" height="1200" loading="lazy" alt="Cedar Residence seen from the garden" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+    </div>
+    <div style="padding:clamp(32px,4vw,64px);display:flex;flex-direction:column;gap:28px">
+      <span style="font-size:12px;letter-spacing:.2em;color:#84643F;font-weight:500">FEATURED PROPERTY · LOT 07</span>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <h2 style="margin:0;font:300 clamp(40px,4.4vw,64px)/1 'Source Serif 4',serif;color:#172333;letter-spacing:-.02em">Cedar Residence</h2>
+        <span style="font-size:15px;color:#4E565D">Northbridge District · Residential · Freehold</span>
+      </div>
+      <p style="margin:0;font-size:16px;line-height:1.7;color:#3C4248;max-width:520px;text-wrap:pretty">A four-bedroom family house set back from a quiet residential street, with a south-facing garden, timber-lined living spaces and a detached studio. Offered with vacant possession.</p>
+      <dl style="margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,120px),1fr));border-top:1px solid #DDDAD3">
+        <div style="padding:16px 0;border-bottom:1px solid #DDDAD3"><dt style="font-size:11px;letter-spacing:.1em;color:#5E666E">LAND</dt><dd style="margin:4px 0 0;font-size:16px">318 m²</dd></div>
+        <div style="padding:16px 0;border-bottom:1px solid #DDDAD3"><dt style="font-size:11px;letter-spacing:.1em;color:#5E666E">BUILDING</dt><dd style="margin:4px 0 0;font-size:16px">212 m²</dd></div>
+        <div style="padding:16px 0;border-bottom:1px solid #DDDAD3"><dt style="font-size:11px;letter-spacing:.1em;color:#5E666E">BUILT</dt><dd style="margin:4px 0 0;font-size:16px">2009</dd></div>
+        <div style="padding:16px 0;border-bottom:1px solid #DDDAD3"><dt style="font-size:11px;letter-spacing:.1em;color:#5E666E">ROOMS</dt><dd style="margin:4px 0 0;font-size:16px">4 bed · 3 bath</dd></div>
+        <div style="padding:16px 0;border-bottom:1px solid #DDDAD3"><dt style="font-size:11px;letter-spacing:.1em;color:#5E666E">PARKING</dt><dd style="margin:4px 0 0;font-size:16px">2 spaces</dd></div>
+        <div style="padding:16px 0;border-bottom:1px solid #DDDAD3"><dt style="font-size:11px;letter-spacing:.1em;color:#5E666E">OCCUPANCY</dt><dd style="margin:4px 0 0;font-size:16px">Vacant</dd></div>
+      </dl>
+      <div style="display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-end;margin-top:auto">
+        <div style="display:flex;gap:32px">
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;letter-spacing:.1em;color:#5E666E">GUIDE PRICE</span><span style="font-size:22px;font-weight:500">¥68,000,000</span></div>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;letter-spacing:.1em;color:#5E666E">AUCTION</span><span style="font-size:22px;font-weight:500">{{ cedarDate }}</span></div>
+        </div>
+        <a href="#auctions" onClick="{{ demoOnly }}" style="height:50px;display:flex;align-items:center;gap:10px;padding:0 24px;background:#172333;color:#FAFAF7;font-size:14.5px;font-weight:500;text-decoration:none" style-hover="background:#24364D">Explore Property →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" data-screen-label="Home — How buying works" style="max-width:1440px;margin:0 auto;padding:clamp(80px,9vw,128px) clamp(20px,4vw,48px) 0">
+  <div data-reveal="" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:56px">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:12px;letter-spacing:.2em;color:#84643F;font-weight:500">HOW BUYING WORKS</span>
+      <h2 style="margin:0;font:300 clamp(36px,4vw,56px)/1.05 'Source Serif 4',serif;color:#172333;letter-spacing:-.015em">Six steps, in a fixed order.</h2>
+    </div>
+    <a href="#how" style="font-size:14px;font-weight:500;color:#172333;text-underline-offset:4px;display:inline-block;padding:8px 0">Start registration →</a>
+  </div>
+  <div style="position:relative">
+    <div style="position:absolute;left:0;right:0;top:7px;height:1px;background:#DDDAD3"></div>
+    <div data-progress="" style="position:absolute;left:0;right:0;top:7px;height:1px;background:#172333"></div>
+    <ol style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:28px;position:relative">
+      <li data-reveal="" data-delay="0" style="display:flex;flex-direction:column;gap:14px"><span style="width:15px;height:15px;border-radius:50%;background:#F5F2EB;border:1.5px solid #172333"></span><span style="font:400 13px 'IBM Plex Mono',monospace;color:#84643F;margin-top:10px">01</span><span style="font:400 22px/1.2 'Source Serif 4',serif;color:#172333">Discover</span><span style="font-size:14px;line-height:1.6;color:#4E565D">Browse lots by type, location, guide price and date.</span></li>
+      <li data-reveal="" data-delay="180" style="display:flex;flex-direction:column;gap:14px"><span style="width:15px;height:15px;border-radius:50%;background:#F5F2EB;border:1.5px solid #172333"></span><span style="font:400 13px 'IBM Plex Mono',monospace;color:#84643F;margin-top:10px">02</span><span style="font:400 22px/1.2 'Source Serif 4',serif;color:#172333">Review documents</span><span style="font-size:14px;line-height:1.6;color:#4E565D">Read the information pack, legal title and special conditions.</span></li>
+      <li data-reveal="" data-delay="360" style="display:flex;flex-direction:column;gap:14px"><span style="width:15px;height:15px;border-radius:50%;background:#F5F2EB;border:1.5px solid #172333"></span><span style="font:400 13px 'IBM Plex Mono',monospace;color:#84643F;margin-top:10px">03</span><span style="font:400 22px/1.2 'Source Serif 4',serif;color:#172333">Register &amp; verify</span><span style="font-size:14px;line-height:1.6;color:#4E565D">Confirm identity, buyer type and lodge your bidding deposit.</span></li>
+      <li data-reveal="" data-delay="540" style="display:flex;flex-direction:column;gap:14px"><span style="width:15px;height:15px;border-radius:50%;background:#F5F2EB;border:1.5px solid #172333"></span><span style="font:400 13px 'IBM Plex Mono',monospace;color:#84643F;margin-top:10px">04</span><span style="font:400 22px/1.2 'Source Serif 4',serif;color:#172333">Attend inspection</span><span style="font-size:14px;line-height:1.6;color:#4E565D">Book a scheduled viewing or arrange your own survey.</span></li>
+      <li data-reveal="" data-delay="720" style="display:flex;flex-direction:column;gap:14px"><span style="width:15px;height:15px;border-radius:50%;background:#F5F2EB;border:1.5px solid #172333"></span><span style="font:400 13px 'IBM Plex Mono',monospace;color:#84643F;margin-top:10px">05</span><span style="font:400 22px/1.2 'Source Serif 4',serif;color:#172333">Bid</span><span style="font-size:14px;line-height:1.6;color:#4E565D">In the room, online or by proxy, at published increments.</span></li>
+      <li data-reveal="" data-delay="900" style="display:flex;flex-direction:column;gap:14px"><span style="width:15px;height:15px;border-radius:50%;background:#172333;border:1.5px solid #172333"></span><span style="font:400 13px 'IBM Plex Mono',monospace;color:#84643F;margin-top:10px">06</span><span style="font:400 22px/1.2 'Source Serif 4',serif;color:#172333">Complete purchase</span><span style="font-size:14px;line-height:1.6;color:#4E565D">Sign the contract on the day; settle within 30 business days.</span></li>
+    </ol>
+  </div>
+</section>
+
+<section id="selling" data-screen-label="Home — Selling" style="margin-top:clamp(80px,9vw,128px);background:#172333;color:#E4E7EA">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(72px,8vw,120px) clamp(20px,4vw,48px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:clamp(40px,6vw,96px)">
+    <div data-reveal="" style="display:flex;flex-direction:column;gap:24px">
+      <span style="font-size:12px;letter-spacing:.2em;color:#D9C2A5;font-weight:500">FOR PROPERTY OWNERS</span>
+      <h2 style="margin:0;font:300 clamp(38px,4.4vw,64px)/1.04 'Source Serif 4',serif;color:#FAFAF7;letter-spacing:-.018em;text-wrap:balance">A structured path from valuation to sale.</h2>
+      <p style="margin:0;font-size:16.5px;line-height:1.7;color:#C9CED4;max-width:480px">Auction gives sellers a fixed completion date and open competition between verified buyers. We plan each stage with you before a single listing goes live.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
+        <a href="#selling" style="height:50px;display:flex;align-items:center;padding:0 24px;background:#FAFAF7;color:#172333;font-size:14.5px;font-weight:500;text-decoration:none" style-hover="background:#E9E4D9">Request Property Assessment</a>
+        <a href="#selling" style="height:50px;display:flex;align-items:center;padding:0 24px;border:1px solid rgba(250,250,247,.5);color:#FAFAF7;font-size:14.5px;font-weight:500;text-decoration:none" style-hover="border-color:#FAFAF7">Learn About Selling</a>
+      </div>
+    </div>
+    <ol data-reveal="" style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));border-top:1px solid rgba(255,255,255,.18)">
+      <li style="padding:24px 24px 24px 0;border-bottom:1px solid rgba(255,255,255,.18);display:flex;gap:16px"><span style="font:400 13px 'IBM Plex Mono',monospace;color:#D9C2A5;padding-top:4px">01</span><span style="display:flex;flex-direction:column;gap:6px"><span style="font:400 21px 'Source Serif 4',serif;color:#FAFAF7">Property assessment</span><span style="font-size:14px;color:#AEB5BD;line-height:1.55">Site visit, title review, comparable evidence.</span></span></li>
+      <li data-divider="" style="padding:24px 0 24px 24px;border-bottom:1px solid rgba(255,255,255,.18);border-left:1px solid rgba(255,255,255,.18);display:flex;gap:16px"><span style="font:400 13px 'IBM Plex Mono',monospace;color:#D9C2A5;padding-top:4px">02</span><span style="display:flex;flex-direction:column;gap:6px"><span style="font:400 21px 'Source Serif 4',serif;color:#FAFAF7">Auction strategy</span><span style="font-size:14px;color:#AEB5BD;line-height:1.55">Guide, reserve, session and method agreed.</span></span></li>
+      <li style="padding:24px 24px 24px 0;border-bottom:1px solid rgba(255,255,255,.18);display:flex;gap:16px"><span style="font:400 13px 'IBM Plex Mono',monospace;color:#D9C2A5;padding-top:4px">03</span><span style="display:flex;flex-direction:column;gap:6px"><span style="font:400 21px 'Source Serif 4',serif;color:#FAFAF7">Marketing preparation</span><span style="font-size:14px;color:#AEB5BD;line-height:1.55">Photography, plans and information pack.</span></span></li>
+      <li data-divider="" style="padding:24px 0 24px 24px;border-bottom:1px solid rgba(255,255,255,.18);border-left:1px solid rgba(255,255,255,.18);display:flex;gap:16px"><span style="font:400 13px 'IBM Plex Mono',monospace;color:#D9C2A5;padding-top:4px">04</span><span style="display:flex;flex-direction:column;gap:6px"><span style="font:400 21px 'Source Serif 4',serif;color:#FAFAF7">Buyer exposure</span><span style="font-size:14px;color:#AEB5BD;line-height:1.55">Four-week campaign, inspections, enquiries.</span></span></li>
+      <li style="padding:24px 24px 24px 0;border-bottom:1px solid rgba(255,255,255,.18);display:flex;gap:16px"><span style="font:400 13px 'IBM Plex Mono',monospace;color:#D9C2A5;padding-top:4px">05</span><span style="display:flex;flex-direction:column;gap:6px"><span style="font:400 21px 'Source Serif 4',serif;color:#FAFAF7">Auction</span><span style="font-size:14px;color:#AEB5BD;line-height:1.55">Conducted live, in the room and online.</span></span></li>
+      <li data-divider="" style="padding:24px 0 24px 24px;border-bottom:1px solid rgba(255,255,255,.18);border-left:1px solid rgba(255,255,255,.18);display:flex;gap:16px"><span style="font:400 13px 'IBM Plex Mono',monospace;color:#D9C2A5;padding-top:4px">06</span><span style="display:flex;flex-direction:column;gap:6px"><span style="font:400 21px 'Source Serif 4',serif;color:#FAFAF7">Settlement</span><span style="font-size:14px;color:#AEB5BD;line-height:1.55">Contract exchanged on the day; funds released.</span></span></li>
+    </ol>
+  </div>
+</section>
+
+<section id="corporate" data-screen-label="Home — Corporate" style="max-width:1440px;margin:0 auto;padding:clamp(80px,9vw,128px) clamp(20px,4vw,48px) 0">
+  <div data-reveal="" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:48px;margin-bottom:48px;align-items:end">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:12px;letter-spacing:.2em;color:#84643F;font-weight:500">CORPORATE &amp; INSTITUTIONAL</span>
+      <h2 style="margin:0;font:300 clamp(36px,4vw,56px)/1.05 'Source Serif 4',serif;color:#172333;letter-spacing:-.015em">Programmes for asset owners with more than one property.</h2>
+    </div>
+    <p style="margin:0;font-size:16px;line-height:1.65;color:#4E565D;max-width:520px">One mandate, one reporting line and a disposal timetable your board can approve. Each programme is led by a named director.</p>
+  </div>
+  <div data-reveal="" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));border-top:1px solid #DDDAD3;border-left:1px solid #DDDAD3">
+    <sc-for list="{{ services }}" as="s" hint-placeholder-count="6">
+      <a href="#corporate" data-card="" style="padding:32px;border-right:1px solid #DDDAD3;border-bottom:1px solid #DDDAD3;display:flex;flex-direction:column;gap:12px;text-decoration:none;color:#202326;min-height:180px" style-hover="background:#FAFAF7">
+        <span style="display:flex;justify-content:space-between"><span style="font:400 23px/1.2 'Source Serif 4',serif;color:#172333">{{ s.t }}</span><span data-card-arrow="" style="transition:transform .3s;color:#172333">→</span></span>
+        <span style="font-size:14.5px;line-height:1.6;color:#4E565D">{{ s.d }}</span>
+      </a>
+    </sc-for>
+  </div>
+</section>
+
+<section id="results" data-screen-label="Home — Results" style="max-width:1440px;margin:0 auto;padding:clamp(80px,9vw,128px) clamp(20px,4vw,48px) 0">
+  <div data-reveal="" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:32px">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:12px;letter-spacing:.2em;color:#84643F;font-weight:500">RECENT RESULTS</span>
+      <h2 style="margin:0;font:300 clamp(36px,4vw,56px)/1.05 'Source Serif 4',serif;color:#172333;letter-spacing:-.015em">{{ resultsMonth }} sessions</h2>
+    </div>
+    <a href="#results" style="font-size:14px;font-weight:500;color:#172333;text-underline-offset:4px;display:inline-block;padding:8px 0">View Auction Results →</a>
+  </div>
+  <div data-reveal="" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0;border-top:1px solid #202326">
+    <sc-for list="{{ results }}" as="r" hint-placeholder-count="4">
+      <div style="padding:26px 26px 26px 0;border-bottom:1px solid #DDDAD3;display:flex;flex-direction:column;gap:16px">
+        <span style="align-self:flex-start;padding:4px 8px;font-size:11px;font-weight:600;letter-spacing:.08em;color:{{ r.sFg }};background:{{ r.sBg }};border:1px solid {{ r.sBd }}">{{ r.sLabelU }}</span>
+        <span style="display:flex;flex-direction:column;gap:4px"><span style="font:400 21px/1.2 'Source Serif 4',serif;color:#172333">{{ r.name }}</span><span style="font-size:13.5px;color:#4E565D">{{ r.loc }} · {{ r.date }}</span></span>
+        <span style="display:flex;gap:24px;font-variant-numeric:tabular-nums">
+          <span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;letter-spacing:.1em;color:#5E666E">GUIDE</span><span style="font-size:16px">{{ r.guide }}</span></span>
+          <span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;letter-spacing:.1em;color:#5E666E">SOLD</span><span style="font-size:16px;font-weight:600">{{ r.sold }}</span></span>
+          <span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;letter-spacing:.1em;color:#5E666E">VS GUIDE</span><span style="font-size:16px;color:#2F5240">{{ r.diff }}</span></span>
+        </span>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<section id="insights" data-screen-label="Home — Insights" style="max-width:1440px;margin:0 auto;padding:clamp(80px,9vw,128px) clamp(20px,4vw,48px) 0">
+  <div data-reveal="" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:40px">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:12px;letter-spacing:.2em;color:#84643F;font-weight:500">INSIGHTS</span>
+      <h2 style="margin:0;font:300 clamp(36px,4vw,56px)/1.05 'Source Serif 4',serif;color:#172333;letter-spacing:-.015em">Guides for buyers and sellers</h2>
+    </div>
+    <a href="#insights" style="font-size:14px;font-weight:500;color:#172333;text-underline-offset:4px;display:inline-block;padding:8px 0">All insights →</a>
+  </div>
+  <div data-reveal="" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:48px">
+    <a href="#insights" onClick="{{ demoOnly }}" data-card="" style="display:flex;flex-direction:column;gap:20px;text-decoration:none;color:#202326">
+      <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:#7F8676"><img data-card-img="" src="img/insight-interior.webp" width="1200" height="900" loading="lazy" alt="Timber-lined interior of a listed property" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s"></div>
+      <span style="font-size:11.5px;letter-spacing:.14em;color:#84643F;font-weight:500">AUCTION GUIDES · 7 MIN READ</span>
+      <span style="font:400 clamp(28px,2.6vw,36px)/1.15 'Source Serif 4',serif;color:#172333;text-wrap:balance">Understanding property auction guide prices</span>
+      <span style="font-size:15.5px;line-height:1.65;color:#4E565D;max-width:560px">A guide price is an indication, not a valuation. How guides are set, how they relate to reserves, and how to read them alongside the information pack.</span>
+    </a>
+    <div style="display:flex;flex-direction:column;border-top:1px solid #202326">
+      <sc-for list="{{ articles }}" as="a" hint-placeholder-count="3">
+        <a href="{{ a.href }}" data-card="" style="display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:24px;padding:24px 0;border-bottom:1px solid #DDDAD3;text-decoration:none;color:#202326">
+          <span style="display:flex;flex-direction:column;gap:10px"><span style="font-size:11.5px;letter-spacing:.14em;color:#84643F;font-weight:500">{{ a.catU }} · {{ a.read }}</span><span style="font:400 22px/1.22 'Source Serif 4',serif;color:#172333">{{ a.title }}</span></span>
+          <span style="position:relative;aspect-ratio:1;overflow:hidden;background:{{ a.tone }}"><img data-card-img="" src="{{ a.img }}" width="480" height="480" loading="lazy" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s"></span>
+        </a>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section id="contact" data-screen-label="Home — Final CTA" style="max-width:1440px;margin:0 auto;padding:clamp(100px,11vw,160px) clamp(20px,4vw,48px)">
+  <div data-reveal="" style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:32px;border-top:1px solid #DDDAD3;padding-top:clamp(64px,7vw,96px)">
+    <h2 style="margin:0;font:300 clamp(40px,5vw,76px)/1.04 'Source Serif 4',serif;color:#172333;letter-spacing:-.02em;max-width:980px;text-wrap:balance">Considering buying or selling through auction?</h2>
+    <p style="margin:0;font-size:17px;line-height:1.6;color:#4E565D;max-width:560px">Our auction team can walk you through the process, the documents and the costs before you commit to anything.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      <a href="#auctions" style="height:52px;display:flex;align-items:center;padding:0 26px;background:#172333;color:#FAFAF7;font-size:15px;font-weight:500;text-decoration:none" style-hover="background:#24364D">Browse Auctions</a>
+      <a href="#contact" style="height:52px;display:flex;align-items:center;padding:0 26px;border:1px solid #172333;color:#172333;font-size:15px;font-weight:500;text-decoration:none" style-hover="background:#EBE7DE">Speak With Our Auction Team</a>
+    </div>
+  </div>
+</section>
+</main>
+<footer style="background:#172333;color:#C9CED4;font-family:'IBM Plex Sans',sans-serif">
+  <div style="max-width:1440px;margin:0 auto;padding:80px clamp(20px,4vw,48px) 40px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:48px;padding-bottom:56px;border-bottom:1px solid rgba(255,255,255,.12)">
+      <div data-footer-brand="" style="display:flex;flex-direction:column;gap:20px;grid-column:span 2;min-width:0">
+        <span style="display:flex;align-items:center;gap:12px;color:#FAFAF7">
+          <span style="width:34px;height:34px;border:1.5px solid #FAFAF7;display:grid;place-items:center;font-family:'Source Serif 4',serif;font-size:21px">A</span>
+          <span style="font-family:'Source Serif 4',serif;font-size:22px">Arden Property Auction</span>
+        </span>
+        <p style="margin:0;max-width:380px;font-size:14.5px;line-height:1.65">Professionally managed auctions for residential, commercial, land and investment property, and for institutional asset owners.</p>
+        <p style="margin:0;font-size:13px;line-height:1.6;color:#9CA4AD">Arden Hall, 2-4 Meridian Avenue<br>Meridian Business Quarter</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:14px">
+        <span style="font-size:11px;letter-spacing:.16em;color:#D9C2A5">BUY</span>
+        <a href="#auctions" style="color:#E4E7EA;text-decoration:none;display:block;padding:7px 0">Browse auctions</a>
+        <a href="#calendar" style="color:#E4E7EA;text-decoration:none;display:block;padding:7px 0">Auction calendar</a>
+        <a href="#how" style="color:#E4E7EA;text-decoration:none;display:block;padding:7px 0">Register to bid</a>
+        <a href="#results" style="color:#E4E7EA;text-decoration:none;display:block;padding:7px 0">Auction results</a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:14px">
+        <span style="font-size:11px;letter-spacing:.16em;color:#D9C2A5">SELL</span>
+        <a href="#selling" style="color:#E4E7EA;text-decoration:none;display:block;padding:7px 0">Sell a property</a>
+        <a href="#corporate" style="color:#E4E7EA;text-decoration:none;display:block;padding:7px 0">Corporate services</a>
+        <a href="#selling" style="color:#E4E7EA;text-decoration:none;display:block;padding:7px 0">Request assessment</a>
+        <a href="#corporate" style="color:#E4E7EA;text-decoration:none;display:block;padding:7px 0">Advisory &amp; valuation</a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:14px">
+        <span style="font-size:11px;letter-spacing:.16em;color:#D9C2A5">ARDEN</span>
+        <a href="#contact" style="color:#E4E7EA;text-decoration:none;display:block;padding:7px 0">About</a>
+        <a href="#insights" style="color:#E4E7EA;text-decoration:none;display:block;padding:7px 0">Insights</a>
+        <a href="#auctions" onClick="{{ demoOnly }}" style="color:#E4E7EA;text-decoration:none;display:block;padding:7px 0">Trust &amp; compliance</a>
+        <a href="#auctions" onClick="{{ demoOnly }}" style="color:#E4E7EA;text-decoration:none;display:block;padding:7px 0">Design system</a>
+      </div>
+    </div>
+    <div style="padding-top:28px;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:12.5px;color:#9CA4AD;line-height:1.6">
+      <span style="max-width:720px">Always review the official auction documentation before bidding. Guide prices are indications only and are not valuations. This website is a design prototype: Arden Property Auction, its properties, people, figures and dates are fictional.</span>
+      <div style="display:flex;gap:20px">
+        <a href="#auctions" onClick="{{ demoOnly }}" style="color:#C9CED4;text-decoration:none;display:inline-block;padding:7px 0">Terms</a>
+        <a href="#auctions" onClick="{{ demoOnly }}" style="color:#C9CED4;text-decoration:none;display:inline-block;padding:7px 0">Privacy</a>
+        <span>© {{ year }} Arden (fictional)</span>
+      </div>
+    </div>
+  </div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  // One component for the whole page: the prototype shipped the header, the lot card and the
+  // footer as separate documents, but a single-page demo only needs one state tree.
+  state = {
+    tab: 'all', now: Date.now(), watchRev: 0,
+    compact: false, menu: false, search: false, q: 'Commercial property',
+    drawer: false, mobileNav: false, w: typeof window !== 'undefined' ? window.innerWidth : 1400
+  };
+  inputRef = React.createRef();
+
+  componentDidMount() {
+    this.onReady = () => this.forceUpdate();
+    this.onWatch = () => this.setState((s) => ({ watchRev: s.watchRev + 1 }));
+    this.onScroll = () => { const c = window.scrollY > 40; if (c !== this.state.compact) this.setState({ compact: c }); };
+    this.onResize = () => { if (window.innerWidth !== this.state.w) this.setState({ w: window.innerWidth }); };
+    this.onKey = (e) => {
+      if (e.key === 'Escape') this.setState({ search: false, drawer: false, menu: false, mobileNav: false });
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); this.openSearch(); }
+    };
+    window.addEventListener('arden-ready', this.onReady);
+    window.addEventListener('arden-watch', this.onWatch);
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('resize', this.onResize);
+    window.addEventListener('keydown', this.onKey);
+    // The countdown only needs minute resolution.
+    this.t = setInterval(() => this.setState({ now: Date.now() }), 60000);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('arden-ready', this.onReady);
+    window.removeEventListener('arden-watch', this.onWatch);
+    window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('keydown', this.onKey);
+    clearInterval(this.t);
+  }
+
+  openSearch = () => {
+    this.setState({ search: true, menu: false }, () => setTimeout(() => {
+      const i = this.inputRef.current; if (i) { i.focus(); i.select(); }
+    }, 30));
+  };
+
+  // Search over the demo data. Results point at the section that holds them.
+  search() {
+    const A = window.ARDEN; if (!A) return [];
+    const q = this.state.q.toLowerCase().replace(/\bpropert(y|ies)\b/g, ' ').trim();
+    const toks = q.split(/\s+/).filter(Boolean);
+    const m = (s) => toks.length > 0 && toks.every((t) => s.toLowerCase().indexOf(t) > -1);
+    const props = A.lots.filter((l) => m(l.name + ' ' + l.type + ' ' + l.loc))
+      .map((l) => ({ title: l.name, meta: l.type + ' · ' + l.loc + ' · Guide ' + l.guide, href: '#auctions' }));
+    const aucs = A.events.filter((e) => m(e.name + ' ' + e.cats))
+      .map((e) => ({ title: e.name, meta: e.day + ' ' + e.mon + ' · ' + e.lots + ' lots · ' + e.mode, href: '#calendar' }));
+    const locs = [...new Set(A.lots.map((l) => l.loc))].filter(m)
+      .map((l) => ({ title: l, meta: A.lots.filter((x) => x.loc === l).length + ' properties at auction', href: '#auctions' }));
+    const ins = A.articles.filter((a) => m(a.title + ' ' + a.cat + ' ' + a.dek))
+      .map((a) => ({ title: a.title, meta: a.cat + ' · ' + a.read + ' read', href: '#insights' }));
+    return [['PROPERTIES', props], ['AUCTIONS', aucs], ['LOCATIONS', locs], ['INSIGHTS', ins]]
+      .filter((g) => g[1].length).map((g) => ({ label: g[0], count: g[1].length, items: g[1].slice(0, 4) }));
+  }
+
+  close = () => this.setState({ search: false, drawer: false, menu: false, mobileNav: false });
+
+  renderVals() {
+    const A = window.ARDEN, st = this.state;
+    const wide = st.w >= 1180;          // header nav fits; everything else is a media query
+
+    const demoOnly = (e) => {
+      if (e) e.preventDefault();
+      this.close();
+      if (A) A.demo('This concept is the home page only — that page is outside the prototype.');
+    };
+
+    const items = [['Auctions', '#auctions'], ['Calendar', '#calendar'], ['Sell a Property', '#selling'],
+                   ['Services', '#corporate'], ['Results', '#results'], ['Insights', '#insights'], ['About', '#contact']];
+    const nav = items.map(([label, href]) => ({
+      label, href, current: undefined, bd: 'transparent',
+      onEnter: () => this.setState({ menu: label === 'Auctions' })
+    }));
+    const groups = this.search();
+    const notes = (A ? A.notifications : []).map((n) => Object.assign({}, n, {
+      kindU: n.kind.toUpperCase(), bg: n.unread ? '#F5F2EB' : '#FAFAF7',
+      dot: n.alert ? '#A63D2A' : n.unread ? '#9A7754' : 'transparent', color: n.alert ? '#8F3423' : '#202326'
+    }));
+
+    const base = {
+      // ----- header -----
+      nav, wide, narrow: !wide, signedIn: false, signedOut: true,
+      barH: st.compact ? '60px' : '76px',
+      megaOpen: st.menu && wide,
+      closeMenu: () => this.setState({ menu: false }),
+      mobileNav: st.mobileNav, toggleMobile: () => this.setState((s) => ({ mobileNav: !s.mobileNav })),
+      search: st.search, openSearch: this.openSearch, closeSearch: () => this.setState({ search: false }),
+      stop: (e) => e.stopPropagation(),
+      q: st.q, onQ: (e) => this.setState({ q: e.target.value }), inputRef: this.inputRef,
+      groups, noResults: groups.length === 0 && st.q.trim().length > 0,
+      tries: ['Commercial property', 'West Harbor', 'Land', 'Guide price'].map((l) => ({ label: l, go: () => this.setState({ q: l }) })),
+      drawer: st.drawer, openDrawer: () => this.setState({ drawer: true }), closeDrawer: () => this.setState({ drawer: false }), notes,
+      // ----- content -----
+      demoOnly, tabs: [], lots: [], events: [], results: [], articles: [], services: [],
+      nextIn: '—', next: { name: '', shortDate: '', time: '', lots: '' }, cedarDate: '',
+      calMonth: '', calYear: '', resultsMonth: 'Recent', year: String(new Date().getFullYear())
+    };
+    if (!A) return base;
+
+    const watched = A.watchlist();
+    const tabsDef = [['all', 'All'], ['live', 'Live'], ['registration', 'Registration open'], ['closing', 'Closing soon']];
+    if (watched.length) tabsDef.push(['watchlist', 'Watchlist · ' + watched.length]);
+    base.tabs = tabsDef.map(([k, label]) => ({
+      label, on: st.tab === k, bg: st.tab === k ? '#172333' : 'transparent', fg: st.tab === k ? '#FAFAF7' : '#202326',
+      go: () => this.setState({ tab: k })
+    }));
+
+    let lots = A.lots;
+    if (st.tab === 'watchlist') lots = lots.filter((l) => watched.indexOf(l.id) > -1);
+    else if (st.tab !== 'all') lots = lots.filter((l) => l.status === st.tab);
+    base.lots = lots.slice(0, 6).map((raw) => {
+      const l = A.decorate(raw);
+      l.typeU = l.type.toUpperCase(); l.tenureU = l.tenure.toUpperCase(); l.sLabelU = l.sLabel.toUpperCase();
+      return l;
+    });
+
+    base.events = A.events.slice(0, 4).map((e) => {
+      const d = A.decorateEvent(e); d.monU = e.mon.toUpperCase(); d.dowU = e.dow.toUpperCase(); return d;
+    });
+    base.results = A.results.filter((r) => r.result === 'sold').slice(0, 4).map((r) => {
+      const d = A.decorateResult(r); d.sLabelU = d.sLabel.toUpperCase(); return d;
+    });
+    base.articles = A.articles.slice(1, 4).map((a, i) => Object.assign({}, a, {
+      catU: a.cat.toUpperCase(), href: '#insights', img: 'img/insight-' + 'abc'[i] + '.webp'
+    }));
+
+    const next = A.nextSession;
+    base.next = next;
+    base.calMonth = A.calendarMonth; base.calYear = A.calendarYear; base.resultsMonth = A.resultsMonth;
+    const cedar = A.lot('cedar');
+    base.cedarDate = cedar.date + ' · ' + cedar.time;
+
+    // Countdown to the next session that still takes registrations.
+    const target = new Date(next.iso + 'T' + (next.time || '12:00').replace(' JST', '') + ':00+09:00').getTime();
+    const diff = Math.max(0, target - st.now);
+    const dd = Math.floor(diff / 864e5), hh = Math.floor(diff / 36e5) % 24;
+    base.nextIn = diff === 0 ? 'under way' : dd > 0 ? dd + ' days ' + hh + ' hours' : hh + ' hours';
+
+    base.services = [
+      { t: 'Corporate asset disposal', d: 'Surplus offices, branches and operational sites, sold to a timetable with board-level reporting.' },
+      { t: 'Portfolio auctions', d: 'Multiple lots across locations, catalogued and marketed as one coordinated sale.' },
+      { t: 'Estate & inheritance assets', d: 'Sensitive, clearly documented sales for executors and estate representatives.' },
+      { t: 'Investment property sales', d: 'Income-producing assets with tenancy schedules prepared for bidder review.' },
+      { t: 'Land & development sites', d: 'Zoned and serviced sites presented with planning status and site reports.' },
+      { t: 'Advisory & valuation', d: 'Reserve strategy, comparable evidence and method advice before you commit.' }
+    ];
+    return base;
+  }
+}
+</script>
+<!-- Skyland concept banner (not part of the Arden design) -->
+<style>
+#sky-bar{position:fixed;left:50%;bottom:16px;transform:translate(-50%,0);z-index:200;display:flex;align-items:center;gap:6px 14px;max-width:calc(100% - 24px);width:max-content;padding:8px 8px 8px 16px;border-radius:999px;background:#fff;color:#0b1a3a;box-shadow:0 18px 40px rgba(11,26,58,.28),0 0 0 1px rgba(11,26,58,.08);font:500 13.5px/1.3 system-ui,-apple-system,'Segoe UI',sans-serif;transition:opacity .3s,transform .3s}
+#sky-bar.hide{opacity:0;transform:translate(-50%,24px);pointer-events:none}
+#sky-bar .sky-txt{white-space:nowrap}
+#sky-bar b{font-weight:700}
+#sky-bar a.sky-home{color:#2459e0;font-weight:700}
+#sky-bar a.sky-home:hover{color:#1a44b8}
+#sky-bar a.sky-cta{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:999px;background:#2459e0;color:#fff;font-weight:700;white-space:nowrap}
+#sky-bar a.sky-cta:hover{background:#1a44b8;color:#fff}
+#sky-bar button{flex:none;width:32px;height:32px;border:0;border-radius:50%;background:#f0f3f9;color:#4a5876;font:500 18px/1 system-ui,sans-serif;cursor:pointer}
+#sky-bar button:hover{background:#e3eaf6}
+#sky-bar .sky-s{display:none}
+html:not(.sky-bar-off) footer{padding-bottom:88px}
+@media (max-width:640px){#sky-bar{left:12px;right:12px;width:auto;transform:none;border-radius:18px;padding:10px 10px 10px 14px}#sky-bar.hide{transform:translateY(24px)}#sky-bar .sky-txt{flex:1;min-width:0;white-space:normal}#sky-bar .sky-ask,#sky-bar .sky-l{display:none}#sky-bar .sky-s{display:inline}}
+</style>
+<div id="sky-bar" role="complementary" aria-label="Skyland">
+<span class="sky-txt"><span class="sky-l" data-t="by">Concept website by</span><span class="sky-s" data-t="byS">Concept by</span> <a class="sky-home" href="/">Skyland</a><span class="sky-ask"> · <span data-t="ask">Want one like this?</span></span></span>
+<a class="sky-cta" href="/consult/"><span class="sky-l" data-t="cta">Get your fixed price</span><span class="sky-s" data-t="ctaS">Get a price</span> →</a>
+<button type="button" aria-label="Close">×</button>
+</div>
+<script>
+(function(){
+  var bar=document.getElementById('sky-bar');
+  if(new URLSearchParams(location.search).get('lang')==='id'){
+    var t={by:'Konsep website oleh',byS:'Konsep oleh',ask:'Mau website seperti ini?',cta:'Dapatkan harga pasti',ctaS:'Cek harga'};
+    bar.querySelectorAll('[data-t]').forEach(function(el){el.textContent=t[el.dataset.t];});
+    bar.querySelector('.sky-home').href='/id/';
+    bar.querySelector('.sky-cta').href='/id/konsultasi/';
+    bar.querySelector('button').setAttribute('aria-label','Tutup');
+  }
+  bar.querySelector('button').addEventListener('click',function(){bar.classList.add('hide');document.documentElement.classList.add('sky-bar-off');});
+})();
+</script>
+</body>
+</html>

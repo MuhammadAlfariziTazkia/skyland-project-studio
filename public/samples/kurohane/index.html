@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>黒羽 KUROHANE BARBER STUDIO · Concept by Skyland</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="架空の理容室のための予約サイト・コンセプト。Skyland Project Studio がデザインと実装を担当しました。">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="/samples/kurohane/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="/samples/kurohane/kurohane-data.js"></script>
+<style>
+html{scroll-behavior:smooth}
+body{margin:0;background:#F4F1E9;color:#171B1A;font-family:'Zen Kaku Gothic New',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+*{box-sizing:border-box}
+img{max-width:100%}
+a{color:#29483F;text-decoration:none}
+a:hover{color:#B76E50}
+button{font:inherit;color:inherit}
+button[disabled]{cursor:not-allowed}
+:focus-visible{outline:2px solid #B76E50;outline-offset:3px}
+section[id]{scroll-margin-top:92px}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</helmet>
+
+<div style="background:#F4F1E9;min-height:100vh;overflow-x:hidden;">
+
+<header style="position:fixed;top:0;left:0;right:0;z-index:50;transition:background-color .28s ease, box-shadow .28s ease;background:{{ navBg }};box-shadow:{{ navLine }};">
+  <div style="max-width:1440px;margin:0 auto;padding:0 clamp(20px,4vw,56px);height:{{ navH }};transition:height .28s ease;display:flex;align-items:center;justify-content:space-between;gap:24px;">
+    <a href="#top" aria-label="KUROHANE BARBER STUDIO ホーム" style="display:flex;align-items:center;gap:12px;padding:7px 0;color:#171B1A;">
+      <span style="font-family:'Noto Serif JP',serif;font-size:22px;font-weight:600;letter-spacing:.06em;line-height:1;">黒羽</span>
+      <span style="width:1px;height:22px;background:#171B1A;opacity:.3;"></span>
+      <span style="display:flex;flex-direction:column;gap:3px;font-family:Manrope,sans-serif;line-height:1;">
+        <span style="font-size:12px;font-weight:700;letter-spacing:.34em;">KUROHANE</span>
+        <span style="font-size:8.5px;font-weight:500;letter-spacing:.42em;color:#696D68;">BARBER STUDIO</span>
+      </span>
+    </a>
+    <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}">
+      <nav aria-label="メインナビゲーション" style="display:flex;align-items:center;gap:clamp(18px,2.2vw,34px);">
+        <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="6">
+          <a href="{{ n.href }}" style="font-size:13.5px;font-weight:500;letter-spacing:.06em;color:#171B1A;padding:6px 0;white-space:nowrap;background-image:linear-gradient(#171B1A,#171B1A);background-repeat:no-repeat;background-position:0 100%;background-size:0 1px;transition:background-size .24s ease;" style-hover="background-size:100% 1px;color:#171B1A">{{ n.label }}</a>
+        </sc-for>
+        <a href="#reserve" style="display:flex;align-items:center;gap:12px;height:44px;padding:0 22px;background:#29483F;color:#FAF9F5;font-size:14px;font-weight:700;letter-spacing:.12em;white-space:nowrap;flex:none;transition:background-color .22s ease;" style-hover="background:#171B1A;color:#FAF9F5">予約する<span style="font-family:Manrope,sans-serif;font-size:11px;letter-spacing:.2em;opacity:.7;font-weight:500;">BOOK</span></a>
+      </nav>
+    </sc-if>
+    <sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <a href="#reserve" style="display:flex;align-items:center;height:44px;padding:0 16px;background:#29483F;color:#FAF9F5;font-size:13px;font-weight:700;letter-spacing:.1em;">予約</a>
+        <button onClick="{{ openMenu }}" aria-label="メニューを開く" aria-expanded="{{ menuOpen }}" style="width:44px;height:44px;border:1px solid rgba(23,27,26,.25);background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;">
+          <span style="width:18px;height:1px;background:#171B1A;"></span>
+          <span style="width:18px;height:1px;background:#171B1A;"></span>
+        </button>
+      </div>
+    </sc-if>
+  </div>
+</header>
+
+<sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+  <div data-drawer="1" role="dialog" aria-modal="true" aria-label="メニュー" style="position:fixed;inset:0;z-index:80;background:#171B1A;color:#F4F1E9;display:flex;flex-direction:column;padding:20px 24px 28px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;height:48px;">
+      <span style="font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.3em;color:#DDD8CD;">MENU</span>
+      <button onClick="{{ closeMenu }}" aria-label="メニューを閉じる" style="width:44px;height:44px;border:1px solid rgba(244,241,233,.3);background:transparent;color:#F4F1E9;font-size:20px;cursor:pointer;">×</button>
+    </div>
+    <nav style="display:flex;flex-direction:column;margin-top:28px;flex:1;">
+      <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="6">
+        <a href="{{ n.href }}" onClick="{{ closeMenu }}" data-drawer-item="1" style="display:flex;align-items:baseline;gap:18px;padding:14px 0;border-bottom:1px solid rgba(244,241,233,.12);color:#F4F1E9;">
+          <span style="font-family:Manrope,sans-serif;font-size:11px;letter-spacing:.2em;color:#B76E50;">{{ n.no }}</span>
+          <span style="font-family:'Noto Serif JP',serif;font-size:26px;font-weight:500;letter-spacing:.06em;">{{ n.label }}</span>
+          <span style="margin-left:auto;font-family:Manrope,sans-serif;font-size:10px;letter-spacing:.24em;color:#DDD8CD;">{{ n.en }}</span>
+        </a>
+      </sc-for>
+    </nav>
+    <div style="display:flex;gap:10px;margin-top:24px;">
+      <a href="#reserve" onClick="{{ closeMenu }}" style="flex:1;height:54px;display:flex;align-items:center;justify-content:center;background:#F4F1E9;color:#171B1A;font-weight:700;letter-spacing:.14em;">予約する</a>
+    </div>
+  </div>
+</sc-if>
+
+<main>
+<section id="top" aria-labelledby="hero-title" style="position:relative;max-width:1440px;margin:0 auto;padding:clamp(104px,12vh,132px) clamp(20px,4vw,56px) 40px;">
+  <div style="display:flex;flex-wrap:wrap;gap:clamp(32px,4vw,64px);align-items:stretch;">
+    <div style="flex:1 1 460px;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:48px;padding-top:clamp(8px,4vh,48px);">
+      <div data-fadein="1" style="display:flex;gap:18px;align-items:center;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.3em;color:#696D68;">
+        <span>TOKYO</span><span style="width:40px;height:1px;background:#B76E50;"></span><span>BARBER STUDIO</span>
+      </div>
+      <div>
+        <h1 id="hero-title" style="margin:0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(34px,5.8vw,90px);line-height:1.22;letter-spacing:.04em;color:#171B1A;">
+          <span style="display:block;overflow:hidden;padding-bottom:.04em;"><span data-line="1" style="display:block;">髪を整える。</span></span>
+          <span style="display:block;overflow:hidden;padding-bottom:.04em;"><span data-line="1" style="display:block;">自分らしさを、</span></span>
+          <span style="display:block;overflow:hidden;padding-bottom:.04em;padding-left:clamp(0px,14vw,220px);"><span data-line="1" style="display:block;">磨く。</span></span>
+        </h1>
+        <p data-fadein="1" style="margin:28px 0 0;font-family:Manrope,sans-serif;font-weight:300;font-size:clamp(17px,1.5vw,21px);letter-spacing:.02em;color:#29483F;font-style:italic;">Precision in every detail.</p>
+      </div>
+      <div data-fadein="1" style="display:flex;flex-wrap:wrap;align-items:center;gap:20px 32px;">
+        <a href="#reserve" style="display:flex;align-items:center;justify-content:space-between;gap:40px;height:60px;padding:0 26px 0 30px;background:#171B1A;color:#FAF9F5;font-size:15px;font-weight:700;letter-spacing:.16em;transition:background-color .22s ease;" style-hover="background:#29483F;color:#FAF9F5">空き状況を見て予約する<span style="font-family:Manrope,sans-serif;font-size:18px;">→</span></a>
+        <a href="#menu" style="font-size:14px;font-weight:500;letter-spacing:.06em;color:#171B1A;padding:10px 0;border-bottom:1px solid #171B1A;">メニューと料金</a>
+      </div>
+    </div>
+    <div style="flex:1 1 420px;min-width:0;position:relative;">
+      <div data-hero-img="1" style="position:relative;height:clamp(440px,76vh,820px);overflow:hidden;background:#1d2221;">
+        <img data-hero-inner="1" src="img/hero.webp" width="1200" height="1500" alt="バリカンで襟足の刈り上げを整えているところ" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+      <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;top:0;right:calc(-1 * clamp(20px,4vw,56px));height:clamp(440px,76vh,820px);display:flex;align-items:center;">
+          <span style="writing-mode:vertical-rl;font-family:'Noto Serif JP',serif;font-size:13px;letter-spacing:.6em;color:#696D68;padding:0 4px;">黒羽理容室　東京</span>
+        </div>
+      </sc-if>
+      <div data-fadein="1" style="position:absolute;left:clamp(-48px,-3vw,0px);bottom:-28px;background:#F4F1E9;padding:18px 22px 16px;display:flex;flex-direction:column;gap:6px;min-width:200px;">
+        <span style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.26em;color:#B76E50;">STYLE NO.01</span>
+        <span style="font-family:'Noto Serif JP',serif;font-size:17px;letter-spacing:.06em;">スキンフェード</span>
+        <span style="font-size:12px;color:#696D68;">担当 — 柊 海斗</span>
+      </div>
+    </div>
+  </div>
+  <div data-fadein="1" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;margin-top:72px;padding-top:18px;border-top:1px solid rgba(23,27,26,.14);font-family:Manrope,sans-serif;font-size:11px;font-weight:500;letter-spacing:.2em;color:#696D68;">
+    <span>OPEN 10:00 — 20:00</span><span>定休日 火曜・第3水曜</span><span>架空区 黒羽町 / DEMO</span><span>SCROLL ↓</span>
+  </div>
+</section>
+
+<section id="philosophy" aria-labelledby="philo-title" style="max-width:1440px;margin:0 auto;padding:clamp(96px,14vw,200px) clamp(20px,4vw,56px) clamp(80px,10vw,140px);">
+  <div style="display:flex;flex-wrap:wrap;gap:clamp(40px,6vw,120px);align-items:flex-start;">
+    <div style="flex:1.1 1 420px;min-width:0;">
+      <div data-reveal="mask" style="aspect-ratio:4/5;max-height:760px;width:100%;overflow:hidden;background:#DDD8CD;">
+        <img src="img/interior.webp" width="1200" height="1500" loading="lazy" alt="木と石でしつらえた店内。理容椅子が二脚並んでいる" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:14px;font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.2em;color:#696D68;"><span>THE STUDIO, 2F</span><span>FIG. 01</span></div>
+    </div>
+    <div style="flex:1 1 380px;min-width:0;padding-top:clamp(0px,8vw,140px);">
+      <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#696D68;"><span style="color:#B76E50;">01</span><span style="width:28px;height:1px;background:#696D68;"></span><span>PHILOSOPHY</span></div>
+      <h2 id="philo-title" data-reveal="up" style="margin:28px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);line-height:1.5;letter-spacing:.06em;">静かな手仕事を、<br>毎日の身だしなみに。</h2>
+      <div data-reveal="up" style="margin-top:40px;max-width:30em;display:flex;flex-direction:column;gap:22px;font-size:15.5px;line-height:2.1;letter-spacing:.04em;color:#2c302f;text-wrap:pretty;">
+        <p style="margin:0;">黒羽は、二脚の椅子だけを置いた小さな理容室です。ひとりのお客様に、ひとりの理容師が、最初から最後まで向き合います。</p>
+        <p style="margin:0;">流行を押しつけるのではなく、骨格や髪の流れ、毎朝かけられる時間を伺ってから、長さを決めます。次の来店まで心地よく過ごせること。それが、私たちの考える良い仕上がりです。</p>
+      </div>
+      <div data-reveal="up" style="display:flex;flex-wrap:wrap;gap:28px 48px;margin-top:56px;padding-top:28px;border-top:1px solid rgba(23,27,26,.14);">
+        <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.22em;color:#B76E50;font-weight:600;">CONSULT</span><span style="font-size:14px;">施術前に必ずカウンセリング</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.22em;color:#B76E50;font-weight:600;">ONE TO ONE</span><span style="font-size:14px;">担当者がひとりで最後まで</span></div>
+      </div>
+      <a href="#barbers" data-reveal="up" style="display:inline-flex;gap:14px;margin-top:44px;font-size:14px;font-weight:500;letter-spacing:.06em;color:#171B1A;border-bottom:1px solid #171B1A;padding-top:8px;padding-bottom:6px;">担当する理容師を見る<span style="font-family:Manrope,sans-serif;">→</span></a>
+    </div>
+  </div>
+</section>
+
+<section id="menu" aria-labelledby="menu-title" style="background:#FAF9F5;">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px;">
+      <div>
+        <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#696D68;"><span style="color:#B76E50;">02</span><span style="width:28px;height:1px;background:#696D68;"></span><span>SIGNATURE MENU</span></div>
+        <h2 id="menu-title" data-reveal="up" style="margin:24px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);letter-spacing:.08em;">メニュー</h2>
+      </div>
+      <p data-reveal="up" style="margin:0;max-width:24em;font-size:13px;line-height:1.9;color:#696D68;">価格はすべて税込です。ディレクター指名は＋¥550。<br>※掲載の料金・所要時間はデモ用の架空の値です。</p>
+    </div>
+    <div role="list" style="margin-top:56px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:0 clamp(32px,4vw,72px);">
+      <sc-for list="{{ homeServices }}" as="s" hint-placeholder-count="6">
+        <a role="listitem" href="{{ s.href }}" onClick="{{ s.go }}" data-reveal="up" aria-label="{{ s.aria }}" style="display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:6px 18px;align-items:baseline;padding:30px 4px 28px;border-top:1px solid rgba(23,27,26,.16);color:#171B1A;transition:background-color .24s ease, padding .24s ease;" style-hover="background:#F4F1E9;padding-left:16px;padding-right:16px;color:#171B1A">
+          <span style="font-family:Manrope,sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;color:#B76E50;">{{ s.no }}</span>
+          <span style="display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;">
+            <span style="font-family:'Noto Serif JP',serif;font-size:clamp(20px,1.8vw,24px);font-weight:500;letter-spacing:.06em;">{{ s.name }}</span>
+            <span style="font-family:Manrope,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.22em;color:#696D68;text-transform:uppercase;">{{ s.en }}</span>
+          </span>
+          <span style="font-family:Manrope,sans-serif;font-size:clamp(20px,1.7vw,24px);font-weight:500;letter-spacing:.01em;">{{ s.priceLabel }}</span>
+          <span></span>
+          <span style="font-size:13px;line-height:1.85;color:#696D68;max-width:30em;text-wrap:pretty;">{{ s.desc }}</span>
+          <span style="font-family:Manrope,sans-serif;font-size:12px;font-weight:600;letter-spacing:.08em;color:#29483F;white-space:nowrap;">{{ s.minLabel }}</span>
+          <span></span>
+          <span style="margin-top:10px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#29483F;display:flex;gap:10px;align-items:center;">このメニューで予約<span style="font-family:Manrope,sans-serif;">→</span></span>
+        </a>
+      </sc-for>
+    </div>
+    <div style="margin-top:40px;display:flex;justify-content:flex-end;">
+      <a href="#reserve" style="font-size:14px;font-weight:500;letter-spacing:.06em;color:#171B1A;border-bottom:1px solid #171B1A;padding-top:8px;padding-bottom:6px;display:flex;gap:14px;">空き状況を見て予約する<span style="font-family:Manrope,sans-serif;">→</span></a>
+    </div>
+  </div>
+</section>
+
+<section id="styles" aria-labelledby="style-title" style="background:#171B1A;color:#F4F1E9;">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:32px;">
+      <div>
+        <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#DDD8CD;"><span style="color:#B76E50;">03</span><span style="width:28px;height:1px;background:#DDD8CD;opacity:.5;"></span><span>STYLE ARCHIVE</span></div>
+        <h2 id="style-title" data-reveal="up" style="margin:24px 0 0;font-family:Manrope,sans-serif;font-weight:300;font-size:clamp(56px,9vw,150px);line-height:.9;letter-spacing:-.03em;">Styles<span style="font-family:'Noto Serif JP',serif;font-size:.24em;letter-spacing:.1em;font-weight:400;margin-left:.5em;vertical-align:.9em;">スタイル</span></h2>
+      </div>
+      <div role="tablist" aria-label="スタイルの絞り込み" style="display:flex;flex-wrap:wrap;gap:4px;">
+        <sc-for list="{{ filters }}" as="f" hint-placeholder-count="6">
+          <button role="tab" aria-selected="{{ f.active }}" onClick="{{ f.pick }}" style="height:40px;padding:0 16px;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }};font-size:13px;letter-spacing:.06em;cursor:pointer;white-space:nowrap;transition:all .2s ease;">{{ f.name }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <div data-gallery="1" style="margin-top:56px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));align-items:start;gap:14px;">
+      <sc-for list="{{ gallery }}" as="g" hint-placeholder-count="8">
+        <a href="{{ g.href }}" onClick="{{ g.go }}" data-gitem="1" aria-label="{{ g.aria }}" style="position:relative;overflow:hidden;display:block;aspect-ratio:3/4;margin-top:{{ g.offset }};color:#F4F1E9;background:#222827;">
+          <img src="{{ g.img }}" width="750" height="1000" loading="lazy" alt="{{ g.alt }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .9s cubic-bezier(.2,.7,0,1);" style-hover="transform:scale(1.06)">
+          <span style="position:absolute;left:0;right:0;bottom:0;padding:44px 18px 18px;display:flex;flex-direction:column;gap:5px;background:linear-gradient(rgba(23,27,26,0),rgba(23,27,26,.62) 45%,rgba(23,27,26,.94));pointer-events:none;">
+            <span style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.24em;color:#E3A487;">NO.{{ g.no }} — {{ g.catName }}</span>
+            <span style="font-family:'Noto Serif JP',serif;font-size:17px;letter-spacing:.04em;line-height:1.35;">{{ g.name }}</span>
+            <span style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.1em;color:#DDD8CD;">{{ g.en }}</span>
+          </span>
+        </a>
+      </sc-for>
+    </div>
+    <sc-if value="{{ galleryEmpty }}" hint-placeholder-val="{{ false }}">
+      <p style="margin:40px 0 0;color:#DDD8CD;">該当するスタイルはまだありません。</p>
+    </sc-if>
+    <div style="margin-top:48px;display:flex;justify-content:flex-end;">
+      <a href="#reserve" style="font-size:14px;font-weight:500;letter-spacing:.06em;color:#F4F1E9;border-bottom:1px solid #F4F1E9;padding-top:8px;padding-bottom:6px;display:flex;gap:14px;">スタイルを選んで予約する<span style="font-family:Manrope,sans-serif;">→</span></a>
+    </div>
+  </div>
+</section>
+
+<section id="barbers" aria-labelledby="barber-title" style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);">
+  <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px;">
+    <div>
+      <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#696D68;"><span style="color:#B76E50;">04</span><span style="width:28px;height:1px;background:#696D68;"></span><span>BARBERS</span></div>
+      <h2 id="barber-title" data-reveal="up" style="margin:24px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);letter-spacing:.08em;">理容師</h2>
+    </div>
+    <a href="#reserve" onClick="{{ pickAnyBarber }}" style="font-size:14px;font-weight:500;letter-spacing:.06em;color:#171B1A;border-bottom:1px solid #171B1A;padding-top:8px;padding-bottom:6px;display:flex;gap:14px;">指名なしで予約する<span style="font-family:Manrope,sans-serif;">→</span></a>
+  </div>
+  <div style="margin-top:56px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:48px clamp(20px,2vw,32px);">
+    <sc-for list="{{ barbers }}" as="b" hint-placeholder-count="4">
+      <article data-reveal="up" style="display:flex;flex-direction:column;margin-top:{{ b.offset }};">
+        <div role="img" aria-label="{{ b.plateAlt }}" style="position:relative;aspect-ratio:3/4;overflow:hidden;background:{{ b.color }};">
+          <div aria-hidden="true" style="position:absolute;inset:0;background-image:repeating-linear-gradient(135deg,rgba(244,241,233,.08) 0 1px,transparent 1px 11px),radial-gradient(130% 85% at 50% 0,rgba(244,241,233,.16),transparent 72%);transition:transform .9s cubic-bezier(.2,.7,0,1);" style-hover="transform:scale(1.05)"></div>
+          <span aria-hidden="true" style="position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);font-family:'Noto Serif JP',serif;font-size:clamp(76px,11vw,124px);font-weight:500;line-height:1;letter-spacing:.02em;color:rgba(244,241,233,.92);pointer-events:none;">{{ b.kanji }}</span>
+          <span aria-hidden="true" style="position:absolute;left:0;right:0;bottom:16px;text-align:center;font-family:Manrope,sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.32em;color:rgba(244,241,233,.62);pointer-events:none;">{{ b.initials }}</span>
+          <span style="position:absolute;top:14px;right:14px;font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.2em;color:#171B1A;background:#F4F1E9;padding:6px 10px;pointer-events:none;">{{ b.yearsLabel }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:22px;">
+          <h3 style="margin:0;font-family:'Noto Serif JP',serif;font-size:24px;font-weight:500;letter-spacing:.1em;">{{ b.name }}</h3>
+          <span style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.18em;color:#696D68;text-transform:uppercase;white-space:nowrap;">{{ b.en }}</span>
+        </div>
+        <span style="margin-top:6px;font-size:12.5px;color:#29483F;font-weight:500;letter-spacing:.06em;">{{ b.role }}{{ b.feeLabel }}</span>
+        <p style="margin:14px 0 0;font-size:13.5px;line-height:1.95;color:#2c302f;text-wrap:pretty;">{{ b.bio }}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;">
+          <sc-for list="{{ b.spec }}" as="t" hint-placeholder-count="3">
+            <span style="font-size:11.5px;padding:5px 10px;border:1px solid rgba(23,27,26,.2);letter-spacing:.04em;white-space:nowrap;">{{ t }}</span>
+          </sc-for>
+        </div>
+        <span style="margin-top:14px;font-size:12px;color:#696D68;">得意なスタイル — {{ b.styleNames }}</span>
+        <a href="{{ b.href }}" onClick="{{ b.go }}" style="margin-top:22px;display:flex;justify-content:space-between;align-items:center;height:48px;padding:0 18px;border:1px solid #171B1A;color:#171B1A;font-size:13px;font-weight:700;letter-spacing:.1em;white-space:nowrap;transition:background-color .22s ease, color .22s ease;" style-hover="background:#171B1A;color:#FAF9F5"><span>{{ b.short }}を指名して予約</span><span style="font-family:Manrope,sans-serif;">→</span></a>
+      </article>
+    </sc-for>
+  </div>
+</section>
+
+<section id="first" aria-labelledby="first-title" style="background:#29483F;color:#F4F1E9;">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);">
+    <div style="display:flex;flex-wrap:wrap;gap:40px clamp(40px,6vw,120px);">
+      <div style="flex:1 1 320px;min-width:0;">
+        <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#DDD8CD;"><span style="color:#E3A487;">05</span><span style="width:28px;height:1px;background:#DDD8CD;opacity:.5;"></span><span>FIRST VISIT</span></div>
+        <h2 id="first-title" data-reveal="up" style="margin:24px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);line-height:1.5;letter-spacing:.08em;">初めての<br>お客様へ</h2>
+        <p data-reveal="up" style="margin:28px 0 0;max-width:24em;font-size:15px;line-height:2;color:#E6E2D8;">ご予約は4つのステップで完了します。会員登録は必要ありません。わからないことは、当日お気軽にお尋ねください。</p>
+        <a href="#reserve" data-reveal="up" style="display:inline-flex;gap:14px;margin-top:36px;font-size:14px;font-weight:500;letter-spacing:.06em;color:#F4F1E9;border-bottom:1px solid #F4F1E9;padding-top:8px;padding-bottom:6px;">空き状況を確認する<span style="font-family:Manrope,sans-serif;">→</span></a>
+      </div>
+      <ol style="flex:1.6 1 520px;min-width:0;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:0;">
+        <li data-reveal="up" style="padding:28px 24px 32px 0;border-top:1px solid rgba(244,241,233,.25);display:flex;flex-direction:column;gap:14px;"><span style="font-family:Manrope,sans-serif;font-size:44px;font-weight:300;line-height:1;">01</span><span style="font-size:17px;font-weight:700;letter-spacing:.06em;">メニューを選ぶ</span><span style="font-size:13px;line-height:1.9;color:#DDD8CD;">迷ったら「カット」で。当日に相談して変更できます。</span></li>
+        <li data-reveal="up" data-delay="80" style="padding:28px 24px 32px 0;border-top:1px solid rgba(244,241,233,.25);display:flex;flex-direction:column;gap:14px;"><span style="font-family:Manrope,sans-serif;font-size:44px;font-weight:300;line-height:1;">02</span><span style="font-size:17px;font-weight:700;letter-spacing:.06em;">理容師を選ぶ</span><span style="font-size:13px;line-height:1.9;color:#DDD8CD;">指名なしなら、空いている理容師がご案内します。</span></li>
+        <li data-reveal="up" data-delay="160" style="padding:28px 24px 32px 0;border-top:1px solid rgba(244,241,233,.25);display:flex;flex-direction:column;gap:14px;"><span style="font-family:Manrope,sans-serif;font-size:44px;font-weight:300;line-height:1;">03</span><span style="font-size:17px;font-weight:700;letter-spacing:.06em;">日時を選ぶ</span><span style="font-size:13px;line-height:1.9;color:#DDD8CD;">カレンダーで空き時間を確認し、ご希望の枠を選択。</span></li>
+        <li data-reveal="up" data-delay="240" style="padding:28px 24px 32px 0;border-top:1px solid rgba(244,241,233,.25);display:flex;flex-direction:column;gap:14px;"><span style="font-family:Manrope,sans-serif;font-size:44px;font-weight:300;line-height:1;">04</span><span style="font-size:17px;font-weight:700;letter-spacing:.06em;">ご来店</span><span style="font-size:13px;line-height:1.9;color:#DDD8CD;">ご予約の5分前を目安にお越しください。</span></li>
+      </ol>
+    </div>
+    <div style="margin-top:72px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:1px;background:rgba(244,241,233,.18);">
+      <div style="background:#29483F;padding:24px 24px 26px 0;"><div style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.24em;color:#E3A487;font-weight:600;">CONSULTATION</div><div style="margin-top:10px;font-size:14px;line-height:1.85;">施術前に5分ほど、長さや普段のお手入れを伺います。</div></div>
+      <div style="background:#29483F;padding:24px 24px 26px {{ tilePadL }};"><div style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.24em;color:#E3A487;font-weight:600;">PAYMENT</div><div style="margin-top:10px;font-size:14px;line-height:1.85;">現金・カード・交通系IC・QRコード決済。お支払いは施術後に。</div></div>
+      <div style="background:#29483F;padding:24px 24px 26px {{ tilePadL }};"><div style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.24em;color:#E3A487;font-weight:600;">ARRIVAL</div><div style="margin-top:10px;font-size:14px;line-height:1.85;">15分以上遅れる場合は、メニューを調整することがあります。</div></div>
+      <div style="background:#29483F;padding:24px 24px 26px {{ tilePadL }};"><div style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.24em;color:#E3A487;font-weight:600;">CANCELLATION</div><div style="margin-top:10px;font-size:14px;line-height:1.85;">前日20:00まではオンラインで無料変更・キャンセルできます。</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="reserve" aria-labelledby="reserve-title" style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);">
+  <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px;">
+    <div>
+      <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#696D68;"><span style="color:#B76E50;">06</span><span style="width:28px;height:1px;background:#696D68;"></span><span>RESERVATION</span></div>
+      <h2 id="reserve-title" data-reveal="up" style="margin:24px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);letter-spacing:.08em;">空き状況</h2>
+    </div>
+    <p data-reveal="up" style="margin:0;max-width:26em;font-size:13px;line-height:1.9;color:#696D68;">空き枠は{{ bkWindow }}日先まで表示しています。<br>※ デモ用の架空スケジュールです。確定した予約はこのブラウザのセッションにのみ保存されます。</p>
+  </div>
+
+  <div data-reveal="up" style="margin-top:48px;border:1px solid rgba(23,27,26,.16);background:#FAF9F5;">
+
+    <div style="padding:clamp(22px,3vw,32px);border-bottom:1px solid rgba(23,27,26,.12);">
+      <div style="display:flex;align-items:baseline;gap:12px;font-family:Manrope,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.24em;color:#696D68;"><span style="color:#B76E50;">01</span><span>MENU</span><span style="font-family:'Noto Serif JP',serif;letter-spacing:.1em;color:#171B1A;font-size:13px;font-weight:500;">メニューを選ぶ</span></div>
+      <div role="group" aria-label="メニューを選ぶ" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;">
+        <sc-for list="{{ bkServices }}" as="s" hint-placeholder-count="9">
+          <button type="button" onClick="{{ s.pick }}" aria-pressed="{{ s.active }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:60px;padding:11px 16px;border:1px solid {{ s.border }};background:{{ s.bg }};color:{{ s.fg }};cursor:pointer;text-align:left;transition:background-color .2s ease,border-color .2s ease;" style-hover="border-color:#171B1A">
+            <span style="font-family:'Noto Serif JP',serif;font-size:14.5px;font-weight:500;letter-spacing:.04em;white-space:nowrap;">{{ s.name }}</span>
+            <span style="font-family:Manrope,sans-serif;font-size:11px;letter-spacing:.06em;opacity:.72;white-space:nowrap;">{{ s.meta }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="padding:clamp(22px,3vw,32px);border-bottom:1px solid rgba(23,27,26,.12);">
+      <div style="display:flex;align-items:baseline;gap:12px;font-family:Manrope,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.24em;color:#696D68;"><span style="color:#B76E50;">02</span><span>BARBER</span><span style="font-family:'Noto Serif JP',serif;letter-spacing:.1em;color:#171B1A;font-size:13px;font-weight:500;">理容師を選ぶ</span></div>
+      <div role="group" aria-label="理容師を選ぶ" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;">
+        <sc-for list="{{ bkBarbers }}" as="b" hint-placeholder-count="5">
+          <button type="button" onClick="{{ b.pick }}" aria-pressed="{{ b.active }}" style="display:flex;align-items:center;gap:10px;min-height:52px;padding:0 16px;border:1px solid {{ b.border }};background:{{ b.bg }};color:{{ b.fg }};cursor:pointer;transition:background-color .2s ease,border-color .2s ease;" style-hover="border-color:#171B1A">
+            <span aria-hidden="true" style="width:22px;height:22px;flex:none;display:flex;align-items:center;justify-content:center;background:{{ b.chip }};color:#F4F1E9;font-family:'Noto Serif JP',serif;font-size:12px;">{{ b.kanji }}</span>
+            <span style="display:flex;flex-direction:column;gap:2px;text-align:left;">
+              <span style="font-family:'Noto Serif JP',serif;font-size:14px;letter-spacing:.06em;white-space:nowrap;">{{ b.name }}</span>
+              <span style="font-family:Manrope,sans-serif;font-size:10px;letter-spacing:.14em;opacity:.7;white-space:nowrap;">{{ b.sub }}</span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="padding:clamp(22px,3vw,32px);border-bottom:1px solid rgba(23,27,26,.12);">
+      <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;font-family:Manrope,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.24em;color:#696D68;"><span style="color:#B76E50;">03</span><span>DATE</span><span style="font-family:'Noto Serif JP',serif;letter-spacing:.1em;color:#171B1A;font-size:13px;font-weight:500;">日付を選ぶ</span><span style="margin-left:auto;font-family:Manrope,sans-serif;font-size:11px;letter-spacing:.1em;color:#696D68;">{{ bkMonthLabel }}</span></div>
+      <div role="group" aria-label="日付を選ぶ" style="display:flex;gap:8px;margin-top:18px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;padding-bottom:8px;">
+        <sc-for list="{{ bkDays }}" as="d" hint-placeholder-count="14">
+          <button type="button" onClick="{{ d.pick }}" disabled="{{ d.disabled }}" aria-pressed="{{ d.active }}" aria-label="{{ d.aria }}" style="scroll-snap-align:start;flex:none;width:62px;min-height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 0;border:1px solid {{ d.border }};background:{{ d.bg }};color:{{ d.fg }};cursor:{{ d.cursor }};opacity:{{ d.opacity }};transition:background-color .2s ease,border-color .2s ease;">
+            <span style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;opacity:.75;">{{ d.wd }}</span>
+            <span style="font-family:Manrope,sans-serif;font-size:19px;font-weight:500;line-height:1;">{{ d.day }}</span>
+            <span aria-hidden="true" style="font-size:10.5px;line-height:1.2;letter-spacing:.02em;color:{{ d.noteColor }};">{{ d.note }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <div aria-hidden="true" style="display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;font-size:11px;color:#696D68;">
+        <sc-for list="{{ bkLegend }}" as="l" hint-placeholder-count="4">
+          <span style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;background:{{ l.c }};"></span>{{ l.t }}</span>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="padding:clamp(22px,3vw,32px);">
+      <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;font-family:Manrope,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.24em;color:#696D68;"><span style="color:#B76E50;">04</span><span>TIME</span><span style="font-family:'Noto Serif JP',serif;letter-spacing:.1em;color:#171B1A;font-size:13px;font-weight:500;">時間を選ぶ</span><span style="margin-left:auto;font-family:'Noto Serif JP',serif;font-size:13px;letter-spacing:.06em;color:#171B1A;">{{ bkDateLabel }}</span></div>
+      <sc-if value="{{ bkSlotsOk }}" hint-placeholder-val="{{ true }}">
+        <div role="group" aria-label="時間を選ぶ" style="margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,86px),1fr));gap:8px;">
+          <sc-for list="{{ bkSlots }}" as="t" hint-placeholder-count="12">
+            <button type="button" onClick="{{ t.pick }}" disabled="{{ t.disabled }}" aria-pressed="{{ t.active }}" aria-label="{{ t.aria }}" style="min-height:46px;padding:0 6px;border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};font-family:Manrope,sans-serif;font-size:14px;letter-spacing:.06em;cursor:{{ t.cursor }};text-decoration:{{ t.strike }};transition:background-color .2s ease,border-color .2s ease;">{{ t.label }}</button>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ bkNotice }}" hint-placeholder-val="{{ false }}">
+        <p style="margin:18px 0 0;font-size:13.5px;line-height:1.9;color:#696D68;">{{ bkNotice }}</p>
+      </sc-if>
+    </div>
+
+    <div style="background:#171B1A;color:#F4F1E9;padding:clamp(22px,3vw,32px);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:28px;">
+      <dl style="margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,132px),auto));gap:18px 36px;">
+        <div><dt style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.24em;color:#A9AEA8;">MENU</dt><dd style="margin:6px 0 0;font-family:'Noto Serif JP',serif;font-size:16px;letter-spacing:.04em;">{{ bkSumService }}</dd></div>
+        <div><dt style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.24em;color:#A9AEA8;">BARBER</dt><dd style="margin:6px 0 0;font-family:'Noto Serif JP',serif;font-size:16px;letter-spacing:.04em;">{{ bkSumBarber }}</dd></div>
+        <div><dt style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.24em;color:#A9AEA8;">WHEN</dt><dd style="margin:6px 0 0;font-family:'Noto Serif JP',serif;font-size:16px;letter-spacing:.04em;">{{ bkSumWhen }}</dd></div>
+        <div><dt style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.24em;color:#A9AEA8;">TOTAL</dt><dd style="margin:6px 0 0;font-family:Manrope,sans-serif;font-size:20px;font-weight:500;letter-spacing:.02em;">{{ bkSumTotal }}</dd></div>
+      </dl>
+      <button type="button" onClick="{{ bkConfirm }}" disabled="{{ bkDisabled }}" style="display:flex;align-items:center;justify-content:space-between;gap:36px;min-height:60px;padding:0 24px 0 28px;border:0;background:{{ bkCtaBg }};color:{{ bkCtaFg }};font-size:15px;font-weight:700;letter-spacing:.14em;cursor:{{ bkCtaCursor }};white-space:nowrap;transition:background-color .22s ease;">{{ bkCtaLabel }}<span style="font-family:Manrope,sans-serif;font-size:17px;">→</span></button>
+    </div>
+  </div>
+
+  <sc-if value="{{ hasMine }}" hint-placeholder-val="{{ true }}">
+    <div style="margin-top:44px;">
+      <div style="display:flex;align-items:baseline;gap:12px;font-family:Manrope,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.24em;color:#696D68;"><span>MY RESERVATIONS</span><span style="font-family:'Noto Serif JP',serif;letter-spacing:.1em;color:#171B1A;font-size:13px;font-weight:500;">予約の確認・変更</span></div>
+      <ul style="list-style:none;margin:18px 0 0;padding:0;">
+        <sc-for list="{{ mine }}" as="m" hint-placeholder-count="2">
+          <li style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:18px 0;border-top:1px solid rgba(23,27,26,.16);">
+            <span style="font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.06em;color:#696D68;flex:none;">{{ m.ref }}</span>
+            <span style="font-family:'Noto Serif JP',serif;font-size:15.5px;letter-spacing:.04em;flex:1 1 220px;min-width:0;">{{ m.when }}</span>
+            <span style="font-size:13px;color:#2c302f;flex:1 1 200px;min-width:0;">{{ m.what }}</span>
+            <button type="button" onClick="{{ m.cancel }}" style="flex:none;min-height:40px;padding:0 16px;border:1px solid rgba(23,27,26,.3);background:transparent;font-size:12.5px;letter-spacing:.08em;cursor:pointer;" style-hover="background:#171B1A;color:#F4F1E9">取消</button>
+          </li>
+        </sc-for>
+      </ul>
+      <p style="margin:18px 0 0;font-size:11.5px;color:#696D68;">※ 前日20:00まではオンラインで無料変更・キャンセルできます（デモでは常に取消できます）。</p>
+    </div>
+  </sc-if>
+</section>
+
+<section id="voices" aria-labelledby="voice-title" style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);">
+  <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#696D68;"><span style="color:#B76E50;">07</span><span style="width:28px;height:1px;background:#696D68;"></span><span>VOICES</span></div>
+  <h2 id="voice-title" data-reveal="up" style="margin:24px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);letter-spacing:.08em;">お客様の声</h2>
+  <div style="margin-top:56px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:48px clamp(32px,4vw,72px);">
+    <sc-for list="{{ reviews }}" as="r" hint-placeholder-count="3">
+      <figure data-reveal="up" style="margin:0;margin-top:{{ r.offset }};display:flex;flex-direction:column;gap:22px;">
+        <span aria-hidden="true" style="font-family:'Noto Serif JP',serif;font-size:64px;line-height:.6;color:#B76E50;height:30px;">“</span>
+        <blockquote style="margin:0;font-family:'Noto Serif JP',serif;font-size:clamp(17px,1.4vw,20px);line-height:2;letter-spacing:.04em;text-wrap:pretty;">{{ r.q }}</blockquote>
+        <figcaption style="display:flex;gap:12px;align-items:center;font-size:12px;color:#696D68;letter-spacing:.04em;"><span style="width:20px;height:1px;background:#696D68;"></span>{{ r.who }} ／ {{ r.svc }}</figcaption>
+      </figure>
+    </sc-for>
+  </div>
+  <p style="margin:56px 0 0;font-size:12px;color:#696D68;">※ 掲載のコメントはデモ用に作成した架空のものです。実在のお客様・外部レビューサイトの評価ではありません。</p>
+</section>
+
+<section id="access" aria-labelledby="access-title" style="background:#DDD8CD;">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);display:flex;flex-wrap:wrap;gap:48px clamp(40px,5vw,96px);">
+    <div style="flex:1.2 1 420px;min-width:0;">
+      <div data-reveal="mask" style="position:relative;aspect-ratio:5/4;max-height:620px;width:100%;overflow:hidden;background:#E8E4DA;">
+        <svg viewBox="0 0 500 400" role="img" aria-label="黒羽駅から店舗までの案内図。架空の地図です。" style="width:100%;height:100%;display:block;">
+          <rect width="500" height="400" fill="#E8E4DA"></rect>
+          <g fill="#DFDACE">
+            <rect x="18" y="22" width="104" height="72"></rect><rect x="136" y="22" width="78" height="46"></rect>
+            <rect x="300" y="18" width="92" height="64"></rect><rect x="406" y="18" width="78" height="40"></rect>
+            <rect x="18" y="112" width="86" height="88"></rect><rect x="300" y="100" width="74" height="54"></rect>
+            <rect x="392" y="100" width="92" height="54"></rect><rect x="18" y="286" width="96" height="94"></rect>
+            <rect x="132" y="300" width="112" height="80"></rect><rect x="300" y="300" width="88" height="80"></rect>
+            <rect x="404" y="286" width="80" height="94"></rect><rect x="356" y="196" width="128" height="62"></rect>
+          </g>
+          <g stroke="#F4F1E9" stroke-linecap="square" fill="none">
+            <path d="M0 268 H500" stroke-width="30"></path>
+            <path d="M262 0 V400" stroke-width="22"></path>
+            <path d="M0 96 H500" stroke-width="14"></path>
+            <path d="M136 0 V400" stroke-width="10"></path>
+            <path d="M500 168 H318 L262 230" stroke-width="10"></path>
+          </g>
+          <path d="M0 268 H500" stroke="#D6D0C2" stroke-width="1" stroke-dasharray="7 7" fill="none"></path>
+          <g>
+            <path d="M-10 356 L510 324" stroke="#C9C2B2" stroke-width="13" fill="none"></path>
+            <path d="M-10 356 L510 324" stroke="#E8E4DA" stroke-width="3" stroke-dasharray="14 10" fill="none"></path>
+            <rect x="92" y="330" width="70" height="26" fill="#171B1A"></rect>
+            <text x="127" y="348" text-anchor="middle" font-family="'Noto Serif JP',serif" font-size="13" fill="#F4F1E9">黒羽駅</text>
+            <text x="176" y="348" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#55594f">A2 EXIT</text>
+          </g>
+          <path d="M160 338 L198 300 L240 300 L262 268" stroke="#B76E50" stroke-width="3" stroke-dasharray="6 6" fill="none" stroke-linecap="round"></path>
+          <text x="206" y="292" font-family="ui-monospace,Menlo,monospace" font-size="10" fill="#9A5638">徒歩 3 分</text>
+          <g>
+            <circle cx="276" cy="244" r="19" fill="#B76E50" opacity=".16"></circle>
+            <circle cx="276" cy="244" r="7" fill="#B76E50"></circle>
+            <rect x="290" y="208" width="128" height="28" fill="#171B1A"></rect>
+            <text x="300" y="227" font-family="Manrope,sans-serif" font-size="12" letter-spacing="1" fill="#F4F1E9">KUROHANE 2F</text>
+          </g>
+          <g font-family="ui-monospace,Menlo,monospace" font-size="9.5" fill="#7d7f76">
+            <text x="20" y="258">黒羽本通り</text><text x="272" y="30">架空銀座通り</text>
+          </g>
+          <g transform="translate(456 356)" aria-hidden="true">
+            <path d="M0 -13 L5 6 L0 2 L-5 6 Z" fill="#55594f"></path>
+            <text x="0" y="19" text-anchor="middle" font-family="Manrope,sans-serif" font-size="9" font-weight="600" fill="#55594f">N</text>
+          </g>
+          <g transform="translate(20 376)" aria-hidden="true">
+            <path d="M0 0 H56" stroke="#55594f" stroke-width="2"></path>
+            <path d="M0 -4 V4 M56 -4 V4" stroke="#55594f" stroke-width="2"></path>
+            <text x="62" y="4" font-family="ui-monospace,Menlo,monospace" font-size="9" fill="#55594f">100m（概略）</text>
+          </g>
+        </svg>
+        <span style="position:absolute;right:14px;top:14px;font-family:Manrope,sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.24em;color:#55594f;background:rgba(244,241,233,.85);padding:6px 10px;">DEMO MAP</span>
+      </div>
+    </div>
+    <div style="flex:1 1 360px;min-width:0;">
+      <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#55594f;"><span style="color:#9A5638;">08</span><span style="width:28px;height:1px;background:#55594f;"></span><span>ACCESS</span></div>
+      <h2 id="access-title" data-reveal="up" style="margin:24px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);letter-spacing:.08em;">アクセス</h2>
+      <dl style="margin:40px 0 0;display:grid;grid-template-columns:96px minmax(0,1fr);font-size:14px;line-height:1.85;">
+        <dt style="padding:16px 0;border-top:1px solid rgba(23,27,26,.18);color:#55594f;font-size:12.5px;">住所</dt><dd style="margin:0;padding:16px 0;border-top:1px solid rgba(23,27,26,.18);">〒000-0000 東京都架空区黒羽町1-2-3 デモビル2F<br><span style="font-size:12px;color:#55594f;">※架空の住所です</span></dd>
+        <dt style="padding:16px 0;border-top:1px solid rgba(23,27,26,.18);color:#55594f;font-size:12.5px;">営業時間</dt><dd style="margin:0;padding:16px 0;border-top:1px solid rgba(23,27,26,.18);">10:00 — 20:00<span style="color:#55594f;font-size:12.5px;">（最終受付 19:00）</span></dd>
+        <dt style="padding:16px 0;border-top:1px solid rgba(23,27,26,.18);color:#55594f;font-size:12.5px;">定休日</dt><dd style="margin:0;padding:16px 0;border-top:1px solid rgba(23,27,26,.18);">毎週火曜日・第3水曜日</dd>
+        <dt style="padding:16px 0;border-top:1px solid rgba(23,27,26,.18);color:#55594f;font-size:12.5px;">交通</dt><dd style="margin:0;padding:16px 0;border-top:1px solid rgba(23,27,26,.18);">架空線「黒羽駅」A2出口より徒歩3分（デモ）</dd>
+        <dt style="padding:16px 0;border-top:1px solid rgba(23,27,26,.18);border-bottom:1px solid rgba(23,27,26,.18);color:#55594f;font-size:12.5px;">お支払い</dt><dd style="margin:0;padding:16px 0;border-top:1px solid rgba(23,27,26,.18);border-bottom:1px solid rgba(23,27,26,.18);">現金・クレジットカード・交通系IC・QRコード決済</dd>
+      </dl>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:32px;">
+        <button onClick="{{ mockLine }}" style="height:46px;padding:0 18px;border:1px solid #171B1A;background:transparent;font-size:13px;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:10px;" style-hover="background:#171B1A;color:#F4F1E9"><span style="width:8px;height:8px;background:#29483F;"></span>LINEで問い合わせ</button>
+        <button onClick="{{ mockInsta }}" style="height:46px;padding:0 18px;border:1px solid #171B1A;background:transparent;font-size:13px;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:10px;" style-hover="background:#171B1A;color:#F4F1E9"><span style="width:8px;height:8px;border-radius:50%;background:#B76E50;"></span>Instagram</button>
+        <button onClick="{{ mockMap }}" style="height:46px;padding:0 18px;border:1px solid #171B1A;background:transparent;font-size:13px;letter-spacing:.06em;cursor:pointer;" style-hover="background:#171B1A;color:#F4F1E9">Google マップで開く</button>
+      </div>
+      <p style="margin:14px 0 0;font-size:11.5px;color:#55594f;">※ LINE・Instagram・Google マップの連携はモックです（外部には接続しません）。</p>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="cta-title" style="background:#171B1A;color:#F4F1E9;position:relative;overflow:hidden;">
+  <div style="max-width:1440px;margin:0 auto;padding:clamp(100px,12vw,180px) clamp(20px,4vw,56px) clamp(80px,9vw,130px);">
+    <div style="font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.3em;color:#DDD8CD;">RESERVE YOUR CHAIR</div>
+    <h2 id="cta-title" data-reveal="up" style="margin:28px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(56px,11vw,190px);line-height:1.05;letter-spacing:.02em;">次の、<br><span style="padding-left:clamp(0px,10vw,200px);">整える日。</span></h2>
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:32px;margin-top:64px;">
+      <p style="margin:0;max-width:26em;font-size:15px;line-height:2;color:#DDD8CD;">オンライン予約は24時間受付。空き状況はリアルタイムで確認できます（デモでは架空のスケジュールを表示します）。</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;">
+        <a href="#reserve" style="display:flex;align-items:center;justify-content:space-between;gap:48px;height:64px;padding:0 28px 0 32px;background:#F4F1E9;color:#171B1A;font-size:16px;font-weight:700;letter-spacing:.18em;transition:background-color .22s ease;" style-hover="background:#B76E50;color:#171B1A">予約する<span style="font-family:Manrope,sans-serif;font-size:18px;">→</span></a>
+        <a href="#reserve" style="display:flex;align-items:center;height:64px;padding:0 24px;border:1px solid rgba(244,241,233,.35);color:#F4F1E9;font-size:14px;letter-spacing:.08em;white-space:nowrap;" style-hover="border-color:#F4F1E9;color:#F4F1E9">予約の確認・変更</a>
+      </div>
+    </div>
+  </div>
+  <footer style="border-top:1px solid rgba(244,241,233,.14);">
+    <div style="max-width:1440px;margin:0 auto;padding:56px clamp(20px,4vw,56px) clamp(96px,8vw,48px);display:flex;flex-wrap:wrap;gap:40px 64px;justify-content:space-between;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <span style="font-family:'Noto Serif JP',serif;font-size:28px;letter-spacing:.08em;">黒羽</span>
+        <span style="font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.3em;color:#DDD8CD;">KUROHANE BARBER STUDIO</span>
+        <span style="font-size:12px;color:#A9AEA8;line-height:1.8;">TEL 00-0000-0000（デモ用）<br>〒000-0000 東京都架空区黒羽町1-2-3（架空）</span>
+      </div>
+      <nav aria-label="フッター" style="display:grid;grid-template-columns:repeat(2,minmax(120px,auto));gap:12px 48px;font-size:13px;">
+        <a href="#menu" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">メニュー・料金</a>
+        <a href="#barbers" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">スタッフ</a>
+        <a href="#styles" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">スタイル</a>
+        <a href="#philosophy" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">スタジオについて</a>
+        <a href="#first" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">初めての方へ</a>
+        <a href="#access" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">アクセス</a>
+        <a href="#reserve" onClick="{{ mockPage }}" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">よくある質問・規約</a>
+        <a href="#reserve" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">予約の確認・変更</a>
+        <a href="#reserve" onClick="{{ mockPage }}" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">スタッフ管理画面（デモ）</a>
+        <a href="#reserve" onClick="{{ mockPage }}" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">デザインシステム</a>
+      </nav>
+      <div style="flex-basis:100%;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-top:24px;border-top:1px solid rgba(244,241,233,.1);font-size:11px;color:#A9AEA8;letter-spacing:.04em;">
+        <span>本サイトは架空の店舗によるポートフォリオ用デモです。名称・ロゴは公開前に商標調査が必要です。</span>
+        <span style="font-family:Manrope,sans-serif;letter-spacing:.16em;">© KUROHANE (FICTIONAL) — DEMO</span>
+      </div>
+    </div>
+  </footer>
+</section>
+</main>
+
+<sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(244,241,233,.96);border-top:1px solid rgba(23,27,26,.12);display:flex;gap:8px;transition:transform .28s ease;transform:{{ barShift }};">
+    <a href="#menu" style="flex:0 0 auto;white-space:nowrap;height:50px;padding:0 16px;display:flex;align-items:center;border:1px solid rgba(23,27,26,.3);color:#171B1A;font-size:13px;">料金</a>
+    <a href="#access" style="flex:0 0 auto;white-space:nowrap;height:50px;padding:0 16px;display:flex;align-items:center;border:1px solid rgba(23,27,26,.3);color:#171B1A;font-size:13px;">アクセス</a>
+    <a href="#reserve" style="flex:1;height:50px;display:flex;align-items:center;justify-content:center;gap:10px;background:#29483F;color:#FAF9F5;font-size:15px;font-weight:700;letter-spacing:.14em;">予約する →</a>
+  </div>
+</sc-if>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+  <div role="status" aria-live="polite" style="position:fixed;left:50%;bottom:{{ toastY }};transform:translateX(-50%);z-index:90;background:#171B1A;color:#F4F1E9;padding:14px 20px;font-size:13px;line-height:1.7;max-width:min(92vw,460px);box-shadow:0 12px 40px rgba(23,27,26,.25);">{{ toast }}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = {
+    ready: !!window.KH, scrolled: false, mobile: window.innerWidth < 1100, menu: false,
+    filter: 'all', toast: '', nearEnd: false,
+    svcId: 'cut', barberId: 'any', date: null, slot: null, rev: 0
+  };
+  E = 'cubic-bezier(.2,.7,0,1)';
+  componentDidMount() {
+    this.rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const w = () => (window.KH ? this.setState({ ready: true }) : setTimeout(w, 40)); w();
+    this.onS = () => {
+      const s = window.scrollY > 40, ne = window.innerHeight + window.scrollY > document.body.scrollHeight - 420;
+      if (s !== this.state.scrolled || ne !== this.state.nearEnd) this.setState({ scrolled: s, nearEnd: ne });
+    };
+    this.onR = () => { const m = window.innerWidth < 1100; if (m !== this.state.mobile) this.setState({ mobile: m }); };
+    addEventListener('scroll', this.onS, { passive: true }); addEventListener('resize', this.onR);
+    this.io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { this.play(e.target); this.io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+    this.intro(); setTimeout(() => this.scan(), 60);
+  }
+  componentDidUpdate(pp, ps) {
+    this.scan();
+    if (ps.filter !== this.state.filter && !this.rm) document.querySelectorAll('[data-gitem]').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: i * 45, easing: this.E, fill: 'backwards' }));
+    if (!ps.menu && this.state.menu && !this.rm) {
+      const d = document.querySelector('[data-drawer]');
+      d && d.animate([{ clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 520, easing: this.E });
+      document.querySelectorAll('[data-drawer-item]').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 480, delay: 160 + i * 50, easing: this.E, fill: 'backwards' }));
+    }
+  }
+  componentWillUnmount() { removeEventListener('scroll', this.onS); removeEventListener('resize', this.onR); this.io && this.io.disconnect(); clearTimeout(this.tt); }
+  intro() {
+    if (this.rm) return;
+    const E = this.E;
+    document.querySelectorAll('[data-line]').forEach((el, i) => el.animate([{ transform: 'translateY(108%)' }, { transform: 'none' }], { duration: 1050, delay: 250 + i * 130, easing: E, fill: 'backwards' }));
+    const img = document.querySelector('[data-hero-img]'), inner = document.querySelector('[data-hero-inner]');
+    img && img.animate([{ clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 1100, delay: 120, easing: E, fill: 'backwards' });
+    inner && inner.animate([{ transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { duration: 1800, delay: 120, easing: E, fill: 'backwards' });
+    document.querySelectorAll('[data-fadein]').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: 700, delay: 700 + i * 110, easing: E, fill: 'backwards' }));
+  }
+  scan() {
+    if (this.rm || !this.io) return;
+    document.querySelectorAll('[data-reveal]:not([data-rv])').forEach((el) => {
+      el.setAttribute('data-rv', '1');
+      if (el.getBoundingClientRect().top < window.innerHeight * 0.9) return;
+      el.style.opacity = '0'; this.io.observe(el);
+    });
+  }
+  play(el) {
+    el.style.opacity = '';
+    const d = +(el.dataset.delay || 0);
+    if (el.dataset.reveal === 'mask') el.animate([{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 1100, delay: d, easing: this.E, fill: 'backwards' });
+    else el.animate([{ opacity: 0, transform: 'translateY(26px)' }, { opacity: 1, transform: 'none' }], { duration: 820, delay: d, easing: this.E, fill: 'backwards' });
+  }
+  say(t) { clearTimeout(this.tt); this.setState({ toast: t }); this.tt = setTimeout(() => this.setState({ toast: '' }), 5200); }
+  // Jumping to #reserve is the point of these links; the preset just saves the visitor two taps.
+  preset(p) { this.setState(Object.assign({ slot: null }, p)); }
+  renderVals() {
+    const K = window.KH, st = this.state;
+    const navItems = [
+      { no: '01', label: 'ホーム', en: 'HOME', href: '#top' },
+      { no: '02', label: 'メニュー', en: 'MENU', href: '#menu' },
+      { no: '03', label: 'スタイル', en: 'STYLES', href: '#styles' },
+      { no: '04', label: 'スタッフ', en: 'BARBERS', href: '#barbers' },
+      { no: '05', label: '予約', en: 'RESERVE', href: '#reserve' },
+      { no: '06', label: 'アクセス', en: 'ACCESS', href: '#access' }
+    ];
+    const base = {
+      navItems, desktop: !st.mobile, mobile: st.mobile, menuOpen: st.menu,
+      navBg: st.scrolled ? 'rgba(244,241,233,.94)' : 'transparent', navLine: st.scrolled ? '0 1px 0 rgba(23,27,26,.1)' : 'none', navH: st.scrolled ? '68px' : '88px',
+      barShift: st.nearEnd ? 'translateY(110%)' : 'none', tilePadL: st.mobile ? '0px' : '24px',
+      openMenu: () => this.setState({ menu: true }), closeMenu: () => this.setState({ menu: false }),
+      mockLine: () => this.say('LINE公式アカウントへの遷移はモックです。実際には接続しません。'),
+      mockInsta: () => this.say('Instagramへのリンクはモックです。公開前に実アカウントへ差し替えてください。'),
+      mockMap: () => this.say('Google マップ連携はモックです。住所が架空のため、案内図はイラストで表示しています。'),
+      mockPage: (e) => { e && e.preventDefault(); this.say('このデモはホーム1ページのみの構成です。該当ページは制作範囲外です。'); },
+      pickAnyBarber: () => this.preset({ barberId: 'any' }),
+      hasToast: !!st.toast, toast: st.toast, toastY: st.mobile ? '156px' : '96px',
+      homeServices: [], filters: [], gallery: [], galleryEmpty: false, barbers: [], reviews: [],
+      bkServices: [], bkBarbers: [], bkDays: [], bkSlots: [], bkLegend: [], mine: [], hasMine: false,
+      bkWindow: 14, bkMonthLabel: '', bkDateLabel: '—', bkSlotsOk: false, bkNotice: '',
+      bkSumService: '—', bkSumBarber: '—', bkSumWhen: '—', bkSumTotal: '—',
+      bkDisabled: true, bkCtaLabel: 'この内容で予約する', bkCtaBg: '#3a403e', bkCtaFg: '#A9AEA8', bkCtaCursor: 'not-allowed',
+      bkConfirm: () => {}
+    };
+    if (!K) return base;
+
+    const kanji = (b) => b.name.charAt(0);
+    const initials = (b) => b.en.split(' ').map((p) => p.charAt(0)).join(' · ');
+
+    const pick = ['cut', 'fade', 'shave', 'cutshave', 'spa', 'premium'];
+    base.homeServices = pick.map((id, i) => {
+      const s = K.svc(id);
+      return Object.assign({}, s, { no: K.pad(i + 1), priceLabel: K.yen(s.price), minLabel: s.min + '分', href: '#reserve',
+        go: () => this.preset({ svcId: id }), aria: s.name + ' ' + K.yen(s.price) + ' ' + s.min + '分 を予約する' });
+    });
+
+    base.filters = K.styleCats.map((c) => { const a = c.id === st.filter; return Object.assign({}, c, { active: a, bg: a ? '#F4F1E9' : 'transparent', fg: a ? '#171B1A' : '#F4F1E9', border: a ? '#F4F1E9' : 'rgba(244,241,233,.3)', pick: () => this.setState({ filter: c.id }) }); });
+    const catName = (id) => (K.styleCats.find((c) => c.id === id) || {}).name;
+    const list = K.styles.filter((s) => st.filter === 'all' || s.cat === st.filter).slice(0, 8);
+    base.gallery = list.map((s, i) => Object.assign({}, s, {
+      catName: catName(s.cat), offset: st.mobile ? '0px' : (i % 2 ? '44px' : '0px'),
+      img: 'img/style-' + s.no + '.webp', alt: s.name + '（' + s.en + '）のスタイル例',
+      href: '#reserve', go: () => this.preset({ svcId: s.service, barberId: s.barber }),
+      aria: s.name + 'で予約する（メニューと担当を自動で選びます）'
+    }));
+    base.galleryEmpty = list.length === 0;
+
+    base.barbers = K.barbers.map((b, i) => Object.assign({}, b, {
+      short: b.name.split(' ')[1], offset: st.mobile ? '0px' : (i % 2 ? '64px' : '0px'), yearsLabel: 'EXP. ' + b.years + ' YRS',
+      feeLabel: b.fee ? '　指名料 ' + K.yen(b.fee) : '', href: '#reserve', go: () => this.preset({ barberId: b.id }),
+      kanji: kanji(b), initials: initials(b),
+      plateAlt: b.name + '（' + b.en + '）の図版。架空の人物のため写真は使用していません。',
+      styleNames: b.styles.map((id) => (K.styles.find((s) => s.id === id) || {}).name).join('・')
+    }));
+    base.reviews = K.reviews.map((r, i) => Object.assign({}, r, { offset: st.mobile ? '0px' : ['0px', '72px', '24px'][i] }));
+
+    // ---- reservation panel, driven by the mock scheduling engine in kurohane-data.js ----
+    const DAYS = 14;
+    base.bkWindow = DAYS;
+    const sv = K.svc(st.svcId) || K.svc('cut');
+    const fee = st.barberId !== 'any' && K.barber(st.barberId) ? K.barber(st.barberId).fee : 0;
+
+    base.bkServices = K.services.map((s) => {
+      const a = s.id === st.svcId;
+      return { name: s.name, meta: K.yen(s.price) + ' ／ ' + s.min + '分', active: a,
+        bg: a ? '#171B1A' : 'transparent', fg: a ? '#F4F1E9' : '#171B1A', border: a ? '#171B1A' : 'rgba(23,27,26,.22)',
+        pick: () => this.preset({ svcId: s.id }) };
+    });
+
+    base.bkBarbers = [{ id: 'any', name: '指名なし', sub: 'ANY BARBER', kanji: '◎', chip: '#696D68', fee: 0 }]
+      .concat(K.barbers.map((b) => ({ id: b.id, name: b.name, sub: b.roleEn.toUpperCase() + (b.fee ? ' +' + K.yen(b.fee) : ''), kanji: kanji(b), chip: b.color })))
+      .map((b) => {
+        const a = b.id === st.barberId;
+        return Object.assign({}, b, { active: a, bg: a ? '#171B1A' : 'transparent', fg: a ? '#F4F1E9' : '#171B1A', border: a ? '#171B1A' : 'rgba(23,27,26,.22)',
+          pick: () => this.preset({ barberId: b.id }) });
+      });
+
+    const MARK = { many: ['◎', '#29483F'], some: ['○', '#29483F'], few: ['△', '#B76E50'], full: ['×', '#9A9A94'], closed: ['休', '#9A9A94'], off: ['−', '#9A9A94'], out: ['−', '#9A9A94'], past: ['−', '#9A9A94'] };
+    const today = K.todayTokyo();
+    const raw = [];
+    for (let i = 0; i < DAYS; i++) {
+      const iso = K.addDays(today, i), stt = K.dayStatus(iso, sv.min, st.barberId);
+      raw.push({ iso, stt, disabled: stt !== 'many' && stt !== 'some' && stt !== 'few' });
+    }
+    const open = raw.filter((d) => !d.disabled).map((d) => d.iso);
+    const date = open.indexOf(st.date) >= 0 ? st.date : (open[0] || null);
+
+    base.bkDays = raw.map((d) => {
+      const dt = K.parse(d.iso), a = d.iso === date, m = MARK[d.stt] || MARK.out;
+      const reason = d.stt === 'closed' ? (K.closedReason(d.iso) || '定休日') : d.stt === 'off' ? '担当者休み' : d.stt === 'full' ? '満席' : '空きあり';
+      return { day: dt.getUTCDate(), wd: K.WD[dt.getUTCDay()], note: m[0], noteColor: a ? '#DDD8CD' : m[1],
+        active: a, disabled: d.disabled, cursor: d.disabled ? 'not-allowed' : 'pointer', opacity: d.disabled ? '.42' : '1',
+        bg: a ? '#171B1A' : 'transparent', fg: a ? '#F4F1E9' : '#171B1A', border: a ? '#171B1A' : 'rgba(23,27,26,.2)',
+        aria: K.fmt(d.iso) + ' ' + reason, pick: () => this.setState({ date: d.iso, slot: null }) };
+    });
+    base.bkLegend = [{ c: '#29483F', t: '◎ 余裕あり' }, { c: '#29483F', t: '○ 空きあり' }, { c: '#B76E50', t: '△ わずか' }, { c: '#9A9A94', t: '× 満席 ／ 休 定休日' }];
+    base.bkMonthLabel = date ? K.parse(date).getUTCFullYear() + '年' + (K.parse(date).getUTCMonth() + 1) + '月' : '';
+    base.bkDateLabel = date ? K.fmt(date) : '—';
+
+    let slot = null;
+    if (!date) base.bkNotice = '表示中の' + DAYS + '日間に空いている日がありません。期間を広げてご相談ください。';
+    else {
+      const all = K.slotsFor(date, sv.min, st.barberId);
+      const ok = all.filter((x) => x.ok).map((x) => x.t);
+      if (!ok.length) base.bkNotice = 'この日は空きがありません。別の日をお選びください。';
+      else {
+        slot = ok.indexOf(st.slot) >= 0 ? st.slot : ok[0];
+        base.bkSlotsOk = true;
+        base.bkSlots = all.map((x) => {
+          const a = x.t === slot;
+          return { label: x.label, active: a, disabled: !x.ok, cursor: x.ok ? 'pointer' : 'not-allowed', strike: x.ok ? 'none' : 'line-through',
+            bg: a ? '#171B1A' : x.ok ? 'transparent' : 'rgba(23,27,26,.05)', fg: a ? '#F4F1E9' : x.ok ? '#171B1A' : '#9A9A94',
+            border: a ? '#171B1A' : x.ok ? 'rgba(23,27,26,.24)' : 'rgba(23,27,26,.1)',
+            aria: x.label + (x.ok ? ' を選ぶ' : ' は予約できません'), pick: () => this.setState({ slot: x.t }) };
+        });
+      }
+    }
+
+    base.bkSumService = sv.name;
+    base.bkSumBarber = st.barberId === 'any' ? '指名なし' : K.barber(st.barberId).name;
+    base.bkSumWhen = date && slot != null ? K.fmt(date) + ' ' + K.hm(slot) + '〜' + K.hm(slot + sv.min) : '—';
+    base.bkSumTotal = K.yen(sv.price + fee);
+    base.bkDisabled = !(date && slot != null);
+    if (!base.bkDisabled) { base.bkCtaBg = '#F4F1E9'; base.bkCtaFg = '#171B1A'; base.bkCtaCursor = 'pointer'; }
+    base.bkConfirm = () => {
+      if (!date || slot == null) return;
+      const live = K.slotsFor(date, sv.min, st.barberId).find((x) => x.t === slot);
+      if (!live || !live.ok) { this.setState({ slot: null, rev: st.rev + 1 }); this.say('申し訳ありません、その枠はちょうど埋まりました。別の時間をお選びください。'); return; }
+      const bid = st.barberId !== 'any' ? st.barberId : live.barbers[0];
+      const ref = 'KH-' + date.replace(/-/g, '').slice(2) + '-' + K.pad(Math.floor(slot / 60)) + K.pad(slot % 60);
+      const l = K.loadSession();
+      l.push({ ref, date, start: slot, min: sv.min, service: sv.id, barber: bid, status: 'confirmed' });
+      K.saveSession(l);
+      this.setState({ slot: null, rev: st.rev + 1 });
+      this.say('ご予約を承りました（デモ）　' + ref + '　' + K.fmt(date) + ' ' + K.hm(slot) + '　' + sv.name + '／' + K.barber(bid).name);
+    };
+
+    const mine = K.loadSession().filter((x) => x.status !== 'canceled')
+      .sort((a, b) => (a.date === b.date ? a.start - b.start : a.date < b.date ? -1 : 1));
+    base.hasMine = mine.length > 0;
+    base.mine = mine.map((m) => {
+      const ms = K.svc(m.service), mb = K.barber(m.barber);
+      return { ref: m.ref, when: K.fmt(m.date) + '　' + K.hm(m.start) + '〜' + K.hm(m.start + m.min),
+        what: (ms ? ms.name : '—') + ' ／ ' + (mb ? mb.name : '指名なし') + ' ／ ' + K.yen((ms ? ms.price : 0) + (mb ? mb.fee : 0)),
+        cancel: () => { K.saveSession(K.loadSession().filter((x) => x.ref !== m.ref)); this.setState({ rev: st.rev + 1 }); this.say('予約を取消しました（デモ）　' + m.ref); } };
+    });
+
+    return base;
+  }
+}
+</script>
+<!-- Skyland concept banner (not part of the Kurohane design) -->
+<style>
+#sky-bar{position:fixed;left:50%;bottom:16px;transform:translate(-50%,0);z-index:200;display:flex;align-items:center;gap:6px 14px;max-width:calc(100% - 24px);width:max-content;padding:8px 8px 8px 16px;border-radius:999px;background:#fff;color:#0b1a3a;box-shadow:0 18px 40px rgba(11,26,58,.28),0 0 0 1px rgba(11,26,58,.08);font:500 13.5px/1.3 system-ui,-apple-system,'Segoe UI',sans-serif;transition:opacity .3s,transform .3s}
+#sky-bar.hide{opacity:0;transform:translate(-50%,24px);pointer-events:none}
+#sky-bar .sky-txt{white-space:nowrap}
+#sky-bar b{font-weight:700}
+#sky-bar a.sky-home{color:#2459e0;font-weight:700}
+#sky-bar a.sky-home:hover{color:#1a44b8}
+#sky-bar a.sky-cta{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:999px;background:#2459e0;color:#fff;font-weight:700;white-space:nowrap}
+#sky-bar a.sky-cta:hover{background:#1a44b8;color:#fff}
+#sky-bar button{flex:none;width:32px;height:32px;border:0;border-radius:50%;background:#f0f3f9;color:#4a5876;font:500 18px/1 system-ui,sans-serif;cursor:pointer}
+#sky-bar button:hover{background:#e3eaf6}
+#sky-bar .sky-s{display:none}
+html:not(.sky-bar-off) footer{padding-bottom:150px}
+/* below 1100px this page shows its own fixed booking bar, so the banner sits above it */
+@media (max-width:1099px){#sky-bar{bottom:calc(80px + env(safe-area-inset-bottom))}}
+@media (max-width:640px){#sky-bar{left:12px;right:12px;width:auto;transform:none;border-radius:18px;padding:10px 10px 10px 14px}#sky-bar.hide{transform:translateY(24px)}#sky-bar .sky-txt{flex:1;min-width:0;white-space:normal}#sky-bar .sky-ask,#sky-bar .sky-l{display:none}#sky-bar .sky-s{display:inline}}
+</style>
+<div id="sky-bar" role="complementary" aria-label="Skyland">
+<span class="sky-txt"><span class="sky-l" data-t="by">Concept website by</span><span class="sky-s" data-t="byS">Concept by</span> <a class="sky-home" href="/">Skyland</a><span class="sky-ask"> · <span data-t="ask">Want one like this?</span></span></span>
+<a class="sky-cta" href="/consult/"><span class="sky-l" data-t="cta">Get your fixed price</span><span class="sky-s" data-t="ctaS">Get a price</span> →</a>
+<button type="button" aria-label="Close">×</button>
+</div>
+<script>
+(function(){
+  var bar=document.getElementById('sky-bar');
+  if(new URLSearchParams(location.search).get('lang')==='id'){
+    var t={by:'Konsep website oleh',byS:'Konsep oleh',ask:'Mau website seperti ini?',cta:'Dapatkan harga pasti',ctaS:'Cek harga'};
+    bar.querySelectorAll('[data-t]').forEach(function(el){el.textContent=t[el.dataset.t];});
+    bar.querySelector('.sky-home').href='/id/';
+    bar.querySelector('.sky-cta').href='/id/konsultasi/';
+    bar.querySelector('button').setAttribute('aria-label','Tutup');
+  }
+  bar.querySelector('button').addEventListener('click',function(){bar.classList.add('hide');document.documentElement.classList.add('sky-bar-off');});
+})();
+</script>
+</body>
+</html>

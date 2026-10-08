@@ -111,8 +111,14 @@ Redirect ini berbeda dari penentuan region harga.
 - FikrMate dan Rumah Belajar Bunsky ditampilkan sebagai karya yang sudah dikirim,
   berdasarkan copy repository. Detail kepemilikan, metrik hasil, atau kontrak
   eksternal tidak diverifikasi oleh audit ini.
-- Tegak Prima Konstruksi dan Lembar Toko Buku diberi label **konsep studio**,
-  bukan karya klien. Demo aktif di `public/samples/`.
+- Tegak Prima Konstruksi, Lembar Toko Buku, Arden Property Auction, dan
+  黒羽 Kurohane Barber Studio diberi label **konsep studio**, bukan karya klien.
+  Keempat demo aktif di `public/samples/`. Arden berbahasa Inggris dan Kurohane
+  berbahasa Jepang; keduanya memperlihatkan jangkauan di luar pasar Indonesia.
+- Seluruh nama perusahaan, harga, orang, alamat, dan tanggal dalam keempat demo
+  adalah fiktif dan diberi keterangan demikian di halamannya.
+- Foto pada demo Arden dan Kurohane berasal dari Pexels (bebas pakai komersial
+  tanpa atribusi). Sumber tiap berkas tercatat di `public/samples/<key>/CREDITS.md`.
 - Demo pada bagian How It Works merupakan presentasi lokal memakai contoh
   dan engine harga; bukan konsultasi AI live.
 
