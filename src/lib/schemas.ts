@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import pricing from '../../data/pricing.json';
 
-export const LOCALES = ['en', 'id'] as const;
+export const LOCALES = ['en', 'id', 'ja'] as const;
 export type Locale = (typeof LOCALES)[number];
 export const CURRENCIES = ['IDR', 'JPY', 'USD'] as const;
 export type Currency = (typeof CURRENCIES)[number];

@@ -7,10 +7,7 @@ import ConceptPricing from '../concept/ConceptPricing';
 import { CONCEPT_VISUALS } from '../concept/visuals';
 import { getDict } from '../../i18n';
 import { CONCEPT_KEYS, ROUTES, conceptPath, servicePath, type ConceptKey } from '../../i18n/routes';
-import { breadcrumbLd, organizationLd } from '../../lib/jsonld';
-import { formatPrice, quote, regionFor } from '../../lib/pricing';
-import { essentialIds, toPlan } from '../../lib/samples/plan';
-import { SAMPLE_SPECS } from '../../lib/samples/specs';
+import { breadcrumbLd, conceptLd, organizationLd } from '../../lib/jsonld';
 import type { Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale; concept: ConceptKey }
@@ -18,22 +15,20 @@ const { locale, concept } = Astro.props;
 const t = getDict(locale);
 const c = t.conceptPage;
 const copy = t.work.concepts.find((x) => x.key === concept)!;
-const spec = SAMPLE_SPECS[concept];
 const v = CONCEPT_VISUALS[concept];
-
-// The headline price is the essential scope at the locale's market, so it is in the HTML for search engines
-// and for anyone without JavaScript. The island re-reads the market on the device and takes over from there.
-const region = regionFor(locale);
-const essential = quote(toPlan(spec, essentialIds(spec), locale), { region, design: spec.design as never, content: 'ready', timeline: 'normal', promoCode: '' }, locale);
 
 const site = (Astro.site?.toString() ?? '').replace(/\/$/, '');
 const others = CONCEPT_KEYS.filter((k) => k !== concept);
 const title = `${copy.name} — ${c.eyebrow} · Skyland`;
-const description = locale === 'id'
-  ? `${copy.desc} Lihat rincian fitur dan harga pastinya, lalu pesan versi untuk bisnis Anda.`
-  : `${copy.desc} See the feature breakdown and a fixed price, then order the version built for your business.`;
+const DESC_SUFFIX: Record<Locale, string> = {
+  en: 'See the feature breakdown and a fixed price, then order the version built for your business.',
+  id: 'Lihat rincian fitur dan harga pastinya, lalu pesan versi untuk bisnis Anda.',
+  ja: '機能の内訳と確定料金をご覧いただき、あなたの事業向けの版をご注文ください。',
+};
+const description = `${copy.desc} ${DESC_SUFFIX[locale]}`;
 const jsonLd = [
   organizationLd(site, locale),
+  conceptLd(site, locale, concept),
   breadcrumbLd([
     { name: t.servicePage.breadcrumbHome, url: site + ROUTES.home[locale] },
     { name: c.breadcrumbWork, url: `${site}${ROUTES.home[locale]}#work` },
@@ -55,11 +50,6 @@ const jsonLd = [
           <p class="tagline">&ldquo;{copy.tagline}&rdquo;</p>
           <p class="lead">{copy.desc}</p>
           <ul class="pills">{copy.highlights.map((h) => <li class="pill">{h}</li>)}</ul>
-          <div class="price-lead stack">
-            <span class="k">{t.servicePage.startsFrom}</span>
-            <strong>{formatPrice(essential.total, region)}</strong>
-            <span class="fine">{t.servicePage.workdays(essential.workdays[0], essential.workdays[1])}</span>
-          </div>
           <div class="cta-row">
             <a class="btn btn-primary" href="#scope">{c.cta} ↓</a>
             <a class="btn btn-ghost" href={copy.url} target="_blank" rel="noopener">{c.demo} ↗</a>
@@ -79,6 +69,10 @@ const jsonLd = [
         <div class="head stack">
           <span class="eyebrow">{c.priceTitle}</span>
           <h2 class="h2">{copy.type}</h2>
+          {/* Stated flatly rather than derived from a build-time quote, because the quote would be the
+              locale's market and this page's one price comes from the visitor's device. Safe to state
+              because "every concept has a genuinely fixed price, in every market" is a test; the panel
+              below still says so itself if a scope ever turns into a range. */}
           <p class="lead">{c.priceNote}</p>
         </div>
         <ConceptPricing client:load locale={locale} concept={concept} consultHref={ROUTES.consult[locale]} />
@@ -119,30 +113,33 @@ const jsonLd = [
 </Base>
 
 <style>
+  /*
+   * global.css gives `.stack` a column direction but no gap, so every child here sat flush against the
+   * next one: the eyebrow touched the h1, and the pills had nothing above them. Each stack on this page
+   * states its own rhythm rather than relying on a parent that has none.
+   */
+  .stack { gap: 16px; }
+  .hero .copy { gap: 14px; }
   .hero { background: var(--cbg); color: var(--cfg); padding: 32px 0 56px; }
   .hero .grid { display: grid; gap: 28px; align-items: start; }
   @media (min-width: 1024px) { .hero { padding: 40px 0 72px; } .hero .grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 48px; } }
 
   /* Breadcrumb and inline links carry a touch-sized hit area without changing how they look. */
-  .crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: 13px; color: color-mix(in srgb, var(--cfg) 62%, transparent); margin-bottom: 2px; }
+  .crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: 13px; color: color-mix(in srgb, var(--cfg) 62%, transparent); margin-bottom: 8px; }
   .crumbs a { color: color-mix(in srgb, var(--cfg) 78%, transparent); text-decoration: none; display: inline-flex; align-items: center; min-height: 32px; padding: 4px 0; }
   .crumbs a:hover { color: var(--cfg); }
-  @media (pointer: coarse) { .crumbs a { min-height: 44px; } }
+  .crumbs > span { display: inline-flex; align-items: center; min-height: 32px; }
+  @media (pointer: coarse) { .crumbs a, .crumbs > span { min-height: 44px; } }
 
   .hero .eyebrow { color: var(--cac); }
   .hero h1 { font-size: clamp(30px, 4.4vw, 48px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.08; margin: 0; text-wrap: balance; }
   .tagline { font-family: var(--hand); font-size: clamp(20px, 2.4vw, 26px); color: var(--cac); margin: 0; }
   .hero .lead { color: color-mix(in srgb, var(--cfg) 76%, transparent); max-width: 56ch; }
 
-  .pills { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .pills { list-style: none; margin: 4px 0 2px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
   .hero .pill { background: color-mix(in srgb, var(--cfg) 10%, transparent); border-color: color-mix(in srgb, var(--cfg) 18%, transparent); color: color-mix(in srgb, var(--cfg) 88%, transparent); }
 
-  .price-lead { gap: 2px; margin-top: 4px; }
-  .price-lead .k { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: color-mix(in srgb, var(--cfg) 58%, transparent); }
-  .price-lead strong { font-size: clamp(28px, 3.6vw, 38px); letter-spacing: -0.03em; }
-  .price-lead .fine { font-size: 13px; color: color-mix(in srgb, var(--cfg) 62%, transparent); }
-
-  .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
   .cta-row .btn-ghost { background: transparent; color: var(--cfg); border-color: color-mix(in srgb, var(--cfg) 28%, transparent); }
   .cta-row .btn-ghost:hover { border-color: var(--cfg); }
 
@@ -155,12 +152,13 @@ const jsonLd = [
   .shot :global(img) { width: 100%; height: auto; display: block; }
   @media (min-width: 1024px) { .shot { height: 420px; } }
 
-  .scope .head { gap: 8px; max-width: 62ch; margin-bottom: 8px; }
-  .note .disclaimer { padding: 20px; gap: 8px; }
+  .scope .head { gap: 10px; max-width: 62ch; margin-bottom: 24px; }
+  .note .disclaimer { padding: 22px; gap: 10px; }
   .note h3 { margin: 0; font-size: 16px; }
   .note p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.6; }
   .link-arrow { color: var(--blue); font-weight: 600; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; align-self: flex-start; }
 
+  .others .container.stack { gap: 20px; }
   .others .h2 { font-size: clamp(22px, 2.6vw, 28px); }
   .other-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
   @media (min-width: 640px) { .other-grid { grid-template-columns: repeat(3, 1fr); } }

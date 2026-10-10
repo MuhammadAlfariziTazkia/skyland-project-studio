@@ -10,7 +10,12 @@ const { locale } = Astro.props;
 const t = getDict(locale);
 const o = foundingOffer;
 const left = foundingSpotsLeft();
-const wa = whatsappLink(locale === 'id' ? 'Halo Skyland, saya tertarik dengan promo klien pertama.' : "Hi Skyland, I'm interested in the founding client offer.");
+const INTEREST: Record<Locale, string> = {
+  en: "Hi Skyland, I'm interested in the founding client offer.",
+  id: 'Halo Skyland, saya tertarik dengan promo klien pertama.',
+  ja: 'Skyland さん、初期クライアント特典に興味があります。',
+};
+const wa = whatsappLink(INTEREST[locale]);
 ---
 <section id="offer" class="offer">
   <div class="deco d1" aria-hidden="true"></div>

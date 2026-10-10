@@ -1,11 +1,14 @@
 ---
 // Hand-built mini website mockups, one per service type. Sized with container query units
 // so they stay crisp and proportional from phone to desktop.
+import type { Currency } from '../../lib/schemas';
 import type { ServiceKey } from '../../i18n/routes';
 
-interface Props { kind: ServiceKey; headline: string; url: string; brand?: string; idr?: boolean }
-const { kind, headline, url, brand = 'Brand', idr = false } = Astro.props;
-const money = (usd: number) => (idr ? `Rp${usd * 10}rb` : `$${usd}`);
+interface Props { kind: ServiceKey; headline: string; url: string; brand?: string; currency?: Currency }
+const { kind, headline, url, brand = 'Brand', currency = 'USD' } = Astro.props;
+// Illustrative figures inside a mock screenshot, not real prices — just shown in the visitor's currency.
+const money = (usd: number) =>
+  currency === 'IDR' ? `Rp${usd * 10}rb` : currency === 'JPY' ? `¥${(usd * 150).toLocaleString('ja-JP')}` : `$${usd}`;
 const days = Array.from({ length: 28 }, (_, i) => i + 1);
 ---
 <div class="browser ill-frame" aria-hidden="true">

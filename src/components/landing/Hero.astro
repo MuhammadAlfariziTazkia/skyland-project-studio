@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import heroSiteEn from '../../assets/hero-site-en.png';
 import heroSiteId from '../../assets/hero-site-id.png';
+import heroSiteJa from '../../assets/hero-site-ja.png';
 import { getDict } from '../../i18n';
 import { ROUTES } from '../../i18n/routes';
 import { demoQuote } from '../../lib/demo';
@@ -13,7 +14,8 @@ const { locale } = Astro.props;
 const t = getDict(locale);
 const offer = foundingOffer;
 const spotsLeft = foundingSpotsLeft();
-const heroSite = locale === 'id' ? heroSiteId : heroSiteEn;
+const HERO: Record<Locale, ImageMetadata> = { en: heroSiteEn, id: heroSiteId, ja: heroSiteJa };
+const heroSite = HERO[locale];
 const demo = demoQuote(locale);
 const samplePrice = formatPrice(demo.total, demo.region);
 const [planA, planB] = t.hero.planCard;

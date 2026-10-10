@@ -6,7 +6,12 @@ import type { Locale } from '../../lib/schemas';
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const t = getDict(locale);
-const wa = whatsappLink(locale === 'id' ? 'Halo Skyland, saya mau tanya soal pembuatan website.' : 'Hi Skyland, I have a question about a website project.');
+const ASK: Record<Locale, string> = {
+  en: 'Hi Skyland, I have a question about a website project.',
+  id: 'Halo Skyland, saya mau tanya soal pembuatan website.',
+  ja: 'Skyland さん、ウェブサイト制作について質問があります。',
+};
+const wa = whatsappLink(ASK[locale]);
 ---
 <section id="faq" class="section">
   <div class="container grid">

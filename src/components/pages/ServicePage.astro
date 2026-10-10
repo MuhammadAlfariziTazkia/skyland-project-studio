@@ -7,7 +7,7 @@ import { getDict } from '../../i18n';
 import { ROUTES, SERVICE_KEYS, servicePath, type ServiceKey } from '../../i18n/routes';
 import { breadcrumbLd, faqLd, organizationLd, serviceLd } from '../../lib/jsonld';
 import { FEATURE_COPY } from '../../i18n/catalog';
-import { SERVICE_PRICING_ID, formatPrice, getService, packageWorkdays, regionFor, startingPrice } from '../../lib/pricing';
+import { currencyOf, SERVICE_PRICING_ID, formatPrice, getService, packageWorkdays, regionFor, startingPrice } from '../../lib/pricing';
 import type { Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale; service: ServiceKey }
@@ -19,6 +19,14 @@ const pkg = getService(SERVICE_PRICING_ID[service]);
 const region = regionFor(locale);
 const [d0, d1] = packageWorkdays(service);
 const site = (Astro.site?.toString() ?? '').replace(/\/$/, '');
+/*
+ * `pages_included` is the billing quota for content pages, not a promise about scope. For a custom app or
+ * an LMS the screens that matter are brought by features, so quoting a page cap there is misleading —
+ * "Up to 6 pages" on a 130-hour custom app was the clearest example.
+ */
+const quotaIsMeaningful = !['custom_web_app', 'online_course'].includes(pkg.id);
+/* risk_tier 'review' means the engine never auto-fixes a price, so the page must not imply one either. */
+const pricedUpfront = (pkg as { risk_tier?: string }).risk_tier !== 'review';
 const faqs = [...s.seo.faqs, ...t.faq.items.slice(1, 3)];
 const jsonLd = [
   organizationLd(site, locale),
@@ -43,8 +51,8 @@ const jsonLd = [
           <h1>{s.seo.h1}</h1>
           <p class="lead big">{s.seo.intro}</p>
           <div class="facts">
-            <div><span>{sp.startsFrom}</span><b>{formatPrice(startingPrice(service, region), region)}</b></div>
-            <div><span>{sp.typical}</span><b>{sp.pages(pkg.pages_included)}</b></div>
+            <div><span>{sp.startsFrom}</span><b>{pricedUpfront ? formatPrice(startingPrice(service, region), region) : sp.priceOnRequest}</b></div>
+            <div><span>{sp.typical}</span><b>{quotaIsMeaningful ? sp.pages(pkg.pages_included) : sp.scopeOnRequest}</b></div>
             <div><span>{sp.timeline}</span><b>{sp.workdays(d0, d1)}</b></div>
           </div>
           <div class="ctas">
@@ -53,7 +61,7 @@ const jsonLd = [
           </div>
         </div>
         <div class="visual" data-reveal>
-          <div class="ill"><ServiceIllustration kind={service} headline={s.headline} url={s.url} idr={locale === 'id'} /></div>
+          <div class="ill"><ServiceIllustration kind={service} headline={s.headline} url={s.url} currency={currencyOf(regionFor(locale))} /></div>
         </div>
       </div>
     </section>
@@ -70,8 +78,9 @@ const jsonLd = [
           <div class="card box">
             <h3>{sp.packageIncludes}</h3>
             <ul class="ticks">
-              <li>{sp.pages(pkg.pages_included)}</li>
+              {quotaIsMeaningful && <li>{sp.pages(pkg.pages_included)}</li>}
               {(pkg.includes ?? []).map((f) => <li>{FEATURE_COPY[f]?.[locale].name}</li>)}
+              {!pricedUpfront && <li>{sp.discoveryNote}</li>}
             </ul>
           </div>
           <div class="card box">
@@ -114,8 +123,17 @@ const jsonLd = [
   .grid { display: grid; gap: 36px; align-items: center; padding-top: 32px; padding-bottom: 56px; }
   @media (min-width: 1024px) { .grid { grid-template-columns: 1.1fr 1fr; gap: 56px; padding-top: 56px; padding-bottom: 80px; } }
   .copy { gap: 20px; min-width: 0; }
-  .crumbs { display: flex; flex-wrap: wrap; gap: 6px; font-size: 13px; color: var(--faint); }
-  .crumbs a { color: var(--muted); padding: 8px 0; }
+  /*
+   * The nav is a flex container, so `padding` on the links adds to item height. Without `align-items`
+   * the default `stretch` leaves each separator's text pinned to the top of the taller line while the
+   * padded links sit 8px lower — the breadcrumb visibly zig-zagged. Centre both the items and the text
+   * inside them, and the row sits on one optical line.
+   */
+  .crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: 13px; color: var(--faint); }
+  .crumbs a { color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; min-height: 32px; padding: 4px 0; }
+  .crumbs a:hover { color: var(--ink-2); }
+  .crumbs > span { display: inline-flex; align-items: center; min-height: 32px; }
+  @media (pointer: coarse) { .crumbs a, .crumbs > span { min-height: 44px; } }
   h1 { font-size: clamp(30px, 4.4vw, 50px); line-height: 1.07; letter-spacing: -0.035em; font-weight: 800; text-wrap: balance; }
   .big { font-size: 17px; }
   .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }

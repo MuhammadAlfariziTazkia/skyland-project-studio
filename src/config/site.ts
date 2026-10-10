@@ -7,7 +7,7 @@ export const SITE = {
   url: (env.PUBLIC_SITE_URL || 'http://localhost:4321').replace(/\/$/, ''),
   founder: {
     name: 'Muhammad Alfarizi Tazkia',
-    role: { en: 'Founder & Web Developer', id: 'Founder & Web Developer' },
+    role: { en: 'Founder & Web Developer', id: 'Founder & Web Developer', ja: 'ファウンダー兼開発者' },
   },
   email: env.PUBLIC_CONTACT_EMAIL || '',
   whatsapp: (env.PUBLIC_WHATSAPP_NUMBER || '').replace(/\D/g, ''),

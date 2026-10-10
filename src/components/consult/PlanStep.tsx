@@ -1,8 +1,8 @@
 import { useState } from 'preact/hooks';
 import pricing from '../../../data/pricing.json';
-import { CATEGORY_COPY, FEATURE_COPY, PAGE_COPY, SERVICE_COPY } from '../../i18n/catalog';
+import { FEATURE_COPY, PAGE_COPY } from '../../i18n/catalog';
 import type { ConsultStrings } from '../../i18n/consult';
-import { featurePrice, featuresByCategory, formatPrice, formatShort, getService, quotePriceText, visiblePages, type Quote } from '../../lib/pricing';
+import { featurePrice, formatPrice, formatShort, getService, quotePriceText, visiblePages, type Quote } from '../../lib/pricing';
 import { MAX_QUANTITY, type Locale, type Plan } from '../../lib/schemas';
 
 interface Props {
@@ -39,10 +39,6 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
   const svc = getService(plan.serviceId);
   const region = q.region;
   const update = (patch: Partial<Plan>) => onChange({ ...plan, ...patch });
-  const listed = new Set([...plan.features, ...plan.suggestions].map((f) => f.id));
-  const addable = featuresByCategory()
-    .map((g) => ({ ...g, ids: g.ids.filter((id) => !listed.has(id)) }))
-    .filter((g) => g.ids.length > 0);
   const copy = (id: string) => FEATURE_COPY[id]?.[locale];
 
   // Switching a feature off keeps it visible under "You could also add", so nothing silently disappears.
@@ -123,14 +119,13 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
   const areaCard = (area: 'member' | 'admin') => {
     const list = pages.filter((p) => p.area === area);
     if (!list.length) return null;
-    const names = [...new Set(list.map((p) => copy(p.feature)?.name).filter(Boolean))] as string[];
     return (
       <div class={`area-card ${area}`}>
         <div class="area-head">
           <b>{area === 'admin' ? t.plan.adminArea : t.plan.memberArea}</b>
           <span class="ftag inc">{t.plan.noExtraCost}</span>
         </div>
-        <p class="fine">{area === 'admin' ? t.plan.adminNote : t.plan.memberNote}{names.length ? ` ${t.plan.includedWith(names.join(', '))}` : ''}</p>
+        <p class="fine">{area === 'admin' ? t.plan.adminNote : t.plan.memberNote}</p>
         <ul class="screens">
           {list.map((p) => (
             <li>
@@ -148,7 +143,6 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
   return (
     <div class="cs-body">
       <div class="cs-head">
-        <span class="type-pill">{SERVICE_COPY[plan.serviceId]?.[locale].name}</span>
         <h2>{plan.projectName || t.plan.title}</h2>
         {plan.summary && <p>{plan.summary}</p>}
       </div>
@@ -182,7 +176,7 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
         <h3>
           {t.plan.pages} <span class="count">{pub.length}</span>
         </h3>
-        <p class="fine blk-note">{t.plan.pagesNote(svc.pages_included, formatShort(pricing.extra_page.price[region], region), pub.length > contentCount)}</p>
+        <p class="fine blk-note">{t.plan.pagesNote(svc.pages_included, formatShort(pricing.extra_page.price[region], region))}</p>
         <ol class="pages">
           {pub.map((p, i) => {
             // Only content pages count against the package; pages that come with a feature say which one.
@@ -193,10 +187,8 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
                 <div class="page-body">
                   <div class="page-top">
                     <b>{pageName(p)}</b>
-                    {p.feature ? (
-                      <span class="ftag inc">{t.plan.withFeature(copy(p.feature)?.name ?? p.feature)}</span>
-                    ) : (
-                      nth >= svc.pages_included && <span class="ftag">{t.plan.extraTag(formatShort(pricing.extra_page.price[region], region))}</span>
+                    {!p.feature && nth >= svc.pages_included && (
+                      <span class="ftag">{t.plan.extraTag(formatShort(pricing.extra_page.price[region], region))}</span>
                     )}
                     {!p.feature && contentCount > 1 && (
                       <button type="button" class="x" aria-label={`${t.plan.remove}: ${pageName(p)}`} onClick={() => removePage(p)}>
@@ -235,29 +227,6 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
             <h4 class="sub">{t.plan.optional}</h4>
             <ul class="feats">{plan.suggestions.map((f) => row(f, false))}</ul>
           </>
-        )}
-        {addable.length > 0 && (
-          <select
-            class="add"
-            value=""
-            aria-label={t.plan.addFeature}
-            onChange={(e) => {
-              const id = (e.target as HTMLSelectElement).value;
-              if (id) update({ features: [...plan.features, { id, reason: '', quantity: 1 }], suggestions: plan.suggestions.filter((x) => x.id !== id) });
-              (e.target as HTMLSelectElement).value = '';
-            }}
-          >
-            <option value="">+ {t.plan.addFeature}</option>
-            {addable.map((g) => (
-              <optgroup label={CATEGORY_COPY[g.category]?.[locale] ?? g.category}>
-                {g.ids.map((id) => {
-                  const p = featurePrice(plan.serviceId, id, region);
-                  const tag = p.kind === 'price' ? ` (+${formatShort(p.amount, region)}${p.unit === 'page' ? t.plan.perPage : p.unit === 'item' ? `/${copy(id)?.unit ?? ''}` : ''})` : ` (${p.kind === 'included' ? t.plan.inPackage : t.plan.free})`;
-                  return <option value={id}>{(copy(id)?.name ?? id) + tag}</option>;
-                })}
-              </optgroup>
-            ))}
-          </select>
         )}
       </section>
 
@@ -316,7 +285,6 @@ export function PlanStep({ t, locale, plan, q, onChange, answers, onAnswer, revi
           <>
             <textarea rows={3} maxLength={800} placeholder={t.plan.revisePh} value={revision} onInput={(e) => onRevision((e.target as HTMLTextAreaElement).value)} />
             <div class="row-end">
-              <span class="fine">{t.plan.reviseLeft}</span>
               <button type="button" class="btn btn-ghost btn-sm" disabled={revision.trim().length < 3} onClick={onRevise}>
                 {t.plan.reviseBtn}
               </button>

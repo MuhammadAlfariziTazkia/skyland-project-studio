@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { contrastRatio, pickAccent, renderMockup } from '../src/lib/mockup/render';
 import { SAMPLE_MOCKUP } from '../src/lib/mockup/samples';
 import { MOODS, THEMES, fontsHref, recommendThemes, themeSwatchHtml } from '../src/lib/mockup/themes';
-import { PlanShape, THEME_IDS, type Mockup } from '../src/lib/schemas';
+import { LOCALES, PlanShape, THEME_IDS, type Mockup } from '../src/lib/schemas';
 
 describe('themes', () => {
   it('defines every theme id with names in both languages and a known mood', () => {
@@ -10,7 +10,7 @@ describe('themes', () => {
     for (const id of THEME_IDS) {
       const t = THEMES[id];
       expect(t.id).toBe(id);
-      expect(t.name.en && t.name.id && t.sub.en && t.sub.id, id).toBeTruthy();
+      for (const l of LOCALES) expect(t.name[l] && t.sub[l], `${id}/${l}`).toBeTruthy();
       expect(MOODS, id).toContain(t.mood);
       expect(fontsHref(t)).toMatch(/^https:\/\/fonts\.googleapis\.com\/css2\?family=/);
     }

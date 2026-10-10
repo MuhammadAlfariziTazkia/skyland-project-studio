@@ -17,7 +17,9 @@
   --bg-soft: #f5f8fd;
   --radius: 20px;
   --gutter: 16px;
-  --font: 'Plus Jakarta Sans Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Plus Jakarta Sans ships no CJK glyphs, so Japanese needs an explicit tail or it lands on whatever
+     face the OS picks, with metrics that do not match the Latin text beside it. */
+  --font: 'Plus Jakarta Sans Variable', system-ui, -apple-system, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Noto Sans JP', Meiryo, sans-serif;
   --hand: 'Caveat', cursive;
   --mono: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, monospace;
   --ease: cubic-bezier(.2, .7, .2, 1);
@@ -75,3 +77,16 @@ h1, h2, h3, p { margin: 0; }
   .js [data-reveal], .js [data-stagger] > * { opacity: 1; transform: none; transition: none; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/*
+ * Japanese typography: the headings are tracked tightly for Latin (-0.03em and tighter), which crowds
+ * kana and kanji, and `text-transform: uppercase` does nothing to Japanese while the wide `.eyebrow`
+ * tracking just looks loose.
+ */
+html[lang='ja'] .h2,
+html[lang='ja'] h1,
+html[lang='ja'] h2,
+html[lang='ja'] h3 { letter-spacing: 0; }
+html[lang='ja'] .eyebrow { letter-spacing: .04em; text-transform: none; }
+html[lang='ja'] .lead { line-height: 1.75; }
+html[lang='ja'] { line-break: strict; }

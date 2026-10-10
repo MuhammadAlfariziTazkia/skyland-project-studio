@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useMemo, useState } from 'preact/hooks';
 import '../consult/consult.css';
 import { consultStrings } from '../../i18n/consult';
 import { getDict } from '../../i18n';
-import { FEATURE_COPY } from '../../i18n/catalog';
 import type { ConceptKey } from '../../i18n/routes';
-import { currencyOf, formatPrice, marketFromClient, quote, quotePriceText, regionFor, rememberMarket } from '../../lib/pricing';
+import { formatPrice, quote, quotePriceText } from '../../lib/pricing';
 import { CONCEPT_MOCKUPS } from '../../lib/samples/mockups';
 import { conceptBrief, essentialIds, orderedFeatures, planKey, toPlan } from '../../lib/samples/plan';
 import { SAMPLE_SPECS } from '../../lib/samples/specs';
-import { REGIONS, type Locale, type Region } from '../../lib/schemas';
+import { useMarket } from '../useMarket';
+import type { Locale } from '../../lib/schemas';
 
 interface Props {
   locale: Locale;
@@ -32,31 +32,14 @@ export default function ConceptPricing({ locale, concept, consultHref }: Props) 
   const c = getDict(locale).conceptPage;
 
   const [selected, setSelected] = useState<string[]>(() => essentialIds(spec));
-  const [note, setNote] = useState('');
-  /*
-   * The market is read from the device so the client is never asked where their business is. It has to be
-   * applied in an effect rather than in the initial state: Preact's hydrate() does not diff attributes on
-   * existing DOM, so a first client render that disagreed with the server would leave the currency switch
-   * showing the server's guess while the price showed the real one. Starting from the server value and
-   * updating afterwards costs one extra paint for visitors whose market differs from their locale, and
-   * keeps the panel honest for everyone.
-   */
-  const [region, setRegion] = useState<Region>(regionFor(locale));
-  useEffect(() => {
-    const detected = marketFromClient(locale);
-    if (detected !== region) setRegion(detected);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Read from the device, never asked. This panel is the only place on the page that states a price.
+  const region = useMarket(locale);
 
-  const rows = useMemo(() => orderedFeatures(spec, region), [spec, region]);
+  const rows = useMemo(() => orderedFeatures(spec, region, locale), [spec, region, locale]);
   const essentials = rows.filter((r) => r.need === 'core');
   const options = rows.filter((r) => r.need === 'nice');
 
-  const plan = useMemo(() => {
-    const base = toPlan(spec, selected, locale);
-    const extra = note.trim();
-    return extra ? { ...base, customRequests: [{ name: c.extraTitle, description: extra.slice(0, 300) }] } : base;
-  }, [spec, selected, locale, note, c.extraTitle]);
+  const plan = useMemo(() => toPlan(spec, selected, locale), [spec, selected, locale]);
 
   const q = useMemo(
     () => quote(plan, { region, design: spec.design as never, content: 'ready', timeline: 'normal', promoCode: '' }, locale),
@@ -64,11 +47,6 @@ export default function ConceptPricing({ locale, concept, consultHref }: Props) 
   );
 
   const toggle = (id: string) => setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-
-  const pickRegion = (next: Region) => {
-    setRegion(next);
-    rememberMarket(next);
-  };
 
   /**
    * Seeds the consultant's own state and jumps to its result step. The consultant restores whatever is in
@@ -86,7 +64,7 @@ export default function ConceptPricing({ locale, concept, consultHref }: Props) 
     const mockup = CONCEPT_MOCKUPS[concept][locale];
     const state = {
       step: 'result',
-      description: conceptBrief(spec, locale) + (note.trim() ? `\n\n${c.extraTitle}: ${note.trim()}` : ''),
+      description: conceptBrief(spec, locale),
       plan,
       mockup,
       mockupKey: planKey(plan),
@@ -120,7 +98,6 @@ export default function ConceptPricing({ locale, concept, consultHref }: Props) 
     );
 
   const row = (r: (typeof rows)[number]) => {
-    const copy = FEATURE_COPY[r.id]?.[locale];
     const on = selected.includes(r.id);
     return (
       <li key={r.id}>
@@ -129,8 +106,9 @@ export default function ConceptPricing({ locale, concept, consultHref }: Props) 
             <i />
           </span>
           <span class="feat-main">
-            <b>{copy?.name ?? r.id}</b>
-            <span>{copy?.plain}</span>
+            <b>{r.name}</b>
+            <span>{r.does}</span>
+            {r.so && <em>{r.so}</em>}
           </span>
           {tag(r)}
         </button>
@@ -180,11 +158,6 @@ export default function ConceptPricing({ locale, concept, consultHref }: Props) 
             </section>
           )}
 
-          <section class="field">
-            <label for="cp-extra">{c.extraTitle}</label>
-            <textarea id="cp-extra" rows={2} placeholder={c.extraPlaceholder} value={note} onInput={(e) => setNote((e.target as HTMLTextAreaElement).value)} maxLength={300} />
-            <p class="fine">{c.extraNote}</p>
-          </section>
         </div>
 
         <aside class="price-card">
@@ -193,10 +166,13 @@ export default function ConceptPricing({ locale, concept, consultHref }: Props) 
             {q.status === 'discuss' ? (
               <>
                 <b class="total range">{c.discussTitle}</b>
-                <p class="warn" style="margin-top:8px">{q.risk.blocking.length > 0 ? t.result.discussBlocked(q.risk.blocking.join(', ').toLowerCase()) : c.discussText}</p>
+                <p class="warn" style="margin-top:8px">{q.risk.blocking.length > 0 ? t.result.discussBlocked(q.risk.blocking.join(', ')) : c.discussText}</p>
               </>
             ) : (
-              <b class={`total${q.status === 'range' ? ' range' : ''}`}>{quotePriceText(q)}</b>
+              <>
+                <b class={`total${q.status === 'range' ? ' range' : ''}`}>{quotePriceText(q)}</b>
+                {q.status === 'range' && <p class="warn" style="margin-top:8px">{c.rangeNote}</p>}
+              </>
             )}
           </div>
 
@@ -208,10 +184,6 @@ export default function ConceptPricing({ locale, concept, consultHref }: Props) 
             <li>
               <span>{c.pagesFact}</span>
               <b>{q.pagesCount}</b>
-            </li>
-            <li>
-              <span>{c.screensFact}</span>
-              <b>{plan.pages.length}</b>
             </li>
           </ul>
 
@@ -249,17 +221,6 @@ export default function ConceptPricing({ locale, concept, consultHref }: Props) 
               {q.status === 'discuss' ? t.result.discussOrder : c.cta} →
             </button>
             <p class="fine">{c.ctaNote}</p>
-          </div>
-
-          <div class="market">
-            <span class="k">{t.result.region[region]}</span>
-            <div class="seg" role="radiogroup" aria-label={t.describe.region}>
-              {REGIONS.map((r) => (
-                <button type="button" key={r} role="radio" aria-checked={r === region} onClick={() => pickRegion(r)}>
-                  {currencyOf(r)}
-                </button>
-              ))}
-            </div>
           </div>
         </aside>
       </div>

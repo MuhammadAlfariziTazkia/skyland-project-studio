@@ -4,7 +4,7 @@
 import raw from '../../data/pricing.json';
 import { FEATURE_COPY, MULTIPLIER_COPY, SERVICE_COPY } from '../i18n/catalog';
 import type { ServiceKey } from '../i18n/routes';
-import { REGIONS, type Choices, type Currency, type Locale, type Plan, type Region } from './schemas';
+import type { Choices, Currency, Locale, Plan, Region } from './schemas';
 
 type Page = Plan['pages'][number];
 
@@ -78,35 +78,29 @@ export const SERVICE_PRICING_ID: Record<ServiceKey, string> = {
  * The market a prerendered page assumes. A lookup rather than a ternary so a third locale is one row,
  * and so `ja` lands on JP instead of silently falling through to USD.
  */
-const LOCALE_MARKET: Record<Locale, Region> = { en: 'GLOBAL', id: 'ID' };
+const LOCALE_MARKET: Record<Locale, Region> = { en: 'GLOBAL', id: 'ID', ja: 'JP' };
 export const regionFor = (locale: Locale): Region => LOCALE_MARKET[locale];
 export const currencyOf = (region: Region) => pricing.regions[region].currency as Currency;
 export const defaultChoices = (locale: Locale): Choices => ({ region: regionFor(locale), design: 'semi_custom', content: 'partial', timeline: 'normal', promoCode: '' });
 
-/** Where an explicit market choice is remembered, so detection never overrides the visitor. */
-export const MARKET_STORE = 'skyland-market';
-
 const ID_ZONES = /^Asia\/(Jakarta|Pontianak|Makassar|Jayapura)$/;
+const JP_ZONES = /^(Asia\/Tokyo|Japan)$/;
 
 /**
  * The visitor's price market, worked out on the device so they are never asked "where is your business?".
  *
- * Timezone and language are available synchronously with no network, so an island picks the market on its
- * very first render and the price never changes after the page has painted. That matters more here than
- * the extra accuracy of a geo-IP lookup: a number that silently rewrites itself reads as a bug, and the
- * market stays correctable in one tap. Falls back to the locale default outside the browser.
+ * Detection runs fresh on every visit and nothing is remembered. An earlier version read a saved
+ * `skyland-market` key first, which outranked detection; once the currency picker was removed nothing
+ * wrote that key any more, so a value left over from testing became permanent and unreachable and a
+ * visitor in Tokyo kept seeing rupiah. Timezone and language are available synchronously with no
+ * network, so an island settles the market in its first effect and the price never moves again.
+ * Falls back to the locale default outside the browser.
  */
 export function marketFromClient(locale: Locale): Region {
   if (typeof window === 'undefined') return regionFor(locale);
   try {
-    const saved = localStorage.getItem(MARKET_STORE);
-    if (saved && (REGIONS as readonly string[]).includes(saved)) return saved as Region;
-  } catch {
-    /* storage unavailable; fall through to detection */
-  }
-  try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-    if (tz === 'Asia/Tokyo') return 'JP';
+    if (JP_ZONES.test(tz)) return 'JP';
     if (ID_ZONES.test(tz)) return 'ID';
     const langs = navigator.languages ?? [navigator.language || ''];
     if (langs.some((l) => /^ja\b/i.test(l))) return 'JP';
@@ -115,15 +109,6 @@ export function marketFromClient(locale: Locale): Region {
     /* no Intl or navigator; fall through */
   }
   return regionFor(locale);
-}
-
-/** Remembers an explicit market pick so detection stops guessing for this visitor. */
-export function rememberMarket(region: Region) {
-  try {
-    localStorage.setItem(MARKET_STORE, region);
-  } catch {
-    /* storage unavailable: the choice still applies to this session's state */
-  }
 }
 
 export function getService(id: string, data: PricingData = pricing): Service {
@@ -244,17 +229,24 @@ export interface Quote {
 const roundTo = (n: number, step: number) => Math.round(n / step) * step;
 
 const ADJUST: Record<MultiplierKey | 'round' | 'minimum' | 'cap', Record<Locale, string>> = {
-  design_level: { en: 'Design', id: 'Desain' },
-  content_readiness: { en: 'Content help', id: 'Bantuan konten' },
-  timeline: { en: 'Faster delivery', id: 'Pengerjaan lebih cepat' },
-  round: { en: 'Rounding', id: 'Pembulatan' },
-  minimum: { en: 'Minimum project price', id: 'Harga minimum proyek' },
-  cap: { en: 'Combined options capped', id: 'Batas gabungan opsi' },
+  design_level: { en: 'Design', id: 'Desain', ja: 'デザイン' },
+  content_readiness: { en: 'Content help', id: 'Bantuan konten', ja: '原稿のお手伝い' },
+  timeline: { en: 'Faster delivery', id: 'Pengerjaan lebih cepat', ja: '納期の短縮' },
+  round: { en: 'Rounding', id: 'Pembulatan', ja: '端数調整' },
+  minimum: { en: 'Minimum project price', id: 'Harga minimum proyek', ja: '最低料金' },
+  cap: { en: 'Combined options capped', id: 'Batas gabungan opsi', ja: 'オプション合計の上限' },
 };
 
+const PAGES_INCLUDED: Record<Locale, (n: number) => string> = {
+  en: (n) => `Includes ${n} page${n > 1 ? 's' : ''}`,
+  id: (n) => `Termasuk ${n} halaman`,
+  ja: (n) => `${n}ページ分を含む`,
+};
+const EXTRA_PAGES: Record<Locale, string> = { en: 'Extra pages', id: 'Halaman tambahan', ja: '追加ページ' };
+
 const DISCOUNT: Record<Discount['kind'], Record<Locale, string>> = {
-  founding: { en: 'Founding client discount', id: 'Diskon klien pertama' },
-  promo: { en: 'Promo code', id: 'Kode promo' },
+  founding: { en: 'Founding client discount', id: 'Diskon klien pertama', ja: '初期クライアント割引' },
+  promo: { en: 'Promo code', id: 'Kode promo', ja: 'プロモコード' },
 };
 
 /**
@@ -263,14 +255,14 @@ const DISCOUNT: Record<Discount['kind'], Record<Locale, string>> = {
  * Matching is keyword-based and so is deliberately eager: a false "let's talk" costs a conversation,
  * a false "fixed price" costs a project we cannot deliver.
  */
-export function blockingDomains(plan: Plan, data: PricingData = pricing): string[] {
+export function blockingDomains(plan: Plan, locale: Locale, data: PricingData = pricing): string[] {
   const haystack = [
     plan.projectName, plan.summary, plan.business, plan.audience,
     ...plan.flows.map((f) => f.does),
     ...plan.pages.map((p) => p.name),
     ...plan.customRequests.flatMap((c) => [c.name, c.description]),
   ].join(' \n ').toLowerCase();
-  return data.blocking_domains.filter((d) => d.keywords.some((k) => haystack.includes(k.toLowerCase()))).map((d) => d.label);
+  return data.blocking_domains.filter((d) => d.keywords.some((k) => haystack.includes(k.toLowerCase()))).map((d) => d.label[locale]);
 }
 
 export function quote(plan: Plan, choices: Choices, locale: Locale, data: PricingData = pricing, promo: Promo | null = null): Quote {
@@ -290,7 +282,7 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
   lines.push({
     kind: 'base',
     label: SERVICE_COPY[svc.id]?.[locale].name ?? svc.name,
-    detail: locale === 'id' ? `Termasuk ${n} halaman` : `Includes ${n} page${n > 1 ? 's' : ''}`,
+    detail: PAGES_INCLUDED[locale](n),
     quantity: 1,
     unitPrice: svc.base[region],
     amount: svc.base[region],
@@ -301,7 +293,7 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
   if (extra > 0) {
     const unit = data.extra_page.price[region];
     hours += extra * data.extra_page.est_hours;
-    lines.push({ kind: 'pages', label: locale === 'id' ? 'Halaman tambahan' : 'Extra pages', quantity: extra, unitPrice: unit, amount: unit * extra });
+    lines.push({ kind: 'pages', label: EXTRA_PAGES[locale], quantity: extra, unitPrice: unit, amount: unit * extra });
     designPart += unit * extra;
   }
 
@@ -377,7 +369,7 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
    * ~10x apart in real terms. A blocking domain, a package that always needs a human, and scope we had to
    * truncate are all refusals to commit, whatever the number says.
    */
-  const blocking = blockingDomains(plan, data);
+  const blocking = blockingDomains(plan, locale, data);
   const risk = { blocking, elevated, truncated: plan.scopeTruncated };
   const mustDiscuss = blocking.length > 0 || svc.risk_tier === 'review' || plan.scopeTruncated || price > reg.max_price;
   const status: QuoteStatus = mustDiscuss ? 'discuss' : elevated.length > 0 || plan.customRequests.length > 0 ? 'range' : 'fixed';

@@ -2,10 +2,11 @@ import { afterEach, describe, expect, it } from 'vitest';
 import pricing from '../data/pricing.json';
 import { CATEGORY_COPY, FEATURE_COPY, MULTIPLIER_COPY, NOT_INCLUDED_COPY, PAGE_COPY, RECURRING_COPY, SERVICE_COPY } from '../src/i18n/catalog';
 import { SERVICE_KEYS } from '../src/i18n/routes';
-import { SERVICE_PRICING_ID, contentPages, publicPages, quote, visiblePages, withEnv, type PricingData, type Promo } from '../src/lib/pricing';
+import { HOURS_PER_DAY, SERVICE_PRICING_ID, contentPages, marketFromClient, publicPages, quote, visiblePages, withEnv, type PricingData, type Promo } from '../src/lib/pricing';
 import { validatePromo } from '../src/lib/promo';
-import { LOCALES, MockupSchema, PAGE_TYPES, PlanSchema, PlanShape, type Choices, type Plan } from '../src/lib/schemas';
-import { CONCEPT_KEYS, CONCEPT_SLUGS, allPagePairs, conceptPath } from '../src/i18n/routes';
+import { ContactSchema, LOCALES, MockupSchema, PAGE_TYPES, PlanSchema, PlanShape, type Choices, type Plan } from '../src/lib/schemas';
+import { CONCEPT_KEYS, CONCEPT_SLUGS, SERVICE_SLUGS, allPagePairs, conceptPath, servicePath } from '../src/i18n/routes';
+import { consultStrings } from '../src/i18n/consult';
 import { getDict } from '../src/i18n';
 import { CONCEPT_MOCKUPS } from '../src/lib/samples/mockups';
 import { essentialIds, needsThirdParty, orderedFeatures, planKey, toPlan } from '../src/lib/samples/plan';
@@ -66,6 +67,42 @@ describe('catalog is derived from hours, not hand-tuned', () => {
         expect(f.price[m], `${f.id} ${m}`).toBe(round(f.est_hours * rate[m], pricing.regions[m].catalog_round));
   });
 
+  it('keeps the price step finer than the cheapest billable feature', () => {
+    /*
+     * JPY used to round to ¥5,000, which was coarser than what the cheapest features cost. Ticking one
+     * moved nothing on screen: the client sees a dead checkbox, and the feature is effectively free.
+     * The price step has to be smaller than the smallest thing it is meant to price.
+     */
+    const cheapest = (region: 'ID' | 'JP' | 'GLOBAL') =>
+      Math.min(...pricing.features.filter((f) => f.price[region] > 0).map((f) => f.price[region]));
+    for (const region of ['ID', 'JP', 'GLOBAL'] as const)
+      expect(pricing.regions[region].round_to, `${region}: step vs cheapest feature ${cheapest(region)}`).toBeLessThanOrEqual(cheapest(region));
+  });
+
+  it('moves the total whenever any single optional feature is switched on', () => {
+    // The end-to-end symptom of the rounding bug, asserted directly on every concept and market.
+    for (const key of CONCEPT_KEYS) {
+      const spec = SAMPLE_SPECS[key];
+      const base = essentialIds(spec);
+      for (const region of ['ID', 'JP', 'GLOBAL'] as const) {
+        const priceOf = (ids: string[]) =>
+          quote(toPlan(spec, ids, 'en'), choices({ region, design: spec.design as never, content: 'ready' }), 'en', noDiscount).price;
+        const before = priceOf(base);
+        for (const f of spec.features.filter((x) => x.need === 'nice'))
+          expect(priceOf([...base, f.id]), `${key}/${region}/${f.id} did not move the price`).toBeGreaterThan(before);
+      }
+    }
+  });
+
+  it('never promises a timeline its own hours cannot fit', () => {
+    // workdays is the base package range. A low bound under ceil(est_hours / HOURS_PER_DAY) is a promise
+    // that cannot be kept: booking used to say 10 days for 92 hours of work.
+    for (const s of pricing.services) {
+      const [lo] = s.workdays.split('-').map(Number);
+      expect(lo, `${s.id}: ${s.workdays} for ${s.est_hours}h`).toBeGreaterThanOrEqual(Math.ceil(s.est_hours / HOURS_PER_DAY));
+    }
+  });
+
   it('keeps the extra page and every region coherent', () => {
     for (const m of markets) expect(pricing.extra_page.price[m], m).toBe(round(pricing.extra_page.est_hours * rate[m], pricing.regions[m].catalog_round));
     // A market ceiling must be a business decision in that market, not an artefact of exchange rates.
@@ -111,10 +148,25 @@ describe('concept scopes are the single source of truth', () => {
         if (needsThirdParty(id)) expect(pricing.features.find((f) => f.id === id), `${key}/${id}`).toMatchObject({ crucial: true });
   });
 
+  it('explains every feature in the context of its own concept', () => {
+    // FEATURE_COPY[].plain is generic catalog wording, true of every project and useful to nobody
+    // choosing one. Each concept states what the feature actually is on that site, and what it changes.
+    for (const key of CONCEPT_KEYS)
+      for (const f of SAMPLE_SPECS[key].features)
+        for (const locale of LOCALES) {
+          // CJK packs the same sentence into about half the characters, so the floor is per script.
+          const [minDoes, minSo] = locale === 'ja' ? [12, 8] : [30, 20];
+          expect(f.does[locale]?.length, `${key}/${f.id}/${locale} does`).toBeGreaterThan(minDoes);
+          expect(f.so[locale]?.length, `${key}/${f.id}/${locale} so`).toBeGreaterThan(minSo);
+          // It must not just repeat the generic catalog line.
+          expect(f.does[locale], `${key}/${f.id}/${locale} is generic`).not.toBe(FEATURE_COPY[f.id]?.[locale].plain);
+        }
+  });
+
   it('orders features by need first, then price ascending', () => {
     // The owner's priority order: needed+cheap, needed+costly, optional+cheap, optional+costly.
     for (const key of CONCEPT_KEYS) {
-      const rows = orderedFeatures(SAMPLE_SPECS[key], 'ID');
+      const rows = orderedFeatures(SAMPLE_SPECS[key], 'ID', 'en');
       const tier = (r: (typeof rows)[number]) => (r.need === 'core' ? 0 : 1);
       for (let i = 1; i < rows.length; i++) {
         const [prev, cur] = [rows[i - 1], rows[i]];
@@ -171,14 +223,25 @@ describe('concept scopes are the single source of truth', () => {
     });
   });
 
-  it('prices Arden as a sellable catalogue, not a discussion', () => {
+  it('gives every concept a genuinely fixed price, in every market', () => {
+    // "Fixed price" has to mean one number. A shop used to come back as a range purely because `payment`
+    // sat in the elevated risk tier, while the page above it said "fixed price for the scope below".
+    for (const key of CONCEPT_KEYS)
+      for (const region of markets)
+        for (const ids of [essentialIds(SAMPLE_SPECS[key]), SAMPLE_SPECS[key].features.map((f) => f.id)]) {
+          const spec = SAMPLE_SPECS[key];
+          const q = quote(toPlan(spec, ids, 'id'), choices({ region, design: spec.design as never, content: 'ready' }), 'id', noDiscount);
+          expect(q.status, `${key}/${region}/${ids.length} features`).toBe('fixed');
+          expect(q.risk.blocking, `${key} must not be blocked`).toEqual([]);
+          expect(q.risk.elevated, `${key} must carry no unvetted dependency`).toEqual([]);
+          expect(q.price).toBeLessThan(pricing.regions[region].max_price);
+        }
+  });
+
+  it('prices Arden as a sellable catalogue and states what is excluded', () => {
     // The auction gate must catch a bidding engine without catching a catalogue site for an auction house.
     const spec = SAMPLE_SPECS.arden;
-    const q = quote(toPlan(spec, essentialIds(spec), 'id'), choices({ region: 'ID', design: 'full_custom', content: 'ready' }), 'id', noDiscount);
-    expect(q.risk.blocking).toEqual([]);
-    expect(q.status).toBe('fixed');
-    expect(q.price).toBeGreaterThan(0);
-    expect(q.price).toBeLessThan(pricing.regions.ID.max_price);
+    expect(spec.serviceId).toBe('company_profile');
     expect(spec.notOffered?.length, 'what is excluded must be stated').toBeGreaterThan(0);
   });
 
@@ -200,6 +263,69 @@ describe('concept scopes are the single source of truth', () => {
   });
 });
 
+
+describe('every locale is complete', () => {
+  // These used to be `?.en && ?.id` checks, which stayed green with zero Japanese copy — the exact
+  // failure they were meant to catch. Looping LOCALES makes a missing language fail loudly instead.
+  it('has catalog copy for every service, category, multiplier and recurring item', () => {
+    for (const l of LOCALES) {
+      for (const s of pricing.services) expect(SERVICE_COPY[s.id]?.[l].name, `service ${s.id}/${l}`).toBeTruthy();
+      for (const c of pricing.feature_categories) expect(CATEGORY_COPY[c]?.[l], `category ${c}/${l}`).toBeTruthy();
+      for (const k of ['design_level', 'content_readiness', 'timeline'] as const) {
+        expect(MULTIPLIER_COPY[k].question[l], `${k} question/${l}`).toBeTruthy();
+        for (const [id, o] of Object.entries(MULTIPLIER_COPY[k].options)) expect(o[l]?.label, `${k}.${id}/${l}`).toBeTruthy();
+      }
+      for (const r of pricing.recurring) expect(RECURRING_COPY[r.id]?.[l].name, `recurring ${r.id}/${l}`).toBeTruthy();
+      for (const n of pricing.not_included) expect(NOT_INCLUDED_COPY[n.id]?.[l].name, `not_included ${n.id}/${l}`).toBeTruthy();
+    }
+  });
+
+  it('has consultant strings for every locale', () => {
+    for (const l of LOCALES) {
+      const t = consultStrings[l];
+      expect(t.steps, l).toHaveLength(4);
+      expect(t.describe.title, `describe.title/${l}`).toBeTruthy();
+      expect(t.result.priceTitle, `result.priceTitle/${l}`).toBeTruthy();
+      expect(t.order.submit, `order.submit/${l}`).toBeTruthy();
+      for (const code of ['ai_busy', 'rate_limited', 'server_error']) expect(t.errors.codes[code], `errors.${code}/${l}`).toBeTruthy();
+    }
+  });
+
+  it('has a localized blocking-domain label for every locale', () => {
+    for (const d of pricing.blocking_domains) for (const l of LOCALES) expect(d.label[l], `${d.id}/${l}`).toBeTruthy();
+  });
+
+  it('gives every service a unique slug per locale', () => {
+    for (const l of LOCALES) {
+      const slugs = SERVICE_KEYS.map((k) => SERVICE_SLUGS[k][l]);
+      expect(new Set(slugs).size, `${l} service slugs unique`).toBe(slugs.length);
+    }
+  });
+
+  it('has a real page file behind every path it advertises', async () => {
+    // Without this, adding a locale to LOCALES makes hreflang point at URLs that 404.
+    const { existsSync } = await import('node:fs');
+    for (const pair of allPagePairs())
+      for (const l of LOCALES) {
+        const path = pair[l];
+        const base = path.replace(/^\/|\/$/g, '');
+        const dynamic = SERVICE_KEYS.some((k) => servicePath(k, l) === path) || CONCEPT_KEYS.some((k) => conceptPath(k, l) === path);
+        if (dynamic) continue;
+        const candidates = base === '' ? ['src/pages/index.astro'] : [`src/pages/${base}.astro`, `src/pages/${base}/index.astro`];
+        expect(candidates.some((c) => existsSync(c)), `${path} -> one of ${candidates.join(' | ')}`).toBe(true);
+      }
+  });
+
+  it('has a page file for every dynamic route segment', async () => {
+    const { existsSync } = await import('node:fs');
+    for (const l of LOCALES) {
+      const svc = servicePath(SERVICE_KEYS[0], l).replace(/^\//, '').split('/').slice(0, -2).join('/');
+      const con = conceptPath(CONCEPT_KEYS[0], l).replace(/^\//, '').split('/').slice(0, -2).join('/');
+      expect(existsSync(`src/pages/${svc}/[slug].astro`), `services ${l}`).toBe(true);
+      expect(existsSync(`src/pages/${con}/[slug].astro`), `concepts ${l}`).toBe(true);
+    }
+  });
+});
 
 describe('concept pages', () => {
   it('has a unique slug per concept per locale, and hreflang pairs for all of them', () => {
@@ -304,9 +430,15 @@ describe('risk gates the status, not the amount', () => {
   });
 
   it('ranges rather than fixes when a feature depends on an unvetted third party', () => {
-    const q = quote(plan({ serviceId: 'company_profile', pageCount: 3, features: feats('payment') }), choices(), 'id', noDiscount);
+    // `api_integration` is still elevated: an API we have not worked with cannot carry a fixed price.
+    // `payment` deliberately is not — it is a vetted, crucial integration that ships inside online_store.
+    const q = quote(plan({ serviceId: 'company_profile', pageCount: 3, features: feats('api_integration') }), choices(), 'id', noDiscount);
     expect(q.risk.elevated.length).toBeGreaterThan(0);
     expect(q.status).toBe('range');
+
+    const paid = quote(plan({ serviceId: 'online_store', pageCount: 6, features: feats('payment') }), choices(), 'id', noDiscount);
+    expect(paid.risk.elevated).toEqual([]);
+    expect(paid.status).toBe('fixed');
   });
 
   it('never loses scope silently', () => {
@@ -486,7 +618,7 @@ describe('page types', () => {
     for (const t of pricing.page_types) {
       const feature = (t as { feature?: string }).feature;
       if (feature) expect(ids.has(feature), `${t.id} → ${feature}`).toBe(true);
-      expect(PAGE_COPY[t.id]?.en && PAGE_COPY[t.id]?.id, t.id).toBeTruthy();
+      for (const l of LOCALES) expect(PAGE_COPY[t.id]?.[l], `${t.id}/${l}`).toBeTruthy();
       expect(['public', 'member', 'admin'], t.id).toContain(t.area);
     }
     expect(new Set(pricing.page_types.map((t) => t.id)).size).toBe(pricing.page_types.length);
@@ -536,7 +668,7 @@ describe('feature catalog', () => {
     for (const c of pricing.feature_categories) expect(CATEGORY_COPY[c], c).toBeDefined();
     for (const f of pricing.features) {
       expect(pricing.feature_categories, f.id).toContain(f.category);
-      expect(FEATURE_COPY[f.id]?.en.name && FEATURE_COPY[f.id]?.id.name, f.id).toBeTruthy();
+      for (const l of LOCALES) expect(FEATURE_COPY[f.id]?.[l].name && FEATURE_COPY[f.id]?.[l].plain, `${f.id}/${l}`).toBeTruthy();
     }
     expect(ids.size).toBe(pricing.features.length);
   });
@@ -546,7 +678,7 @@ describe('feature catalog', () => {
       const unit = (f as { unit?: string }).unit;
       if (!unit) continue;
       expect(['page', 'item'], f.id).toContain(unit);
-      if (unit === 'item') expect(FEATURE_COPY[f.id].en.unit && FEATURE_COPY[f.id].id.unit, f.id).toBeTruthy();
+      if (unit === 'item') for (const l of LOCALES) expect(FEATURE_COPY[f.id][l].unit, `${f.id}/${l}`).toBeTruthy();
     }
   });
 
@@ -707,4 +839,119 @@ describe('withEnv', () => {
     expect(q.discounts).toHaveLength(1);
     expect(q.discounts[0]).toMatchObject({ kind: 'promo', percent: 45 });
   });
+});
+
+/**
+ * The market used to be read from `localStorage['skyland-market']` before anything else. When the
+ * currency picker was removed, every writer of that key went with it and the reader stayed, so a value
+ * left behind by an earlier visit outranked detection for good — a visitor in Tokyo kept being shown
+ * rupiah with no way to correct it. These tests fail if a saved key ever outranks the device again.
+ */
+describe('the price market comes from the device, and nothing else', () => {
+  const KEYS = ['window', 'localStorage', 'navigator', 'Intl'] as const;
+  const original = new Map(KEYS.map((k) => [k, Object.getOwnPropertyDescriptor(globalThis, k)]));
+  const realIntl = globalThis.Intl;
+  /** `navigator` is a getter-only global in Node, so each stub goes in as a fresh descriptor. */
+  const define = (k: string, value: unknown) => Object.defineProperty(globalThis, k, { value, configurable: true, writable: true });
+
+  /** Puts a browser in place: a timezone, a language list, and a storage that may hold stale state. */
+  const asVisitor = (tz: string, langs: string[], stored?: string) => {
+    const store = new Map<string, string>(stored ? [['skyland-market', stored]] : []);
+    const storage = { getItem: (k: string) => store.get(k) ?? null };
+    define('window', { localStorage: storage });
+    define('localStorage', storage);
+    define('navigator', { languages: langs, language: langs[0] ?? '', userAgent: 'test' });
+    define('Intl', { ...realIntl, DateTimeFormat: () => ({ resolvedOptions: () => ({ timeZone: tz }) }) });
+    return store;
+  };
+
+  afterEach(() => {
+    for (const k of KEYS) {
+      const d = original.get(k);
+      if (d) Object.defineProperty(globalThis, k, d);
+      else delete (globalThis as Record<string, unknown>)[k];
+    }
+  });
+
+  it('reads the timezone first', () => {
+    asVisitor('Asia/Tokyo', ['en-US']);
+    expect(marketFromClient('en')).toBe('JP');
+    asVisitor('Asia/Jakarta', ['en-US']);
+    expect(marketFromClient('en')).toBe('ID');
+    asVisitor('America/New_York', ['en-US']);
+    expect(marketFromClient('en')).toBe('GLOBAL');
+  });
+
+  it('accepts the legacy Japan timezone alias', () => {
+    asVisitor('Japan', ['en-US']);
+    expect(marketFromClient('en')).toBe('JP');
+  });
+
+  it('falls back to the browser language when the timezone says nothing', () => {
+    asVisitor('UTC', ['ja-JP', 'en']);
+    expect(marketFromClient('en')).toBe('JP');
+    asVisitor('UTC', ['id-ID']);
+    expect(marketFromClient('en')).toBe('ID');
+    asVisitor('UTC', ['de-DE']);
+    expect(marketFromClient('en')).toBe('GLOBAL');
+  });
+
+  it('ignores a stale saved market — the exact regression', () => {
+    asVisitor('Asia/Tokyo', ['en-US'], 'ID');
+    expect(marketFromClient('en')).toBe('JP');
+    asVisitor('Asia/Jakarta', ['id-ID'], 'GLOBAL');
+    expect(marketFromClient('id')).toBe('ID');
+  });
+
+  it('never reads storage at all', () => {
+    const store = asVisitor('Asia/Tokyo', ['en-US'], 'ID');
+    const seen: string[] = [];
+    define('localStorage', { getItem: (k: string) => (seen.push(k), store.get(k) ?? null) });
+    marketFromClient('en');
+    expect(seen).toEqual([]);
+  });
+
+  it('falls back to the locale market outside a browser', () => {
+    for (const [locale, region] of [['en', 'GLOBAL'], ['id', 'ID'], ['ja', 'JP']] as const) {
+      expect(marketFromClient(locale)).toBe(region);
+    }
+  });
+});
+
+it('no module still depends on the retired market store', async () => {
+  const mod = (await import('../src/lib/pricing')) as Record<string, unknown>;
+  expect(mod.rememberMarket).toBeUndefined();
+  expect(mod.MARKET_STORE).toBeUndefined();
+});
+
+describe('consent is a condition the server enforces, not a hint', () => {
+  const contact = { name: 'Alfarizi', email: 'a@b.co', whatsapp: '+628123456789' };
+
+  it('rejects a missing or false tick', () => {
+    expect(ContactSchema.safeParse({ ...contact, consent: true }).success).toBe(true);
+    expect(ContactSchema.safeParse({ ...contact, consent: false }).success).toBe(false);
+    expect(ContactSchema.safeParse(contact).success).toBe(false);
+    expect(ContactSchema.safeParse({ ...contact, consent: 'true' }).success).toBe(false);
+    expect(ContactSchema.safeParse({ ...contact, consent: 1 }).success).toBe(false);
+  });
+
+  it('gives every locale wording for the refusal', () => {
+    for (const l of LOCALES) expect(consultStrings[l].errors.codes.consent_required, l).toBeTruthy();
+  });
+});
+
+/**
+ * The client-facing breakdown hides nothing, because the rounding, regional floor and combined-options
+ * ceiling are what make the rows reach the total. Removing them was tried and left a table whose rows
+ * summed to a different number than its own bottom line — measurably: up to Rp 21,875 / ¥370 / $9 out.
+ */
+it('every breakdown adds up to the price it states', () => {
+  for (const key of CONCEPT_KEYS) {
+    const spec = SAMPLE_SPECS[key];
+    for (const region of ['ID', 'JP', 'GLOBAL'] as const) {
+      const q = quote(toPlan(spec, essentialIds(spec), 'en'), choices({ region, design: spec.design as never, content: 'ready' }), 'en', noDiscount);
+      const sum = q.lines.reduce((a, l) => a + l.amount, 0);
+      expect(sum, `${key}/${region}: rows sum to ${sum} but the price is ${q.price}`).toBe(q.price);
+    }
+  }
 });

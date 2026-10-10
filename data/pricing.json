@@ -56,7 +56,7 @@
       "label": "Japan",
       "currency": "JPY",
       "locale": "ja-JP",
-      "round_to": 5000,
+      "round_to": 1000,
       "catalog_round": 1000,
       "min_price": 30000,
       "max_price": 700000
@@ -100,7 +100,7 @@
       "est_hours": 24,
       "base": {
         "ID": 2250000,
-        "JP": 75000,
+        "JP": 76000,
         "GLOBAL": 650
       },
       "pages_included": 5,
@@ -115,7 +115,7 @@
       "est_hours": 12,
       "base": {
         "ID": 1100000,
-        "JP": 40000,
+        "JP": 38000,
         "GLOBAL": 325
       },
       "pages_included": 1,
@@ -130,12 +130,12 @@
       "est_hours": 85,
       "base": {
         "ID": 7900000,
-        "JP": 270000,
+        "JP": 268000,
         "GLOBAL": 2300
       },
       "pages_included": 6,
       "design_share": 0.35,
-      "workdays": "12-21",
+      "workdays": "15-24",
       "risk_tier": "elevated",
       "includes": [
         "payment",
@@ -166,7 +166,7 @@
       "est_hours": 95,
       "base": {
         "ID": 8850000,
-        "JP": 300000,
+        "JP": 299000,
         "GLOBAL": 2575
       },
       "pages_included": 7,
@@ -192,7 +192,7 @@
       },
       "pages_included": 5,
       "design_share": 0.35,
-      "workdays": "10-16",
+      "workdays": "16-22",
       "risk_tier": "elevated",
       "includes": [
         "contact_form",
@@ -213,7 +213,7 @@
       },
       "pages_included": 6,
       "design_share": 0.3,
-      "workdays": "20-40",
+      "workdays": "22-42",
       "risk_tier": "review",
       "includes": [
         "user_login",
@@ -906,7 +906,6 @@
         "GLOBAL": 380
       },
       "design_bearing": false,
-      "risk_tier": "elevated",
       "external_dependency": true,
       "crucial": true
     },
@@ -1260,7 +1259,11 @@
   "blocking_domains": [
     {
       "id": "auction",
-      "label": "Bidding / penawaran kompetitif real-time di website",
+      "label": {
+        "en": "Live online bidding",
+        "id": "Bidding online real-time",
+        "ja": "サイト上でのリアルタイム入札"
+      },
       "keywords": [
         "bidding online",
         "online bidding",
@@ -1282,7 +1285,11 @@
     },
     {
       "id": "multi_seller",
-      "label": "Marketplace multi-penjual",
+      "label": {
+        "en": "Multi-seller marketplace",
+        "id": "Marketplace multi-penjual",
+        "ja": "複数出店者のマーケットプレイス"
+      },
       "keywords": [
         "marketplace",
         "multi seller",
@@ -1295,7 +1302,11 @@
     },
     {
       "id": "fintech",
-      "label": "Fintech, pinjaman, atau dana tersimpan",
+      "label": {
+        "en": "Lending, fintech or stored funds",
+        "id": "Fintech, pinjaman, atau dana tersimpan",
+        "ja": "融資・フィンテック・資金預かり"
+      },
       "keywords": [
         "pinjaman",
         "lending",
@@ -1311,7 +1322,11 @@
     },
     {
       "id": "health_records",
-      "label": "Rekam medis atau data kesehatan",
+      "label": {
+        "en": "Medical records or health data",
+        "id": "Rekam medis atau data kesehatan",
+        "ja": "診療記録・健康データ"
+      },
       "keywords": [
         "rekam medis",
         "medical record",
@@ -1324,7 +1339,11 @@
     },
     {
       "id": "escrow",
-      "label": "Escrow atau kustodi dana klien",
+      "label": {
+        "en": "Escrow or holding client money",
+        "id": "Escrow atau kustodi dana klien",
+        "ja": "エスクロー・顧客資金の預かり"
+      },
       "keywords": [
         "escrow",
         "rekening penampungan",
@@ -1335,7 +1354,11 @@
     },
     {
       "id": "kyc_aml",
-      "label": "KYC / AML otomatis",
+      "label": {
+        "en": "Automated KYC / AML",
+        "id": "KYC / AML otomatis",
+        "ja": "KYC / AML の自動判定"
+      },
       "keywords": [
         "kyc",
         "aml",
@@ -1345,7 +1368,7 @@
       ]
     }
   ],
-  "blocking_domains_note": "Kena satu saja membuat status menjadi discuss, apa pun nominal, pasar, promo, atau walau customRequests kosong. Yang ditawarkan untuk kebutuhan ini hanya discovery berbayar. Lihat docs/PRICING_RESEARCH_05_COMMERCIAL.md bagian 4.",
+  "blocking_domains_note": "Kena satu saja membuat status menjadi discuss, apa pun nominal, pasar, promo, atau walau customRequests kosong. Yang ditawarkan untuk kebutuhan ini hanya discovery berbayar. Lihat docs/PRICING_RESEARCH_05_COMMERCIAL.md bagian 4. label bersifat per-locale karena ia ditampilkan langsung ke klien; label Indonesia pernah muncul di UI Inggris.",
   "calculation": {
     "steps": [
       "1. Tentukan pasar (ID / JP / GLOBAL) dari pilihan klien dan layanan yang paling cocok.",
@@ -1405,5 +1428,6 @@
       "billing": "per tahun",
       "note": "Klien memilih provider dan paketnya sendiri, akun atas nama klien. Setup oleh Skyland, gratis."
     }
-  ]
+  ],
+  "services_note": "workdays adalah rentang hari kerja paket dasar. Batas bawahnya tidak boleh di bawah ceil(est_hours / 6) karena itu berarti menjanjikan waktu yang tidak mungkin dipenuhi; diuji sebagai invariant di tests/pricing.test.ts."
 }

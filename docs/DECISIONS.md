@@ -245,10 +245,191 @@ locale `ja`.
 klien pertama yang berbeda dari server meninggalkan `aria-checked` versi server —
 pemilih mata uang pernah menunjuk USD sementara harganya sudah yen. Mulai dari
 nilai server lalu memperbaruinya memakan satu paint tambahan bagi pengunjung yang
-pasarnya berbeda dari locale-nya, dan itu harga yang pantas. Pilihan eksplisit
-disimpan di `localStorage['skyland-market']` dan menang atas deteksi. Tidak ada
-geo-IP: halaman ini `output: 'static'`, jadi itu menuntut edge middleware atau
-round-trip tambahan.
+pasarnya berbeda dari locale-nya, dan itu harga yang pantas. Tidak ada geo-IP:
+halaman ini `output: 'static'`, jadi itu menuntut edge middleware atau round-trip
+tambahan. Pemilih mata uang dan `localStorage['skyland-market']` sudah dihapus —
+lihat [D-24](#d-24--satu-harga-satu-sumber-pasar).
+
+
+## D-20 — Tiga bahasa, dan bahasa dideteksi dari perangkat
+
+`LOCALES` menjadi `['en', 'id', 'ja']`. Slug Jepang memakai romaji deskriptif
+(`/ja/service/kigyou-site-seisaku/`). Redirect bahasa otomatis di `Base.astro`
+berubah dari toggle EN→ID menjadi daftar aturan berurutan.
+
+**Mengapa.** Pemilik tinggal di Jepang dan pasar JP sudah ada di katalog harga,
+tetapi UI-nya belum terjangkau: `regionFor()` tidak pernah bisa menghasilkan JP
+karena tidak ada locale `ja`.
+
+**Konsekuensi.** Setiap struktur berkunci locale kini bertipe `Record<Locale, …>`,
+jadi locale keempat akan memunculkan daftar error yang lengkap, bukan UI yang
+diam-diam kosong. Pemilih bahasa di Header/Footer berubah dari toggle dua arah
+menjadi daftar, dan tiap target diberi label dalam bahasanya sendiri
+(`switchLangSelf`). `otherLocale` diganti `otherLocales`. Teks hukum Jepang
+membawa banner terlihat bahwa itu terjemahan yang belum direview ahli hukum
+Jepang; hapus banner itu setelah direview. Font: `--font` dan `SANS_FB`/`SERIF_FB`
+mendapat ekor CJK, dan `:lang(ja)` menetralkan `letter-spacing` negatif serta
+`text-transform: uppercase` pada eyebrow.
+
+## D-21 — Prompt AI dibangun dalam bahasa klien
+
+`catalogText(locale)`, `planSystem(locale)`, `reviseSystem(locale)`, dan
+`mockupSystem(locale)` kini per-locale. Error API dikirim sebagai kode pendek,
+dan browser yang memilih kata-katanya.
+
+**Mengapa.** Konsultasi menjawab dalam bahasa Inggris walau klien menulis
+Indonesia. Penyebabnya bukan katalog terjemahan — itu lengkap — melainkan prompt:
+seluruhnya disusun dari `.en`, dan blok `PAGE TYPES` adalah daftar yang persis
+dicontek model untuk nama halaman dan section. Contoh kerjanya bahkan menyodorkan
+nama halaman Inggris (`home "Home"`) untuk ditiru.
+
+**Konsekuensi.** Satu entri cache prompt per bahasa; itu harga murah untuk
+jawaban dalam bahasa klien. Contoh kerja tidak lagi memuat nama halaman, dan
+arahan bahasa diulang sebagai baris penutup karena bagian terakhir yang dibaca
+model paling berpengaruh. `blocking_domains[].label` juga per-locale: label
+Indonesia pernah muncul di UI Inggris. **Belum diverifikasi dengan model nyata**
+— yang diuji adalah prompt yang dikirim, bukan jawaban yang kembali.
+
+## D-22 — Fitur dijelaskan dalam konteks konseptnya
+
+`SampleFeature` mendapat `does`, `so`, dan `label` opsional, masing-masing
+per-locale.
+
+**Mengapa.** `FEATURE_COPY[].plain` adalah deskripsi katalog yang generik —
+benar untuk setiap proyek dan karena itu tidak berguna bagi siapa pun yang sedang
+memilih satu. Nama katalognya pun bisa menyesatkan: "Filterable portfolio /
+catalog" di situs lelang properti sebenarnya adalah katalog lot.
+
+**Konsekuensi.** 60 fitur × 3 bahasa × 2 kalimat ditulis manual, dengan format
+*apa yang benar-benar ada di situs ini → apa yang berubah bagi bisnisnya*. Test
+menolak teks yang kosong atau yang hanya mengulang `plain`, dengan ambang panjang
+per aksara karena CJK memuat kalimat yang sama dalam separuh karakter. `gallery`
+dikeluarkan dari Arden karena `portfolio_filter` sudah membawa halaman detail lot
+beserta fotonya. Picker "tambah fitur lain" di `PlanStep` dihapus: ia menampilkan
+seluruh 55 fitur katalog, termasuk yang tidak relevan dengan proyek klien.
+
+## D-23 — Langkah pembulatan harus lebih halus daripada fitur termurah
+
+`regions.JP.round_to` turun dari 5.000 ke 1.000.
+
+**Mengapa.** Langkah ¥5.000 lebih kasar daripada harga fitur termurah, sehingga
+mencentang satu fitur tidak mengubah angka di layar sama sekali. Klien melihat
+checkbox yang seolah rusak — dan fiturnya praktis gratis. Ditemukan oleh uji
+browser, bukan oleh unit test, karena unit test hanya memeriksa total akhir.
+
+**Konsekuensi.** Dua test invariant baru: langkah harga tidak boleh lebih besar
+daripada fitur berbayar termurah di pasar itu, dan menyalakan fitur opsional apa
+pun harus menaikkan total — diperiksa untuk setiap konsep di setiap pasar.
+
+
+## D-24 — Satu harga, satu sumber pasar
+
+Halaman konsep berhenti menampilkan harga di hero; panel samping menjadi
+satu-satunya tempat harga disebut. `localStorage['skyland-market']` dan
+`rememberMarket()` dihapus. Hook `useMarket(locale)` di
+`src/components/useMarket.ts` menjadi satu-satunya jalur island ke pasar.
+
+**Mengapa.** Satu halaman konsep menampilkan "STARTS FROM $1,900" di hero dan
+"Rp 7.250.000" di panel, kepada pengunjung yang berada di Jepang. Tiga penyebab
+terpisah, semuanya hasil perubahan sebelumnya:
+
+1. Halaman menghitung pasar **dua kali dengan aturan berbeda**: hero dari
+   `regionFor(locale)` saat build, panel dari `marketFromClient()` di perangkat.
+   Keduanya tidak pernah bisa dijamin sama.
+2. Saat pemilih mata uang dihapus ([D-19](#d-19--pasar-harga-dideteksi-bukan-ditanyakan)),
+   semua **penulis** `skyland-market` ikut terhapus tetapi **pembacanya dengan
+   prioritas tertinggi** tertinggal. Nilai yang tersimpan saat menguji switcher
+   lama jadi permanen, mengalahkan deteksi, dan tidak ada UI untuk membersihkannya.
+3. `Consultant.tsx` mendahulukan `saved.choices.region` dari
+   `skyland-consult-v2` atas deteksi, lalu membawanya ke email order.
+
+**Konsekuensi.** Harga tidak lagi ada di HTML halaman konsep, jadi pengunjung
+tanpa JavaScript tidak melihat angka. Kompensasinya `conceptLd()` di
+`src/lib/jsonld.ts`: `Offer` memakai `regionFor(locale)`, terbaca mesin dan tidak
+pernah terlihat pengunjung, sehingga tidak bisa bertentangan dengan panel.
+`Base.astro` menghapus `skyland-market` sekali dari storage pengunjung lama.
+Test regresi mengunci perilakunya: deteksi harus menang meskipun kunci itu diisi.
+
+**Pelajaran yang berlaku umum.** Menghapus satu-satunya penulis sebuah state
+tanpa menghapus pembacanya membekukan state itu selamanya. Pola yang sama
+meninggalkan `rememberMarket()`, `listed`, `names`, dan `SERVICE_COPY` tanpa
+pemanggil; semuanya dihapus di ronde ini.
+
+
+## D-25 — Satu tombol bahasa, bendera digambar sendiri
+
+Pemilih bahasa di Header menjadi satu tombol bundar berisi bendera bahasa
+**yang sedang aktif**, membuka daftar ketiga bahasa. `switchLang`/`switchLangShort`
+diganti `langMenu`.
+
+**Mengapa.** Versi sebelumnya merender satu pill per locale **lain** ke dalam
+wadah `.langs` yang tidak punya satu pun aturan CSS di repo. Begitu bahasa ketiga
+masuk, hasilnya dua lingkaran berdempet tanpa jarak, tanpa pengelompokan, dan
+tanpa tanda bahasa mana yang aktif.
+
+**Konsekuensi.** Bendera digambar sebagai SVG inline, **bukan** emoji: Windows
+tidak punya glyph untuk 🇮🇩🇺🇸🇯🇵 dan merendernya sebagai dua huruf kode negara.
+Cincin `inset` pada badge harus tegas karena separuh bendera Indonesia dan
+hampir seluruh bendera Jepang berwarna putih di atas menu putih. Setiap pilihan
+tetap `<a>` dengan `hreflang` **dan** `data-lang-switch`: `Base.astro` membaca
+keduanya untuk menulis opt-out, dan tanpa itu redirect bahasa otomatis akan
+memantulkan pengunjung kembali ke tempat asalnya.
+
+
+## D-26 — Preview mockup tidak boleh menelan scroll halaman
+
+Di `(pointer: coarse)`, iframe mockup mendapat `pointer-events: none` sampai
+diketuk, tingginya dibatasi `min(viewH × scale, 68vh)`, dan toggle
+desktop/mobile disembunyikan di bawah 640px.
+
+**Mengapa.** Di layar 360px frame setinggi 646px, dan iframe menelan setiap
+gestur sentuh di dalamnya — tidak ada cara menggulir melewati preview untuk
+mencapai harga. Mode desktop di lebar itu menghasilkan strip 223px yang tidak
+terbaca, jadi toggle hanya menawarkan cara memperburuk keadaan.
+
+**Konsekuensi.** Teks petunjuk ditaruh **di bawah** frame, bukan di atasnya:
+overlay di bagian atas menutupi header mockup, di bagian bawah menabrak
+watermark draft. Urutan CSS-nya penting — ditulis sebagai
+`.cs .mf:not(.live) iframe { pointer-events: none }` lalu diurungkan di
+`@media (pointer: fine)`, aturan pertama menang karena spesifisitas dan preview
+mati total untuk pengguna mouse. Kuncian harus berada **di dalam** blok
+`(pointer: coarse)`. `scale` juga mulai dari `null` dan diukur di
+`useLayoutEffect`; nilai awal 0.5 membuat preview melompat ukuran saat muat.
+
+
+## D-27 — Consent harus tindakan pengunjung di kunjungan ini
+
+Tombol kirim `disabled` selama consent belum dicentang, dan consent dipulihkan
+**tidak tercentang** dari `localStorage` apa pun isinya.
+
+**Mengapa.** Pemilik meminta tombolnya mati. Yang lebih serius dan belum
+disebutkan: `contact` disimpan utuh ke `skyland-consult-v2`, jadi kunjungan
+berikutnya memulihkan kotak consent dalam keadaan **sudah tercentang**. Centang
+yang dipulihkan sistem bukan persetujuan (GDPR ps. 7, UU PDP ps. 20).
+
+**Konsekuensi.** Hanya consent yang mematikan tombol, bukan setiap field yang
+belum valid: kalau tombol mati untuk semua error, form tidak pernah bisa
+disubmit, `tried` tidak pernah menyala, dan pengunjung tidak pernah tahu field
+mana yang salah. Nama/email/WhatsApp tetap dipulihkan. Server sudah menolak lewat
+`consent: z.literal(true)`; `api/order.ts` kini menolaknya dengan kode bernama
+`consent_required` sehingga alasannya terbaca di respons dan log.
+
+
+## D-28 — Rincian harga tetap menampilkan baris pembulatan
+
+Baris "Pembulatan", "Harga minimum proyek", dan "Batas gabungan opsi" **tidak**
+disembunyikan dari rincian yang dilihat klien, meskipun sempat direncanakan.
+
+**Mengapa.** Diukur dulu sebelum dihapus: selisih pembulatan tidak pernah nol
+pada keempat konsep di ketiga pasar — sampai Rp 21.875, ¥370, dan $9.
+Menyembunyikan baris itu meninggalkan tabel yang barisnya tidak berjumlah sama
+dengan total yang ditulisnya sendiri. Tabel yang tidak klop lebih merusak
+kepercayaan daripada satu baris teknis.
+
+**Konsekuensi.** Satu invariant baru: jumlah seluruh `q.lines` harus persis sama
+dengan `q.price`, diperiksa untuk setiap konsep di setiap pasar. Yang **tetap**
+dihapus adalah baris "Harga normal" ketika tidak ada diskon, karena baris itu
+menduplikasi total persis dan menghapusnya tidak mengubah apa pun yang dijumlah.
 
 
 ## Menambahkan keputusan baru

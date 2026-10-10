@@ -8,28 +8,28 @@ export const CONCEPT_KEYS = ['tegak', 'lembar', 'kurohane', 'arden'] as const;
 export type ConceptKey = (typeof CONCEPT_KEYS)[number];
 
 export const SERVICE_SLUGS: Record<ServiceKey, Record<Locale, string>> = {
-  company_profile: { en: 'company-profile-website', id: 'jasa-pembuatan-website-company-profile' },
-  landing: { en: 'landing-page-development', id: 'jasa-pembuatan-landing-page' },
-  online_store: { en: 'ecommerce-website-development', id: 'jasa-pembuatan-toko-online' },
-  portfolio: { en: 'portfolio-website', id: 'jasa-pembuatan-website-portofolio' },
-  lms: { en: 'online-course-lms-website', id: 'jasa-pembuatan-website-kursus-online-lms' },
-  booking: { en: 'booking-reservation-website', id: 'jasa-pembuatan-website-booking-reservasi' },
-  web_app: { en: 'custom-web-app-development', id: 'jasa-pembuatan-aplikasi-web' },
-  blog: { en: 'blog-website', id: 'jasa-pembuatan-website-blog' },
+  company_profile: { en: 'company-profile-website', id: 'jasa-pembuatan-website-company-profile', ja: 'kigyou-site-seisaku' },
+  landing: { en: 'landing-page-development', id: 'jasa-pembuatan-landing-page', ja: 'landing-page-seisaku' },
+  online_store: { en: 'ecommerce-website-development', id: 'jasa-pembuatan-toko-online', ja: 'ec-site-kouchiku' },
+  portfolio: { en: 'portfolio-website', id: 'jasa-pembuatan-website-portofolio', ja: 'portfolio-site-seisaku' },
+  lms: { en: 'online-course-lms-website', id: 'jasa-pembuatan-website-kursus-online-lms', ja: 'online-kouza-system' },
+  booking: { en: 'booking-reservation-website', id: 'jasa-pembuatan-website-booking-reservasi', ja: 'yoyaku-system-seisaku' },
+  web_app: { en: 'custom-web-app-development', id: 'jasa-pembuatan-aplikasi-web', ja: 'web-app-kaihatsu' },
+  blog: { en: 'blog-website', id: 'jasa-pembuatan-website-blog', ja: 'blog-media-seisaku' },
 };
 
 export const CONCEPT_SLUGS: Record<ConceptKey, Record<Locale, string>> = {
-  tegak: { en: 'construction-company-website', id: 'contoh-website-perusahaan-konstruksi' },
-  lembar: { en: 'bookstore-online-store', id: 'contoh-website-toko-buku-online' },
-  kurohane: { en: 'barbershop-booking-website', id: 'contoh-website-booking-barbershop' },
-  arden: { en: 'property-auction-catalogue', id: 'contoh-website-katalog-lelang-properti' },
+  tegak: { en: 'construction-company-website', id: 'contoh-website-perusahaan-konstruksi', ja: 'kensetsu-gaisha-site' },
+  lembar: { en: 'bookstore-online-store', id: 'contoh-website-toko-buku-online', ja: 'honya-ec-site' },
+  kurohane: { en: 'barbershop-booking-website', id: 'contoh-website-booking-barbershop', ja: 'barber-yoyaku-site' },
+  arden: { en: 'property-auction-catalogue', id: 'contoh-website-katalog-lelang-properti', ja: 'fudousan-auction-catalog' },
 };
 
 export const ROUTES = {
-  home: { en: '/', id: '/id/' },
-  consult: { en: '/consult/', id: '/id/konsultasi/' },
-  privacy: { en: '/privacy/', id: '/id/privasi/' },
-  terms: { en: '/terms/', id: '/id/syarat-ketentuan/' },
+  home: { en: '/', id: '/id/', ja: '/ja/' },
+  consult: { en: '/consult/', id: '/id/konsultasi/', ja: '/ja/sodan/' },
+  privacy: { en: '/privacy/', id: '/id/privasi/', ja: '/ja/privacy-policy/' },
+  terms: { en: '/terms/', id: '/id/syarat-ketentuan/', ja: '/ja/riyou-kiyaku/' },
 } satisfies Record<string, Record<Locale, string>>;
 export type RouteKey = keyof typeof ROUTES;
 
@@ -40,6 +40,7 @@ export type RouteKey = keyof typeof ROUTES;
 const SEGMENTS: Record<Locale, { base: string; services: string; concepts: string }> = {
   en: { base: '', services: 'services', concepts: 'concepts' },
   id: { base: '/id', services: 'layanan', concepts: 'konsep' },
+  ja: { base: '/ja', services: 'service', concepts: 'concept' },
 };
 
 export const servicePath = (key: ServiceKey, locale: Locale) =>

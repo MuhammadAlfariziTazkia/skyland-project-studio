@@ -121,6 +121,61 @@ export const CONCEPT_MOCKUPS: Record<ConceptKey, Record<Locale, Mockup>> = {
       ],
       footerNote: 'Tegak Prima Konstruksi · Jakarta',
     },
+    ja: {
+      brandName: 'Tegak Prima Konstruksi',
+      nav: ['施工実績', 'サービス', '施工体制', 'お問い合わせ'],
+      accent: '#c2410c',
+      hero: {
+        eyebrow: '総合建設業 · 2011年創業',
+        headline: '確かさを、かたちにする',
+        subheadline: '工場・商業・公共施設の工事を工期どおりに引き渡します。許認可と現場管理で、それを裏づけます。',
+        primaryCta: 'ご相談はこちら',
+        secondaryCta: '施工実績を見る',
+        icon: '🏗️',
+      },
+      highlights: [
+        { icon: '📐', title: '設計施工一括', text: '図面から引き渡しまで一つの契約で。' },
+        { icon: '🛡️', title: '許認可と安全管理', text: 'すべての現場で基準を満たします。' },
+        { icon: '📍', title: '8都市に対応', text: '職人も仕入先もすでに現地にいます。' },
+      ],
+      sections: [
+        {
+          kind: 'cards',
+          eyebrow: '対応工事',
+          title: '6つの施工領域を自社で',
+          text: '躯体から内装仕上げまで、契約した当人のチームが担当します。',
+          items: [
+            { icon: '🏭', title: '工場・倉庫', text: '倉庫、生産施設、物流拠点。' },
+            { icon: '🏢', title: '商業施設', text: 'オフィスや店舗。居ながら改修も新築も。' },
+            { icon: '🔧', title: '設備工事', text: '機械・電気・給排水の各工事。' },
+          ],
+        },
+        {
+          kind: 'stats',
+          eyebrow: '実績',
+          title: '現場記録で裏づけられる数字',
+          text: '',
+          items: [
+            { icon: '', title: '120件以上', text: '引き渡した工事' },
+            { icon: '', title: '50万m²', text: 'これまでの施工面積' },
+            { icon: '', title: '95%', text: '再び依頼いただく割合' },
+          ],
+        },
+        {
+          kind: 'steps',
+          eyebrow: '進め方',
+          title: '最初のご連絡から引き渡しまで',
+          text: '各段階の終わりに、お手元に残る書類をお渡しします。',
+          items: [
+            { icon: '1', title: '現地調査', text: '見積る前に、まず測ります。' },
+            { icon: '2', title: '提案と内訳書', text: '一式ではなく項目ごとの明細で。' },
+            { icon: '3', title: '施工と引き渡し', text: '週次の進捗報告、最後に竣工図。' },
+          ],
+        },
+        { kind: 'cta', eyebrow: '', title: '図面はお手元にありますか？', text: 'お送りいただければ、金額を入れた提案をお返しします。', items: [] },
+      ],
+      footerNote: 'Tegak Prima Konstruksi · ジャカルタ',
+    },
   },
 
   lembar: {
@@ -209,6 +264,49 @@ export const CONCEPT_MOCKUPS: Record<ConceptKey, Record<Locale, Mockup>> = {
         { kind: 'cta', eyebrow: '', title: 'Sudah ada judul di kepala?', text: 'Cari seluruh rak dari judul, penulis, atau genre.', items: [] },
       ],
       footerNote: 'Lembar Toko Buku · Bandung',
+    },
+    ja: {
+      brandName: 'Lembar Toko Buku',
+      nav: ['新刊', 'ジャンル', '店員のおすすめ', 'カート'],
+      accent: '#92400e',
+      hero: {
+        eyebrow: '独立系書店',
+        headline: 'ゆっくり読む価値のある本を',
+        subheadline: '読む人が選んだ棚です。オンラインでご注文いただき、一冊ずつ包んでお送りします。',
+        primaryCta: '棚を見る',
+        secondaryCta: '今月の一冊',
+        icon: '📚',
+      },
+      highlights: [
+        { icon: '✍️', title: '一冊ずつ選書', text: '店にいる誰かが実際に読んだ本だけ。' },
+        { icon: '📦', title: '丁寧に梱包', text: '緩衝材と封で、角を折らずにお届け。' },
+        { icon: '🎁', title: '送料無料', text: '一定額以上のご注文で。' },
+      ],
+      sections: [
+        {
+          kind: 'cards',
+          eyebrow: '店員のおすすめ',
+          title: 'いま手渡したい本',
+          text: '実際に読んだ人の短いコメントを添えて。',
+          items: [
+            { icon: '🌾', title: '文芸', text: '読み終えても残る静かな小説。' },
+            { icon: '🏛️', title: '歴史', text: '語り直された、この土地の歴史。' },
+            { icon: '🧠', title: '心理学', text: '自己啓発ではなく、読み物として。' },
+          ],
+        },
+        {
+          kind: 'split',
+          eyebrow: '形態',
+          title: '文庫か単行本か、お好みで',
+          text: '在庫はそのまま反映されるので、棚に見えるものは実際にあります。',
+          items: [
+            { icon: '📖', title: '文庫', text: '日常的に読むための版。' },
+            { icon: '📕', title: '単行本', text: '手元に置いておきたい一冊に。' },
+          ],
+        },
+        { kind: 'cta', eyebrow: '', title: '探している本がありますか？', text: '書名・著者・ジャンルから棚ごと検索できます。', items: [] },
+      ],
+      footerNote: 'Lembar Toko Buku · バンドン',
     },
   },
 
@@ -300,6 +398,50 @@ export const CONCEPT_MOCKUPS: Record<ConceptKey, Record<Locale, Mockup>> = {
         { kind: 'cta', eyebrow: '', title: 'Kunjungan pertama?', text: 'Baca dulu apa yang akan terjadi, lalu pesan kursi Anda.', items: [] },
       ],
       footerNote: 'Kurohane Barber Studio · Tokyo',
+    },
+    ja: {
+      brandName: '黒羽 Kurohane Barber Studio',
+      nav: ['メニュー', '理容師', 'スタイル', 'ご予約'],
+      accent: '#9f1239',
+      hero: {
+        eyebrow: 'バーバースタジオ · 東京',
+        headline: '細部にまで、精度を',
+        subheadline: '4人の理容師、9つのメニュー、椅子は一度にひとつ。担当と時間をお選びください。空いている枠だけを表示します。',
+        primaryCta: 'ご予約へ',
+        secondaryCta: 'メニューを見る',
+        icon: '✂️',
+      },
+      highlights: [
+        { icon: '🕐', title: '本当の空き状況', text: '店の営業時間と照らし合わせた枠だけ。' },
+        { icon: '👤', title: '担当をお選びいただけます', text: '指名なしでも承ります。' },
+        { icon: '🔔', title: '前日のお知らせ', text: 'ご来店前日にメールが届きます。' },
+      ],
+      sections: [
+        {
+          kind: 'cards',
+          eyebrow: 'メニュー',
+          title: 'カット、シェービング、ケア',
+          text: 'メニューごとに所要時間が決まっているので、必要な分だけ枠を押さえます。',
+          items: [
+            { icon: '✂️', title: 'カット · 60分', text: 'カウンセリング、カット、仕上げ。' },
+            { icon: '🪒', title: 'シェービング · 45分', text: 'ホットタオルとレザー。' },
+            { icon: '💎', title: 'プレミアム · 120分', text: 'カット、シェービング、頭皮ケア。' },
+          ],
+        },
+        {
+          kind: 'steps',
+          eyebrow: 'ご予約',
+          title: '3回のタップで予約完了',
+          text: '',
+          items: [
+            { icon: '1', title: 'メニューを選ぶ', text: '所要時間は自動で入ります。' },
+            { icon: '2', title: '担当を選ぶ', text: '指名なしも選べます。' },
+            { icon: '3', title: '時間を選ぶ', text: '変更・キャンセルは専用リンクから。' },
+          ],
+        },
+        { kind: 'cta', eyebrow: '', title: '初めてのご来店ですか？', text: '当日の流れをお読みいただいてから、お席をご予約ください。', items: [] },
+      ],
+      footerNote: '黒羽 Kurohane Barber Studio · 東京',
     },
   },
 
@@ -411,6 +553,60 @@ export const CONCEPT_MOCKUPS: Record<ConceptKey, Record<Locale, Mockup>> = {
         { kind: 'cta', eyebrow: '', title: 'Lelang berikutnya sudah dibuka', text: 'Lihat lot-nya dan jadwalkan tinjauan sebelum katalog ditutup.', items: [] },
       ],
       footerNote: 'Arden Property Auction · London',
+    },
+    ja: {
+      brandName: 'Arden Property Auction',
+      nav: ['出品物件', '開催日程', 'ご購入の流れ', 'お問い合わせ'],
+      accent: '#7c5e2a',
+      hero: {
+        eyebrow: '不動産オークションハウス',
+        headline: '確かな物件を、透明な競売で',
+        subheadline: 'すべての物件を参考価格・重要書類・開催日とともに掲載します。入札は会場で、カタログはここで。',
+        primaryCta: 'カタログを見る',
+        secondaryCta: '開催日程を見る',
+        icon: '🏛️',
+      },
+      highlights: [
+        { icon: '📄', title: '書類は事前に公開', text: '判断する前に内容を確認できます。' },
+        { icon: '📅', title: '日程は早めに掲載', text: '内覧日と開催日を一つのカレンダーに。' },
+        { icon: '🔍', title: '検索できるカタログ', text: '種別・権利形態・所在地で絞り込み。' },
+      ],
+      sections: [
+        {
+          kind: 'cards',
+          eyebrow: 'カタログ',
+          title: '住宅、商業、土地',
+          text: '物件ごとに参考価格、権利形態、該当する開催回を記載しています。',
+          items: [
+            { icon: '🏠', title: '住宅', text: '戸建てと集合住宅。空室・賃貸中いずれも。' },
+            { icon: '🏢', title: '商業', text: '店舗、オフィス、複合用途。' },
+            { icon: '🌳', title: '土地', text: '開発用地。許認可の注記つき。' },
+          ],
+        },
+        {
+          kind: 'steps',
+          eyebrow: 'ご購入の流れ',
+          title: '開催日までに済ませること',
+          text: 'サイトは準備のためのもので、入札そのものは会場で行います。',
+          items: [
+            { icon: '1', title: '重要書類を読む', text: '物件ページからダウンロードできます。' },
+            { icon: '2', title: '内覧を予約する', text: 'サイトから希望日をお申し込みください。' },
+            { icon: '3', title: '参加登録をする', text: '参加資格はこちらで直接確認します。' },
+          ],
+        },
+        {
+          kind: 'split',
+          eyebrow: 'ご出品',
+          title: '物件の出品をお考えですか？',
+          text: '詳細をお送りいただければ、査定と参考価格のご提案をお返しします。',
+          items: [
+            { icon: '📐', title: '査定は無料', text: 'そのまま進める義務はありません。' },
+            { icon: '📣', title: 'カタログ掲載', text: '登録済みの買い手にお届けします。' },
+          ],
+        },
+        { kind: 'cta', eyebrow: '', title: '次回開催の参加登録を受付中', text: 'カタログ締切までに物件をご覧いただき、内覧をご予約ください。', items: [] },
+      ],
+      footerNote: 'Arden Property Auction · ロンドン',
     },
   },
 };

@@ -9,6 +9,65 @@ Dokumen ini adalah baseline untuk agent berikutnya. Temuan di bawah tidak
 otomatis menjadi backlog yang disetujui pemilik dan belum diperbaiki dalam
 tugas penyusunan dokumentasi ini.
 
+## Pembaruan 11 Oktober 2026 — satu harga, satu tombol bahasa, consent
+
+Ronde revisi keempat. Dua dari enam temuan pemilik adalah **regresi dari ronde
+sebelumnya**, keduanya pola yang sama: menghapus penulis sebuah state tanpa
+menghapus pembacanya. Lihat D-24…D-28 di [DECISIONS.md](DECISIONS.md).
+
+| Area | Sebelum | Sesudah |
+| --- | --- | --- |
+| Harga di halaman konsep | 2 tempat, 2 aturan pasar (hero dari locale, panel dari perangkat) | **1 tempat**: panel; `Offer` JSON-LD menanggung sisi SEO |
+| Sumber pasar di island | `marketFromClient()` dipanggil sendiri-sendiri | satu hook `useMarket(locale)` |
+| `localStorage['skyland-market']` | dibaca dengan prioritas tertinggi, **tanpa penulis** | dihapus; `Base.astro` menyapu sisa di browser lama |
+| `saved.choices.region` | mengalahkan deteksi, ikut ke email order | diabaikan; deteksi selalu menang |
+| Pemilih bahasa | N−1 pill di wadah `.langs` **tanpa CSS** | satu tombol bendera + daftar tiga bahasa |
+| Bendera | — | SVG inline (emoji bendera tidak dirender di Windows) |
+| Preview mockup di HP | iframe 646px menelan scroll halaman | ≤68vh, `pointer-events` diserahkan setelah diketuk |
+| Toggle desktop/mobile <640px | ada, menghasilkan strip 223px | disembunyikan |
+| Skala awal preview | 0.5 lalu melompat ke nilai sebenarnya | diukur di `useLayoutEffect` |
+| Tombol kirim order | tidak pernah `disabled` | `disabled` sampai consent dicentang |
+| Consent setelah muat ulang | dipulihkan **sudah tercentang** | selalu kosong; kontak lain tetap dipulihkan |
+| Penolakan consent di server | error Zod generik | kode bernama `consent_required` |
+| Pasal perubahan scope | hanya fitur **baru** setelah persetujuan | mencakup fitur yang berubah/dibatalkan saat pengerjaan, 3 bahasa |
+| Teks internal ke klien | label pasar, "Total layar", "Harga mulai dari", provenance tag, kuota revisi 3× | dihapus |
+| `npm run test` | 107 lulus | **117 lulus / 0 gagal** |
+
+**Satu item rencana dibatalkan setelah diukur.** Baris "Pembulatan" sempat akan
+dihapus dari rincian harga, tetapi selisihnya tidak pernah nol pada keempat
+konsep di ketiga pasar — sampai Rp 21.875, ¥370, $9. Menghapusnya meninggalkan
+tabel yang tidak berjumlah sama dengan totalnya sendiri. Baris itu tetap ada;
+yang dihapus hanya baris "Harga normal" saat tidak ada diskon. Invariant baru
+mengunci: jumlah `q.lines` harus persis `q.price`.
+
+Diverifikasi di browser (Chrome lokal, 390/768/1440, EN/ID/JA):
+
+- Harga muncul **tepat sekali** dan dalam mata uang perangkat pada 6 skenario ×
+  2 lebar — termasuk reproduksi langsung keluhan pemilik: `skyland-market=ID`
+  diset lebih dulu, timezone `Asia/Tokyo`, hasilnya tetap ￥. Tidak ada mata uang
+  asing di mana pun pada halaman yang sama.
+- Pemilih bahasa: satu kontrol di ketiga locale × 2 lebar, tiga pilihan berbendera,
+  satu ditandai aktif, menutup pada Escape dan klik di luar, dan **berpindah tanpa
+  dipantulkan kembali** oleh redirect otomatis.
+- Preview mockup: halaman tetap bisa digulir melewatinya di 390px, frame ≤68vh,
+  dan preview mengambil alih hanya setelah diketuk. Mouse memakainya langsung —
+  versi pertama perbaikan ini justru mematikan preview untuk pengguna mouse karena
+  spesifisitas CSS, dan itu tertangkap di sini, bukan di unit test.
+- Consent: tombol mati, klik paksa tidak mengirim apa pun, muat ulang
+  mengembalikan nama/email tetapi bukan centangnya.
+- Audit responsif 13 halaman × 6 lebar bersih; jalur konsep tetap **0 request
+  `/api/*`**; sitemap 48 URL dengan 16 `/ja/`.
+- Sapuan teks internal pada 21 halaman × 3 bahasa (termasuk setiap `<details>`
+  dibuka): tidak ada sisa.
+
+**Tidak** diverifikasi: tidak ada panggilan OpenAI (kredensial nyata ada di
+`.env.local`; langkah mockup diuji lewat hand-off konsep yang tidak memanggil
+model), tidak ada SMTP/order nyata — penegakan consent di server diuji lewat
+schema, bukan POST sungguhan. Tidak ada uji device fisik: perilaku
+`pointer-events` pada iframe di iOS Safari sebaiknya dicek sekali di perangkat
+asli. **Pasal scope baru di halaman legal Jepang tetap belum direview ahli hukum
+Jepang.**
+
 ## Pembaruan 10 Oktober 2026 — rekalibrasi harga
 
 Riset harga lima dokumen selesai dan **fase 0–4-nya diimplementasikan**.
@@ -33,6 +92,39 @@ Yang **belum** dikerjakan: snapshot/expiry quote bertanda tangan, estimator
 work-package, discovery AI adaptif, dan eval AI. Tiga angka bisnis masih
 memblokir perhitungan lantai biaya: biaya waktu per jam pemilik yang sebenarnya,
 kapasitas jam riil per minggu, dan margin minimum yang diterima.
+
+## Pembaruan 10 Oktober 2026 (revisi) — bahasa Jepang, penjelasan kontekstual, harga konsisten
+
+Putaran revisi setelah tinjauan pemilik. Lihat D-20…D-23 di [DECISIONS.md](DECISIONS.md).
+
+| Area | Sebelum | Sesudah |
+| --- | --- | --- |
+| Bahasa | EN, ID | **EN, ID, JA** — 48 halaman berbahasa, hreflang & sitemap lengkap |
+| Deteksi bahasa | toggle EN→ID | daftar aturan: Tokyo→JA, zona Indonesia→ID, sisanya EN |
+| Prompt AI | seluruhnya `.en` | per-locale; contoh kerja tidak lagi menyodorkan nama halaman Inggris |
+| Pesan error | Inggris keras di kotak merah | kode pendek dari server, teks dipilih browser per bahasa |
+| Penjelasan fitur konsep | `FEATURE_COPY.plain` generik | `does`/`so` per konsep per bahasa + nama khusus konteks |
+| Picker "tambah fitur" | 55 fitur katalog | dihapus; hanya pilihan AI + saran AI |
+| Status harga konsep | Lembar `range` | keempat konsep `fixed` di tiga pasar |
+| Pemilih mata uang | segmented IDR/JPY/USD | dihapus; pasar dideteksi dan ditampilkan sebagai teks |
+| Fakta "Up to N pages" | muncul 2x, salah untuk web app | "N halaman konten termasuk"; web app → "ditentukan saat konsultasi" |
+| Breadcrumb halaman layanan | teks link turun 8px | satu baris lurus |
+| `regions.JP.round_to` | 5.000 (lebih kasar dari fitur termurah) | 1.000 + invariant test |
+| Estimasi hari kerja | 3 layanan menjanjikan waktu mustahil | batas bawah ≥ `ceil(est_hours / 6)` + invariant test |
+| `npm run test` | 91 lulus | **107 lulus / 0 gagal** |
+
+Diverifikasi di browser (Chrome lokal, 320/375/768/1440, EN/ID/JA): jalur konsep
+sampai layar hasil di 5 kombinasi **tanpa satu pun request `/api/*`**; deteksi
+bahasa benar pada 8 skenario termasuk deep link, tanpa loop, dan pilihan eksplisit
+dihormati; audit responsif 12 halaman × 4 lebar bersih; sitemap 48 URL dengan 16
+`/ja/`; aset `og-ja.png` dan `hero-site-ja.png` dibuat ulang dengan font CJK.
+
+**Tidak** diverifikasi: tidak ada panggilan OpenAI sungguhan — kredensial ada di
+`.env.local`, jadi memanggilnya akan menagih biaya. Yang diuji adalah **prompt
+yang dikirim** (katalog per-locale, arahan bahasa, contoh tanpa nama Inggris),
+bukan jawaban yang kembali. Juga tidak ada SMTP/order nyata, tidak ada eval
+kualitas AI, tidak ada uji device fisik, dan **teks hukum Jepang belum direview
+ahli hukum Jepang** — halaman legal JA membawa banner yang menyatakan itu.
 
 ## Pembaruan 10 Oktober 2026 — pintu masuk harga lewat konsep
 

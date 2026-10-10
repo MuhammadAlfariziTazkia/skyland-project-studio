@@ -1,8 +1,9 @@
 ---
 import Logo from '../Logo.astro';
-import { getDict, otherLocale } from '../../i18n';
+import FlagIcon from '../FlagIcon.astro';
+import { dicts, getDict } from '../../i18n';
 import { ROUTES, pairFor } from '../../i18n/routes';
-import type { Locale } from '../../lib/schemas';
+import { LOCALES, type Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
@@ -10,8 +11,15 @@ const t = getDict(locale);
 const home = ROUTES.home[locale];
 const isHome = Astro.url.pathname === home || Astro.url.pathname + '/' === home;
 const anchor = (id: string) => (isHome ? `#${id}` : `${home}#${id}`);
-const alt = otherLocale(locale);
-const altHref = pairFor(Astro.url.pathname)?.[alt] ?? ROUTES.home[alt];
+// Every language, including the current one, each labelled in its own language so a Japanese visitor
+// reads 日本語. Listing all three is what lets one control show which language is active; the old list of
+// "other" locales could only ever say where you could go, never where you are.
+const langs = LOCALES.map((l) => ({
+  loc: l,
+  href: pairFor(Astro.url.pathname)?.[l] ?? ROUTES.home[l],
+  label: dicts[l].nav.switchLangSelf,
+  current: l === locale,
+}));
 const links = [
   ['services', t.nav.services],
   ['how', t.nav.how],
@@ -25,13 +33,38 @@ const links = [
     <Logo href={home} />
     <div class="links" id="nav-links" data-nav-links>
       {links.map(([id, label]) => <a href={anchor(id)} data-nav-link>{label}</a>)}
-      <a class="lang" href={altHref} hreflang={alt} lang={alt} data-lang-switch>
-        <span aria-hidden="true">🌐</span> {t.nav.switchLang}
-      </a>
       <a class="btn btn-primary btn-sm mobile-cta" href={ROUTES.consult[locale]}>{t.nav.cta} →</a>
     </div>
     <div class="right">
-      <a class="lang-short" href={altHref} hreflang={alt} lang={alt} aria-label={t.nav.switchLang} data-lang-switch>{t.nav.switchLangShort}</a>
+      <div class="lang-switch" data-lang-menu>
+        <button type="button" class="lang-btn" aria-expanded="false" aria-haspopup="true" aria-controls="lang-list" data-lang-toggle>
+          <span class="flag"><FlagIcon locale={locale} /></span>
+          <span class="sr-only">{t.nav.langMenu}: {t.nav.switchLangSelf}</span>
+          <svg class="chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5L6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </button>
+        <ul class="lang-list" id="lang-list" role="menu" aria-label={t.nav.langMenu}>
+          {langs.map((l) => (
+            <li role="none">
+              {/* Each option stays a real link with hreflang + data-lang-switch: Base.astro reads both to
+                  record the choice, and without them the automatic language redirect would bounce the
+                  visitor straight back to where they came from. */}
+              <a
+                class:list={['lang-opt', { on: l.current }]}
+                role="menuitem"
+                href={l.href}
+                hreflang={l.loc}
+                lang={l.loc}
+                aria-current={l.current ? 'true' : undefined}
+                data-lang-switch
+              >
+                <span class="flag"><FlagIcon locale={l.loc} /></span>
+                <span class="lang-name">{l.label}</span>
+                {l.current && <svg class="tick" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 6.5L5 9l4.5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
       <a class="btn btn-primary btn-sm desktop-cta" href={ROUTES.consult[locale]}>{t.nav.cta} →</a>
       <button class="burger" type="button" aria-controls="nav-links" aria-expanded="false" data-burger>
         <span class="sr-only" data-burger-label data-open={t.nav.menu} data-close={t.nav.close}>{t.nav.menu}</span>
@@ -53,8 +86,23 @@ const links = [
   };
   burger?.addEventListener('click', () => set(!header?.classList.contains('open')));
   document.querySelectorAll('[data-nav-links] a').forEach((a) => a.addEventListener('click', () => set(false)));
-  document.addEventListener('keydown', (e) => e.key === 'Escape' && set(false));
   matchMedia('(min-width: 960px)').addEventListener('change', (e) => e.matches && set(false));
+
+  // The language list. State lives on aria-expanded so the button is the single source of truth for both
+  // assistive tech and the CSS that reveals the list.
+  const langWrap = document.querySelector<HTMLElement>('[data-lang-menu]');
+  const langBtn = document.querySelector<HTMLButtonElement>('[data-lang-toggle]');
+  const setLang = (open: boolean) => langBtn?.setAttribute('aria-expanded', String(open));
+  langBtn?.addEventListener('click', () => setLang(langBtn.getAttribute('aria-expanded') !== 'true'));
+  document.addEventListener('click', (e) => {
+    if (!langWrap?.contains(e.target as Node)) setLang(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    set(false);
+    setLang(false);
+    langBtn?.focus();
+  });
 </script>
 
 <style>
@@ -64,8 +112,33 @@ const links = [
   .links a:not(.btn) { color: var(--muted); white-space: nowrap; padding: 6px 0; }
   .links a:not(.btn):hover { color: var(--ink); }
   .right { display: flex; align-items: center; gap: 10px; }
-  .lang-short { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; height: 40px; border: 1px solid #dce4f2; border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--ink-2); }
-  .lang { display: none !important; }
+  /*
+   * One control, not one pill per language. The previous version rendered a link for every *other*
+   * locale into a `.langs` wrapper that had no CSS rule anywhere in the repo, so adding Japanese turned
+   * it into two bare circles jammed together with no gap and no sign of which language was active.
+   */
+  .lang-switch { position: relative; }
+  .lang-btn { display: inline-flex; align-items: center; gap: 4px; height: 40px; padding: 0 8px 0 4px; border: 1px solid #dce4f2; border-radius: 999px; background: #fff; color: var(--ink-2); cursor: pointer; }
+  .lang-btn:hover { border-color: #c3d0e8; }
+  .lang-btn .chev { width: 12px; height: 12px; transition: transform .2s var(--ease); }
+  .lang-btn[aria-expanded='true'] { border-color: var(--blue); }
+  .lang-btn[aria-expanded='true'] .chev { transform: rotate(180deg); }
+  /* The ring has to be firm: half of the Indonesian flag and most of the Japanese one are white, so on
+     a white menu they would read as a floating red shape with no edge. */
+  .flag { width: 22px; height: 22px; flex: none; border-radius: 999px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(11, 26, 58, .28); }
+
+  .lang-list { position: absolute; top: calc(100% + 8px); right: 0; z-index: 60; list-style: none; margin: 0; padding: 6px; min-width: 190px; background: #fff; border: 1px solid var(--line-2); border-radius: 14px; box-shadow: 0 18px 40px rgba(11, 26, 58, .16); opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity .16s, transform .18s var(--ease), visibility .18s; }
+  .lang-btn[aria-expanded='true'] + .lang-list { opacity: 1; visibility: visible; transform: none; }
+  .lang-opt { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 10px; border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--ink-2); text-decoration: none; }
+  .lang-opt:hover { background: #f1f6ff; color: var(--ink); }
+  .lang-opt.on { font-weight: 700; color: var(--ink); }
+  .lang-name { flex: 1; white-space: nowrap; }
+  .lang-opt .tick { width: 14px; height: 14px; color: var(--blue); flex: none; }
+
+  /* No JavaScript: the list is always open rather than permanently unreachable. */
+  html:not(.js) .lang-btn { display: none; }
+  html:not(.js) .lang-list { position: static; opacity: 1; visibility: visible; transform: none; box-shadow: none; border: 0; padding: 0; min-width: 0; display: flex; gap: 4px; }
+  html:not(.js) .lang-opt .lang-name { display: none; }
   .mobile-cta { display: none; }
   .burger { display: none; width: 44px; height: 44px; border: 1px solid #dce4f2; border-radius: 12px; background: #fff; cursor: pointer; align-items: center; justify-content: center; }
   .bars { display: grid; gap: 4px; }
@@ -84,7 +157,6 @@ const links = [
     }
     .open .links { transform: none; opacity: 1; visibility: visible; }
     .links a:not(.btn) { font-size: 18px; font-weight: 600; color: var(--ink); padding: 14px 4px; border-bottom: 1px solid var(--line-2); }
-    .lang { display: flex !important; gap: 8px; align-items: center; }
     .mobile-cta { display: inline-flex; margin-top: 20px; min-height: 52px; font-size: 16px; }
   }
 </style>

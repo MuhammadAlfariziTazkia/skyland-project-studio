@@ -157,6 +157,9 @@ jalur harga kedua — semuanya tetap lewat `quote()`.
 | `contentPages` | Halaman publik tanpa fitur: satu-satunya yang ditagih |
 | `featurePages` | Layar yang dibawa fitur; muncul hanya saat fiturnya aktif |
 | `features[].need` | `core` = sektornya tidak bisa jalan tanpanya, `nice` = benar-benar opsional |
+| `features[].does` | Apa fitur itu **di situs ini**, konkret. Bukan nama fitur diulang |
+| `features[].so` | Apa yang berubah bagi bisnisnya. Satu kalimat |
+| `features[].label` | Nama khusus konsep bila nama katalog menyesatkan di konteksnya |
 | `notOffered` | Kemampuan yang sengaja di luar scope, ditampilkan ke klien |
 | `caveats` | Hal yang harus klien tahu sebelum memesan |
 
@@ -228,31 +231,43 @@ Arden GLOBAL menjadi `fixed $9.150` tanpa perubahan kebutuhan bisnis apa pun.
 | Pasar | Currency | Round harga | Round katalog | Minimum | Maksimum otomatis | Tarif/jam |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | ID | IDR | 50,000 | 25,000 | 750,000 | 20,000,000 | 93,000 |
-| JP | JPY | 5,000 | 1,000 | 30,000 | 700,000 | 3,150 |
+| JP | JPY | 1,000 | 1,000 | 30,000 | 700,000 | 3,150 |
 | GLOBAL | USD | 25 | 5 | 250 | 6,000 | 27 |
+
+**Langkah pembulatan harus lebih halus daripada fitur berbayar termurah di pasar
+itu.** JP pernah membulatkan ke ¥5.000, lebih kasar daripada harga fitur termurah,
+sehingga mencentang satu fitur tidak mengubah angka di layar — checkbox terlihat
+rusak dan fiturnya praktis gratis. Diuji sebagai invariant.
 
 Batas minimum/maksimum ditetapkan **per pasar**, bukan dikonversi dari kurs.
 Sebelumnya `ID.max_price` Rp22 juta setara sekitar $1.229 sementara GLOBAL $12.000,
 sehingga scope yang sama bisa `discuss` di ID dan `range` di GLOBAL. Lihat
 [riset harga 03](PRICING_RESEARCH_03_EVALUATION.md).
 
-Pasar **dideteksi dari perangkat**, bukan ditanyakan. `marketFromClient()` di
-`src/lib/pricing.ts` membaca pilihan tersimpan (`localStorage['skyland-market']`),
-lalu timezone (`Asia/Tokyo` → JP, zona Indonesia → ID), lalu
-`navigator.languages`, dan jatuh ke default locale di luar browser. Klien bisa
-mengoreksinya lewat pemilih mata uang kecil di panel harga; `regionFor(locale)`
-tetap menjadi nilai yang dipakai HTML prerender.
+Pasar **dideteksi dari perangkat**, bukan ditanyakan dan tidak disimpan.
+`marketFromClient()` di `src/lib/pricing.ts` membaca timezone (`Asia/Tokyo` atau
+`Japan` → JP, zona Indonesia → ID), lalu `navigator.languages`, dan jatuh ke
+default locale di luar browser. Tidak ada state tersimpan di jalur ini.
 
-Deteksi dijalankan di `useEffect`, **bukan** di initial state: Preact `hydrate()`
-tidak men-diff atribut pada DOM yang sudah ada, jadi render klien pertama yang
-berbeda dari server akan meninggalkan `aria-checked` versi server dan pemilih
-mata uang bisa menunjuk USD sementara harganya sudah yen. Biayanya satu paint
-tambahan bagi pengunjung yang pasarnya berbeda dari locale-nya.
+Island **tidak boleh memanggil `marketFromClient()` sendiri.** Satu-satunya jalur
+adalah hook `useMarket(locale)` di `src/components/useMarket.ts`, dipakai
+`ConceptPricing.tsx` dan `Consultant.tsx`. Hook itu mulai dari `regionFor(locale)`
+— nilai yang sudah ada di HTML prerender — lalu menetap pada hasil deteksi di
+efek pertama. Menyelesaikannya sebelum render pertama bukan pilihan: island ikut
+diprerender, jadi state "sedang mendeteksi" akan menjadi HTML statisnya dan setiap
+pengunjung melihat harga muncul belakangan. Biayanya satu paint tambahan, hanya
+bagi pengunjung yang locale-nya tidak cocok dengan tempatnya.
 
-Locale hanya memilih bahasa label. Tidak ada konversi mata uang maupun deteksi pasar oleh AI. Tidak
-ada locale `ja`, jadi pasar JP **hanya** bisa datang dari pemilih pasar eksplisit
-di `Consultant.tsx` — bahasa UI, bahasa website pesanan, pasar harga, dan mata
-uang adalah empat pilihan terpisah.
+Dua jalur basi pernah mengalahkan deteksi ini dan keduanya sudah ditutup; lihat
+[D-24](DECISIONS.md).
+
+Locale hanya memilih bahasa label. Tidak ada konversi mata uang maupun deteksi
+pasar oleh AI. Bahasa dan pasar tetap dua hal terpisah: pengunjung berbahasa
+Inggris di Tokyo membaca `/` dan membayar dalam yen. Sejak pemilih mata uang
+dihapus, tidak ada cara bagi pengunjung mengoreksi pasar yang salah dideteksi
+(VPN, ekspatriat, timezone perangkat yang tidak sesuai tempat tinggal); mereka
+akan menghubungi pemilik. Itu konsekuensi dari keputusan menghapus pilihan, bukan
+bug.
 
 ## Multiplier dan timeline
 

@@ -24,6 +24,11 @@ export interface OrderedFeature {
   amount: number;
   included: boolean;
   unit?: 'page' | 'item';
+  /** What it is on this specific site, and why it matters — written per concept, not per catalog item. */
+  does: string;
+  so: string;
+  /** The concept's own name for it, falling back to the catalog's. */
+  name: string;
 }
 
 /**
@@ -33,11 +38,21 @@ export interface OrderedFeature {
  * without inventing a "cheap" threshold, and it means the top of the list is always the highest-value,
  * lowest-cost work. Included features sort first within `core` because they cost nothing.
  */
-export function orderedFeatures(spec: SampleSpec, region: Region, data: PricingData = PRICING): OrderedFeature[] {
+export function orderedFeatures(spec: SampleSpec, region: Region, locale: Locale, data: PricingData = PRICING): OrderedFeature[] {
   return spec.features
-    .map(({ id, need }) => {
-      const { kind, amount, unit } = featurePrice(spec.serviceId, id, region, data);
-      return { id, need, amount, included: kind === 'included', unit };
+    .map((f) => {
+      const { kind, amount, unit } = featurePrice(spec.serviceId, f.id, region, data);
+      // The generic catalog description is the fallback, but the concept's own wording is the point.
+      return {
+        id: f.id,
+        need: f.need,
+        amount,
+        included: kind === 'included',
+        unit,
+        name: f.label?.[locale] || FEATURE_COPY[f.id]?.[locale].name || f.id,
+        does: f.does[locale] || FEATURE_COPY[f.id]?.[locale].plain || '',
+        so: f.so[locale] || '',
+      };
     })
     .sort((a, b) => (a.need === b.need ? a.amount - b.amount : a.need === 'core' ? -1 : 1));
 }
@@ -58,7 +73,7 @@ export function toPlan(spec: SampleSpec, selected: readonly string[], locale: Lo
   return PlanSchema.parse({
     serviceId: spec.serviceId,
     projectName: spec.key,
-    summary: conceptBrief(spec, locale, data),
+    summary: conceptBrief(spec, locale),
     audience: '',
     business: '',
     flows: [],
@@ -82,12 +97,15 @@ export function toPlan(spec: SampleSpec, selected: readonly string[], locale: Lo
  * The brief the order email and the internal notes read, written by the system rather than the client.
  * It names the concept and the chosen scope so an order arriving from a concept page is self-explanatory.
  */
-export function conceptBrief(spec: SampleSpec, locale: Locale, data: PricingData = PRICING): string {
+export function conceptBrief(spec: SampleSpec, locale: Locale): string {
   const service = SERVICE_COPY[spec.serviceId]?.[locale].name ?? spec.serviceId;
   const pages = spec.contentPages.length;
-  return locale === 'id'
-    ? `Pesanan dari halaman konsep "${spec.key}" (${service}): ${pages} halaman konten, scope mengikuti konsep tersebut. Klien memilih konsep ini, bukan menulis brief sendiri.`
-    : `Ordered from the "${spec.key}" concept page (${service}): ${pages} content pages, scope follows that concept. The client picked this concept rather than writing a brief.`;
+  const BRIEF: Record<Locale, string> = {
+    en: `Ordered from the "${spec.key}" concept page (${service}): ${pages} content pages, scope follows that concept. The client picked this concept rather than writing a brief.`,
+    id: `Pesanan dari halaman konsep "${spec.key}" (${service}): ${pages} halaman konten, scope mengikuti konsep tersebut. Klien memilih konsep ini, bukan menulis brief sendiri.`,
+    ja: `コンセプトページ「${spec.key}」（${service}）からのご依頼：コンテンツページ${pages}ページ、範囲はそのコンセプトに準じます。クライアントはブリーフを書く代わりに、このコンセプトを選びました。`,
+  };
+  return BRIEF[locale];
 }
 
 /** Features in the catalog that need a third-party account or subscription to work. */

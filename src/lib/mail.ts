@@ -2,9 +2,9 @@ import nodemailer from 'nodemailer';
 import { env } from './env';
 import pricing from '../../data/pricing.json';
 import { SITE } from '../config/site';
-import { FEATURE_COPY, MULTIPLIER_COPY, SERVICE_COPY } from '../i18n/catalog';
+import { PAGE_COPY, FEATURE_COPY, MULTIPLIER_COPY, SERVICE_COPY } from '../i18n/catalog';
 import { formatPrice, visiblePages, quotePriceText, type Quote } from './pricing';
-import type { OrderRequest } from './schemas';
+import type { Locale, OrderRequest } from './schemas';
 import { THEMES } from './mockup/themes';
 
 const esc = (s: string) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
@@ -22,7 +22,7 @@ const box = (inner: string) =>
 const h = (s: string) => `<h3 style="margin:24px 0 8px;font-size:15px;color:#0b1a3a">${s}</h3>`;
 const row = (k: string, v: string) => `<tr><td style="padding:6px 12px 6px 0;color:#6a7894;font-size:13px;vertical-align:top;white-space:nowrap">${k}</td><td style="padding:6px 0;font-size:14px">${v}</td></tr>`;
 
-function priceTable(q: Quote, lang: 'en' | 'id') {
+function priceTable(q: Quote, lang: Locale) {
   const L =
     lang === 'id'
       ? { inc: 'termasuk', free: 'gratis', price: 'Harga normal', total: 'Total harga pasti', est: 'Estimasi (dikonfirmasi lewat obrolan singkat)', discuss: 'Perlu diskusi langsung' }
@@ -35,8 +35,9 @@ function priceTable(q: Quote, lang: 'en' | 'id') {
     )
     .join('');
   const label = q.status === 'fixed' ? L.total : q.status === 'range' ? L.est : L.discuss;
+  const discounted = q.discounts.some((d) => d.amount > 0);
   return `<table style="width:100%;border-collapse:collapse">${lines}
-<tr><td style="padding:8px 0;font-size:13.5px">${L.price}</td><td style="text-align:right;font-size:13.5px">${formatPrice(q.price, q.region)}</td></tr>
+${discounted ? `<tr><td style="padding:8px 0;font-size:13.5px">${L.price}</td><td style="text-align:right;font-size:13.5px">${formatPrice(q.price, q.region)}</td></tr>` : ''}
 ${q.discounts
     .filter((d) => d.amount > 0)
     .map((d) => `<tr><td style="padding:4px 0;font-size:13.5px;color:#16a36a">${esc(d.label)} (${d.percent}%)</td><td style="text-align:right;font-size:13.5px;color:#16a36a">−${formatPrice(d.amount, q.region)}</td></tr>`)
@@ -44,7 +45,7 @@ ${q.discounts
 <tr><td style="padding:10px 0;font-size:16px;font-weight:800">${label}</td><td style="text-align:right;font-size:18px;font-weight:800">${quotePriceText(q) || '—'}</td></tr></table>`;
 }
 
-function planHtml(o: OrderRequest, lang: 'en' | 'id') {
+function planHtml(o: OrderRequest, lang: Locale, forOwner = false) {
   const p = o.plan;
   const L =
     lang === 'id'
@@ -57,7 +58,7 @@ function planHtml(o: OrderRequest, lang: 'en' | 'id') {
     return `${h(title)}<ol style="margin:0;padding-left:20px;font-size:14px;line-height:1.55">${list
       .map(
         (pg) =>
-          `<li style="margin-bottom:6px"><b>${esc(pg.name)}</b>${pg.type ? ` <code style="color:#8a97b0;font-size:12px">${esc(pg.type)}</code>` : ''}${pg.feature ? ` <span style="color:#8a97b0;font-size:12px">(${esc(FEATURE_COPY[pg.feature]?.[lang].name ?? pg.feature)})</span>` : ''}<br><span style="color:#4a5876">${esc(pg.purpose)}</span>${pg.sections.length ? `<br><span style="color:#6a7894;font-size:13px">${pg.sections.map(esc).join(' · ')}</span>` : ''}</li>`,
+          `<li style="margin-bottom:6px"><b>${esc(pg.name)}</b>${pg.type ? ` <code style="color:#8a97b0;font-size:12px">${esc(forOwner ? pg.type : (PAGE_COPY[pg.type]?.[lang] ?? pg.type))}</code>` : ''}${pg.feature ? ` <span style="color:#8a97b0;font-size:12px">(${esc(FEATURE_COPY[pg.feature]?.[lang].name ?? pg.feature)})</span>` : ''}<br><span style="color:#4a5876">${esc(pg.purpose)}</span>${pg.sections.length ? `<br><span style="color:#6a7894;font-size:13px">${pg.sections.map(esc).join(' · ')}</span>` : ''}</li>`,
       )
       .join('')}</ol>`;
   };
@@ -80,7 +81,8 @@ export async function sendOrderEmails(o: OrderRequest, q: Quote, id: string, moc
   const c = o.contact;
   const waNum = c.whatsapp.replace(/\D/g, '').replace(/^0/, '62');
   const typeName = SERVICE_COPY[o.plan.serviceId].id.name;
-  const totalText = quotePriceText(q) || (o.locale === 'id' ? 'perlu diskusi' : 'to discuss');
+  const TO_DISCUSS: Record<Locale, string> = { en: 'to discuss', id: 'perlu diskusi', ja: '要相談' };
+  const totalText = quotePriceText(q) || TO_DISCUSS[o.locale];
   const choice = (k: keyof typeof MULTIPLIER_COPY, v: string) => MULTIPLIER_COPY[k].options[v].id.label;
   const attachments = [
     { filename: `mockup-${id}.html`, content: mockupHtml, contentType: 'text/html' },
@@ -96,7 +98,7 @@ ${q.status !== 'fixed' ? `<p style="margin:16px 0 0;padding:12px 14px;background
 ${h('Brief asli')}<p style="margin:0;font-size:14px;color:#33415e;background:#f7faff;border-radius:10px;padding:12px 14px">${nl2br(o.description)}</p>
 ${o.revision ? `${h('Permintaan revisi')}<p style="margin:0;font-size:14px;color:#33415e">${nl2br(o.revision)}</p>` : ''}
 ${h('Ringkasan')}<table>${row('Jenis', typeName)}${row('Ringkasan', esc(o.plan.summary))}${row('Target', esc(o.plan.audience))}${o.plan.business ? row('Bisnis', esc(o.plan.business)) : ''}</table>
-${planHtml(o, 'id')}
+${planHtml(o, 'id', true)}
 ${h('Rincian harga')}${priceTable(q, 'id')}
 <p style="margin:20px 0 0;font-size:12.5px;color:#8a97b0">Lampiran: mockup homepage (buka file .html di browser) dan data konsultasi lengkap (.json).</p>
 </div>`);
