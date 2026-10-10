@@ -326,6 +326,7 @@ export const PAGE_COPY: Record<string, Record<Locale, string>> = {
   login: { en: 'Log in / Sign up', id: 'Masuk / Daftar' },
   account: { en: 'My account', id: 'Akun saya' },
   my_orders: { en: 'My orders', id: 'Pesanan saya' },
+  manage_booking: { en: 'Manage your booking', id: 'Kelola booking Anda' },
   my_bookings: { en: 'My bookings', id: 'Booking saya' },
   my_courses: { en: 'My courses', id: 'Kursus saya' },
   lesson: { en: 'Lesson', id: 'Materi kursus' },

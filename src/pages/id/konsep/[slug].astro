@@ -1,0 +1,10 @@
+---
+import ConceptPage from '../../../components/pages/ConceptPage.astro';
+import { CONCEPT_KEYS, CONCEPT_SLUGS, type ConceptKey } from '../../../i18n/routes';
+
+export function getStaticPaths() {
+  return CONCEPT_KEYS.map((concept) => ({ params: { slug: CONCEPT_SLUGS[concept].id }, props: { concept } }));
+}
+const { concept } = Astro.props as { concept: ConceptKey };
+---
+<ConceptPage locale="id" concept={concept} />

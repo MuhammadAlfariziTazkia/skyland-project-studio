@@ -87,14 +87,23 @@ nilai rahasia tidak menjadi dokumentasi proyek.
 | Home | `/` | `/id/` | Static |
 | Konsultasi | `/consult/` | `/id/konsultasi/` | Static shell + `client:load` island |
 | Layanan | `/services/<slug>/` | `/id/layanan/<slug>/` | 8 per bahasa, `getStaticPaths` |
+| Halaman konsep | `/concepts/<slug>/` | `/id/konsep/<slug>/` | 4 per bahasa, `getStaticPaths` + `client:load` island |
 | Privacy | `/privacy/` | `/id/privasi/` | Static |
 | Terms | `/terms/` | `/id/syarat-ketentuan/` | Static |
 | API | `/api/plan`, `/api/mockup`, `/api/promo`, `/api/order` | Sama | POST serverless |
 | Konsep | `/samples/tegak/`, `/samples/lembar/`, `/samples/arden/`, `/samples/kurohane/` | Tidak dilokalkan berpasangan | File public |
 
-Ada 24 halaman utama berbahasa: 4 jenis umum × 2 + 8 layanan × 2. Robots,
-sitemap, dan demo konsep berada di luar hitungan itu. `trailingSlash: 'ignore'`;
-helper link/canonical tetap menghasilkan trailing slash.
+Ada 32 halaman utama berbahasa: 4 jenis umum × 2 + 8 layanan × 2 + 4 konsep × 2.
+Robots, sitemap, dan demo konsep di `public/samples/` berada di luar hitungan itu.
+`trailingSlash: 'ignore'`; helper link/canonical tetap menghasilkan trailing slash.
+
+Halaman konsep adalah pintu masuk kedua ke harga: tiap demo di `public/samples/`
+punya satu halaman berharga dengan rincian fitur yang bisa dicentang, lalu
+melompat langsung ke layar hasil konsultan. Slug ada di `CONCEPT_SLUGS`
+(`src/i18n/routes.ts`) dan ikut `allPagePairs()` sehingga hreflang dan sitemap
+mencakupnya. Island-nya (`src/components/concept/ConceptPricing.tsx`) **tidak
+memanggil satu pun API**: mockup-nya ditulis tangan di
+`src/lib/samples/mockups.ts`. Lihat D-16…D-19 di [DECISIONS.md](DECISIONS.md).
 
 ## Batas modul dan dependensi
 
@@ -188,3 +197,4 @@ yang dapat dicari ulang atau token untuk mengotorisasi scope.
 
 Layanan eksternal runtime: OpenAI, Gmail SMTP, optional Cloudflare Turnstile,
 dan WhatsApp berupa link keluar. Tidak ada queue/retry otomatis atau scheduler.
+

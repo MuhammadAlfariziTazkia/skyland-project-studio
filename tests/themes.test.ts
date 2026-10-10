@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { contrastRatio, pickAccent, renderMockup } from '../src/lib/mockup/render';
 import { SAMPLE_MOCKUP } from '../src/lib/mockup/samples';
 import { MOODS, THEMES, fontsHref, recommendThemes, themeSwatchHtml } from '../src/lib/mockup/themes';
-import { PlanSchema, THEME_IDS, type Mockup } from '../src/lib/schemas';
+import { PlanShape, THEME_IDS, type Mockup } from '../src/lib/schemas';
 
 describe('themes', () => {
   it('defines every theme id with names in both languages and a known mood', () => {
@@ -17,7 +17,7 @@ describe('themes', () => {
   });
 
   it('recommends four unique valid styles, AI picks first, and keeps the current one', () => {
-    const plan = PlanSchema.shape.styles.parse(['aurora', 'not_a_theme', 'retro']);
+    const plan = PlanShape.styles.parse(['aurora', 'not_a_theme', 'retro']);
     expect(plan).toEqual(['aurora', 'retro']);
     const rec = recommendThemes({ serviceId: 'company_profile', styles: plan });
     expect(rec).toHaveLength(4);

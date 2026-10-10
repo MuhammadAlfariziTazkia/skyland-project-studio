@@ -19,7 +19,7 @@ const en = {
     privacy: 'Your brief is processed by AI to create the plan. Nothing is sent to us until you order.',
     quick: 'A few quick questions',
     region: 'Where is your business?',
-    regions: { ID: 'Indonesia', GLOBAL: 'Outside Indonesia' },
+    regions: { ID: 'Indonesia', JP: 'Japan', GLOBAL: 'Elsewhere' },
   },
   loading: {
     plan: ['Reading your brief…', 'Mapping pages and features…', 'Checking against our price list…'],
@@ -107,6 +107,8 @@ const en = {
     rangeNote: 'Part of your plan is outside our standard catalog. We confirm the final price in writing after a 15-minute chat, before you pay anything.',
     discussTitle: 'Let’s scope this together',
     discussNote: 'Your plan is bigger than what we price automatically. Send it to us and we’ll propose a phased plan with a fixed price per phase.',
+    discussBlocked: (areas: string) =>
+      `This plan involves ${areas}, which we don’t take on as a build. We’d be giving you a price we can’t stand behind. What we can do is a paid scoping engagement: a written specification and a fixed-price proposal you’re free to take to a specialist team.`,
     breakdown: 'How this price is built',
     price: 'Price',
     discount: (p: number) => `Founding client discount (${p}%)`,
@@ -116,7 +118,7 @@ const en = {
     timeline: 'Ready in',
     workdays: (a: number, b: number) => `${a}–${b} workdays`,
     valid: (d: number) => `Price valid for ${d} days`,
-    region: { ID: 'Price for clients in Indonesia (IDR)', GLOBAL: 'Price for clients outside Indonesia (USD)' },
+    region: { ID: 'Price for clients in Indonesia (IDR)', JP: 'Price for clients in Japan (JPY)', GLOBAL: 'Price for clients elsewhere (USD)' },
     final: '✓ Final price, no hidden fees',
     payment: (a: number, b: number) => `Pay ${a}% to start and ${b}% after you approve the finished site.`,
     paymentNoDeposit: 'No upfront payment. You pay in full only after the site is finished and you approve it, before it goes live.',
@@ -182,7 +184,7 @@ const id: typeof en = {
     privacy: 'Brief Anda diproses AI untuk membuat rencana. Tidak ada yang dikirim ke kami sebelum Anda memesan.',
     quick: 'Beberapa pertanyaan cepat',
     region: 'Bisnis Anda di mana?',
-    regions: { ID: 'Indonesia', GLOBAL: 'Luar Indonesia' },
+    regions: { ID: 'Indonesia', JP: 'Jepang', GLOBAL: 'Negara lain' },
   },
   loading: {
     plan: ['Membaca brief Anda…', 'Menyusun halaman dan fitur…', 'Mencocokkan dengan daftar harga…'],
@@ -270,6 +272,8 @@ const id: typeof en = {
     rangeNote: 'Sebagian rencana Anda di luar katalog standar kami. Harga final kami pastikan secara tertulis setelah obrolan 15 menit, sebelum Anda membayar apa pun.',
     discussTitle: 'Mari susun scope-nya bersama',
     discussNote: 'Rencana Anda lebih besar dari yang bisa kami hitung otomatis. Kirimkan ke kami, kami usulkan pengerjaan bertahap dengan harga pasti per tahap.',
+    discussBlocked: (areas) =>
+      `Rencana ini melibatkan ${areas}, dan itu tidak kami kerjakan sebagai pembangunan. Memberi harga untuk itu berarti menjanjikan sesuatu yang belum bisa kami pertanggungjawabkan. Yang bisa kami bantu: scoping berbayar berupa spesifikasi tertulis dan proposal harga pasti yang bebas Anda bawa ke tim spesialis.`,
     breakdown: 'Dari mana harga ini',
     price: 'Harga',
     discount: (p) => `Diskon klien pertama (${p}%)`,
@@ -279,7 +283,7 @@ const id: typeof en = {
     timeline: 'Selesai dalam',
     workdays: (a, b) => `${a}–${b} hari kerja`,
     valid: (d) => `Harga berlaku ${d} hari`,
-    region: { ID: 'Harga untuk klien di Indonesia (IDR)', GLOBAL: 'Harga untuk klien di luar Indonesia (USD)' },
+    region: { ID: 'Harga untuk klien di Indonesia (IDR)', JP: 'Harga untuk klien di Jepang (JPY)', GLOBAL: 'Harga untuk klien di negara lain (USD)' },
     final: '✓ Harga final, tanpa biaya tersembunyi',
     payment: (a, b) => `Bayar ${a}% di awal dan ${b}% setelah Anda menyetujui website yang sudah jadi.`,
     paymentNoDeposit: 'Tanpa DP. Anda bayar penuh setelah website selesai dan Anda setujui, sebelum online.',

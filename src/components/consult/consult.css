@@ -86,6 +86,7 @@
 .cs-actions.col { flex-direction: column; align-items: stretch; }
 .cs-actions .row { display: flex; justify-content: center; gap: 20px; }
 .cs-actions .fine { flex: 1 1 260px; }
+.cs-actions.col .fine { flex: 0 0 auto; }
 .cs .next-wrap { display: flex; align-items: center; gap: 14px; margin-left: auto; }
 .cs .counts { font-size: 13px; color: var(--muted-2); font-weight: 600; }
 @media (max-width: 639px) {
@@ -286,3 +287,50 @@
 .cs .done-step .ref { color: var(--ink-2); }
 .cs .big-check { width: 64px; height: 64px; border-radius: 50%; background: var(--green-soft); color: var(--green); font-size: 30px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 .cs .restart { align-self: center; color: var(--muted-2); font-weight: 500; }
+
+/* Detected price market, shown as a correctable currency switch rather than an upfront question. */
+.cs .market { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--line-2); padding-top: 12px; }
+.cs .market .k { min-width: 0; flex: 1 1 auto; }
+
+/* Concept detail page: the feature breakdown beside a sticky price panel. */
+.cs.cp { gap: 0; }
+.cs .cp-grid { display: grid; gap: 20px; align-items: start; }
+@media (min-width: 1024px) { .cs .cp-grid { grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); gap: 28px; } }
+.cs .cp-lists { gap: 24px; }
+.cs .cp-lists .feats { list-style: none; margin: 8px 0 0; padding: 0; gap: 8px; }
+.cs .not-offered { list-style: none; margin: 0; padding: 0; gap: 10px; }
+.cs .not-offered li { display: flex; flex-direction: column; gap: 2px; }
+.cs .not-offered b { font-size: 14px; color: #7a4d0b; }
+.cs .not-offered span { font-size: 13px; color: var(--muted); line-height: 1.55; }
+.cs.cp .price-card { align-self: start; }
+
+/* Mobile total bar for the concept page. Desktop keeps the sticky side panel instead. */
+.cs .cp-bar { display: none; }
+@media (max-width: 1023px) {
+  .cs .cp-bar { display: block; position: sticky; bottom: 0; z-index: 5; margin: 12px -16px 0; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: rgba(255, 255, 255, .96); backdrop-filter: blur(8px); border-top: 1px solid var(--line); }
+  .cs .cp-bar-in { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 1200px; margin: 0 auto; }
+  .cs .cp-bar small { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted-2); }
+  .cs .cp-bar b { font-size: 19px; letter-spacing: -0.02em; line-height: 1.2; }
+  .cs .cp-bar .stack { gap: 0; min-width: 0; }
+  .cs .cp-bar .btn { flex: none; }
+  .cs.cp .price-card .cs-actions { display: none; }
+}
+
+/* At 320px the "in package" tag squeezes the feature name; let it drop to its own line instead of clipping. */
+@media (max-width: 359px) {
+  .cs.cp .feat { flex-wrap: wrap; }
+  .cs.cp .feat .feat-main { flex: 1 1 100%; order: 1; }
+  .cs.cp .feat .ftag { order: 2; margin-left: 48px; }
+}
+/* A single long name can outrun a 320px column on both the concept page and the plan step. */
+.cs .feat-main b, .cs .feat-main span { overflow-wrap: anywhere; }
+
+/* Optional extras stay folded away: the essentials carry the price, these are a deliberate extra step. */
+.cs.cp .opt { border: 1px dashed #c9d8fb; border-radius: 16px; padding: 4px 14px; background: #fbfdff; }
+.cs.cp .opt > summary { cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 12px 0; font-size: 15px; font-weight: 700; color: var(--ink); list-style: none; min-height: 44px; }
+.cs.cp .opt > summary::-webkit-details-marker { display: none; }
+.cs.cp .opt > summary::after { content: '+'; margin-left: auto; font-size: 18px; font-weight: 700; color: var(--blue); }
+.cs.cp .opt[open] > summary::after { content: '−'; }
+.cs.cp .opt > summary:hover { color: var(--blue); }
+.cs.cp .opt .fine { margin-bottom: 8px; }
+.cs.cp .opt .feats { margin-bottom: 14px; }

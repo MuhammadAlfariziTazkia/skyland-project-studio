@@ -27,6 +27,20 @@ yang akan diubah. Tidak perlu memasukkan seluruh dokumentasi ke setiap prompt.
 | [PROJECT_STATUS.md](PROJECT_STATUS.md) | Snapshot terverifikasi, gap nyata, hal yang belum diketahui |
 | [HANDOFF_TEMPLATE.md](HANDOFF_TEMPLATE.md) | Format menjaga konteks antar chat/provider |
 
+## Riset harga (Oktober 2026)
+
+Lima dokumen berurutan. Riset awal 8 Okt 2026; **revisi kalibrasi 10 Okt 2026**
+memperbaiki kesalahan ekonomi pada dokumen 1 yang menjalar ke 3 dan 4.
+Baca berurutan; jangan memakai angka dokumen 1 versi lama.
+
+| Dokumen | Isi |
+| --- | --- |
+| [PRICING_RESEARCH_01_MARKET.md](PRICING_RESEARCH_01_MARKET.md) | Scope v1 vs maksimal per sample, pembanding pasar, kurs, lantai biaya, fee tiga pasar |
+| [PRICING_RESEARCH_02_SIMULATION.md](PRICING_RESEARCH_02_SIMULATION.md) | Simulasi mesin commit `243a9d4` apa adanya, ledger, probe, batas verifikasi |
+| [PRICING_RESEARCH_03_EVALUATION.md](PRICING_RESEARCH_03_EVALUATION.md) | Sembilan akar penyebab, selisih diukur pada scope setara, uji lantai biaya |
+| [PRICING_RESEARCH_04_STRATEGY.md](PRICING_RESEARCH_04_STRATEGY.md) | Rancangan scope/estimator, rate card, status policy, urutan implementasi |
+| [PRICING_RESEARCH_05_COMMERCIAL.md](PRICING_RESEARCH_05_COMMERCIAL.md) | Bauran pasar, termin pembayaran, kebijakan diskon, pekerjaan yang ditolak |
+
 ## Memulai agent lain
 
 Codex dapat menemukan instruksi root melalui `AGENTS.md`. `CLAUDE.md` memakai

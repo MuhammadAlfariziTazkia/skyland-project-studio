@@ -3,7 +3,8 @@ import pricing from '../../../data/pricing.json';
 import { consultStrings } from '../../i18n/consult';
 import { renderMockup } from '../../lib/mockup/render';
 import { MULTIPLIER_COPY, NOT_INCLUDED_COPY, RECURRING_COPY } from '../../i18n/catalog';
-import { quote as computeQuote, defaultChoices, formatPrice, formatShort, quotePriceText, type Promo } from '../../lib/pricing';
+import { quote as computeQuote, currencyOf, defaultChoices, formatPrice, formatShort, marketFromClient, quotePriceText, rememberMarket, type Promo } from '../../lib/pricing';
+import { planKey } from '../../lib/samples/plan';
 import { PlanSchema, REGIONS, type Choices, type Locale, type Mockup, type Plan, type ThemeId } from '../../lib/schemas';
 import { LivePrice, PlanStep, livePrice } from './PlanStep';
 import { StylePicker } from './StylePicker';
@@ -78,9 +79,6 @@ async function post<T>(url: string, body: unknown, t: typeof consultStrings.en):
   return data as T;
 }
 
-// The mockup copy only depends on the plan; switching styles re-renders it locally without a new AI call.
-const planKey = (plan: Plan | null) => JSON.stringify([plan?.serviceId, plan?.pages.map((p) => p.name), plan?.features.map((f) => f.id)]);
-
 export default function Consultant({ locale, whatsapp, privacyHref, turnstileSiteKey }: Props) {
   const t = consultStrings[locale];
   const initial: State = {
@@ -119,7 +117,13 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
 
   useEffect(() => {
     const saved = load();
-    if (saved) setS((prev) => ({ ...prev, ...saved, step: saved.step === 'done' ? 'describe' : (saved.step ?? 'describe') }));
+    // The market is detected on the device instead of being asked on step 1. Applied here rather than in
+    // the initial state because Preact's hydrate() does not diff attributes, so a first render that
+    // disagreed with the server would leave the currency switch out of step with the price. A market the
+    // visitor already chose, or one carried in by a concept page, wins over detection.
+    const region = saved?.choices?.region ?? marketFromClient(locale);
+    if (saved) setS((prev) => ({ ...prev, ...saved, choices: { ...prev.choices, ...saved.choices, region }, step: saved.step === 'done' ? 'describe' : (saved.step ?? 'describe') }));
+    else setS((prev) => ({ ...prev, choices: { ...prev.choices, region } }));
     if (matchMedia('(max-width: 639px)').matches) setDevice('mobile');
     setHydrated(true);
   }, []);
@@ -262,7 +266,6 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
             </div>
             <fieldset class="quick">
               <legend>{t.describe.quick}</legend>
-              <Segmented label={t.describe.region} value={s.choices.region} options={REGIONS.map((id) => ({ id, label: t.describe.regions[id] }))} onChange={(region) => choose({ region: region as Choices['region'] })} />
               <Segmented label={MULTIPLIER_COPY.content_readiness.question[locale]} value={s.choices.content} options={multi('content_readiness')} onChange={(content) => choose({ content })} />
               <Segmented label={MULTIPLIER_COPY.timeline.question[locale]} value={s.choices.timeline} options={multi('timeline')} onChange={(timeline) => choose({ timeline })} />
             </fieldset>
@@ -380,7 +383,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                   <span>{q.status === 'fixed' ? t.result.priceTitle : q.status === 'range' ? t.result.rangeTitle : t.result.discussTitle}</span>
                 </div>
                 {q.status === 'discuss' ? (
-                  <p class="warn">{t.result.discussNote}</p>
+                  <p class="warn">{q.risk.blocking.length > 0 ? t.result.discussBlocked(q.risk.blocking.join(', ').toLowerCase()) : t.result.discussNote}</p>
                 ) : (
                   <>
                     {q.savings > 0 && (
@@ -409,10 +412,30 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                     <b>{t.result.workdays(q.workdays[0], q.workdays[1])}</b>
                   </li>
                   <li>
-                    <span>{t.result.region[q.region]}</span>
-                    <b>{t.result.valid(q.validDays)}</b>
+                    <span>{t.result.valid(q.validDays)}</span>
                   </li>
                 </ul>
+                {/* The market was detected, not asked. It stays correctable here, as a currency switch
+                    rather than a question about where the business is. */}
+                <div class="market">
+                  <span class="k">{t.result.region[q.region]}</span>
+                  <div class="seg" role="radiogroup" aria-label={t.describe.region}>
+                    {REGIONS.map((r) => (
+                      <button
+                        type="button"
+                        key={r}
+                        role="radio"
+                        aria-checked={r === s.choices.region}
+                        onClick={() => {
+                          rememberMarket(r);
+                          choose({ region: r });
+                        }}
+                      >
+                        {currencyOf(r)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 {q.status !== 'discuss' && (
                   <details class="bd">
                     <summary>{t.result.breakdown}</summary>
