@@ -1,8 +1,8 @@
 ---
 import Logo from '../Logo.astro';
 import { SITE, socialLinks, whatsappLink } from '../../config/site';
-import { getDict } from '../../i18n';
-import { ROUTES, SERVICE_KEYS, servicePath } from '../../i18n/routes';
+import { dicts, getDict, otherLocales } from '../../i18n';
+import { ROUTES, SERVICE_KEYS, pairFor, servicePath } from '../../i18n/routes';
 import type { Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale }
@@ -30,7 +30,9 @@ const socials = socialLinks();
         <a href={`${home}#how`}>{t.nav.how}</a>
         <a href={`${home}#work`}>{t.nav.work}</a>
         <a href={`${home}#faq`}>{t.nav.faq}</a>
-        <a href={ROUTES.home[locale === 'en' ? 'id' : 'en']} hreflang={locale === 'en' ? 'id' : 'en'} data-lang-switch>{t.nav.switchLang}</a>
+        {otherLocales(locale).map((l) => (
+          <a href={pairFor(Astro.url.pathname)?.[l] ?? ROUTES.home[l]} hreflang={l} lang={l} data-lang-switch>{dicts[l].nav.switchLangSelf}</a>
+        ))}
       </nav>
       <div class="stack col">
         <b>{t.footer.contact}</b>

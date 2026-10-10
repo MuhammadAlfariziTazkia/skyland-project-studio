@@ -4,13 +4,15 @@ import { consultStrings } from '../../i18n/consult';
 import { renderMockup } from '../../lib/mockup/render';
 import { MULTIPLIER_COPY, NOT_INCLUDED_COPY, RECURRING_COPY } from '../../i18n/catalog';
 import { quote as computeQuote, defaultChoices, formatPrice, formatShort, quotePriceText, type Promo } from '../../lib/pricing';
-import { PlanSchema, REGIONS, type Choices, type Locale, type Mockup, type Plan, type ThemeId } from '../../lib/schemas';
+import { planKey } from '../../lib/samples/plan';
+import { PlanSchema, type Choices, type Locale, type Mockup, type Plan, type ThemeId } from '../../lib/schemas';
 import { LivePrice, PlanStep, livePrice } from './PlanStep';
 import { StylePicker } from './StylePicker';
 import { PromoField } from './PromoField';
 import { Segmented } from './Segmented';
 import { OrderStep, type ContactForm } from './OrderStep';
 import { MockupFrame } from './MockupFrame';
+import { useMarket } from '../useMarket';
 import { Loading } from './Loading';
 import './consult.css';
 
@@ -74,12 +76,13 @@ async function post<T>(url: string, body: unknown, t: typeof consultStrings.en):
     throw new Error(t.errors.network);
   }
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((data as { error?: string }).error || t.errors.generic);
+  // The API answers with a short code, never prose, so the visitor reads the reason in their own language.
+  if (!res.ok) {
+    const code = (data as { error?: string }).error ?? '';
+    throw new Error(t.errors.codes[code] ?? t.errors.generic);
+  }
   return data as T;
 }
-
-// The mockup copy only depends on the plan; switching styles re-renders it locally without a new AI call.
-const planKey = (plan: Plan | null) => JSON.stringify([plan?.serviceId, plan?.pages.map((p) => p.name), plan?.features.map((f) => f.id)]);
 
 export default function Consultant({ locale, whatsapp, privacyHref, turnstileSiteKey }: Props) {
   const t = consultStrings[locale];
@@ -119,10 +122,31 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
 
   useEffect(() => {
     const saved = load();
-    if (saved) setS((prev) => ({ ...prev, ...saved, step: saved.step === 'done' ? 'describe' : (saved.step ?? 'describe') }));
+    if (saved) {
+      setS((prev) => ({
+        ...prev,
+        ...saved,
+        // The saved region is deliberately dropped. It used to win over detection, which made sense while
+        // a currency picker existed; without one it only meant a stale market — a region captured on an
+        // older visit, or carried in from a concept page — outranked where the visitor actually is, and
+        // then travelled into the order email. `region` below is always the device's answer.
+        choices: { ...prev.choices, ...saved.choices, region: prev.choices.region },
+        // Consent is restored unticked whatever was stored. A box the system ticks on the visitor's
+        // behalf is not consent, so the only thing that can tick it is the visitor, on this visit.
+        contact: { ...prev.contact, ...saved.contact, consent: false },
+        step: saved.step === 'done' ? 'describe' : (saved.step ?? 'describe'),
+      }));
+    }
     if (matchMedia('(max-width: 639px)').matches) setDevice('mobile');
     setHydrated(true);
   }, []);
+  // One resolver for the whole app, shared with the concept page's panel. Kept in sync with `choices`
+  // because the quote, the mockup and the order email all read the market from there.
+  const market = useMarket(locale);
+  useEffect(() => {
+    setS((prev) => (prev.choices.region === market ? prev : { ...prev, choices: { ...prev.choices, region: market } }));
+  }, [market]);
+
   useEffect(() => {
     if (hydrated) save(s);
   }, [s, hydrated]);
@@ -262,7 +286,6 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
             </div>
             <fieldset class="quick">
               <legend>{t.describe.quick}</legend>
-              <Segmented label={t.describe.region} value={s.choices.region} options={REGIONS.map((id) => ({ id, label: t.describe.regions[id] }))} onChange={(region) => choose({ region: region as Choices['region'] })} />
               <Segmented label={MULTIPLIER_COPY.content_readiness.question[locale]} value={s.choices.content} options={multi('content_readiness')} onChange={(content) => choose({ content })} />
               <Segmented label={MULTIPLIER_COPY.timeline.question[locale]} value={s.choices.timeline} options={multi('timeline')} onChange={(timeline) => choose({ timeline })} />
             </fieldset>
@@ -347,7 +370,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                     <h2>{t.result.title}</h2>
                     <span class="draft-badge">⚡ {t.result.draftBadge}</span>
                   </div>
-                  <div class="seg" role="group">
+                  <div class="seg device-seg" role="group">
                     <button type="button" aria-pressed={device === 'desktop'} onClick={() => setDevice('desktop')}>
                       <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><rect x="2" y="3" width="16" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6" /><path d="M7 17h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
                       {t.result.desktop}
@@ -362,7 +385,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                   <span class="k">{t.result.tryStyles}</span>
                   <StylePicker t={t} locale={locale} plan={s.plan} value={s.theme} onChange={(theme) => set({ theme })} compact />
                 </div>
-                <MockupFrame html={mockHtml} device={device} title={s.mockup.brandName} />
+                <MockupFrame html={mockHtml} device={device} title={s.mockup.brandName} exploreLabel={t.result.explore} />
                 <p class="fine">{t.result.concept}</p>
                 <details class="draft-more">
                   <summary>{t.result.notYet}</summary>
@@ -380,7 +403,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                   <span>{q.status === 'fixed' ? t.result.priceTitle : q.status === 'range' ? t.result.rangeTitle : t.result.discussTitle}</span>
                 </div>
                 {q.status === 'discuss' ? (
-                  <p class="warn">{t.result.discussNote}</p>
+                  <p class="warn">{q.risk.blocking.length > 0 ? t.result.discussBlocked(q.risk.blocking.join(', ').toLowerCase()) : t.result.discussNote}</p>
                 ) : (
                   <>
                     {q.savings > 0 && (
@@ -399,7 +422,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                     )}
                     <b class={`total ${q.status}`}>{quotePriceText(q)}</b>
                     {q.savings > 0 && <span class="saved">{t.result.youSave(formatPrice(q.savings, q.region), q.savingsPercent)}</span>}
-                    {q.status === 'range' ? <p class="warn">{t.result.rangeNote}</p> : <span class="final">{t.result.final}</span>}
+                    {q.status === 'range' ? <p class="warn">{t.result.rangeNote}</p> : <span class="final">{t.result.final} · {t.result.valid(q.validDays)}</span>}
                     <PromoField t={t} promo={s.promo} onApply={applyPromo} onRemove={() => set({ promo: null })} />
                   </>
                 )}
@@ -407,10 +430,6 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                   <li>
                     <span>{t.result.timeline}</span>
                     <b>{t.result.workdays(q.workdays[0], q.workdays[1])}</b>
-                  </li>
-                  <li>
-                    <span>{t.result.region[q.region]}</span>
-                    <b>{t.result.valid(q.validDays)}</b>
                   </li>
                 </ul>
                 {q.status !== 'discuss' && (
@@ -428,10 +447,12 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                             <td>{l.included ? <span class="inc">{t.result.included}</span> : l.amount === 0 ? <span class="inc">{t.result.free}</span> : `${l.amount < 0 ? '−' : ''}${formatPrice(Math.abs(l.amount), q.region)}`}</td>
                           </tr>
                         ))}
-                        <tr class="sub">
-                          <td>{t.result.price}</td>
-                          <td>{formatPrice(q.price, q.region)}</td>
-                        </tr>
+                        {q.discounts.some((d) => d.amount > 0) && (
+                          <tr class="sub">
+                            <td>{t.result.price}</td>
+                            <td>{formatPrice(q.price, q.region)}</td>
+                          </tr>
+                        )}
                         {q.discounts.filter((d) => d.amount > 0).map((d) => (
                           <tr class="disc">
                             <td>{d.label} ({d.percent}%)</td>

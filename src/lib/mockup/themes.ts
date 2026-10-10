@@ -45,16 +45,19 @@ export interface Theme {
 }
 
 const stack = (family: string, fallback: string) => `'${family}', ${fallback}`;
-const SANS_FB = "system-ui, -apple-system, 'Segoe UI', sans-serif";
-const SERIF_FB = "Georgia, 'Times New Roman', serif";
+// Japanese needs an explicit CJK tail: none of the Latin stacks below carry kana or kanji, so without
+// this a Japanese mockup renders in whatever face the OS happens to pick, with mismatched metrics.
+const CJK_FB = "'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Noto Sans JP', Meiryo";
+const SANS_FB = `system-ui, -apple-system, 'Segoe UI', ${CJK_FB}, sans-serif`;
+const SERIF_FB = `Georgia, 'Times New Roman', 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif JP', ${CJK_FB}, serif`;
 const JAKARTA = 'Plus+Jakarta+Sans:wght@400;500;600;700;800';
 const UPPER = 'letter-spacing:.12em;text-transform:uppercase;font-weight:700;font-size:12px';
 
 export const THEMES: Record<ThemeId, Theme> = {
   minimal: {
     id: 'minimal',
-    name: { en: 'Minimal', id: 'Minimal' },
-    sub: { en: 'Clean', id: 'Bersih' },
+    name: { en: 'Minimal', id: 'Minimal', ja: 'ミニマル' },
+    sub: { en: 'Clean', id: 'Bersih', ja: 'すっきり' },
     fits: 'any business; safe, clear, modern',
     mood: 'clean',
     dark: false,
@@ -80,8 +83,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   },
   bento: {
     id: 'bento',
-    name: { en: 'Bento', id: 'Bento' },
-    sub: { en: 'Modern grid', id: 'Grid modern' },
+    name: { en: 'Bento', id: 'Bento', ja: 'ベント' },
+    sub: { en: 'Modern grid', id: 'Grid modern', ja: 'モダンなグリッド' },
     fits: 'tech, apps, startups, products with several highlights',
     mood: 'clean',
     dark: false,
@@ -108,8 +111,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   },
   corporate: {
     id: 'corporate',
-    name: { en: 'Professional', id: 'Profesional' },
-    sub: { en: 'Trustworthy', id: 'Terpercaya' },
+    name: { en: 'Professional', id: 'Profesional', ja: 'プロフェッショナル' },
+    sub: { en: 'Trustworthy', id: 'Terpercaya', ja: '信頼感' },
     fits: 'consultants, finance, law, clinics, B2B, education',
     mood: 'clean',
     dark: false,
@@ -135,8 +138,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   },
   editorial: {
     id: 'editorial',
-    name: { en: 'Editorial', id: 'Editorial' },
-    sub: { en: 'Magazine', id: 'Majalah' },
+    name: { en: 'Editorial', id: 'Editorial', ja: 'エディトリアル' },
+    sub: { en: 'Magazine', id: 'Majalah', ja: '雑誌風' },
     fits: 'media, writers, architects, studios, fashion',
     mood: 'clean',
     dark: false,
@@ -163,8 +166,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   },
   elegant: {
     id: 'elegant',
-    name: { en: 'Elegant', id: 'Elegan' },
-    sub: { en: 'Refined', id: 'Berkelas' },
+    name: { en: 'Elegant', id: 'Elegan', ja: 'エレガント' },
+    sub: { en: 'Refined', id: 'Berkelas', ja: '洗練' },
     fits: 'cafés, restaurants, boutiques, weddings, beauty',
     mood: 'warm',
     dark: false,
@@ -190,8 +193,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   },
   organic: {
     id: 'organic',
-    name: { en: 'Natural', id: 'Natural' },
-    sub: { en: 'Earthy', id: 'Alami' },
+    name: { en: 'Natural', id: 'Natural', ja: 'ナチュラル' },
+    sub: { en: 'Earthy', id: 'Alami', ja: '自然体' },
     fits: 'wellness, food, farms, eco brands, spas, coffee',
     mood: 'warm',
     dark: false,
@@ -217,8 +220,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   },
   retro: {
     id: 'retro',
-    name: { en: 'Retro', id: 'Retro' },
-    sub: { en: '70s warmth', id: 'Hangat 70-an' },
+    name: { en: 'Retro', id: 'Retro', ja: 'レトロ' },
+    sub: { en: '70s warmth', id: 'Hangat 70-an', ja: '70年代の温かさ' },
     fits: 'cafés, bakeries, barbers, music, vintage shops',
     mood: 'warm',
     dark: false,
@@ -245,8 +248,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   },
   vibrant: {
     id: 'vibrant',
-    name: { en: 'Vibrant', id: 'Ceria' },
-    sub: { en: 'Playful', id: 'Playful' },
+    name: { en: 'Vibrant', id: 'Ceria', ja: 'ビビッド' },
+    sub: { en: 'Playful', id: 'Playful', ja: '遊びのある' },
     fits: 'kids, events, creators, snacks, fun consumer brands',
     mood: 'bold',
     dark: false,
@@ -272,8 +275,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   },
   neo_brutal: {
     id: 'neo_brutal',
-    name: { en: 'Bold Pop', id: 'Bold Pop' },
-    sub: { en: 'Loud & fun', id: 'Berani' },
+    name: { en: 'Bold Pop', id: 'Bold Pop', ja: 'ボールドポップ' },
+    sub: { en: 'Loud & fun', id: 'Berani', ja: '大胆で楽しい' },
     fits: 'startups, agencies, creators, streetwear, youth brands',
     mood: 'bold',
     dark: false,
@@ -300,8 +303,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   },
   futuristic: {
     id: 'futuristic',
-    name: { en: 'Futuristic', id: 'Futuristik' },
-    sub: { en: 'Bold tech', id: 'Teknologi' },
+    name: { en: 'Futuristic', id: 'Futuristik', ja: 'フューチャリスティック' },
+    sub: { en: 'Bold tech', id: 'Teknologi', ja: 'テック感' },
     fits: 'tech, gaming, crypto, AI products, developer tools',
     mood: 'dark',
     dark: true,
@@ -328,8 +331,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   },
   aurora: {
     id: 'aurora',
-    name: { en: 'Aurora', id: 'Aurora' },
-    sub: { en: 'Glow & glass', id: 'Kaca bercahaya' },
+    name: { en: 'Aurora', id: 'Aurora', ja: 'オーロラ' },
+    sub: { en: 'Glow & glass', id: 'Kaca bercahaya', ja: '光とガラス' },
     fits: 'SaaS, AI, fintech, music, nightlife, premium apps',
     mood: 'dark',
     dark: true,
@@ -356,8 +359,8 @@ export const THEMES: Record<ThemeId, Theme> = {
   },
   luxury: {
     id: 'luxury',
-    name: { en: 'Luxury', id: 'Mewah' },
-    sub: { en: 'Black & gold', id: 'Hitam & emas' },
+    name: { en: 'Luxury', id: 'Mewah', ja: 'ラグジュアリー' },
+    sub: { en: 'Black & gold', id: 'Hitam & emas', ja: '黒と金' },
     fits: 'jewelry, hotels, fine dining, real estate, premium beauty',
     mood: 'dark',
     dark: true,
@@ -387,11 +390,11 @@ export const THEMES: Record<ThemeId, Theme> = {
 /** Grouping for the "all styles" filter; order is the display order. */
 export const MOODS: Mood[] = ['clean', 'warm', 'bold', 'dark'];
 export const MOOD_COPY: Record<Mood | 'all', Record<Locale, string>> = {
-  all: { en: 'All', id: 'Semua' },
-  clean: { en: 'Clean', id: 'Bersih' },
-  warm: { en: 'Warm', id: 'Hangat' },
-  bold: { en: 'Bold', id: 'Berani' },
-  dark: { en: 'Dark', id: 'Gelap' },
+  all: { en: 'All', id: 'Semua', ja: 'すべて' },
+  clean: { en: 'Clean', id: 'Bersih', ja: 'すっきり' },
+  warm: { en: 'Warm', id: 'Hangat', ja: '温かい' },
+  bold: { en: 'Bold', id: 'Berani', ja: '大胆' },
+  dark: { en: 'Dark', id: 'Gelap', ja: 'ダーク' },
 };
 
 /** The four styles shown on the landing-page demo. */

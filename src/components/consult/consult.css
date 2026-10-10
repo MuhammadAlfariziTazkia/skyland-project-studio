@@ -24,7 +24,6 @@
 @media (min-width: 640px) { .cs-body { padding: 28px; gap: 20px; } }
 .cs-head { display: flex; flex-direction: column; gap: 6px; }
 .cs-head p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
-.cs .type-pill { align-self: flex-start; font-size: 12px; font-weight: 700; color: var(--blue); background: var(--blue-soft); border-radius: 999px; padding: 4px 10px; }
 /* What customers / the owner can do (from the AI's flow analysis) */
 .cs .flows { display: grid; gap: 12px; background: #f7faff; border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; font-size: 14px; }
 @media (min-width: 720px) { .cs .flows { grid-template-columns: 1fr 1fr; gap: 20px; } }
@@ -86,6 +85,7 @@
 .cs-actions.col { flex-direction: column; align-items: stretch; }
 .cs-actions .row { display: flex; justify-content: center; gap: 20px; }
 .cs-actions .fine { flex: 1 1 260px; }
+.cs-actions.col .fine { flex: 0 0 auto; }
 .cs .next-wrap { display: flex; align-items: center; gap: 14px; margin-left: auto; }
 .cs .counts { font-size: 13px; color: var(--muted-2); font-weight: 600; }
 @media (max-width: 639px) {
@@ -228,10 +228,29 @@
 .cs .seg { display: inline-flex; background: var(--bg-soft); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
 .cs .seg button { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
 .cs .seg button[aria-pressed='true'] { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(11, 26, 58, .08); }
+/* Below 640px the consultant forces the phone view, because a 1280px page scaled into a 360px screen is
+   a ~200px strip nobody can read. Offering the switch there only offered a way to make it worse. */
+@media (max-width: 639px) { .cs .device-seg { display: none; } }
 .cs .mf .browser { border: 1px solid var(--line); }
 .cs .mf-box { position: relative; overflow: hidden; background: #f1f4fa; }
 .cs .mf iframe { position: absolute; top: 0; border: 0; transform-origin: 0 0; background: #fff; }
+/* The phone frame scales from its top centre, so the transform carries the centring instead of a
+   JS-computed `left`, which was briefly wrong on every resize before the observer caught up. */
 .cs .mf.mobile .mf-box { background: linear-gradient(180deg, #eef3ff, #f7faff); }
+.cs .mf.mobile iframe { transform-origin: top center; border-radius: 18px; box-shadow: 0 0 0 1px rgba(11, 26, 58, .1), 0 10px 30px rgba(11, 26, 58, .12); }
+
+/* Touch overlay. Until it is tapped the preview cannot capture the page's scroll. */
+.cs .mf-tap { position: absolute; inset: 0; z-index: 2; display: none; border: 0; background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.cs .mf-hint { display: none; margin: 8px 0 0; text-align: center; font-size: 12.5px; color: var(--muted-2); }
+.cs .mf-hint::before { content: '↕ '; }
+/* The lockout is scoped to touch, not undone for a mouse. Written the other way round it broke the
+   preview everywhere: `.cs .mf:not(.live) iframe` outranks a `(pointer: fine)` override on specificity,
+   so the pointer-events:none stuck and nobody with a mouse could use the preview at all. */
+@media (pointer: coarse) {
+  .cs .mf-tap { display: block; }
+  .cs .mf-hint { display: block; }
+  .cs .mf:not(.live) iframe { pointer-events: none; }
+}
 .cs .price-card { position: relative; border: 1px solid #dbe5fb; border-radius: 20px; padding: 18px; background: linear-gradient(180deg, #fff, #f7faff); display: flex; flex-direction: column; gap: 12px; }
 @media (min-width: 1024px) { .cs .price-card { position: sticky; top: 88px; } }
 .cs .pc-head { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; color: var(--muted-2); font-weight: 600; }
@@ -286,3 +305,50 @@
 .cs .done-step .ref { color: var(--ink-2); }
 .cs .big-check { width: 64px; height: 64px; border-radius: 50%; background: var(--green-soft); color: var(--green); font-size: 30px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 .cs .restart { align-self: center; color: var(--muted-2); font-weight: 500; }
+
+
+/* Concept detail page: the feature breakdown beside a sticky price panel. */
+.cs.cp { gap: 0; }
+.cs .cp-grid { display: grid; gap: 20px; align-items: start; }
+@media (min-width: 1024px) { .cs .cp-grid { grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); gap: 28px; } }
+.cs .cp-lists { gap: 24px; }
+.cs .cp-lists .feats { list-style: none; margin: 8px 0 0; padding: 0; gap: 8px; }
+.cs .not-offered { list-style: none; margin: 0; padding: 0; gap: 10px; }
+.cs .not-offered li { display: flex; flex-direction: column; gap: 2px; }
+.cs .not-offered b { font-size: 14px; color: #7a4d0b; }
+.cs .not-offered span { font-size: 13px; color: var(--muted); line-height: 1.55; }
+.cs.cp .price-card { align-self: start; }
+
+/* Mobile total bar for the concept page. Desktop keeps the sticky side panel instead. */
+.cs .cp-bar { display: none; }
+@media (max-width: 1023px) {
+  .cs .cp-bar { display: block; position: sticky; bottom: 0; z-index: 5; margin: 12px -16px 0; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: rgba(255, 255, 255, .96); backdrop-filter: blur(8px); border-top: 1px solid var(--line); }
+  .cs .cp-bar-in { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 1200px; margin: 0 auto; }
+  .cs .cp-bar small { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted-2); }
+  .cs .cp-bar b { font-size: 19px; letter-spacing: -0.02em; line-height: 1.2; }
+  .cs .cp-bar .stack { gap: 0; min-width: 0; }
+  .cs .cp-bar .btn { flex: none; }
+  .cs.cp .price-card .cs-actions { display: none; }
+}
+
+/* At 320px the "in package" tag squeezes the feature name; let it drop to its own line instead of clipping. */
+@media (max-width: 359px) {
+  .cs.cp .feat { flex-wrap: wrap; }
+  .cs.cp .feat .feat-main { flex: 1 1 100%; order: 1; }
+  .cs.cp .feat .ftag { order: 2; margin-left: 48px; }
+}
+/* A single long name can outrun a 320px column on both the concept page and the plan step. */
+.cs .feat-main b, .cs .feat-main span { overflow-wrap: anywhere; }
+
+/* Optional extras stay folded away: the essentials carry the price, these are a deliberate extra step. */
+.cs.cp .opt { border: 1px dashed #c9d8fb; border-radius: 16px; padding: 4px 14px; background: #fbfdff; }
+.cs.cp .opt > summary { cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 12px 0; font-size: 15px; font-weight: 700; color: var(--ink); list-style: none; min-height: 44px; }
+.cs.cp .opt > summary::-webkit-details-marker { display: none; }
+.cs.cp .opt > summary::after { content: '+'; margin-left: auto; font-size: 18px; font-weight: 700; color: var(--blue); }
+.cs.cp .opt[open] > summary::after { content: '−'; }
+.cs.cp .opt > summary:hover { color: var(--blue); }
+.cs.cp .opt .fine { margin-bottom: 8px; }
+.cs.cp .opt .feats { margin-bottom: 14px; }
+/* Concept feature rows carry two lines: what it is on this site, then why it matters. */
+.cs.cp .feat-main em { font-style: normal; font-size: 12.5px; color: var(--muted-2); line-height: 1.5; margin-top: 2px; }
+.cs.cp .feat.on .feat-main em { color: var(--blue-d); }

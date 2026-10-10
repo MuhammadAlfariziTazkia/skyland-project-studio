@@ -2,7 +2,7 @@
 import ServiceIllustration from '../illustrations/ServiceIllustration.astro';
 import { getDict } from '../../i18n';
 import { ROUTES, SERVICE_KEYS, servicePath } from '../../i18n/routes';
-import { formatShort, packageWorkdays, regionFor, startingPrice } from '../../lib/pricing';
+import { currencyOf, formatShort, packageWorkdays, regionFor, startingPrice } from '../../lib/pricing';
 import type { Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale }
@@ -35,7 +35,7 @@ const items = SERVICE_KEYS.map((key) => ({ key, ...t.services_list[key], from: f
         <div class="track" data-svc-track>
           {items.map((s) => (
             <div class="slide">
-              <ServiceIllustration kind={s.key} headline={s.headline} url={s.url} idr={locale === 'id'} />
+              <ServiceIllustration kind={s.key} headline={s.headline} url={s.url} currency={currencyOf(regionFor(locale))} />
             </div>
           ))}
         </div>

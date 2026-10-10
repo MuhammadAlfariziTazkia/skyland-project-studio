@@ -1,12 +1,14 @@
 import { z } from 'zod';
 import pricing from '../../data/pricing.json';
 
-export const LOCALES = ['en', 'id'] as const;
+export const LOCALES = ['en', 'id', 'ja'] as const;
 export type Locale = (typeof LOCALES)[number];
-export const CURRENCIES = ['IDR', 'USD'] as const;
+export const CURRENCIES = ['IDR', 'JPY', 'USD'] as const;
 export type Currency = (typeof CURRENCIES)[number];
 
-export const REGIONS = ['ID', 'GLOBAL'] as const;
+// Price markets. The client picks one explicitly; it is never inferred from the chat language,
+// because UI language, the ordered site's language, the market and the currency are four separate choices.
+export const REGIONS = ['ID', 'JP', 'GLOBAL'] as const;
 export type Region = (typeof REGIONS)[number];
 export const SERVICE_IDS = pricing.services.map((s) => s.id) as [string, ...string[]];
 export const FEATURE_IDS = pricing.features.map((f) => f.id) as [string, ...string[]];
@@ -65,7 +67,7 @@ export const QuestionSchema = z.object({
 });
 
 // `features` are switched on; `suggestions` are optional extras shown switched off (the client moves items between them).
-export const PlanSchema = z.object({
+const PlanObject = z.object({
   serviceId: z.enum(SERVICE_IDS),
   projectName: text(80),
   summary: text(600),
@@ -78,12 +80,26 @@ export const PlanSchema = z.object({
     .catch([])
     .default([])
     .transform((a) => a.filter((id): id is ThemeId => (THEME_IDS as readonly string[]).includes(id)).slice(0, 3)),
-  pages: z.array(PageSchema).min(1).transform((a) => a.slice(0, MAX_PAGES)),
+  // Kept whole here; the object-level transform below trims and records that it had to.
+  pages: z.array(PageSchema).min(1),
   features: list(FeatureSchema, FEATURE_IDS.length),
   suggestions: list(FeatureSchema, FEATURE_IDS.length),
   customRequests: list(CustomRequestSchema, 3),
   questions: list(QuestionSchema, 2),
   assumptions: list(text(240), 6),
+  /**
+   * True when the plan arrived with more pages than MAX_PAGES. Scope must never go missing quietly:
+   * the pricing engine turns this into `discuss`, because a quote over an unknown remainder is not a quote.
+   */
+  scopeTruncated: z.boolean().catch(false).default(false),
+});
+
+/** Field schemas of the plan, for callers that parse a single field (page types, theme ids). */
+export const PlanShape = PlanObject.shape;
+
+export const PlanSchema = PlanObject.transform((plan) => {
+  const over = plan.pages.length > MAX_PAGES;
+  return { ...plan, pages: over ? plan.pages.slice(0, MAX_PAGES) : plan.pages, scopeTruncated: plan.scopeTruncated || over };
 });
 export type Plan = z.output<typeof PlanSchema>;
 

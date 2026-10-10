@@ -82,19 +82,28 @@ nilai rahasia tidak menjadi dokumentasi proyek.
 
 ## Route dan render
 
-| Jenis | EN | ID | Render |
-| --- | --- | --- | --- |
-| Home | `/` | `/id/` | Static |
-| Konsultasi | `/consult/` | `/id/konsultasi/` | Static shell + `client:load` island |
-| Layanan | `/services/<slug>/` | `/id/layanan/<slug>/` | 8 per bahasa, `getStaticPaths` |
-| Privacy | `/privacy/` | `/id/privasi/` | Static |
-| Terms | `/terms/` | `/id/syarat-ketentuan/` | Static |
-| API | `/api/plan`, `/api/mockup`, `/api/promo`, `/api/order` | Sama | POST serverless |
-| Konsep | `/samples/tegak/`, `/samples/lembar/`, `/samples/arden/`, `/samples/kurohane/` | Tidak dilokalkan berpasangan | File public |
+| Jenis | EN | ID | JA | Render |
+| --- | --- | --- | --- | --- |
+| Home | `/` | `/id/` | `/ja/` | Static |
+| Konsultasi | `/consult/` | `/id/konsultasi/` | `/ja/sodan/` | Static shell + `client:load` island |
+| Layanan | `/services/<slug>/` | `/id/layanan/<slug>/` | `/ja/service/<slug>/` | 8 per bahasa, `getStaticPaths` |
+| Halaman konsep | `/concepts/<slug>/` | `/id/konsep/<slug>/` | `/ja/concept/<slug>/` | 4 per bahasa, `getStaticPaths` + `client:load` island |
+| Privacy | `/privacy/` | `/id/privasi/` | `/ja/privacy-policy/` | Static |
+| Terms | `/terms/` | `/id/syarat-ketentuan/` | `/ja/riyou-kiyaku/` | Static |
+| API | `/api/plan`, `/api/mockup`, `/api/promo`, `/api/order` | Sama | Sama | POST serverless |
+| Demo konsep | `/samples/tegak/`, `/samples/lembar/`, `/samples/arden/`, `/samples/kurohane/` | Tidak dilokalkan berpasangan | — | File public |
 
-Ada 24 halaman utama berbahasa: 4 jenis umum × 2 + 8 layanan × 2. Robots,
-sitemap, dan demo konsep berada di luar hitungan itu. `trailingSlash: 'ignore'`;
-helper link/canonical tetap menghasilkan trailing slash.
+Ada 48 halaman utama berbahasa: (4 jenis umum + 8 layanan + 4 konsep) × 3 bahasa.
+Robots, sitemap, dan demo konsep di `public/samples/` berada di luar hitungan itu.
+`trailingSlash: 'ignore'`; helper link/canonical tetap menghasilkan trailing slash.
+
+Halaman konsep adalah pintu masuk kedua ke harga: tiap demo di `public/samples/`
+punya satu halaman berharga dengan rincian fitur yang bisa dicentang, lalu
+melompat langsung ke layar hasil konsultan. Slug ada di `CONCEPT_SLUGS`
+(`src/i18n/routes.ts`) dan ikut `allPagePairs()` sehingga hreflang dan sitemap
+mencakupnya. Island-nya (`src/components/concept/ConceptPricing.tsx`) **tidak
+memanggil satu pun API**: mockup-nya ditulis tangan di
+`src/lib/samples/mockups.ts`. Lihat D-16…D-19 di [DECISIONS.md](DECISIONS.md).
 
 ## Batas modul dan dependensi
 
@@ -119,6 +128,19 @@ memang dapat terlihat publik; tabel kode promo tidak boleh ikut di sana.
 revision/revisionUsed/note, jawaban, choices, promo terverifikasi, tema,
 mockup/key, kontak, dan ID penawaran. Semua State diserialisasi ke
 `localStorage['skyland-consult-v2']` setelah hidrasi.
+
+Dua field **sengaja tidak dipulihkan** dari storage:
+
+- `choices.region` — pasar adalah fakta perangkat, bukan pilihan. Nilai tersimpan
+  dulu mengalahkan deteksi dan ikut ke email order. Selalu diambil ulang dari
+  `useMarket(locale)` ([D-24](DECISIONS.md)).
+- `contact.consent` — selalu kembali tidak tercentang. Centang yang dipulihkan
+  sistem bukan persetujuan ([D-27](DECISIONS.md)).
+
+`src/components/useMarket.ts` adalah **satu-satunya** jalur island ke pasar harga.
+Island tidak memanggil `marketFromClient()` langsung, dan halaman tidak merender
+harga apa pun dari `regionFor(locale)` — satu-satunya pemakaian yang tersisa
+untuk nilai berbasis locale adalah JSON-LD, yang tidak terlihat pengunjung.
 
 ```mermaid
 stateDiagram-v2
@@ -168,14 +190,17 @@ lokal menyamakan akses `/samples/<nama>/` dengan `index.html` di production.
 ## SEO dan locale
 
 `routes.ts` merupakan daftar pasangan URL. `Seo.astro` membuat canonical,
-hreflang EN/ID/x-default, OG per bahasa, Twitter card, dan optional GSC token.
+hreflang EN/ID/JA/x-default, OG per bahasa, Twitter card, dan optional GSC token.
 `jsonld.ts` merakit ProfessionalService/OfferCatalog, Person, WebSite, FAQPage,
-Service, dan BreadcrumbList sesuai halaman. Sitemap memakai pairing yang sama
+Service, Offer halaman konsep (`conceptLd`), dan BreadcrumbList sesuai halaman. Sitemap memakai pairing yang sama
 dan memfilter path API; robots juga melarang `/api/`.
 
-`Base.astro` menjalankan redirect EN → ID berdasarkan bahasa browser atau zona
-waktu Indonesia, melewati user agent bot dan pilihan manual `skyland-lang`.
-Tidak ada redirect server/geolocation IP. `reveal.ts` memakai IntersectionObserver
+`Base.astro` menjalankan redirect bahasa sebagai daftar aturan berurutan
+(`ja` lalu `id`, first match wins) berdasarkan bahasa browser atau zona waktu,
+melewati user agent bot dan pilihan manual `skyland-lang`. Pilihan itu ditulis
+oleh handler klik pada `[data-lang-switch]`, jadi setiap tautan bahasa **wajib**
+membawa atribut itu beserta `hreflang`; tanpanya pengunjung akan dipantulkan
+kembali. Tidak ada redirect server/geolocation IP. `reveal.ts` memakai IntersectionObserver
 dan Web Animations, dengan dukungan reduced motion. Tidak ada Astro View
 Transitions/router client yang diaktifkan dalam layout.
 
@@ -188,3 +213,4 @@ yang dapat dicari ulang atau token untuk mengotorisasi scope.
 
 Layanan eksternal runtime: OpenAI, Gmail SMTP, optional Cloudflare Turnstile,
 dan WhatsApp berupa link keluar. Tidak ada queue/retry otomatis atau scheduler.
+

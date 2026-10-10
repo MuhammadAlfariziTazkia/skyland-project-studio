@@ -88,4 +88,47 @@ export const SAMPLE_MOCKUP: Record<Locale, Mockup> = {
     ],
     footerNote: 'Kopi Senja · Bandung',
   },
+  ja: {
+    brandName: 'Kopi Senja',
+    nav: ['メニュー', '私たちの話', '店舗', 'ご注文'],
+    accent: '#b45309',
+    hero: {
+      eyebrow: 'スペシャルティコーヒー · バンドン',
+      headline: 'おいしい一杯で、明るい一日に',
+      subheadline: '一杯ずつ手で淹れるコーヒーと、落ち着ける席。先に注文すれば、列に並ばずに受け取れます。',
+      primaryCta: '受け取り注文',
+      secondaryCta: 'メニューを見る',
+      icon: '☕',
+    },
+    highlights: [
+      { icon: '⚡', title: '10分で用意', text: 'オンラインで注文、通り道で受け取り。' },
+      { icon: '🌱', title: '地元の豆', text: '西ジャワの農園から毎週焙煎。' },
+      { icon: '📶', title: '作業にも', text: '速い Wi-Fi と十分な電源。' },
+    ],
+    sections: [
+      {
+        kind: 'cards',
+        eyebrow: '人気',
+        title: 'カウンターの定番',
+        text: '季節のドリンクと、毎日の定番。ご注文ごとにお作りします。',
+        items: [
+          { icon: '🥛', title: 'エス・コピ・スス スンジャ', text: '看板のアイスラテ、パームシュガー仕立て。' },
+          { icon: '🍵', title: 'マッチャ クラウド', text: '抹茶にオーツのフォームを重ねて。' },
+          { icon: '🥐', title: 'バタークロワッサン', text: '毎朝焼いています。' },
+        ],
+      },
+      {
+        kind: 'split',
+        eyebrow: '私たちの話',
+        title: 'ゆっくりした朝が好きな二人で始めました',
+        text: '',
+        items: [
+          { icon: '📍', title: 'Jl. Dago 123, バンドン', text: '毎日 07:00–22:00' },
+          { icon: '', title: 'テーブルのご予約', text: 'グループや勉強会に' },
+        ],
+      },
+      { kind: 'cta', eyebrow: '', title: '今日は列に並ばずに', text: '今すぐ注文して、10分後に受け取り。', items: [] },
+    ],
+    footerNote: 'Kopi Senja · バンドン',
+  },
 };

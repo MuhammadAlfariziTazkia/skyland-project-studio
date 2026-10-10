@@ -9,7 +9,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const ip = clientIp(request);
     const body = PlanRequestSchema.parse(await readJson(request));
-    if (body.website) throw new HttpError(400, 'Invalid request');
+    if (body.website) throw new HttpError(400, 'bad_request');
     rateLimit(`ai:${ip}`, 12);
     if (body.mode === 'create') {
       await verifyTurnstile(body.turnstileToken, ip);

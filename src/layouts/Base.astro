@@ -13,8 +13,18 @@ interface Props {
   noindex?: boolean;
 }
 const props = Astro.props;
-// Indonesian twin of this exact page, so visitors in Indonesia land on the matching page and not the home page.
-const idHref = props.locale === 'en' ? (pairFor(Astro.url.pathname)?.id ?? null) : null;
+/*
+ * Twins of this exact page in the other languages, so a visitor lands on the matching page rather than the
+ * home page. Only offered from English: /id/ and /ja/ are always reached on purpose, and English is the
+ * default. Order matters — the first rule whose signal matches wins.
+ */
+const altHrefs =
+  props.locale === 'en'
+    ? [
+        { loc: 'ja', href: pairFor(Astro.url.pathname)?.ja ?? null, tz: '^Asia/Tokyo$', lang: '^ja' },
+        { loc: 'id', href: pairFor(Astro.url.pathname)?.id ?? null, tz: '^Asia/(Jakarta|Pontianak|Makassar|Jayapura)$', lang: '^id' },
+      ].filter((r) => r.href)
+    : [];
 ---
 <!doctype html>
 <html lang={props.locale}>
@@ -28,28 +38,37 @@ const idHref = props.locale === 'en' ? (pairFor(Astro.url.pathname)?.id ?? null)
     <link rel="sitemap" href="/sitemap-index.xml" />
     <Seo {...props} />
     <script is:inline>document.documentElement.classList.add('js');</script>
-    <script is:inline define:vars={{ idHref }}>
-      // Pages are prerendered and CDN-cached, so the language choice is made here instead of on the server.
-      // Only English -> Indonesian: /id/ is always reached on purpose, and English is already the default.
-      (function () {
-        var KEY = 'skyland-lang';
-        try {
-          document.addEventListener('click', function (e) {
-            var a = e.target && e.target.closest && e.target.closest('[data-lang-switch]');
-            if (a) localStorage.setItem(KEY, a.getAttribute('hreflang') || '');
-          });
-        } catch (err) {}
-        if (!idHref) return;
-        try {
-          if (localStorage.getItem(KEY)) return; // the visitor picked a language, never override it
-          if (/bot|crawl|spider|slurp|preview/i.test(navigator.userAgent)) return; // keep the English pages indexable
-          var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-          var here = /^Asia\/(Jakarta|Pontianak|Makassar|Jayapura)$/.test(tz);
-          var speaks = (navigator.languages || [navigator.language || '']).some(function (l) { return /^id\b/i.test(l); });
-          if (here || speaks) location.replace(idHref + location.search + location.hash);
-        } catch (err) {}
-      })();
-    </script>
+    <script is:inline define:vars={{ altHrefs }}>
+  // Pages are prerendered and CDN-cached, so the language choice is made here instead of on the server.
+  (function () {
+    var KEY = 'skyland-lang';
+    // Left over from the currency picker that no longer exists. Nothing reads it any more, but a value
+    // stored while it did used to outrank market detection, so it is swept out rather than left behind.
+    try { localStorage.removeItem('skyland-market'); } catch (err) {}
+    try {
+      document.addEventListener('click', function (e) {
+        var a = e.target && e.target.closest && e.target.closest('[data-lang-switch]');
+        if (a) localStorage.setItem(KEY, a.getAttribute('hreflang') || '');
+      });
+    } catch (err) {}
+    if (!altHrefs || !altHrefs.length) return;
+    try {
+      if (localStorage.getItem(KEY)) return; // the visitor picked a language, never override it
+      if (/bot|crawl|spider|slurp|preview/i.test(navigator.userAgent)) return; // keep the English pages indexable
+      var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      var langs = navigator.languages || [navigator.language || ''];
+      for (var i = 0; i < altHrefs.length; i++) {
+        var r = altHrefs[i];
+        var here = new RegExp(r.tz).test(tz);
+        var speaks = langs.some(function (l) { return new RegExp(r.lang, 'i').test(l); });
+        if (here || speaks) {
+          location.replace(r.href + location.search + location.hash);
+          return;
+        }
+      }
+    } catch (err) {}
+  })();
+</script>
     <slot name="head" />
   </head>
   <body>

@@ -8,12 +8,15 @@ import type { Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale; kind: 'privacy' | 'terms' }
 const { locale, kind } = Astro.props;
-const contact = SITE.email || (locale === 'id' ? 'email yang tercantum di website ini' : 'the email listed on this website');
+const FALLBACK_CONTACT: Record<Locale, string> = { en: 'the email listed on this website', id: 'email yang tercantum di website ini', ja: 'このウェブサイトに記載のメールアドレス' };
+const contact = SITE.email || FALLBACK_CONTACT[locale];
 const p = pricing.payment_terms;
 const validDays = pricing.quote_valid_days;
 const noDeposit = p.down_payment_percent === 0;
 const base = `${SITE.city}, Japan`;
-const updated = locale === 'id' ? '27 September 2026' : 'September 27, 2026';
+const UPDATED_LABEL: Record<Locale, string> = { en: 'Last updated', id: 'Terakhir diperbarui', ja: '最終更新' };
+const UPDATED: Record<Locale, string> = { en: 'October 10, 2026', id: '10 Oktober 2026', ja: '2026年10月10日' };
+const updated = UPDATED[locale];
 
 const docs = {
   privacy: {
@@ -41,6 +44,18 @@ const docs = {
         ['Kontak', `${SITE.name}, ${base} · ${contact}`],
       ],
     },
+    ja: {
+      title: 'プライバシーポリシー',
+      desc: 'AI 相談のご利用時およびウェブサイトをご注文いただいた際に、Skyland Project Studio がお客様の情報をどう扱うかについて。',
+      sections: [
+        ['取得する情報', `AI 相談をご利用いただく際、入力された案件の説明、構成案への編集、選択されたデザインを処理します。ご注文の際は、お名前、メールアドレス、WhatsApp 番号、および任意の会社名・備考も取得します。`],
+        ['処理のしかた', `案件の説明は、構成案とモックアップの文章を生成するために OpenAI に送信されます。ご連絡先を AI に送ることはありません。ご注文時には、相談内容とご連絡先が（Gmail 経由で）こちらにメール送信され、同じ控えがお客様にもメールで届きます。`],
+        ['保存する情報', `このウェブサイトにはデータベースがありません。進行中の相談内容は、再読み込みで失われないようお客様ご自身のブラウザ（ローカルストレージ）にのみ保存されます。「最初からやり直す」でいつでも消去できます。ご注文の記録はこちらのメール受信箱にのみ存在します。`],
+        ['利用目的', `お見積りの作成、案件についてのご連絡、制作の実施のためだけに利用します。データを販売することはなく、無関係な宣伝にも使いません。`],
+        ['お客様の権利', `${contact} までご連絡いただければ、いつでもご自身の情報の開示、訂正、削除をご請求いただけます。`],
+        ['連絡先', `${SITE.name}, ${base} · ${contact}`],
+      ],
+    },
   },
   terms: {
     en: {
@@ -57,7 +72,7 @@ const docs = {
         ['Not included', 'Hosting, domain names, third-party subscriptions (e.g. payment gateway fees, paid APIs) and work outside the agreed scope are not included unless listed in your quote.'],
         ['Revisions & support', 'Each project includes two design revision rounds and 30 days of free support after launch for bug fixes and small changes.'],
         ['Ownership', 'After full payment, you own the website code, content, domain and accounts created for your project.'],
-        ['Changes to scope', 'New features requested after approval are quoted separately using the same price list.'],
+        ['Changes to scope during the build', 'The approved plan is the scope your price is based on. Scope can still change while we build, and this is how we handle it. If a feature turns out to be irrelevant to how your business actually works, technically unworkable, or better served another way, we tell you, explain why and propose the replacement — and if the replacement is comparable work, there is no extra charge. You can ask for changes mid-project too, on the same terms. A feature you drop before we start on it is deducted at the same price-list rate; one already built is not refundable. Anything that is genuinely more work than what it replaces is quoted from the same price list and confirmed with you in writing before we begin it. A price we have already confirmed never changes without both of us agreeing to it in writing.'],
       ],
     },
     id: {
@@ -74,7 +89,24 @@ const docs = {
         ['Tidak termasuk', 'Hosting, nama domain, langganan pihak ketiga (misalnya biaya payment gateway, API berbayar), dan pekerjaan di luar scope yang disepakati tidak termasuk kecuali tercantum di penawaran.'],
         ['Revisi & support', 'Setiap proyek mendapat dua putaran revisi desain dan support gratis 30 hari setelah online untuk perbaikan bug dan perubahan kecil.'],
         ['Kepemilikan', 'Setelah pelunasan, kode website, konten, domain, dan akun yang dibuat untuk proyek Anda sepenuhnya milik Anda.'],
-        ['Perubahan scope', 'Fitur baru yang diminta setelah persetujuan dihitung terpisah memakai daftar harga yang sama.'],
+        ['Perubahan scope selama pengerjaan', 'Rencana yang Anda setujui adalah scope yang menjadi dasar harga. Scope masih bisa berubah selama pengerjaan, dan beginilah kami menanganinya. Kalau sebuah fitur ternyata tidak relevan dengan cara bisnis Anda berjalan, tidak memungkinkan secara teknis, atau lebih baik dikerjakan dengan cara lain, kami beri tahu, jelaskan alasannya, dan usulkan penggantinya — dan kalau beban kerja penggantinya setara, tidak ada biaya tambahan. Anda juga boleh meminta perubahan di tengah jalan, dengan ketentuan yang sama. Fitur yang Anda batalkan sebelum kami kerjakan dikurangi dari harga memakai tarif daftar harga yang sama; yang sudah dikerjakan tidak dikembalikan. Apa pun yang jelas lebih besar dari yang digantikannya kami hitung dari daftar harga yang sama dan konfirmasikan tertulis kepada Anda sebelum mulai dikerjakan. Harga yang sudah kami konfirmasi tidak pernah berubah tanpa persetujuan tertulis kedua pihak.'],
+      ],
+    },
+    ja: {
+      title: '利用規約',
+      desc: 'Skyland Project Studio によるウェブサイト案件の見積り、支払い、引き渡しに関する規約。',
+      sections: [
+        ['AI 相談について', 'ご相談は無料で、何らの拘束力もありません。構成案とトップページのモックアップは、ご入力内容から生成されたコンセプトであり、最終的なデザインはご相談しながら仕上げていきます。'],
+        ['確定料金', `表示される料金は、構成案にあるとおりの範囲とご選択（サイト種別、ページ、機能、デザインの作り込み度、原稿のお手伝い、納期）について、公開済みの料金表から計算したもので、${validDays}日間有効です。範囲をご変更にならない限り金額は変わりません。カタログ外のご要望を含む構成案では料金を範囲で表示し、非常に大きな構成案はお打ち合わせで範囲を定めます。いずれの場合も、お支払いの前に書面で金額を確定します。`],
+        ['お支払い', noDeposit
+          ? `前払いはありません。完成したウェブサイトをご提示し、ご承認いただいた後、お客様のドメインで公開する前に、全額${p.final_payment_percent}%をお支払いいただきます。範囲の整理が必要な大きな案件は段階に分け、段階ごとに確定料金とお支払いを設定します。`
+          : `着手時に${p.down_payment_percent}%、完成したウェブサイトをご承認いただいた後、公開前に${p.final_payment_percent}%をお支払いいただきます。`],
+        ['制作期間と引き渡し', '制作中、ウェブサイトは Skyland が保有する確認用リンク上にあります。全額のお支払い後、お客様のドメインへ公開し、ソースコード、コンテンツ、案件のために作成したすべてのアカウントをお引き渡しします。お支払い前に案件が中止となった場合、引き渡すものはなく、お支払いいただくものもありません。'],
+        ['サーバーとドメイン', 'サーバーとドメインは料金に含まれません。提供事業者とプランはお客様が選び、直接お支払いいただきます。そうすることで各アカウントがお客様名義で登録され、こちらに縛られません。サーバー、ドメイン、SSL 証明書の設定作業は、追加費用なしで案件に含まれます。'],
+        ['含まれないもの', 'サーバー、ドメイン、第三者サービスの利用料（決済手数料、有料 API など）、および合意した範囲外の作業は、見積書に記載がない限り含まれません。'],
+        ['修正とサポート', 'どの案件にも、デザイン修正2回と、公開後30日間の不具合修正・小さな変更の無償サポートが含まれます。'],
+        ['権利の帰属', '全額のお支払い後、ウェブサイトのコード、コンテンツ、ドメイン、案件のために作成したアカウントは、お客様のものとなります。'],
+        ['制作中の範囲の変更', 'ご承認いただいた構成案が、料金の根拠となる範囲です。制作中に範囲が変わることはあり、その場合の扱いは次のとおりです。ある機能が、実際の事業の進め方に合わない、技術的に成り立たない、または別の方法のほうが適していると判明した場合は、こちらからお知らせし、理由をご説明のうえ、代わりの案をご提案します。代わりの案が同程度の作業量であれば、追加費用はいただきません。制作中にお客様からご変更をご希望いただく場合も、同じ扱いです。着手前に取りやめた機能は、同じ料金表の金額を差し引きます。すでに制作した分の返金はいたしかねます。置き換える内容より明らかに作業量が増えるものは、同じ料金表からお見積りし、着手前に書面でご確認いただきます。いったん確定した料金は、双方が書面で合意しない限り変わりません。'],
       ],
     },
   },
@@ -85,13 +117,19 @@ const d = docs[kind][locale];
   <Header locale={locale} />
   <main class="container legal">
     <h1>{d.title}</h1>
-    <p class="upd">{locale === 'id' ? 'Terakhir diperbarui' : 'Last updated'}: {updated}</p>
+    {locale === 'ja' && (
+      <p class="pending">
+        この日本語版は英語版からの翻訳で、日本の法律の専門家によるレビューは受けていません。内容に相違がある場合は英語版が優先されます。
+      </p>
+    )}
+    <p class="upd">{UPDATED_LABEL[locale]}: {updated}</p>
     {d.sections.map(([h, body]) => <section><h2>{h}</h2><p>{body}</p></section>)}
   </main>
   <Footer locale={locale} />
 </Base>
 
 <style>
+  .pending { margin: 0; background: #fff7e6; border: 1px solid #f5d9a8; border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.7; color: #7a4d0b; }
   .legal { max-width: 760px; padding-top: 48px; padding-bottom: 80px; display: flex; flex-direction: column; gap: 22px; }
   h1 { font-size: clamp(30px, 4vw, 44px); letter-spacing: -0.03em; }
   .upd { color: var(--muted-2); font-size: 14px; }

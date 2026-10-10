@@ -9,9 +9,18 @@ import type { Choices, Currency, Locale, Plan, Region } from './schemas';
 type Page = Plan['pages'][number];
 
 export type PricingData = typeof raw;
-type Service = PricingData['services'][number] & { includes?: string[] };
+type Service = PricingData['services'][number] & { includes?: string[]; risk_tier?: RiskTier; design_share: number };
 export type FeatureUnit = 'page' | 'item';
-type Feature = Omit<PricingData['features'][number], 'unit'> & { unit?: FeatureUnit };
+type RiskTier = 'standard' | 'elevated' | 'review';
+type Feature = Omit<PricingData['features'][number], 'unit'> & {
+  unit?: FeatureUnit;
+  risk_tier?: RiskTier;
+  design_bearing: boolean;
+  /** Needs a third-party account or subscription to work at all. */
+  external_dependency?: boolean;
+  /** An external dependency the business genuinely cannot trade without (payment). */
+  crucial?: boolean;
+};
 type MultiplierKey = keyof PricingData['multipliers'];
 
 /**
@@ -65,20 +74,53 @@ export const SERVICE_PRICING_ID: Record<ServiceKey, string> = {
   blog: 'blog_media',
 };
 
-export const regionFor = (locale: Locale): Region => (locale === 'id' ? 'ID' : 'GLOBAL');
+/**
+ * The market a prerendered page assumes. A lookup rather than a ternary so a third locale is one row,
+ * and so `ja` lands on JP instead of silently falling through to USD.
+ */
+const LOCALE_MARKET: Record<Locale, Region> = { en: 'GLOBAL', id: 'ID', ja: 'JP' };
+export const regionFor = (locale: Locale): Region => LOCALE_MARKET[locale];
 export const currencyOf = (region: Region) => pricing.regions[region].currency as Currency;
 export const defaultChoices = (locale: Locale): Choices => ({ region: regionFor(locale), design: 'semi_custom', content: 'partial', timeline: 'normal', promoCode: '' });
+
+const ID_ZONES = /^Asia\/(Jakarta|Pontianak|Makassar|Jayapura)$/;
+const JP_ZONES = /^(Asia\/Tokyo|Japan)$/;
+
+/**
+ * The visitor's price market, worked out on the device so they are never asked "where is your business?".
+ *
+ * Detection runs fresh on every visit and nothing is remembered. An earlier version read a saved
+ * `skyland-market` key first, which outranked detection; once the currency picker was removed nothing
+ * wrote that key any more, so a value left over from testing became permanent and unreachable and a
+ * visitor in Tokyo kept seeing rupiah. Timezone and language are available synchronously with no
+ * network, so an island settles the market in its first effect and the price never moves again.
+ * Falls back to the locale default outside the browser.
+ */
+export function marketFromClient(locale: Locale): Region {
+  if (typeof window === 'undefined') return regionFor(locale);
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    if (JP_ZONES.test(tz)) return 'JP';
+    if (ID_ZONES.test(tz)) return 'ID';
+    const langs = navigator.languages ?? [navigator.language || ''];
+    if (langs.some((l) => /^ja\b/i.test(l))) return 'JP';
+    if (langs.some((l) => /^id\b/i.test(l))) return 'ID';
+  } catch {
+    /* no Intl or navigator; fall through */
+  }
+  return regionFor(locale);
+}
 
 export function getService(id: string, data: PricingData = pricing): Service {
   const s = data.services.find((x) => x.id === id);
   if (!s) throw new Error(`Unknown service: ${id}`);
-  return s;
+  return s as unknown as Service;
 }
 
 export function getFeature(id: string, data: PricingData = pricing): Feature {
   const f = data.features.find((x) => x.id === id);
   if (!f) throw new Error(`Unknown feature: ${id}`);
-  return f as Feature;
+  return f as unknown as Feature;
 }
 
 const multiplier = (key: MultiplierKey, id: string, data: PricingData) => {
@@ -94,7 +136,7 @@ const parseDays = (s: string): [number, number] => {
 
 /** Features the client gets: the ones switched on plus everything the package already includes. */
 export function activeFeatureIds(plan: Plan, data: PricingData = pricing): Set<string> {
-  const svc = data.services.find((s) => s.id === plan.serviceId) as Service | undefined;
+  const svc = data.services.find((s) => s.id === plan.serviceId) as unknown as Service | undefined;
   return new Set([...plan.features.map((f) => f.id), ...(svc?.includes ?? [])]);
 }
 
@@ -177,23 +219,51 @@ export interface Quote {
   pagesCount: number;
   featuresCount: number;
   validDays: number;
+  /**
+   * Why this quote cannot be a fixed number, independent of how large it is. `blocking` means we do not take
+   * the work on at all (see blocking_domains in pricing.json) — a small budget never clears it.
+   */
+  risk: { blocking: string[]; elevated: string[]; truncated: boolean };
 }
 
 const roundTo = (n: number, step: number) => Math.round(n / step) * step;
 
 const ADJUST: Record<MultiplierKey | 'round' | 'minimum' | 'cap', Record<Locale, string>> = {
-  design_level: { en: 'Design', id: 'Desain' },
-  content_readiness: { en: 'Content help', id: 'Bantuan konten' },
-  timeline: { en: 'Faster delivery', id: 'Pengerjaan lebih cepat' },
-  round: { en: 'Rounding', id: 'Pembulatan' },
-  minimum: { en: 'Minimum project price', id: 'Harga minimum proyek' },
-  cap: { en: 'Combined options capped', id: 'Batas gabungan opsi' },
+  design_level: { en: 'Design', id: 'Desain', ja: 'デザイン' },
+  content_readiness: { en: 'Content help', id: 'Bantuan konten', ja: '原稿のお手伝い' },
+  timeline: { en: 'Faster delivery', id: 'Pengerjaan lebih cepat', ja: '納期の短縮' },
+  round: { en: 'Rounding', id: 'Pembulatan', ja: '端数調整' },
+  minimum: { en: 'Minimum project price', id: 'Harga minimum proyek', ja: '最低料金' },
+  cap: { en: 'Combined options capped', id: 'Batas gabungan opsi', ja: 'オプション合計の上限' },
 };
 
-const DISCOUNT: Record<Discount['kind'], Record<Locale, string>> = {
-  founding: { en: 'Founding client discount', id: 'Diskon klien pertama' },
-  promo: { en: 'Promo code', id: 'Kode promo' },
+const PAGES_INCLUDED: Record<Locale, (n: number) => string> = {
+  en: (n) => `Includes ${n} page${n > 1 ? 's' : ''}`,
+  id: (n) => `Termasuk ${n} halaman`,
+  ja: (n) => `${n}ページ分を含む`,
 };
+const EXTRA_PAGES: Record<Locale, string> = { en: 'Extra pages', id: 'Halaman tambahan', ja: '追加ページ' };
+
+const DISCOUNT: Record<Discount['kind'], Record<Locale, string>> = {
+  founding: { en: 'Founding client discount', id: 'Diskon klien pertama', ja: '初期クライアント割引' },
+  promo: { en: 'Promo code', id: 'Kode promo', ja: 'プロモコード' },
+};
+
+/**
+ * Work we decline, matched against what the client wrote rather than against the amount. A bidding engine is
+ * out of scope whether the budget is small or large, so this gate deliberately ignores price and promo.
+ * Matching is keyword-based and so is deliberately eager: a false "let's talk" costs a conversation,
+ * a false "fixed price" costs a project we cannot deliver.
+ */
+export function blockingDomains(plan: Plan, locale: Locale, data: PricingData = pricing): string[] {
+  const haystack = [
+    plan.projectName, plan.summary, plan.business, plan.audience,
+    ...plan.flows.map((f) => f.does),
+    ...plan.pages.map((p) => p.name),
+    ...plan.customRequests.flatMap((c) => [c.name, c.description]),
+  ].join(' \n ').toLowerCase();
+  return data.blocking_domains.filter((d) => d.keywords.some((k) => haystack.includes(k.toLowerCase()))).map((d) => d.label[locale]);
+}
 
 export function quote(plan: Plan, choices: Choices, locale: Locale, data: PricingData = pricing, promo: Promo | null = null): Quote {
   const svc = getService(plan.serviceId, data);
@@ -202,51 +272,86 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
   const pagesCount = contentPages(plan, data).length;
   const lines: QuoteLine[] = [];
   let hours = 0;
+  /**
+   * The slice of the subtotal that is actually design and content work. The design and content multipliers
+   * only touch this, so "custom design" can no longer inflate a payment gateway or a role matrix.
+   */
+  let designPart = 0;
 
   const n = svc.pages_included;
   lines.push({
     kind: 'base',
     label: SERVICE_COPY[svc.id]?.[locale].name ?? svc.name,
-    detail: locale === 'id' ? `Termasuk ${n} halaman` : `Includes ${n} page${n > 1 ? 's' : ''}`,
+    detail: PAGES_INCLUDED[locale](n),
     quantity: 1,
     unitPrice: svc.base[region],
     amount: svc.base[region],
   });
+  designPart += svc.base[region] * svc.design_share;
 
   const extra = Math.max(0, pagesCount - n);
   if (extra > 0) {
     const unit = data.extra_page.price[region];
     hours += extra * data.extra_page.est_hours;
-    lines.push({ kind: 'pages', label: locale === 'id' ? 'Halaman tambahan' : 'Extra pages', quantity: extra, unitPrice: unit, amount: unit * extra });
+    lines.push({ kind: 'pages', label: EXTRA_PAGES[locale], quantity: extra, unitPrice: unit, amount: unit * extra });
+    designPart += unit * extra;
   }
 
   const included = new Set(svc.includes ?? []);
   const seen = new Set<string>();
+  const elevated: string[] = [];
   for (const { id, quantity } of plan.features) {
     if (seen.has(id)) continue;
     seen.add(id);
     const def = getFeature(id, data);
     const label = FEATURE_COPY[id]?.[locale].name ?? def.label;
-    if (included.has(id)) {
+    if (def.risk_tier === 'elevated') elevated.push(label);
+    // With no content at all the content multiplier already pays for the writing, so billing copywriting
+    // on top would charge the same work twice. pricing.json has always said so; now the engine does it.
+    const writingCoveredByMultiplier = id === 'copywriting' && choices.content === 'none';
+    if (included.has(id) || writingCoveredByMultiplier) {
       lines.push({ kind: 'feature', label, quantity: 1, unitPrice: 0, amount: 0, included: true });
       continue;
     }
     const qty = def.unit === 'page' ? pagesCount : def.unit === 'item' ? Math.max(1, quantity ?? 1) : 1;
     hours += def.est_hours * qty;
-    lines.push({ kind: 'feature', label, quantity: qty, unitPrice: def.price[region], amount: def.price[region] * qty });
+    const amount = def.price[region] * qty;
+    lines.push({ kind: 'feature', label, quantity: qty, unitPrice: def.price[region], amount });
+    if (def.design_bearing) designPart += amount;
   }
 
   const subtotal = lines.reduce((s, l) => s + l.amount, 0);
 
-  // Multipliers compound (calculation step 3); each is shown as its own amount so the client sees what it costs.
+  /*
+   * Design and content scale only the design-bearing slice; the pace premium scales everything, because
+   * delivering a payment integration sooner really does cost more. Each step is its own line so the client
+   * can see what the option costs, and each is rounded on its own, so the engine stays the single authority.
+   */
   let running = subtotal;
-  const picks: [MultiplierKey, string][] = [['design_level', choices.design], ['content_readiness', choices.content], ['timeline', choices.timeline]];
-  for (const [key, id] of picks) {
+  let runningDesign = designPart;
+  const segmented: [MultiplierKey, string][] = [['design_level', choices.design], ['content_readiness', choices.content]];
+  for (const [key, id] of segmented) {
     const m = multiplier(key, id, data);
     if (m.value === 1) continue;
-    const amount = Math.round(running * (m.value - 1));
+    const amount = Math.round(runningDesign * (m.value - 1));
     running += amount;
-    lines.push({ kind: 'adjust', label: ADJUST[key][locale], detail: `${MULTIPLIER_COPY[key].options[id][locale].label} · +${Math.round((m.value - 1) * 100)}%`, quantity: 1, unitPrice: amount, amount });
+    runningDesign += amount;
+    const pct = Math.round((m.value - 1) * 100);
+    lines.push({ kind: 'adjust', label: ADJUST[key][locale], detail: `${MULTIPLIER_COPY[key].options[id][locale].label} · ${pct > 0 ? '+' : ''}${pct}%`, quantity: 1, unitPrice: amount, amount });
+  }
+  const pace = multiplier('timeline', choices.timeline, data);
+  if (pace.value !== 1) {
+    const amount = Math.round(running * (pace.value - 1));
+    running += amount;
+    lines.push({ kind: 'adjust', label: ADJUST.timeline[locale], detail: `${MULTIPLIER_COPY.timeline.options[choices.timeline][locale].label} · +${Math.round((pace.value - 1) * 100)}%`, quantity: 1, unitPrice: amount, amount });
+  }
+
+  // calculation.max_multiplier is a real ceiling now: stacking every option can no longer more than
+  // max_multiplier the subtotal, which used to be reachable at 2.268x.
+  const ceiling = Math.round(subtotal * data.calculation.max_multiplier);
+  if (subtotal > 0 && running > ceiling) {
+    lines.push({ kind: 'adjust', label: ADJUST.cap[locale], detail: `max ${data.calculation.max_multiplier}×`, quantity: 1, unitPrice: ceiling - running, amount: ceiling - running });
+    running = ceiling;
   }
 
   let price = roundTo(running, reg.round_to);
@@ -257,20 +362,30 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
   }
   const priceHigh = roundTo(price * data.calculation.range_upper, reg.round_to);
 
-  const status: QuoteStatus = price > reg.max_price ? 'discuss' : plan.customRequests.length > 0 ? 'range' : 'fixed';
+  /*
+   * Risk decides the status before the amount does. Previously an auction platform could come back as a
+   * fixed price just because it landed under the regional ceiling and carried no custom-request label,
+   * and the same scope flipped between `range` and `discuss` purely because the ID and GLOBAL ceilings were
+   * ~10x apart in real terms. A blocking domain, a package that always needs a human, and scope we had to
+   * truncate are all refusals to commit, whatever the number says.
+   */
+  const blocking = blockingDomains(plan, locale, data);
+  const risk = { blocking, elevated, truncated: plan.scopeTruncated };
+  const mustDiscuss = blocking.length > 0 || svc.risk_tier === 'review' || plan.scopeTruncated || price > reg.max_price;
+  const status: QuoteStatus = mustDiscuss ? 'discuss' : elevated.length > 0 || plan.customRequests.length > 0 ? 'range' : 'fixed';
 
-  // Discounts stack additively (20% + 20% = 40% off the undiscounted price), capped twice:
-  // by max_discount_percent, and by the region minimum so a cheap project can never fall below it.
-  const stack: { kind: Discount['kind']; label: string; percent: number }[] = [];
-  if (foundingSpotsLeft(data) > 0) stack.push({ kind: 'founding', label: DISCOUNT.founding[locale], percent: data.founding_offer.percent });
-  if (promo && promo.percent > 0) stack.push({ kind: 'promo', label: `${DISCOUNT.promo[locale]} ${promo.code}`, percent: promo.percent });
+  /*
+   * One discount, never a stack. Founding 20% + promo 20% used to reach 40% off, which on an Indonesian
+   * booking project worked out at roughly a third of the Kanagawa minimum wage per hour. Markets listed in
+   * discount_policy.no_discount_markets get none at all, because their list price is already subsidised.
+   */
+  const subsidised = (data.discount_policy.no_discount_markets as string[]).includes(region);
+  const offers: { kind: Discount['kind']; label: string; percent: number }[] = [];
+  if (!subsidised && foundingSpotsLeft(data) > 0) offers.push({ kind: 'founding', label: DISCOUNT.founding[locale], percent: data.founding_offer.percent });
+  if (!subsidised && promo && promo.percent > 0) offers.push({ kind: 'promo', label: `${DISCOUNT.promo[locale]} ${promo.code}`, percent: promo.percent });
 
-  let budget = data.max_discount_percent;
-  const capped = stack.map((d) => {
-    const percent = Math.max(0, Math.min(d.percent, budget));
-    budget -= percent;
-    return { ...d, percent };
-  });
+  const best = offers.sort((a, b) => b.percent - a.percent)[0];
+  const capped = best ? [{ ...best, percent: Math.max(0, Math.min(best.percent, data.max_discount_percent)) }] : [];
 
   const applyDiscounts = (p: number): { discounts: Discount[]; savings: number } => {
     const room = Math.max(0, p - reg.min_price);
@@ -289,8 +404,8 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
   const [lo, hi] = parseDays(svc.workdays);
   const extraDays = Math.ceil(hours / HOURS_PER_DAY);
   const effort = multiplier('design_level', choices.design, data).value * multiplier('content_readiness', choices.content, data).value;
-  const pace = multiplier('timeline', choices.timeline, data).time_factor ?? 1;
-  const days = (d: number) => Math.max(1, Math.ceil((d + extraDays) * effort * pace));
+  const paceFactor = pace.time_factor ?? 1;
+  const days = (d: number) => Math.max(1, Math.ceil((d + extraDays) * effort * paceFactor));
 
   return {
     region,
@@ -309,13 +424,14 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
     pagesCount,
     featuresCount: seen.size,
     validDays: data.quote_valid_days,
+    risk,
   };
 }
 
 /** How a feature affects the price inside a given package, for tags in the plan UI. */
-export function featurePrice(serviceId: string, featureId: string, region: Region): { kind: 'included' | 'free' | 'price'; amount: number; unit?: FeatureUnit } {
-  const def = getFeature(featureId);
-  if ((getService(serviceId).includes ?? []).includes(featureId)) return { kind: 'included', amount: 0 };
+export function featurePrice(serviceId: string, featureId: string, region: Region, data: PricingData = pricing): { kind: 'included' | 'free' | 'price'; amount: number; unit?: FeatureUnit } {
+  const def = getFeature(featureId, data);
+  if ((getService(serviceId, data).includes ?? []).includes(featureId)) return { kind: 'included', amount: 0 };
   const amount = def.price[region];
   return { kind: amount === 0 ? 'free' : 'price', amount, unit: def.unit };
 }
@@ -332,7 +448,7 @@ export function formatPrice(amount: number, region: Region): string {
 
 /** Short price for tight UI, e.g. "Rp 1,75 jt" / "$650". Two decimals so it never rounds up past the real price. */
 export function formatShort(amount: number, region: Region): string {
-  if (region === 'GLOBAL') return formatPrice(amount, region);
+  if (region !== 'ID') return formatPrice(amount, region);
   if (amount >= 1_000_000) return `Rp ${(amount / 1_000_000).toLocaleString('id-ID', { maximumFractionDigits: 2 })} jt`;
   return `Rp ${Math.round(amount / 1000)}rb`;
 }

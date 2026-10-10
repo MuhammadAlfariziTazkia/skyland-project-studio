@@ -2,9 +2,15 @@ import { afterEach, describe, expect, it } from 'vitest';
 import pricing from '../data/pricing.json';
 import { CATEGORY_COPY, FEATURE_COPY, MULTIPLIER_COPY, NOT_INCLUDED_COPY, PAGE_COPY, RECURRING_COPY, SERVICE_COPY } from '../src/i18n/catalog';
 import { SERVICE_KEYS } from '../src/i18n/routes';
-import { SERVICE_PRICING_ID, contentPages, publicPages, quote, visiblePages, withEnv, type PricingData, type Promo } from '../src/lib/pricing';
+import { HOURS_PER_DAY, SERVICE_PRICING_ID, contentPages, marketFromClient, publicPages, quote, visiblePages, withEnv, type PricingData, type Promo } from '../src/lib/pricing';
 import { validatePromo } from '../src/lib/promo';
-import { PlanSchema, type Choices, type Plan } from '../src/lib/schemas';
+import { ContactSchema, LOCALES, MockupSchema, PAGE_TYPES, PlanSchema, PlanShape, type Choices, type Plan } from '../src/lib/schemas';
+import { CONCEPT_KEYS, CONCEPT_SLUGS, SERVICE_SLUGS, allPagePairs, conceptPath, servicePath } from '../src/i18n/routes';
+import { consultStrings } from '../src/i18n/consult';
+import { getDict } from '../src/i18n';
+import { CONCEPT_MOCKUPS } from '../src/lib/samples/mockups';
+import { essentialIds, needsThirdParty, orderedFeatures, planKey, toPlan } from '../src/lib/samples/plan';
+import { SAMPLE_SPECS } from '../src/lib/samples/specs';
 
 type Page = Plan['pages'][number];
 const pages = (n: number): Page[] => Array.from({ length: n }, (_, i) => ({ name: `Page ${i + 1}`, area: 'public', feature: '', covers: [], purpose: '', sections: [] }));
@@ -27,64 +33,475 @@ const plan = (over: Partial<Plan> & { pageCount?: number } = {}): Plan => {
 };
 const feats = (...ids: string[]) => ids.map((id) => ({ id, reason: '', quantity: 1 }));
 const feat = (id: string, quantity: number) => ({ id, reason: '', quantity });
-const choices = (over: Partial<Choices> = {}): Choices => ({ region: 'ID', design: 'template', content: 'ready', timeline: 'normal', promoCode: '', ...over });
+const choices = (over: Partial<Choices> = {}): Choices => ({ region: 'ID', design: 'semi_custom', content: 'ready', timeline: 'normal', promoCode: '', ...over });
 const noDiscount: PricingData = { ...pricing, founding_offer: { ...pricing.founding_offer, active: false } };
+/** Catalog sums land on the finer catalog grid; the engine then rounds the finished price to the market grid. */
+const onGrid = (sum: number, region: 'ID' | 'JP' | 'GLOBAL' = 'ID') => {
+  const step = pricing.regions[region].round_to;
+  return Math.round(sum / step) * step;
+};
 
-describe('quote: reference_cases in pricing.json', () => {
-  // Each case is the plan described in reference_cases[].desc; the engine must land on its agreed range.
-  const cases: [Plan, Choices][] = [
-    [plan({ serviceId: 'company_profile', pageCount: 5, features: feats('gallery', 'google_maps', 'whatsapp_button') }), choices({ region: 'ID', design: 'semi_custom', content: 'partial' })],
-    [plan({ serviceId: 'online_store', pageCount: 7, features: feats('seo_basic') }), choices({ region: 'ID', design: 'semi_custom', content: 'partial' })],
-    [plan({ serviceId: 'personal_portfolio', pageCount: 4, features: feats('custom_animation') }), choices({ region: 'GLOBAL', design: 'semi_custom', content: 'ready' })],
-    [plan({ serviceId: 'online_course', pageCount: 7, features: feats('payment') }), choices({ region: 'GLOBAL', design: 'semi_custom', content: 'partial' })],
-  ];
-  pricing.reference_cases.forEach((ref, i) => {
-    it(`${ref.region} ${ref.service}: ${ref.agreed.join(' – ')}`, () => {
-      const [p, c] = cases[i];
-      expect(p.serviceId).toBe(ref.service);
-      const q = quote(p, c, 'id', noDiscount);
-      expect([q.price, q.priceHigh]).toEqual(ref.agreed);
-      expect(q.status).toBe('fixed');
+const priceOf = (id: string, region: 'ID' | 'JP' | 'GLOBAL') => pricing.features.find((f) => f.id === id)!.price[region];
+const baseOf = (id: string, region: 'ID' | 'JP' | 'GLOBAL') => pricing.services.find((s) => s.id === id)!.base[region];
+const extraOf = (region: 'ID' | 'JP' | 'GLOBAL') => pricing.extra_page.price[region];
+
+describe('catalog is derived from hours, not hand-tuned', () => {
+  // The old catalog drifted away from pricing_basis: the ID/GLOBAL ratio ran 6.6x-8.9x across packages
+  // while the stated hourly rate implied 6.5x, which is how ID work ended up paying a fraction of GLOBAL
+  // work for identical scope. Every price is now est_hours x rate, and this test keeps it that way.
+  const rate = pricing.pricing_basis.hourly_rate;
+  const markets = ['ID', 'JP', 'GLOBAL'] as const;
+
+  const round = (n: number, step: number) => Math.round(n / step) * step;
+
+  it('prices every service at est_hours x the market rate', () => {
+    // Packages round to the price grid, so a plan that fits its package shows no rounding line.
+    for (const s of pricing.services)
+      for (const m of markets)
+        expect(s.base[m], `${s.id} ${m}`).toBe(round(s.est_hours * rate[m], pricing.regions[m].round_to));
+  });
+
+  it('prices every feature at est_hours x the market rate', () => {
+    for (const f of pricing.features)
+      for (const m of markets)
+        expect(f.price[m], `${f.id} ${m}`).toBe(round(f.est_hours * rate[m], pricing.regions[m].catalog_round));
+  });
+
+  it('keeps the price step finer than the cheapest billable feature', () => {
+    /*
+     * JPY used to round to ¥5,000, which was coarser than what the cheapest features cost. Ticking one
+     * moved nothing on screen: the client sees a dead checkbox, and the feature is effectively free.
+     * The price step has to be smaller than the smallest thing it is meant to price.
+     */
+    const cheapest = (region: 'ID' | 'JP' | 'GLOBAL') =>
+      Math.min(...pricing.features.filter((f) => f.price[region] > 0).map((f) => f.price[region]));
+    for (const region of ['ID', 'JP', 'GLOBAL'] as const)
+      expect(pricing.regions[region].round_to, `${region}: step vs cheapest feature ${cheapest(region)}`).toBeLessThanOrEqual(cheapest(region));
+  });
+
+  it('moves the total whenever any single optional feature is switched on', () => {
+    // The end-to-end symptom of the rounding bug, asserted directly on every concept and market.
+    for (const key of CONCEPT_KEYS) {
+      const spec = SAMPLE_SPECS[key];
+      const base = essentialIds(spec);
+      for (const region of ['ID', 'JP', 'GLOBAL'] as const) {
+        const priceOf = (ids: string[]) =>
+          quote(toPlan(spec, ids, 'en'), choices({ region, design: spec.design as never, content: 'ready' }), 'en', noDiscount).price;
+        const before = priceOf(base);
+        for (const f of spec.features.filter((x) => x.need === 'nice'))
+          expect(priceOf([...base, f.id]), `${key}/${region}/${f.id} did not move the price`).toBeGreaterThan(before);
+      }
+    }
+  });
+
+  it('never promises a timeline its own hours cannot fit', () => {
+    // workdays is the base package range. A low bound under ceil(est_hours / HOURS_PER_DAY) is a promise
+    // that cannot be kept: booking used to say 10 days for 92 hours of work.
+    for (const s of pricing.services) {
+      const [lo] = s.workdays.split('-').map(Number);
+      expect(lo, `${s.id}: ${s.workdays} for ${s.est_hours}h`).toBeGreaterThanOrEqual(Math.ceil(s.est_hours / HOURS_PER_DAY));
+    }
+  });
+
+  it('keeps the extra page and every region coherent', () => {
+    for (const m of markets) expect(pricing.extra_page.price[m], m).toBe(round(pricing.extra_page.est_hours * rate[m], pricing.regions[m].catalog_round));
+    // A market ceiling must be a business decision in that market, not an artefact of exchange rates.
+    // ID used to stop at Rp22m (about $1,229) while GLOBAL ran to $12,000 for the very same scope.
+    for (const m of markets) {
+      const reg = pricing.regions[m];
+      expect(reg.max_price / rate[m], `${m} ceiling in hours`).toBeGreaterThan(150);
+      expect(reg.max_price / rate[m], `${m} ceiling in hours`).toBeLessThan(260);
+    }
+  });
+});
+
+describe('concept scopes are the single source of truth', () => {
+  // Every concept's scope lives in src/lib/samples/specs.ts. The detail page, the pricing engine and this
+  // test all read it, so a price shown to a client cannot drift from docs/PRICING_RESEARCH_01_MARKET.md.
+  const markets = ['ID', 'JP', 'GLOBAL'] as const;
+
+  it('builds a schema-valid plan for every concept', () => {
+    for (const key of CONCEPT_KEYS) {
+      const spec = SAMPLE_SPECS[key];
+      const p = toPlan(spec, essentialIds(spec), 'en');
+      expect(p.serviceId, key).toBe(spec.serviceId);
+      expect(p.pages.length, key).toBe(spec.contentPages.length + spec.featurePages.length);
+      // Nothing may be silently dropped: MAX_PAGES must not bite, or the quote would be a discussion.
+      expect(p.scopeTruncated, key).toBe(false);
+      expect(contentPages(p).length, `${key} content pages`).toBe(spec.contentPages.length);
+    }
+  });
+
+  it('switches unselected features off rather than deleting them', () => {
+    const spec = SAMPLE_SPECS.tegak;
+    const all = spec.features.map((f) => f.id);
+    const p = toPlan(spec, essentialIds(spec), 'en');
+    expect([...p.features, ...p.suggestions].map((f) => f.id).sort()).toEqual([...all].sort());
+    expect(p.features.map((f) => f.id).sort()).toEqual(essentialIds(spec).sort());
+  });
+
+  it('uses no third-party dependency a solo studio would have to keep paying for', () => {
+    // The owner builds alone and sells outright, so a subscription integration is a liability. Only
+    // payment earns an exception, because a shop cannot take money without one.
+    for (const key of CONCEPT_KEYS)
+      for (const { id } of SAMPLE_SPECS[key].features)
+        if (needsThirdParty(id)) expect(pricing.features.find((f) => f.id === id), `${key}/${id}`).toMatchObject({ crucial: true });
+  });
+
+  it('explains every feature in the context of its own concept', () => {
+    // FEATURE_COPY[].plain is generic catalog wording, true of every project and useful to nobody
+    // choosing one. Each concept states what the feature actually is on that site, and what it changes.
+    for (const key of CONCEPT_KEYS)
+      for (const f of SAMPLE_SPECS[key].features)
+        for (const locale of LOCALES) {
+          // CJK packs the same sentence into about half the characters, so the floor is per script.
+          const [minDoes, minSo] = locale === 'ja' ? [12, 8] : [30, 20];
+          expect(f.does[locale]?.length, `${key}/${f.id}/${locale} does`).toBeGreaterThan(minDoes);
+          expect(f.so[locale]?.length, `${key}/${f.id}/${locale} so`).toBeGreaterThan(minSo);
+          // It must not just repeat the generic catalog line.
+          expect(f.does[locale], `${key}/${f.id}/${locale} is generic`).not.toBe(FEATURE_COPY[f.id]?.[locale].plain);
+        }
+  });
+
+  it('orders features by need first, then price ascending', () => {
+    // The owner's priority order: needed+cheap, needed+costly, optional+cheap, optional+costly.
+    for (const key of CONCEPT_KEYS) {
+      const rows = orderedFeatures(SAMPLE_SPECS[key], 'ID', 'en');
+      const tier = (r: (typeof rows)[number]) => (r.need === 'core' ? 0 : 1);
+      for (let i = 1; i < rows.length; i++) {
+        const [prev, cur] = [rows[i - 1], rows[i]];
+        expect(tier(prev), `${key} ${prev.id} before ${cur.id}`).toBeLessThanOrEqual(tier(cur));
+        if (tier(prev) === tier(cur)) expect(prev.amount, `${key} ${prev.id} <= ${cur.id}`).toBeLessThanOrEqual(cur.amount);
+      }
+      expect(rows.filter((r) => r.need === 'core').length, `${key} has essentials`).toBeGreaterThan(0);
+    }
+  });
+
+  it('shares planKey with the consultant so a seeded result step needs no AI call', () => {
+    // Consultant.tsx caches the mockup against this key. If the two implementations disagree, handing a
+    // seeded state to the result step would look stale and fire an avoidable /api/mockup request.
+    const p = toPlan(SAMPLE_SPECS.kurohane, essentialIds(SAMPLE_SPECS.kurohane), 'en');
+    expect(planKey(p)).toBe(JSON.stringify([p.serviceId, p.pages.map((x) => x.name), p.features.map((f) => f.id)]));
+    expect(planKey(p)).not.toBe(planKey(toPlan(SAMPLE_SPECS.kurohane, [], 'en')));
+  });
+
+  describe('full scope lands on the documented fee', () => {
+    // Targets from docs/PRICING_RESEARCH_01_MARKET.md are for the whole v1 scope, so the comparison is the
+    // full feature list. The essential subset is deliberately cheaper — that is the entry price, asserted
+    // separately below.
+    const priced = ['tegak', 'lembar', 'kurohane'] as const;
+    const targets: Record<(typeof priced)[number], Record<(typeof markets)[number], number>> = {
+      tegak: { ID: 6_500_000, JP: 220_000, GLOBAL: 1_900 },
+      lembar: { ID: 13_000_000, JP: 440_000, GLOBAL: 3_800 },
+      kurohane: { ID: 12_000_000, JP: 420_000, GLOBAL: 3_600 },
+    };
+    const priceOfScope = (key: (typeof priced)[number], region: (typeof markets)[number], ids: string[]) => {
+      const spec = SAMPLE_SPECS[key];
+      return quote(toPlan(spec, ids, 'id'), choices({ region, design: spec.design as never, content: 'ready' }), 'id', noDiscount);
+    };
+
+    for (const key of priced)
+      for (const region of markets)
+        it(`${key} ${region} is within 10% of the target`, () => {
+          const all = SAMPLE_SPECS[key].features.map((f) => f.id);
+          const q = priceOfScope(key, region, all);
+          const want = targets[key][region];
+          expect(Math.abs(q.price / want - 1), `${q.price} vs ${want}`).toBeLessThan(0.1);
+          expect(q.lines.reduce((s, l) => s + l.amount, 0)).toBe(q.price);
+        });
+
+    it('keeps the essential price below full scope but not a teaser', () => {
+      // The headline has to be reachable and honest: cheaper than everything switched on, yet still most
+      // of the real cost. A tiny essential price followed by a large jump is the trap to avoid.
+      for (const key of priced) {
+        const spec = SAMPLE_SPECS[key];
+        const essential = priceOfScope(key, 'ID', essentialIds(spec)).price;
+        const full = priceOfScope(key, 'ID', spec.features.map((f) => f.id)).price;
+        expect(essential, `${key} essential < full`).toBeLessThanOrEqual(full);
+        expect(essential / full, `${key} essential is ${Math.round((essential / full) * 100)}% of full`).toBeGreaterThan(0.6);
+      }
     });
   });
-});
 
-describe('the Tegak sample is the anchor for the whole table', () => {
-  it('prices a full-custom company profile at exactly Rp 5.000.000', () => {
-    const tegak = plan({ pageCount: 5, features: feats('gallery', 'contact_form', 'custom_animation', 'seo_basic', 'analytics', 'google_maps', 'whatsapp_button') });
-    const q = quote(tegak, choices({ design: 'full_custom', content: 'partial' }), 'id', noDiscount);
-    expect(q.subtotal).toBe(3_150_000);
-    expect(q.price).toBe(5_000_000);
-    expect(quote(tegak, choices({ design: 'full_custom', content: 'partial' }), 'id').total).toBe(4_000_000);
+  it('gives every concept a genuinely fixed price, in every market', () => {
+    // "Fixed price" has to mean one number. A shop used to come back as a range purely because `payment`
+    // sat in the elevated risk tier, while the page above it said "fixed price for the scope below".
+    for (const key of CONCEPT_KEYS)
+      for (const region of markets)
+        for (const ids of [essentialIds(SAMPLE_SPECS[key]), SAMPLE_SPECS[key].features.map((f) => f.id)]) {
+          const spec = SAMPLE_SPECS[key];
+          const q = quote(toPlan(spec, ids, 'id'), choices({ region, design: spec.design as never, content: 'ready' }), 'id', noDiscount);
+          expect(q.status, `${key}/${region}/${ids.length} features`).toBe('fixed');
+          expect(q.risk.blocking, `${key} must not be blocked`).toEqual([]);
+          expect(q.risk.elevated, `${key} must carry no unvetted dependency`).toEqual([]);
+          expect(q.price).toBeLessThan(pricing.regions[region].max_price);
+        }
   });
 
-  it('prices the same project at $1,900 worldwide', () => {
-    const tegak = plan({ pageCount: 5, features: feats('gallery', 'contact_form', 'custom_animation', 'seo_basic', 'analytics', 'google_maps', 'whatsapp_button') });
-    const q = quote(tegak, choices({ region: 'GLOBAL', design: 'full_custom', content: 'partial' }), 'en', noDiscount);
-    expect(q.subtotal).toBe(1_185);
-    expect(q.price).toBe(1_900);
+  it('prices Arden as a sellable catalogue and states what is excluded', () => {
+    // The auction gate must catch a bidding engine without catching a catalogue site for an auction house.
+    const spec = SAMPLE_SPECS.arden;
+    expect(spec.serviceId).toBe('company_profile');
+    expect(spec.notOffered?.length, 'what is excluded must be stated').toBeGreaterThan(0);
+  });
+
+  it('still refuses a real bidding engine', () => {
+    const p = plan({ serviceId: 'company_profile', pageCount: 2, summary: 'Platform properti dengan bidding online dan proxy bid' });
+    expect(quote(p, choices(), 'id', noDiscount).status).toBe('discuss');
+  });
+
+  it('gives the same scope the same effective rate in every market', () => {
+    // Identical scope, proportionate price. Before the recalibration the same Kurohane scope paid roughly
+    // 6-7x more per hour in GLOBAL than in ID.
+    const spec = SAMPLE_SPECS.kurohane;
+    const rate = pricing.pricing_basis.hourly_rate;
+    const perHour = markets.map((region) => {
+      const q = quote(toPlan(spec, essentialIds(spec), 'id'), choices({ region, design: 'full_custom', content: 'ready' }), 'id', noDiscount);
+      return q.price / rate[region];
+    });
+    for (const h of perHour) expect(Math.abs(h / perHour[0] - 1)).toBeLessThan(0.1);
   });
 });
+
+
+describe('every locale is complete', () => {
+  // These used to be `?.en && ?.id` checks, which stayed green with zero Japanese copy — the exact
+  // failure they were meant to catch. Looping LOCALES makes a missing language fail loudly instead.
+  it('has catalog copy for every service, category, multiplier and recurring item', () => {
+    for (const l of LOCALES) {
+      for (const s of pricing.services) expect(SERVICE_COPY[s.id]?.[l].name, `service ${s.id}/${l}`).toBeTruthy();
+      for (const c of pricing.feature_categories) expect(CATEGORY_COPY[c]?.[l], `category ${c}/${l}`).toBeTruthy();
+      for (const k of ['design_level', 'content_readiness', 'timeline'] as const) {
+        expect(MULTIPLIER_COPY[k].question[l], `${k} question/${l}`).toBeTruthy();
+        for (const [id, o] of Object.entries(MULTIPLIER_COPY[k].options)) expect(o[l]?.label, `${k}.${id}/${l}`).toBeTruthy();
+      }
+      for (const r of pricing.recurring) expect(RECURRING_COPY[r.id]?.[l].name, `recurring ${r.id}/${l}`).toBeTruthy();
+      for (const n of pricing.not_included) expect(NOT_INCLUDED_COPY[n.id]?.[l].name, `not_included ${n.id}/${l}`).toBeTruthy();
+    }
+  });
+
+  it('has consultant strings for every locale', () => {
+    for (const l of LOCALES) {
+      const t = consultStrings[l];
+      expect(t.steps, l).toHaveLength(4);
+      expect(t.describe.title, `describe.title/${l}`).toBeTruthy();
+      expect(t.result.priceTitle, `result.priceTitle/${l}`).toBeTruthy();
+      expect(t.order.submit, `order.submit/${l}`).toBeTruthy();
+      for (const code of ['ai_busy', 'rate_limited', 'server_error']) expect(t.errors.codes[code], `errors.${code}/${l}`).toBeTruthy();
+    }
+  });
+
+  it('has a localized blocking-domain label for every locale', () => {
+    for (const d of pricing.blocking_domains) for (const l of LOCALES) expect(d.label[l], `${d.id}/${l}`).toBeTruthy();
+  });
+
+  it('gives every service a unique slug per locale', () => {
+    for (const l of LOCALES) {
+      const slugs = SERVICE_KEYS.map((k) => SERVICE_SLUGS[k][l]);
+      expect(new Set(slugs).size, `${l} service slugs unique`).toBe(slugs.length);
+    }
+  });
+
+  it('has a real page file behind every path it advertises', async () => {
+    // Without this, adding a locale to LOCALES makes hreflang point at URLs that 404.
+    const { existsSync } = await import('node:fs');
+    for (const pair of allPagePairs())
+      for (const l of LOCALES) {
+        const path = pair[l];
+        const base = path.replace(/^\/|\/$/g, '');
+        const dynamic = SERVICE_KEYS.some((k) => servicePath(k, l) === path) || CONCEPT_KEYS.some((k) => conceptPath(k, l) === path);
+        if (dynamic) continue;
+        const candidates = base === '' ? ['src/pages/index.astro'] : [`src/pages/${base}.astro`, `src/pages/${base}/index.astro`];
+        expect(candidates.some((c) => existsSync(c)), `${path} -> one of ${candidates.join(' | ')}`).toBe(true);
+      }
+  });
+
+  it('has a page file for every dynamic route segment', async () => {
+    const { existsSync } = await import('node:fs');
+    for (const l of LOCALES) {
+      const svc = servicePath(SERVICE_KEYS[0], l).replace(/^\//, '').split('/').slice(0, -2).join('/');
+      const con = conceptPath(CONCEPT_KEYS[0], l).replace(/^\//, '').split('/').slice(0, -2).join('/');
+      expect(existsSync(`src/pages/${svc}/[slug].astro`), `services ${l}`).toBe(true);
+      expect(existsSync(`src/pages/${con}/[slug].astro`), `concepts ${l}`).toBe(true);
+    }
+  });
+});
+
+describe('concept pages', () => {
+  it('has a unique slug per concept per locale, and hreflang pairs for all of them', () => {
+    for (const locale of LOCALES) {
+      const slugs = CONCEPT_KEYS.map((k) => CONCEPT_SLUGS[k][locale]);
+      expect(new Set(slugs).size, `${locale} slugs unique`).toBe(slugs.length);
+    }
+    // Without this, a concept page would ship with no hreflang and be missing from the sitemap.
+    const pairs = allPagePairs();
+    for (const k of CONCEPT_KEYS) expect(pairs.some((p) => p.en === conceptPath(k, 'en')), k).toBe(true);
+  });
+
+  it('has a schema-valid hand-written mockup in every locale', () => {
+    // These are what make the concept route cost nothing: no mockup, no result step without an AI call.
+    for (const k of CONCEPT_KEYS)
+      for (const locale of LOCALES) {
+        const parsed = MockupSchema.safeParse(CONCEPT_MOCKUPS[k][locale]);
+        expect(parsed.success, `${k}/${locale}: ${parsed.success ? '' : JSON.stringify(parsed.error.issues[0])}`).toBe(true);
+      }
+  });
+
+  it('has landing copy for every concept in every locale', () => {
+    for (const locale of LOCALES) {
+      const concepts = getDict(locale).work.concepts;
+      for (const k of CONCEPT_KEYS) expect(concepts.find((x) => x.key === k), `${k}/${locale}`).toBeDefined();
+    }
+  });
+
+  it('names every page type it uses, so no screen falls back to a guess', () => {
+    for (const k of CONCEPT_KEYS) {
+      const spec = SAMPLE_SPECS[k];
+      for (const page of [...spec.contentPages, ...spec.featurePages]) expect(PAGE_TYPES.has(page.type), `${k}/${page.type}`).toBe(true);
+      for (const locale of LOCALES)
+        for (const page of [...spec.contentPages, ...spec.featurePages]) expect(page.name[locale]?.length, `${k}/${page.type}/${locale}`).toBeGreaterThan(0);
+    }
+  });
+
+  it('only lists feature ids that exist in the catalog, with no duplicates', () => {
+    for (const k of CONCEPT_KEYS) {
+      const ids = SAMPLE_SPECS[k].features.map((f) => f.id);
+      expect(new Set(ids).size, `${k} duplicates`).toBe(ids.length);
+      for (const id of ids) expect(pricing.features.some((f) => f.id === id), `${k}/${id}`).toBe(true);
+    }
+  });
+});
+
+describe('design and content multipliers only touch design work', () => {
+  it('leaves a payment gateway untouched by the design level', () => {
+    // full_custom used to inflate the entire subtotal, so "custom design" raised the price of a payment
+    // integration and a role matrix by 40%. Only the design-bearing slice may move.
+    const p = plan({ serviceId: 'online_store', pageCount: 6, features: feats('payment', 'shopping_cart', 'roles_permissions') });
+    const tpl = quote(p, choices({ design: 'template' }), 'id', noDiscount);
+    const full = quote(p, choices({ design: 'full_custom' }), 'id', noDiscount);
+    const svc = pricing.services.find((s) => s.id === 'online_store')!;
+    // Only base x design_share can move: roles_permissions is not design-bearing and the rest is included.
+    const movable = svc.base.ID * svc.design_share;
+    expect(full.price - tpl.price).toBeLessThanOrEqual(Math.ceil(movable * 0.26) + pricing.regions.ID.round_to);
+    expect(full.price).toBeGreaterThan(tpl.price);
+  });
+
+  it('caps the combined multipliers at max_multiplier', () => {
+    const p = plan({ serviceId: 'company_profile', pageCount: 9, features: feats('gallery', 'custom_animation', 'seo_basic') });
+    const q = quote(p, choices({ design: 'full_custom', content: 'none', timeline: 'rush' }), 'id', noDiscount);
+    expect(q.price).toBeLessThanOrEqual(Math.round(q.subtotal * pricing.calculation.max_multiplier) + pricing.regions.ID.round_to);
+  });
+
+  it('stops charging copywriting when there is no content at all', () => {
+    // pricing.json has always said the content multiplier covers the writing; the engine used to bill both.
+    const p = plan({ pageCount: 5, features: feats('copywriting') });
+    const none = quote(p, choices({ content: 'none' }), 'id', noDiscount);
+    expect(none.lines.find((l) => l.label === FEATURE_COPY.copywriting.id.name)).toMatchObject({ amount: 0, included: true });
+    const ready = quote(p, choices({ content: 'ready' }), 'id', noDiscount);
+    expect(ready.lines.find((l) => l.label === FEATURE_COPY.copywriting.id.name)!.amount).toBeGreaterThan(0);
+  });
+});
+
+describe('risk gates the status, not the amount', () => {
+  const auction = (over: Partial<Plan> = {}) => plan({ serviceId: 'company_profile', pageCount: 2, summary: 'Platform lelang properti dengan bidding online', ...over });
+
+  it('refuses to commit on a blocking domain however small the number', () => {
+    const q = quote(auction(), choices(), 'id', noDiscount);
+    expect(q.risk.blocking.length).toBeGreaterThan(0);
+    expect(q.status).toBe('discuss');
+    expect(q.price).toBeLessThan(pricing.regions.ID.max_price); // small, and still refused
+  });
+
+  it('keeps refusing in every market and with no custom requests', () => {
+    for (const region of ['ID', 'JP', 'GLOBAL'] as const)
+      expect(quote(auction({ customRequests: [] }), choices({ region }), 'id', noDiscount).status, region).toBe('discuss');
+  });
+
+  it('cannot be cleared by dropping the custom-request label or changing the design level', () => {
+    // Removing the three custom requests used to turn Arden GLOBAL into a fixed $9,150 with no change
+    // to the business requirement at all.
+    const q = quote(auction({ customRequests: [] }), choices({ region: 'GLOBAL', design: 'template' }), 'en', noDiscount);
+    expect(q.status).toBe('discuss');
+  });
+
+  it('always needs a human for a custom web app', () => {
+    const q = quote(plan({ serviceId: 'custom_web_app', pageCount: 3 }), choices(), 'id', noDiscount);
+    expect(q.status).toBe('discuss');
+  });
+
+  it('ranges rather than fixes when a feature depends on an unvetted third party', () => {
+    // `api_integration` is still elevated: an API we have not worked with cannot carry a fixed price.
+    // `payment` deliberately is not — it is a vetted, crucial integration that ships inside online_store.
+    const q = quote(plan({ serviceId: 'company_profile', pageCount: 3, features: feats('api_integration') }), choices(), 'id', noDiscount);
+    expect(q.risk.elevated.length).toBeGreaterThan(0);
+    expect(q.status).toBe('range');
+
+    const paid = quote(plan({ serviceId: 'online_store', pageCount: 6, features: feats('payment') }), choices(), 'id', noDiscount);
+    expect(paid.risk.elevated).toEqual([]);
+    expect(paid.status).toBe('fixed');
+  });
+
+  it('never loses scope silently', () => {
+    // MAX_PAGES used to slice the array quietly, so three of Arden's operational screens vanished and the
+    // engine quoted the remainder as if it were the whole job.
+    const p = plan({ pageCount: 30 });
+    expect(p.pages).toHaveLength(24);
+    expect(p.scopeTruncated).toBe(true);
+    expect(quote(p, choices(), 'id', noDiscount).status).toBe('discuss');
+  });
+});
+
+describe('discount policy', () => {
+  it('applies one discount, never a stack', () => {
+    const promo: Promo = { code: 'TEST', percent: 10 };
+    const q = quote(plan({ serviceId: 'online_store', pageCount: 6 }), choices({ region: 'GLOBAL' }), 'en', pricing as PricingData, promo);
+    expect(q.discounts.filter((d) => d.amount > 0)).toHaveLength(1);
+    expect(q.discounts[0].percent).toBeLessThanOrEqual(pricing.max_discount_percent);
+    expect(q.savingsPercent).toBeLessThanOrEqual(pricing.max_discount_percent + 1); // rounding to the price step
+  });
+
+  it('takes the larger of founding and promo', () => {
+    const big: Promo = { code: 'BIG', percent: 50 };
+    const q = quote(plan(), choices({ region: 'GLOBAL' }), 'en', pricing as PricingData, big);
+    expect(q.discounts[0].kind).toBe('promo');
+    expect(q.discounts[0].percent).toBe(pricing.max_discount_percent);
+  });
+
+  it('gives no discount at all in a subsidised market', () => {
+    // ID list prices already sit below the owner's cost floor, so discounting them again is not a promotion.
+    const promo: Promo = { code: 'TEST', percent: 10 };
+    const q = quote(plan(), choices({ region: 'ID' }), 'id', pricing as PricingData, promo);
+    expect(q.discounts).toHaveLength(0);
+    expect(q.total).toBe(q.price);
+  });
+
+  it('never discounts below the market minimum', () => {
+    const q = quote(plan({ serviceId: 'landing_page', pageCount: 1 }), choices({ region: 'GLOBAL' }), 'en');
+    expect(q.total).toBeGreaterThanOrEqual(pricing.regions.GLOBAL.min_price);
+  });
+});
+
 
 describe('quote', () => {
   it('charges only the base when the plan fits the package', () => {
     const q = quote(plan(), choices(), 'en', noDiscount);
-    expect(q.total).toBe(1_750_000);
+    expect(q.total).toBe(baseOf('company_profile', 'ID'));
     expect(q.lines).toHaveLength(1);
   });
 
   it('charges extra pages flat and features in the package as included', () => {
     const q = quote(plan({ serviceId: 'booking_reservation', pageCount: 7, features: feats('contact_form', 'cms_admin', 'google_maps') }), choices({ region: 'GLOBAL' }), 'en', noDiscount);
-    expect(q.lines.find((l) => l.kind === 'pages')).toMatchObject({ quantity: 2, amount: 150 });
+    expect(q.lines.find((l) => l.kind === 'pages')).toMatchObject({ quantity: 2, amount: extraOf('GLOBAL') * 2 });
     expect(q.lines.filter((l) => l.included)).toHaveLength(2);
-    expect(q.total).toBe(1275 + 150 + 25);
+    expect(q.total).toBe(onGrid(baseOf('booking_reservation', 'GLOBAL') + extraOf('GLOBAL') * 2 + priceOf('google_maps', 'GLOBAL'), 'GLOBAL'));
   });
 
   it('prices copywriting per page and ignores duplicate features', () => {
     const q = quote(plan({ pageCount: 6, features: feats('copywriting', 'copywriting', 'whatsapp_button') }), choices(), 'id', noDiscount);
-    expect(q.lines.find((l) => l.label.includes('teks'))).toMatchObject({ quantity: 6, amount: 900_000 });
+    const writing = priceOf('copywriting', 'ID') * 6;
+    expect(q.lines.find((l) => l.label.includes('teks'))).toMatchObject({ quantity: 6, amount: writing });
     expect(q.featuresCount).toBe(2);
-    expect(q.total).toBe(1_750_000 + 200_000 + 900_000);
+    expect(q.total).toBe(onGrid(baseOf('company_profile', 'ID') + extraOf('ID') + writing));
   });
 
   it('itemises every multiplier so the breakdown adds up to the price', () => {
@@ -94,27 +511,29 @@ describe('quote', () => {
   });
 
   it('never goes below the region minimum, even after the founding discount', () => {
-    const tiny: PricingData = { ...pricing, services: pricing.services.map((s) => (s.id === 'landing_page' ? { ...s, base: { ID: 400_000, GLOBAL: 100 } } : s)) };
+    const tiny = { ...pricing, services: pricing.services.map((s) => (s.id === 'landing_page' ? { ...s, base: { ID: 400_000, JP: 12_000, GLOBAL: 100 } } : s)) } as PricingData;
     const q = quote(plan({ serviceId: 'landing_page', pageCount: 1 }), choices(), 'id', tiny);
     expect(q.price).toBe(pricing.regions.ID.min_price);
     expect(q.total).toBe(pricing.regions.ID.min_price);
   });
 
   it('applies the founding discount on the price, rounded', () => {
-    const q = quote(plan(), choices(), 'id');
+    const q = quote(plan(), choices({ region: 'GLOBAL' }), 'en');
+    const list = baseOf('company_profile', 'GLOBAL');
+    const step = pricing.regions.GLOBAL.round_to;
     expect(q.discounts).toHaveLength(1);
-    expect(q.discounts[0]).toMatchObject({ kind: 'founding', percent: 20, amount: 350_000 });
-    expect(q.total).toBe(1_400_000);
+    expect(q.discounts[0]).toMatchObject({ kind: 'founding', percent: pricing.founding_offer.percent });
+    expect(q.total).toBe(list - Math.round((list * pricing.founding_offer.percent) / 100 / step) * step);
   });
 
   it('shows a range when a request is outside the catalog', () => {
     const q = quote(plan({ customRequests: [{ name: 'Loyalty points', description: '' }] }), choices(), 'id', noDiscount);
     expect(q.status).toBe('range');
-    expect(q.priceHigh).toBe(2_100_000);
+    expect(q.priceHigh).toBe(Math.round((q.price * pricing.calculation.range_upper) / pricing.regions.ID.round_to) * pricing.regions.ID.round_to);
   });
 
   it('asks for a discussion above the region maximum', () => {
-    const q = quote(plan({ serviceId: 'custom_web_app', pageCount: 15, features: feats('payment', 'multilang', 'copywriting') }), choices({ design: 'full_custom', content: 'none', timeline: 'rush' }), 'id', noDiscount);
+    const q = quote(plan({ serviceId: 'online_course', pageCount: 24, features: feats('multilang', 'copywriting', 'seo_advanced', 'ai_generator', 'subscription_billing') }), choices({ design: 'full_custom', content: 'none', timeline: 'rush' }), 'id', noDiscount);
     expect(q.price).toBeGreaterThan(pricing.regions.ID.max_price);
     expect(q.status).toBe('discuss');
   });
@@ -123,9 +542,9 @@ describe('quote', () => {
     const base = quote(plan(), choices(), 'en', noDiscount).workdays;
     expect(base).toEqual([5, 9]);
     const more = quote(plan({ pageCount: 8, features: feats('cms_admin') }), choices(), 'en', noDiscount).workdays;
-    expect(more).toEqual([5 + 5, 9 + 5]); // 3 pages × 4h + 16h = 28h → 5 days
+    expect(more).toEqual([5 + 3, 9 + 3]); // 3 pages × 2h + 9h = 15h → 3 days
     const rush = quote(plan(), choices({ timeline: 'rush' }), 'en', noDiscount).workdays;
-    expect(rush).toEqual([3, 5]);
+    expect(rush).toEqual([3, 6]); // time_factor 0.6
   });
 });
 
@@ -155,7 +574,9 @@ describe('page areas', () => {
       noDiscount,
     );
     expect(withScreens.pagesCount).toBe(5);
-    expect(withScreens.total - base.total).toBe(900_000); // only the user_login feature, no page charges
+    // Only the user_login feature is charged; the three screens add nothing. Each total is rounded to the
+    // market grid on its own, so compare within one rounding step rather than demanding an exact delta.
+    expect(Math.abs(withScreens.total - base.total - priceOf('user_login', 'ID'))).toBeLessThanOrEqual(pricing.regions.ID.round_to);
   });
 
   it('hides screens whose feature is switched off, and shows them again when it is back on', () => {
@@ -190,21 +611,21 @@ describe('page areas', () => {
 });
 
 describe('page types', () => {
-  const typed = (type: string, name = type) => PlanSchema.shape.pages.parse([{ type, name, purpose: '', sections: [] }])[0];
+  const typed = (type: string, name = type) => PlanShape.pages.parse([{ type, name, purpose: '', sections: [] }])[0];
 
   it('references only catalog features and has copy in both languages', () => {
     const ids = new Set(pricing.features.map((f) => f.id));
     for (const t of pricing.page_types) {
       const feature = (t as { feature?: string }).feature;
       if (feature) expect(ids.has(feature), `${t.id} → ${feature}`).toBe(true);
-      expect(PAGE_COPY[t.id]?.en && PAGE_COPY[t.id]?.id, t.id).toBeTruthy();
+      for (const l of LOCALES) expect(PAGE_COPY[t.id]?.[l], `${t.id}/${l}`).toBeTruthy();
       expect(['public', 'member', 'admin'], t.id).toContain(t.area);
     }
     expect(new Set(pricing.page_types.map((t) => t.id)).size).toBe(pricing.page_types.length);
   });
 
   it('derives area and feature from the type, ignoring what the AI wrote', () => {
-    const cart = PlanSchema.shape.pages.parse([{ type: 'cart', name: 'Cart', area: 'admin', feature: 'gallery', purpose: '', sections: [] }])[0];
+    const cart = PlanShape.pages.parse([{ type: 'cart', name: 'Cart', area: 'admin', feature: 'gallery', purpose: '', sections: [] }])[0];
     expect([cart.area, cart.feature]).toEqual(['public', 'shopping_cart']);
     expect([typed('about').area, typed('about').feature]).toEqual(['public', '']);
     expect([typed('orders').area, typed('orders').feature]).toEqual(['admin', 'cms_admin']);
@@ -218,7 +639,7 @@ describe('page types', () => {
     });
     expect(contentPages(p)).toHaveLength(3);
     expect(publicPages(p)).toHaveLength(7);
-    expect(quote(p, choices(), 'id', noDiscount).total).toBe(1_750_000 + 650_000 + 900_000);
+    expect(quote(p, choices(), 'id', noDiscount).total).toBe(onGrid(baseOf('company_profile', 'ID') + priceOf('product_catalog', 'ID') + priceOf('shopping_cart', 'ID')));
   });
 
   it('hides feature pages when the feature is off', () => {
@@ -247,7 +668,7 @@ describe('feature catalog', () => {
     for (const c of pricing.feature_categories) expect(CATEGORY_COPY[c], c).toBeDefined();
     for (const f of pricing.features) {
       expect(pricing.feature_categories, f.id).toContain(f.category);
-      expect(FEATURE_COPY[f.id]?.en.name && FEATURE_COPY[f.id]?.id.name, f.id).toBeTruthy();
+      for (const l of LOCALES) expect(FEATURE_COPY[f.id]?.[l].name && FEATURE_COPY[f.id]?.[l].plain, `${f.id}/${l}`).toBeTruthy();
     }
     expect(ids.size).toBe(pricing.features.length);
   });
@@ -257,7 +678,7 @@ describe('feature catalog', () => {
       const unit = (f as { unit?: string }).unit;
       if (!unit) continue;
       expect(['page', 'item'], f.id).toContain(unit);
-      if (unit === 'item') expect(FEATURE_COPY[f.id].en.unit && FEATURE_COPY[f.id].id.unit, f.id).toBeTruthy();
+      if (unit === 'item') for (const l of LOCALES) expect(FEATURE_COPY[f.id][l].unit, `${f.id}/${l}`).toBeTruthy();
     }
   });
 
@@ -278,10 +699,10 @@ describe('feature catalog', () => {
   });
 
   it('multiplies per-item features by their quantity', () => {
-    // Company Profile, 5 pages, 2 connected services + 1 extra language: 1.750.000 + 2 × 1.100.000 + 550.000
+    // Company Profile, 5 pages, 2 connected services + 1 extra language.
     const q = quote(plan({ features: [feat('api_integration', 2), feat('multilang', 1)] }), choices(), 'id', noDiscount);
     expect(q.lines.find((l) => l.label === FEATURE_COPY.api_integration.id.name)?.quantity).toBe(2);
-    expect(q.total).toBe(4_500_000);
+    expect(q.price).toBe(onGrid(baseOf('company_profile', 'ID') + priceOf('api_integration', 'ID') * 2 + priceOf('multilang', 'ID')));
   });
 
   it('ignores quantity on features without a per-item unit', () => {
@@ -292,9 +713,9 @@ describe('feature catalog', () => {
 
   it('treats a package core feature as included, but charges it elsewhere', () => {
     const store = quote(plan({ serviceId: 'online_store', pageCount: 6, features: feats('shopping_cart', 'product_catalog') }), choices(), 'id', noDiscount);
-    expect(store.total).toBe(4_400_000);
+    expect(store.total).toBe(baseOf('online_store', 'ID'));
     const profile = quote(plan({ features: feats('shopping_cart') }), choices(), 'id', noDiscount);
-    expect(profile.total).toBe(1_750_000 + 900_000);
+    expect(profile.total).toBe(onGrid(baseOf('company_profile', 'ID') + priceOf('shopping_cart', 'ID')));
   });
 
   it('defaults a missing or invalid quantity to 1 (older saved plans)', () => {
@@ -305,66 +726,75 @@ describe('feature catalog', () => {
 
 const promo = (percent: number): Promo => ({ code: 'KENALANCEO', percent });
 
-describe('stacked discounts', () => {
-  it('adds the founding and promo percentages instead of compounding them', () => {
-    const q = quote(plan(), choices(), 'id', pricing, promo(20));
-    // 20% + 20% off Rp 1.750.000, not 0.8 × 0.8
-    expect(q.discounts.map((d) => d.amount)).toEqual([350_000, 350_000]);
-    expect(q.savingsPercent).toBe(40);
-    expect(q.total).toBe(1_050_000);
-  });
+describe('one discount, not a stack', () => {
+  // Was: founding and promo added up to 40% off. On an Indonesian booking project that worked out at about
+  // a third of the Kanagawa minimum wage per hour, so the engine now applies whichever single offer is larger.
+  const glob = (over = {}) => choices({ region: 'GLOBAL', ...over });
 
-  it('applies the promo code alone once the founding spots are gone', () => {
-    const q = quote(plan(), choices(), 'id', noDiscount, promo(20));
+  it('takes the larger offer and ignores the other', () => {
+    const q = quote(plan({ serviceId: 'online_store', pageCount: 6 }), glob(), 'en', pricing as PricingData, promo(90));
     expect(q.discounts).toHaveLength(1);
     expect(q.discounts[0].kind).toBe('promo');
-    expect(q.total).toBe(1_400_000);
+    expect(q.discounts[0].percent).toBe(pricing.max_discount_percent);
+  });
+
+  it('falls back to founding when the promo is smaller', () => {
+    const d = { ...pricing, max_discount_percent: 30, founding_offer: { ...pricing.founding_offer, percent: 25 } } as PricingData;
+    const q = quote(plan({ serviceId: 'online_store', pageCount: 6 }), glob(), 'en', d, promo(5));
+    expect(q.discounts[0]).toMatchObject({ kind: 'founding', percent: 25 });
+  });
+
+  it('applies the promo alone once the founding spots are gone', () => {
+    const q = quote(plan({ serviceId: 'online_store', pageCount: 6 }), glob(), 'en', noDiscount, promo(10));
+    expect(q.discounts).toHaveLength(1);
+    expect(q.discounts[0].kind).toBe('promo');
   });
 
   it('labels the promo row with the code', () => {
-    expect(quote(plan(), choices(), 'id', noDiscount, promo(20)).discounts[0].label).toBe('Kode promo KENALANCEO');
-    expect(quote(plan(), choices(), 'en', noDiscount, promo(20)).discounts[0].label).toBe('Promo code KENALANCEO');
+    expect(quote(plan(), glob(), 'id', noDiscount, promo(10)).discounts[0].label).toBe('Kode promo KENALANCEO');
+    expect(quote(plan(), glob(), 'en', noDiscount, promo(10)).discounts[0].label).toBe('Promo code KENALANCEO');
   });
 
-  it('never discounts below the region minimum and reports the real percentage', () => {
-    const q = quote(plan({ serviceId: 'landing_page', pageCount: 1 }), choices(), 'id', pricing, promo(20));
-    expect(q.price).toBe(900_000);
-    expect(q.total).toBe(pricing.regions.ID.min_price);
-    expect(q.savings).toBe(150_000);
-    expect(q.savingsPercent).toBe(17); // not 40: the minimum price capped it
-  });
-
-  it('caps the combined discount at max_discount_percent', () => {
-    const q = quote(plan({ serviceId: 'online_store', pageCount: 6 }), choices(), 'id', pricing, promo(90));
-    expect(q.discounts.reduce((s, d) => s + d.percent, 0)).toBe(pricing.max_discount_percent);
-    expect(q.total).toBe(2_600_000); // each discount is rounded to Rp 50rb on its own
+  it('never discounts below the market minimum', () => {
+    const small = { ...pricing, services: pricing.services.map((s) => (s.id === 'landing_page' ? { ...s, base: { ID: 800_000, JP: 32_000, GLOBAL: 275 } } : s)) } as PricingData;
+    const q = quote(plan({ serviceId: 'landing_page', pageCount: 1 }), glob(), 'en', small, promo(90));
+    expect(q.total).toBeGreaterThanOrEqual(pricing.regions.GLOBAL.min_price);
+    expect(q.savings).toBe(q.price - q.total);
   });
 
   it('discounts the upper bound of a range too', () => {
-    const q = quote(plan({ customRequests: [{ name: 'Loyalty points', description: '' }] }), choices(), 'id', pricing, promo(20));
+    const q = quote(plan({ serviceId: 'online_store', pageCount: 6, customRequests: [{ name: 'Loyalty points', description: '' }] }), glob(), 'en', pricing as PricingData, promo(10));
     expect(q.status).toBe('range');
-    expect([q.total, q.totalHigh]).toEqual([1_050_000, 1_300_000]);
+    expect(q.totalHigh).toBeGreaterThan(q.total);
+    expect(q.totalHigh).toBeLessThan(q.priceHigh);
+  });
+
+  it('gives a subsidised market no discount at all', () => {
+    const q = quote(plan({ serviceId: 'online_store', pageCount: 6 }), choices({ region: 'ID' }), 'id', pricing as PricingData, promo(90));
+    expect(q.discounts).toHaveLength(0);
+    expect(q.total).toBe(q.price);
   });
 });
+
 
 describe('validatePromo', () => {
   const set = (v: string) => (process.env.PROMO_CODES = v);
   afterEach(() => delete process.env.PROMO_CODES);
 
   it('accepts a configured code regardless of case and spacing', () => {
-    set('KENALANCEO=20');
-    expect(validatePromo('kenalanceo')).toEqual({ code: 'KENALANCEO', percent: 20 });
-    expect(validatePromo('  Kenalan Ceo ')).toEqual({ code: 'KENALANCEO', percent: 20 });
+    set('KENALANCEO=8');
+    expect(validatePromo('kenalanceo')).toEqual({ code: 'KENALANCEO', percent: 8 });
+    expect(validatePromo('  Kenalan Ceo ')).toEqual({ code: 'KENALANCEO', percent: 8 });
   });
 
   it('reads several codes and clamps each to max_discount_percent', () => {
-    set('KENALANCEO=20,TEMANLAMA=90');
+    set('KENALANCEO=8,TEMANLAMA=90');
     expect(validatePromo('TEMANLAMA')?.percent).toBe(pricing.max_discount_percent);
-    expect(validatePromo('KENALANCEO')?.percent).toBe(20);
+    expect(validatePromo('KENALANCEO')?.percent).toBe(8);
   });
 
   it('rejects unknown, empty and malformed codes', () => {
-    set('KENALANCEO=20,BROKEN,ZERO=0');
+    set('KENALANCEO=8,BROKEN,ZERO=0');
     expect(validatePromo('NOPE')).toBeNull();
     expect(validatePromo('')).toBeNull();
     expect(validatePromo(undefined)).toBeNull();
@@ -388,7 +818,8 @@ describe('withEnv', () => {
     const d = withEnv(pricing, { PUBLIC_FOUNDING_PERCENT: '30', PUBLIC_FOUNDING_SPOTS: '3', PUBLIC_FOUNDING_TAKEN: '1', PUBLIC_MAX_DISCOUNT_PERCENT: '50' });
     expect(d.founding_offer).toMatchObject({ percent: 30, spots_total: 3, spots_taken: 1 });
     expect(d.max_discount_percent).toBe(50);
-    expect(quote(plan(), choices(), 'id', d).total).toBe(1_200_000); // 1.750.000 − 30% rounded to Rp 50rb
+    const q = quote(plan({ serviceId: 'online_store', pageCount: 6 }), choices({ region: 'GLOBAL' }), 'en', d);
+    expect(q.discounts[0]).toMatchObject({ kind: 'founding', percent: 30 });
   });
 
   it('ignores values that are not usable numbers', () => {
@@ -398,14 +829,129 @@ describe('withEnv', () => {
   });
 
   it('switches the founding offer off when the percentage or the spots are zero', () => {
-    expect(quote(plan(), choices(), 'id', withEnv(pricing, { PUBLIC_FOUNDING_PERCENT: '0' })).discounts).toHaveLength(0);
-    expect(quote(plan(), choices(), 'id', withEnv(pricing, { PUBLIC_FOUNDING_SPOTS: '0' })).discounts).toHaveLength(0);
+    expect(quote(plan(), choices({ region: 'GLOBAL' }), 'en', withEnv(pricing, { PUBLIC_FOUNDING_PERCENT: '0' })).discounts).toHaveLength(0);
+    expect(quote(plan(), choices({ region: 'GLOBAL' }), 'en', withEnv(pricing, { PUBLIC_FOUNDING_SPOTS: '0' })).discounts).toHaveLength(0);
   });
 
-  it('lets a bigger cap carry a bigger stack', () => {
+  it('lets a bigger cap raise the single discount, without stacking it', () => {
     const d = withEnv(pricing, { PUBLIC_FOUNDING_PERCENT: '30', PUBLIC_MAX_DISCOUNT_PERCENT: '50' });
-    const q = quote(plan({ serviceId: 'online_store', pageCount: 6 }), choices(), 'id', d, promo(20));
-    expect(q.savingsPercent).toBe(50);
-    expect(q.total).toBe(2_200_000);
+    const q = quote(plan({ serviceId: 'online_store', pageCount: 6 }), choices({ region: 'GLOBAL' }), 'en', d, promo(45));
+    expect(q.discounts).toHaveLength(1);
+    expect(q.discounts[0]).toMatchObject({ kind: 'promo', percent: 45 });
   });
+});
+
+/**
+ * The market used to be read from `localStorage['skyland-market']` before anything else. When the
+ * currency picker was removed, every writer of that key went with it and the reader stayed, so a value
+ * left behind by an earlier visit outranked detection for good — a visitor in Tokyo kept being shown
+ * rupiah with no way to correct it. These tests fail if a saved key ever outranks the device again.
+ */
+describe('the price market comes from the device, and nothing else', () => {
+  const KEYS = ['window', 'localStorage', 'navigator', 'Intl'] as const;
+  const original = new Map(KEYS.map((k) => [k, Object.getOwnPropertyDescriptor(globalThis, k)]));
+  const realIntl = globalThis.Intl;
+  /** `navigator` is a getter-only global in Node, so each stub goes in as a fresh descriptor. */
+  const define = (k: string, value: unknown) => Object.defineProperty(globalThis, k, { value, configurable: true, writable: true });
+
+  /** Puts a browser in place: a timezone, a language list, and a storage that may hold stale state. */
+  const asVisitor = (tz: string, langs: string[], stored?: string) => {
+    const store = new Map<string, string>(stored ? [['skyland-market', stored]] : []);
+    const storage = { getItem: (k: string) => store.get(k) ?? null };
+    define('window', { localStorage: storage });
+    define('localStorage', storage);
+    define('navigator', { languages: langs, language: langs[0] ?? '', userAgent: 'test' });
+    define('Intl', { ...realIntl, DateTimeFormat: () => ({ resolvedOptions: () => ({ timeZone: tz }) }) });
+    return store;
+  };
+
+  afterEach(() => {
+    for (const k of KEYS) {
+      const d = original.get(k);
+      if (d) Object.defineProperty(globalThis, k, d);
+      else delete (globalThis as Record<string, unknown>)[k];
+    }
+  });
+
+  it('reads the timezone first', () => {
+    asVisitor('Asia/Tokyo', ['en-US']);
+    expect(marketFromClient('en')).toBe('JP');
+    asVisitor('Asia/Jakarta', ['en-US']);
+    expect(marketFromClient('en')).toBe('ID');
+    asVisitor('America/New_York', ['en-US']);
+    expect(marketFromClient('en')).toBe('GLOBAL');
+  });
+
+  it('accepts the legacy Japan timezone alias', () => {
+    asVisitor('Japan', ['en-US']);
+    expect(marketFromClient('en')).toBe('JP');
+  });
+
+  it('falls back to the browser language when the timezone says nothing', () => {
+    asVisitor('UTC', ['ja-JP', 'en']);
+    expect(marketFromClient('en')).toBe('JP');
+    asVisitor('UTC', ['id-ID']);
+    expect(marketFromClient('en')).toBe('ID');
+    asVisitor('UTC', ['de-DE']);
+    expect(marketFromClient('en')).toBe('GLOBAL');
+  });
+
+  it('ignores a stale saved market — the exact regression', () => {
+    asVisitor('Asia/Tokyo', ['en-US'], 'ID');
+    expect(marketFromClient('en')).toBe('JP');
+    asVisitor('Asia/Jakarta', ['id-ID'], 'GLOBAL');
+    expect(marketFromClient('id')).toBe('ID');
+  });
+
+  it('never reads storage at all', () => {
+    const store = asVisitor('Asia/Tokyo', ['en-US'], 'ID');
+    const seen: string[] = [];
+    define('localStorage', { getItem: (k: string) => (seen.push(k), store.get(k) ?? null) });
+    marketFromClient('en');
+    expect(seen).toEqual([]);
+  });
+
+  it('falls back to the locale market outside a browser', () => {
+    for (const [locale, region] of [['en', 'GLOBAL'], ['id', 'ID'], ['ja', 'JP']] as const) {
+      expect(marketFromClient(locale)).toBe(region);
+    }
+  });
+});
+
+it('no module still depends on the retired market store', async () => {
+  const mod = (await import('../src/lib/pricing')) as Record<string, unknown>;
+  expect(mod.rememberMarket).toBeUndefined();
+  expect(mod.MARKET_STORE).toBeUndefined();
+});
+
+describe('consent is a condition the server enforces, not a hint', () => {
+  const contact = { name: 'Alfarizi', email: 'a@b.co', whatsapp: '+628123456789' };
+
+  it('rejects a missing or false tick', () => {
+    expect(ContactSchema.safeParse({ ...contact, consent: true }).success).toBe(true);
+    expect(ContactSchema.safeParse({ ...contact, consent: false }).success).toBe(false);
+    expect(ContactSchema.safeParse(contact).success).toBe(false);
+    expect(ContactSchema.safeParse({ ...contact, consent: 'true' }).success).toBe(false);
+    expect(ContactSchema.safeParse({ ...contact, consent: 1 }).success).toBe(false);
+  });
+
+  it('gives every locale wording for the refusal', () => {
+    for (const l of LOCALES) expect(consultStrings[l].errors.codes.consent_required, l).toBeTruthy();
+  });
+});
+
+/**
+ * The client-facing breakdown hides nothing, because the rounding, regional floor and combined-options
+ * ceiling are what make the rows reach the total. Removing them was tried and left a table whose rows
+ * summed to a different number than its own bottom line — measurably: up to Rp 21,875 / ¥370 / $9 out.
+ */
+it('every breakdown adds up to the price it states', () => {
+  for (const key of CONCEPT_KEYS) {
+    const spec = SAMPLE_SPECS[key];
+    for (const region of ['ID', 'JP', 'GLOBAL'] as const) {
+      const q = quote(toPlan(spec, essentialIds(spec), 'en'), choices({ region, design: spec.design as never, content: 'ready' }), 'en', noDiscount);
+      const sum = q.lines.reduce((a, l) => a + l.amount, 0);
+      expect(sum, `${key}/${region}: rows sum to ${sum} but the price is ${q.price}`).toBe(q.price);
+    }
+  }
 });

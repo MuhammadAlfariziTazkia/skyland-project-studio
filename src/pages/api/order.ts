@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { clientIp, errorResponse, json, rateLimit, readJson, HttpError } from '../../lib/guard';
+import { consultStrings } from '../../i18n/consult';
 import { sendOrderEmails } from '../../lib/mail';
 import { renderMockup } from '../../lib/mockup/render';
 import { quote } from '../../lib/pricing';
@@ -12,13 +13,17 @@ export const prerender = false;
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = OrderRequestSchema.parse(await readJson(request));
-    if (body.website) throw new HttpError(400, 'Invalid request');
+    if (body.website) throw new HttpError(400, 'bad_request');
+    // `ContactSchema.consent` is `z.literal(true)`, so a missing tick is already rejected above — but it
+    // comes back as a generic `bad_input` with a Zod issue list. Named explicitly, the client reads why
+    // and the log says why, for the one legal condition on this endpoint.
+    if (body.contact.consent !== true) throw new HttpError(400, 'consent_required');
     rateLimit(`order:${clientIp(request)}`, 5);
     // Never trust a client-side total: the price is recomputed from the plan and pricing.json,
     // and the promo code is re-validated here so a forged percentage can never reach the quote.
     const q = quote(body.plan, body.choices, body.locale, undefined, validatePromo(body.choices.promoCode));
     const id = quoteId(body.plan, body.choices, q);
-    const html = renderMockup(body.mockup, body.theme, { locale: body.locale, watermark: `Concept · ${id}` });
+    const html = renderMockup(body.mockup, body.theme, { locale: body.locale, watermark: `${consultStrings[body.locale].result.draftRibbon} · ${id}` });
     await sendOrderEmails(body, q, id, html);
     return json({ ok: true, quoteId: id, total: q.total, currency: q.currency, status: q.status });
   } catch (err) {

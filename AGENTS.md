@@ -16,7 +16,8 @@ Pembangunan website pesanan klien berlangsung di luar aplikasi ini.
 - Empat API POST di `src/pages/api/` berjalan sebagai fungsi Vercel.
 - OpenAI Chat Completions via `fetch`, Structured Outputs; tanpa SDK.
 - Nodemailer/Gmail SMTP; tanpa database, auth, payment checkout, atau queue.
-- EN `/`, ID `/id/`. Bahasa dan region harga dapat dipilih berbeda.
+- EN `/`, ID `/id/`, JA `/ja/`. Bahasa dideteksi dari perangkat; pasar harga
+  (IDR/JPY/USD) dideteksi terpisah dan tidak lagi ditanyakan ke pengunjung.
 - Kode harga isomorphic; server menghitung ulang saat order.
 
 ## Urutan membaca
@@ -53,6 +54,12 @@ ini; instruksi terbaru pemilik menentukan perilaku yang diinginkan.
   migrasi `skyland-consult-v2` sebelum mengganti ID atau kontrak state.
 - Secret hanya di server: `env.ts`, `openai.ts`, `mail.ts`, `promo.ts`,
   `quote-id.ts`. Jangan impor modul tersebut ke island/browser.
+- Harga disebut **satu kali** per halaman, dari pasar perangkat lewat
+  `useMarket()`. `regionFor(locale)` hanya untuk JSON-LD dan fallback non-browser.
+- Rincian harga harus berjumlah sama dengan totalnya; jangan menyembunyikan baris
+  penyesuaian dari `q.lines`. Diuji sebagai invariant.
+- `contact.consent` tidak pernah dipulihkan dari storage, dan server menolaknya
+  lewat `consent_required`.
 
 ## Peta perubahan
 
@@ -63,7 +70,9 @@ ini; instruksi terbaru pemilik menentukan perilaku yang diinginkan.
 | State/alur konsultasi | `src/components/consult/Consultant.tsx`, `PlanStep.tsx` |
 | Prompt/respons AI | `src/lib/openai.ts`, `src/lib/schemas.ts` |
 | Email/order | `src/pages/api/order.ts`, `src/lib/mail.ts`, `src/lib/quote-id.ts` |
-| Landing/konten | `src/components/landing/`, `src/i18n/en.ts`, `src/i18n/id.ts` |
+| Landing/konten | `src/components/landing/`, `src/i18n/en.ts`, `src/i18n/id.ts`, `src/i18n/ja.ts` |
+| Pasar harga di UI | `src/components/useMarket.ts` — satu-satunya jalur island; jangan panggil `marketFromClient()` langsung |
+| Pemilih bahasa | `Header.astro`, `src/components/FlagIcon.astro`; pertahankan `data-lang-switch` + `hreflang` |
 | URL/SEO | `src/i18n/routes.ts`, `Seo.astro`, `src/lib/jsonld.ts` |
 | Tema/mockup | `src/lib/mockup/themes.ts`, `render.ts`, `MockupFrame.tsx` |
 | Styling | `src/styles/global.css`, `src/components/consult/consult.css`, scoped Astro CSS |

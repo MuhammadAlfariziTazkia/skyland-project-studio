@@ -5,9 +5,8 @@ import Footer from '../landing/Footer.astro';
 import Consultant from '../consult/Consultant';
 import { SITE } from '../../config/site';
 import { getDict } from '../../i18n';
-import { ROUTES, SERVICE_KEYS, servicePath } from '../../i18n/routes';
+import { ROUTES } from '../../i18n/routes';
 import { breadcrumbLd, organizationLd } from '../../lib/jsonld';
-import { formatShort, regionFor, startingPrice } from '../../lib/pricing';
 import type { Locale } from '../../lib/schemas';
 
 interface Props { locale: Locale }
@@ -19,17 +18,16 @@ const copy = {
     eyebrow: '✦ FREE AI CONSULTATION',
     h1: 'Get your website plan and fixed price in minutes',
     lead: 'Describe what you need. Our AI consultant maps it to pages and features from our public price list, shows you a homepage mockup and calculates a fixed price. No sign-up, no commitment.',
-    how: 'How your price is calculated',
-    howText: 'Every project starts from a base package for its website type, which already covers a set number of pages. Extra pages and each feature have a fixed price in our catalog, and your choices for design level, content help and delivery speed adjust the total by a set percentage. The AI only picks the items; the total is calculated by code, so the same plan always gets the same price.',
-    ranges: 'Starting prices',
   },
   id: {
     eyebrow: '✦ KONSULTASI AI GRATIS',
     h1: 'Dapatkan rencana website dan harga pasti dalam hitungan menit',
     lead: 'Ceritakan kebutuhan Anda. Konsultan AI kami mencocokkannya dengan halaman dan fitur dari daftar harga kami, menampilkan mockup homepage, dan menghitung harga pasti. Tanpa daftar, tanpa komitmen.',
-    how: 'Bagaimana harga Anda dihitung',
-    howText: 'Setiap proyek dimulai dari paket dasar sesuai jenis website, yang sudah mencakup sejumlah halaman. Halaman tambahan dan setiap fitur punya harga tetap di katalog kami, lalu pilihan Anda soal tingkat desain, bantuan konten, dan kecepatan pengerjaan menyesuaikan total dengan persentase yang tetap. AI hanya memilih item; totalnya dihitung oleh sistem, sehingga rencana yang sama selalu mendapat harga yang sama.',
-    ranges: 'Harga mulai dari',
+  },
+  ja: {
+    eyebrow: '✦ 無料 AI 相談',
+    h1: '構成案と確定料金が、数分でわかります',
+    lead: '必要なことを書いてください。AI コンサルタントが公開中の料金表にあるページと機能に当てはめ、トップページのモックアップを見せ、確定料金を計算します。登録も、義務もありません。',
   },
 }[locale];
 const jsonLd = [
@@ -50,20 +48,6 @@ const jsonLd = [
         <p class="lead">{copy.lead}</p>
       </header>
       <Consultant client:load locale={locale} whatsapp={SITE.whatsapp} privacyHref={ROUTES.privacy[locale]} turnstileSiteKey={SITE.turnstileSiteKey} />
-      <section class="explain">
-        <div class="stack">
-          <h2>{copy.how}</h2>
-          <p>{copy.howText}</p>
-        </div>
-        <div class="stack">
-          <h2>{copy.ranges}</h2>
-          <ul>
-            {SERVICE_KEYS.map((k) => (
-              <li><a href={servicePath(k, locale)}>{t.services_list[k].name}</a><b>{formatShort(startingPrice(k, regionFor(locale)), regionFor(locale))}</b></li>
-            ))}
-          </ul>
-        </div>
-      </section>
     </div>
   </main>
   <Footer locale={locale} />
@@ -75,14 +59,4 @@ const jsonLd = [
   @media (min-width: 768px) { .inner { padding-top: 56px; gap: 36px; } }
   .intro { display: flex; flex-direction: column; gap: 12px; max-width: 760px; }
   h1 { font-size: clamp(28px, 4.2vw, 46px); line-height: 1.08; letter-spacing: -0.035em; font-weight: 800; text-wrap: balance; }
-  .explain { display: grid; gap: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
-  @media (min-width: 900px) { .explain { grid-template-columns: 1fr 1fr; gap: 48px; } }
-  .explain .stack { gap: 10px; }
-  .explain h2 { font-size: 20px; letter-spacing: -0.02em; }
-  .explain p { font-size: 14.5px; color: var(--muted); line-height: 1.65; }
-  .explain ul { list-style: none; margin: 0; padding: 0; }
-  .explain li { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 1px solid var(--line); font-size: 14px; }
-  .explain li a { color: var(--ink-2); font-weight: 600; padding: 11px 0; flex: 1; }
-  .explain li b { padding: 11px 0; }
-  .explain li b { white-space: nowrap; }
 </style>

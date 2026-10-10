@@ -37,6 +37,23 @@ const copy = {
     badge: 'Tersertifikasi ISO 9001',
     stats: [['12+', 'tahun pengalaman'], ['340', 'proyek selesai'], ['9', 'negara dilayani'], ['96%', 'klien kembali']],
   },
+  ja: {
+    nav: ['サービス', '業界', 'インサイト', '会社概要', 'お問い合わせ'],
+    cta: '相談を予約する',
+    eyebrow: '戦略・業務コンサルティング',
+    h1: ['明確な戦略を。', '測れる成長を。'],
+    lead: '成長中の企業が業務を整理し、新しい市場に入り、拡大に耐えるチームをつくるお手伝いをしています。',
+    primary: '無料相談を予約',
+    secondary: '事例を見る',
+    trust: '120社以上にご利用いただいています',
+    rating: 'クライアント評価 平均4.9',
+    kpiLabel: 'クライアントの売上成長',
+    kpiSub: '最初の12か月の平均',
+    meetTitle: '戦略ワークショップ',
+    meetSub: '火 10:00 · ジャカルタ事務所',
+    badge: 'ISO 9001 認証',
+    stats: [['12年以上', 'の実績'], ['340件', 'の案件実績'], ['9か国', 'で対応'], ['96%', 'の継続率']],
+  },
 };
 
 const logos = ['NORTHLANE', 'Vireo', 'KALANI', 'orbitra', 'Senandika', 'HALCYON'];
@@ -44,7 +61,7 @@ const logos = ['NORTHLANE', 'Vireo', 'KALANI', 'orbitra', 'Senandika', 'HALCYON'
 const html = (c) => `<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600&display=swap">
 <style>
-*{box-sizing:border-box;margin:0}body{width:1440px;height:900px;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;color:#0f2a4a;background:#f7f8f5}
+*{box-sizing:border-box;margin:0}body{width:1440px;height:900px;overflow:hidden;font-family:'Plus Jakarta Sans','Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;color:#0f2a4a;background:#f7f8f5}
 .wrap{padding:0 96px}
 header{display:flex;align-items:center;justify-content:space-between;height:84px;border-bottom:1px solid #e7e9e2;background:#fff}
 .logo{display:flex;align-items:center;gap:12px;font-weight:800;font-size:22px;letter-spacing:-.02em}
@@ -56,7 +73,7 @@ nav{display:flex;gap:36px;font-size:15px;font-weight:500;color:#51627a}
 .hero{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center;padding-top:64px}
 .eb{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#1f7a6c}
 .eb:before{content:'';width:28px;height:2px;background:#e0a84f}
-h1{font-family:'Fraunces',serif;font-weight:600;font-size:66px;line-height:1.04;letter-spacing:-.02em;margin:22px 0 22px}
+h1{font-family:'Fraunces','Noto Serif JP','Hiragino Mincho ProN',serif;font-weight:600;font-size:66px;line-height:1.04;letter-spacing:-.02em;margin:22px 0 22px}
 h1 span{display:block;color:#1f7a6c}
 .lead{font-size:19px;line-height:1.6;color:#51627a;max-width:540px}
 .ctas{display:flex;gap:14px;margin-top:34px}
@@ -109,7 +126,7 @@ h1 span{display:block;color:#1f7a6c}
 </body></html>`;
 
 const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/usr/bin/google-chrome' });
-for (const locale of ['en', 'id']) {
+for (const locale of ['en', 'id', 'ja']) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
   await page.setContent(html(copy[locale]), { waitUntil: 'networkidle' });
   await page.evaluate(() => document.fonts.ready);

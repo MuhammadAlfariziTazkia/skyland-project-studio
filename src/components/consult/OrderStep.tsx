@@ -38,6 +38,13 @@ export function OrderStep({ t, contact, onChange, privacyHref, error, total, onB
   };
   const ok = !Object.values(bad).some(Boolean);
   const inv = (k: keyof typeof bad) => (tried && bad[k] ? 'true' : undefined);
+  /*
+   * Only consent disables the button. Disabling it for any invalid field would be worse than it looks:
+   * the form can then never be submitted, so `tried` never flips and the visitor never finds out which
+   * field is wrong. Consent is different — there is exactly one thing to do about it, it is immediately
+   * above the button, and it must be a deliberate act rather than something a click can slip past.
+   */
+  const blocked = bad.consent;
 
   return (
     <form
@@ -75,7 +82,7 @@ export function OrderStep({ t, contact, onChange, privacyHref, error, total, onB
           <textarea rows={3} maxLength={1000} value={contact.notes} onInput={(e) => set('notes', (e.target as HTMLTextAreaElement).value)} />
         </label>
       </div>
-      <label class="check-row" aria-invalid={inv('consent')}>
+      <label class="check-row" id="order-consent" aria-invalid={inv('consent')}>
         <input type="checkbox" checked={contact.consent} onChange={(e) => set('consent', (e.target as HTMLInputElement).checked)} />
         <span>
           {t.order.consent}{' '}
@@ -101,7 +108,7 @@ export function OrderStep({ t, contact, onChange, privacyHref, error, total, onB
         </button>
         <div class="next-wrap">
           <span class="counts">{total}</span>
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="btn btn-primary" disabled={blocked} aria-describedby={blocked ? 'order-consent' : undefined}>
             {t.order.submit} →
           </button>
         </div>

@@ -142,3 +142,20 @@ website klien, bukan bukti tracking funnel Skyland sudah terpasang.
 
 Sumber: `src/config/site.ts`, copy EN/ID, `LegalPage.astro`, `Consultant.tsx`,
 `data/pricing.json`, `src/pages/api/order.ts`, `src/lib/mail.ts`.
+
+## Dua pintu masuk ke harga
+
+### Dua pintu masuk ke harga
+
+| Jalur | Untuk siapa | Layar sampai harga | Panggilan AI |
+| --- | --- | ---: | ---: |
+| Konsultasi AI | Tahu kebutuhannya, belum tahu bentuknya | 4 | 2 |
+| Halaman konsep | Melihat demo dan merasa cocok | 2 | **0** |
+
+Jalur konsep: kartu di landing → halaman konsep (harga + rincian fitur yang bisa
+dicentang) → layar hasil konsultan (mockup, harga, gaya, pesan). Halaman konsep
+mengambil peran step 2, jadi fitur tidak dipilih dua kali, dan step 3 tidak perlu
+karena layar hasil sudah bisa mengganti gaya tanpa memanggil AI.
+
+Keduanya berakhir pada layar hasil dan `/api/order` yang sama, dengan harga dari
+`quote()` yang sama. Lihat [DOMAIN_PRICING](DOMAIN_PRICING.md#scope-konsep-pintu-masuk-kedua).
