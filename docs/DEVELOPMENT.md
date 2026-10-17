@@ -161,15 +161,18 @@ capture script, dan screenshot tinggi.
 | --- | --- | --- |
 | `make-assets.mjs` | favicon.svg, src/assets/founder.jpg, copy di script | Menimpa OG EN/ID, apple icon, logo.png, public/founder.jpg |
 | `make-hero.mjs` | Template/copy EN/ID di script | Menimpa src/assets/hero-site-en.png dan hero-site-id.png |
-| `capture-portfolio.mjs [key...]` | URL project/demo, Chrome, BASE_URL | Menimpa src/assets/work/*.png |
+| `capture-portfolio.mjs [key...]` | URL project/demo, Chrome, BASE_URL, FIKRMATE_URL | Menimpa src/assets/work/*.png |
 | `split-shot.py file.png height` | Screenshot panjang, Python + Pillow | Potongan file -pN.png |
 | `fetch-sample-photos.mjs [arden\|kurohane]` | Manifest foto di dalam script, jaringan | Menulis `public/samples/<key>/img/*.webp` + `CREDITS.md`; melewati file yang sudah ada kecuali `--force` |
 
 Capture portfolio tanpa key juga membuka proyek eksternal. Script memerlukan
 site konsep lokal untuk Tegak/Lembar/Arden/Kurohane, default BASE_URL
-localhost:4321. Capture dijalankan dengan `reducedMotion` dan menunggu gambar
-`loading="lazy"` selesai, supaya hasilnya tidak menangkap animasi setengah jalan
-atau kotak gambar kosong. Hindari
+localhost:4321. FikrMate dipotret dengan `colorScheme: 'dark'` (field `scheme`
+pada entry-nya) karena panel di `Work.astro` disetel untuk shot gelap — mengubah
+salah satunya berarti menyetel ulang yang lain. `FIKRMATE_URL` mengarahkan shot
+itu ke build lokal atau staging sebelum di-deploy. Capture dijalankan dengan
+`reducedMotion` dan menunggu gambar `loading="lazy"` selesai, supaya hasilnya
+tidak menangkap animasi setengah jalan atau kotak gambar kosong. Hindari
 regenerasi massal saat tugas hanya copy teks; aset hasil capture dapat berbeda
 karena sumber eksternal atau browser.
 

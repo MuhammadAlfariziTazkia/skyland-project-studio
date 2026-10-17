@@ -54,7 +54,7 @@ Kalau `OPENAI_API_KEY` / `GMAIL_APP_PASSWORD` kosong saat `npm run dev`, konsult
 | `node scripts/e2e-consult.mjs http://localhost:4321 id 375` | Menjalankan seluruh alur konsultasi di browser |
 | `node scripts/make-assets.mjs` | Membuat ulang gambar OG, apple-touch-icon, dan `public/founder.jpg` |
 | `node scripts/make-hero.mjs` | Membuat ulang mockup company profile di laptop hero (EN + ID). Teks & desain ada di dalam script |
-| `node scripts/capture-portfolio.mjs [key]` | Mengambil ulang screenshot desktop + HP proyek portofolio. Konsep (`public/samples/*`: `tegak`, `lembar`, `arden`, `kurohane`) diambil dari `npm run dev` sebagai satu screenshot tinggi |
+| `node scripts/capture-portfolio.mjs [key]` | Mengambil ulang screenshot desktop + HP proyek portofolio. Konsep (`public/samples/*`: `tegak`, `lembar`, `arden`, `kurohane`) diambil dari `npm run dev` sebagai satu screenshot tinggi. FikrMate dipotret dalam **tema gelap** (`scheme` di dalam script), dan `FIKRMATE_URL` mengarahkannya ke build lokal/staging alih-alih situs live |
 | `node scripts/fetch-sample-photos.mjs [arden\|kurohane]` | Mengunduh ulang foto demo konsep dari Pexels, memotong ke ukuran final, dan menulis ulang `CREDITS.md`. Tambahkan `--force` untuk menimpa file yang sudah ada |
 
 Script screenshot memakai Chrome lokal (`/usr/bin/google-chrome`); ganti lewat `CHROME_PATH` bila perlu.

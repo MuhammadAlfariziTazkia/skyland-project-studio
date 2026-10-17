@@ -2,12 +2,15 @@
 // Concepts hosted in public/samples/ get a single tall desktop shot instead (the card pans through it on hover).
 // Usage: node scripts/capture-portfolio.mjs [key ...]   (uses local Chrome; set CHROME_PATH to override)
 //        Concepts are captured from BASE_URL (default http://localhost:4321), so run `npm run dev` first.
+//        FIKRMATE_URL points the FikrMate shot at a local or staging build instead of the live site.
+// `scheme` picks the color scheme the site is captured in; the panel behind each shot in
+// Work.astro is tuned for it, so changing one means re-tuning the other.
 // Output: src/assets/work/{key}.png and src/assets/work/{key}-mobile.png (projects only)
 import { chromium } from 'playwright-core';
 
 const base = (process.env.BASE_URL || 'http://localhost:4321').replace(/\/$/, '');
 const projects = {
-  fikrmate: { url: 'https://fikrmate.com' },
+  fikrmate: { url: process.env.FIKRMATE_URL || 'https://fikrmate.com', scheme: 'dark' },
   bunsky: { url: 'https://rumah-belajar-bunsky.vercel.app/' },
   tegak: { url: `${base}/samples/tegak/`, long: 3600 },
   lembar: { url: `${base}/samples/lembar/`, long: 3600 },
@@ -45,17 +48,19 @@ async function settleForCapture(page) {
 }
 
 const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/usr/bin/google-chrome' });
-for (const [key, { url, long }] of Object.entries(projects)) {
+for (const [key, { url, long, scheme }] of Object.entries(projects)) {
   if (only.length && !only.includes(key)) continue;
   const shots = [['', { width: 1440, height: 900 }, 1]];
   if (!long) shots.push(['-mobile', { width: 390, height: 844 }, 2]);
   for (const [suffix, viewport, deviceScaleFactor] of shots) {
     // reducedMotion makes the capture deterministic: reveal and count-up code paths jump
     // straight to their finished state instead of being caught mid-animation.
-    const page = await browser.newPage({ viewport, deviceScaleFactor, isMobile: suffix === '-mobile', reducedMotion: 'reduce' });
+    const page = await browser.newPage({ viewport, deviceScaleFactor, isMobile: suffix === '-mobile', reducedMotion: 'reduce', colorScheme: scheme || 'light' });
     await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
     await page.evaluate(() => document.fonts.ready);
-    await page.addStyleTag({ content: '#sky-bar{display:none!important}' }); // Skyland banner on concept pages
+    // #sky-bar is the Skyland banner on concept pages; nextjs-portal is the Next.js dev-tools
+    // badge, which only appears when FIKRMATE_URL points at a `next dev` server.
+    await page.addStyleTag({ content: '#sky-bar,nextjs-portal{display:none!important}' });
     const tall = long && suffix === '';
     if (tall) await revealAll(page);
     else { await page.waitForTimeout(2500); await settleForCapture(page); } // let entrance animations finish
