@@ -1,22 +1,15 @@
 /*
  * <dc-import name="BookCover" title="…" author="…" color="#hex" ink="#hex">
- * Draws a typographic book cover, the way a small literary publisher would: a solid colour field,
- * a spine, the title set in the page's serif, and the author at the foot.
+ * Draws a typographic cover with a title-specific vector illustration and a subtle spine.
  *
- * It is one inline SVG on a 200×300 viewBox, so the same code is used from the 52px cart thumbnail
- * up to the 340px cover on the product page. Type does not scale linearly with the box, though:
- * a 9pt author line is unreadable at 52px, so the cover simplifies itself as it gets smaller —
- * full cover, then title only, then a monogram.
+ * One 200×300 SVG is shared by the hero, product cards, details, and cart.
+ * Titles and authors are escaped; color attributes accept six-digit hex values only.
  */
 (function () {
   if (customElements.get('dc-import')) return;
 
-  var NS = 'http://www.w3.org/2000/svg';
   var W = 200;
   var H = 300;
-  var PAD = 26;
-  var INNER = W - PAD * 2;
-
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
@@ -26,7 +19,9 @@
 
   // Greedy word wrap by character budget; a word longer than the budget keeps its own line.
   function wrap(text, perLine) {
-    var words = String(text || '').split(/\s+/).filter(Boolean);
+    var words = String(text || '')
+      .split(/\s+/)
+      .filter(Boolean);
     var lines = [];
     var line = '';
     for (var i = 0; i < words.length; i++) {
@@ -57,66 +52,114 @@
 
   function text(x, y, size, fill, opacity, family, weight, spacing, content) {
     return (
-      '<text x="' + x + '" y="' + y + '" font-family="' + family + '" font-size="' + size + '" font-weight="' + weight +
-      '" letter-spacing="' + spacing + '" fill="' + fill + '" fill-opacity="' + opacity + '">' + esc(content) + '</text>'
+      '<text x="' +
+      x +
+      '" y="' +
+      y +
+      '" font-family="' +
+      family +
+      '" font-size="' +
+      size +
+      '" font-weight="' +
+      weight +
+      '" letter-spacing="' +
+      spacing +
+      '" fill="' +
+      fill +
+      '" fill-opacity="' +
+      opacity +
+      '">' +
+      esc(content) +
+      '</text>'
     );
   }
 
   var SERIF = "'Newsreader', Georgia, serif";
-  var SANS = "'Instrument Sans', system-ui, sans-serif";
+  var SANS = "'DM Sans', system-ui, sans-serif";
 
-  function draw(title, author, color, ink, width) {
+  // Small vector illustrations keep every fictional title distinctive at every size.
+  function artwork(title, ink) {
+    var open = '<g fill="' + ink + '" stroke="' + ink + '">';
+    if (/Laut|Pelabuhan/.test(title)) {
+      return (
+        open +
+        '<circle cx="145" cy="173" r="18" stroke="none" opacity=".85"/>' +
+        [0, 18, 36, 54]
+          .map(function (y) {
+            return (
+              '<path d="M22 ' +
+              (194 + y) +
+              ' Q55 ' +
+              (169 + y) +
+              ' 90 ' +
+              (194 + y) +
+              ' T200 ' +
+              (194 + y) +
+              '" fill="none" stroke-width="8" opacity="' +
+              (0.75 - y / 120) +
+              '"/>'
+            );
+          })
+          .join('') +
+        '</g>'
+      );
+    }
+    if (/Teh|Rumah Kaca|Anak Hujan/.test(title)) {
+      return (
+        open +
+        '<path d="M110 255 Q88 210 130 161" fill="none" stroke-width="2"/>' +
+        '<ellipse cx="98" cy="224" rx="25" ry="11" transform="rotate(38 98 224)" stroke="none" opacity=".65"/>' +
+        '<ellipse cx="126" cy="204" rx="29" ry="12" transform="rotate(-30 126 204)" stroke="none" opacity=".8"/>' +
+        '<ellipse cx="111" cy="183" rx="22" ry="10" transform="rotate(45 111 183)" stroke="none" opacity=".55"/>' +
+        '<circle cx="161" cy="162" r="11" fill="none" stroke-width="1" opacity=".6"/></g>'
+      );
+    }
+    if (/Kota|Arsitektur/.test(title)) {
+      return (
+        open +
+        '<path d="M35 255V191a29 29 0 0 1 58 0v64Z" stroke="none" opacity=".35"/><path d="M86 255V172a37 37 0 0 1 74 0v83Z" stroke="none" opacity=".65"/><path d="M106 255V179a18 18 0 0 1 36 0v76Z" fill="none" stroke-width="2"/><path d="M28 256h150" stroke-width="1" opacity=".7"/></g>'
+      );
+    }
+    if (/Memperhatikan|Batin|Kalimat/.test(title)) {
+      return (
+        open +
+        '<g transform="translate(108 206)">' +
+        [0, 45, 90, 135, 180, 225, 270, 315]
+          .map(function (r) {
+            return (
+              '<ellipse cx="0" cy="-28" rx="12" ry="29" transform="rotate(' +
+              r +
+              ')" stroke="none" opacity=".7"/>'
+            );
+          })
+          .join('') +
+        '<circle r="12" stroke-width="2" fill="none"/></g></g>'
+      );
+    }
+    return (
+      open +
+      '<circle cx="107" cy="206" r="49" fill="none" stroke-width="1" opacity=".65"/><circle cx="107" cy="206" r="34" fill="none" stroke-width="1" opacity=".7"/><circle cx="107" cy="206" r="17" stroke="none" opacity=".75"/><path d="M45 206h124M107 145v122M63 162l88 88M63 250l88-88" stroke-width="1" opacity=".6"/></g>'
+    );
+  }
+
+  function draw(title, author, color, ink) {
     var parts = [
-      '<rect width="' + W + '" height="' + H + '" fill="' + color + '"/>',
-      // spine: a darker band plus a hairline, so a flat rectangle reads as a book
-      '<rect width="16" height="' + H + '" fill="#000" fill-opacity=".13"/>',
-      '<rect x="16" width="1" height="' + H + '" fill="' + ink + '" fill-opacity=".22"/>',
+      '<rect width="200" height="300" rx="2" fill="' + color + '"/>',
+      '<rect width="9" height="300" fill="#000" fill-opacity=".12"/>',
+      '<path d="M10 0v300M13 0v300" stroke="' + ink + '" stroke-opacity=".12"/>',
+      '<path d="M197 3v294" stroke="#fff" stroke-opacity=".22"/>',
+      text(25, 22, 6, ink, 0.7, SANS, 500, '0.2em', 'LEMBAR  /  PILIHAN PEMBACA'),
     ];
-
-    if (width < 72) {
-      // micro: a monogram is the only thing still legible at this size
-      var initial = (String(title || '?').trim()[0] || '?').toUpperCase();
-      parts.push(text(W / 2 + 8, H / 2 + 34, 108, ink, 0.9, SERIF, 400, 0, initial).replace('<text ', '<text text-anchor="middle" '));
-      parts.push('<rect x="' + (PAD + 8) + '" y="' + (H - 42) + '" width="44" height="2" fill="' + ink + '" fill-opacity=".45"/>');
-      return parts.join('');
-    }
-
-    if (width < 130) {
-      // compact: title only, set large enough to survive the downscale
-      var c = fit(title, [40, 34, 29, 25], 3, W - (PAD + 8) * 2, 0.48);
-      var cy = 104;
-      for (var i = 0; i < c.lines.length; i++) {
-        parts.push(text(PAD + 8, cy, c.size, ink, 0.95, SERIF, 400, '-0.01em', c.lines[i]));
-        cy += c.size * 1.12;
-      }
-      parts.push('<rect x="' + (PAD + 8) + '" y="' + (H - 46) + '" width="38" height="2" fill="' + ink + '" fill-opacity=".45"/>');
-      return parts.join('');
-    }
-
-    // full cover: keyline, title block, rule, author, publisher ornament
-    parts.push('<rect x="' + PAD + '" y="20" width="' + INNER + '" height="' + (H - 40) + '" fill="none" stroke="' + ink + '" stroke-opacity=".2"/>');
-
-    var f = fit(title, [30, 26, 23, 20, 18], 5, W - PAD * 2 - 24, 0.48);
-    var y = 88;
+    var f = fit(title, [29, 26, 23, 21, 19], 4, 153, 0.52);
+    var y = 52;
     for (var j = 0; j < f.lines.length; j++) {
-      parts.push(text(PAD + 12, y, f.size, ink, 0.96, SERIF, 400, '-0.015em', f.lines[j]));
-      y += f.size * 1.14;
+      parts.push(text(25, y, f.size, ink, 1, SERIF, 500, '-0.02em', f.lines[j]));
+      y += f.size * 1.04;
     }
-
-    parts.push('<rect x="' + (PAD + 12) + '" y="' + (H - 76) + '" width="34" height="1.5" fill="' + ink + '" fill-opacity=".5"/>');
-
-    var who = String(author || '').toUpperCase();
-    var a = fit(who, [12, 11, 10, 9], 2, W - PAD * 2 - 24, 0.66);
-    var ay = H - 52;
-    for (var k = 0; k < a.lines.length; k++) {
-      parts.push(text(PAD + 12, ay, a.size, ink, 0.8, SANS, 500, '0.14em', a.lines[k]));
-      ay += a.size * 1.5;
-    }
-
-    // publisher device: three dots, no invented name
-    for (var d = 0; d < 3; d++) {
-      parts.push('<circle cx="' + (W - PAD - 12 - d * 9) + '" cy="' + (H - 32) + '" r="2" fill="' + ink + '" fill-opacity=".45"/>');
-    }
+    parts.push(artwork(title, ink));
+    parts.push('<path d="M25 270h152" stroke="' + ink + '" stroke-opacity=".3"/>');
+    var who = fit(String(author || '').toUpperCase(), [9, 8, 7], 1, 153, 0.7);
+    parts.push(text(25, 285, who.size, ink, 0.9, SANS, 500, '0.08em', who.lines[0] || ''));
     return parts.join('');
   }
 
@@ -126,15 +169,7 @@
     }
     connectedCallback() {
       if (!this.shadowRoot) this.attachShadow({ mode: 'open' });
-      if (!this.ro && typeof ResizeObserver !== 'undefined') {
-        this.ro = new ResizeObserver(() => this.paint());
-        this.ro.observe(this);
-      }
       this.paint();
-    }
-    disconnectedCallback() {
-      if (this.ro) this.ro.disconnect();
-      this.ro = null;
     }
     attributeChangedCallback() {
       if (this.isConnected) this.paint();
@@ -146,19 +181,33 @@
         root.innerHTML = '';
         return;
       }
-      var color = this.getAttribute('color') || '#2F4A3A';
-      var ink = this.getAttribute('ink') || '#F5F1E8';
-      var width = this.getBoundingClientRect().width || parseFloat(this.style.width) || 160;
-      // Re-rendering identical output on every resize tick would throw away the font rendering for nothing.
-      var key = [this.getAttribute('title'), this.getAttribute('author'), color, ink, width < 72 ? 'a' : width < 130 ? 'b' : 'c'].join('|');
+      var color = /^#[0-9a-f]{6}$/i.test(this.getAttribute('color') || '')
+        ? this.getAttribute('color')
+        : '#2F4A3A';
+      var ink = /^#[0-9a-f]{6}$/i.test(this.getAttribute('ink') || '') ? this.getAttribute('ink') : '#F5F1E8';
+      // CSS scales the SVG; only content changes require a new drawing.
+      var key = [
+        this.getAttribute('title'),
+        this.getAttribute('author'),
+        color,
+        ink,
+      ].join('|');
       if (key === this.key) return;
       this.key = key;
       root.innerHTML =
         '<style>:host{display:block;aspect-ratio:2/3;line-height:0}svg{display:block;width:100%;height:100%;' +
-        'box-shadow:0 1px 2px rgba(30,28,25,.16),0 10px 24px rgba(30,28,25,.14)}</style>' +
-        '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="' +
-        esc((this.getAttribute('title') || '') + (this.getAttribute('author') ? ' oleh ' + this.getAttribute('author') : '')) + '">' +
-        draw(this.getAttribute('title'), this.getAttribute('author'), color, ink, width) +
+        'border-radius:2px 4px 4px 2px;box-shadow:1px 2px 2px rgba(30,28,25,.12),4px 9px 15px rgba(30,28,25,.12)}</style>' +
+        '<svg viewBox="0 0 ' +
+        W +
+        ' ' +
+        H +
+        '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="' +
+        esc(
+          (this.getAttribute('title') || '') +
+            (this.getAttribute('author') ? ' oleh ' + this.getAttribute('author') : ''),
+        ) +
+        '">' +
+        draw(this.getAttribute('title'), this.getAttribute('author'), color, ink) +
         '</svg>';
     }
   }

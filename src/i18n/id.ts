@@ -179,7 +179,7 @@ const id: Dict = {
         name: 'Lembar Toko Buku',
         category: 'Konsep · Toko Buku',
         type: 'Toko online untuk toko buku independen',
-        tagline: 'Buku yang layak dibaca pelan-pelan.',
+        tagline: 'Selalu ada cerita untuk dirimu.',
         desc: 'Toko online yang hangat dan bergaya editorial: menjelajahinya terasa seperti menyusuri rak, bukan mengisi tabel.',
         highlights: ['Keranjang & checkout', 'Instagram ke halaman produk', 'Pencarian & jelajah genre'],
         url: '/samples/lembar/?lang=id',

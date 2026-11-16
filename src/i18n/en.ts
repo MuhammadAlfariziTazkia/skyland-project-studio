@@ -222,7 +222,7 @@ const en = {
         name: 'Lembar Toko Buku',
         category: 'Concept · Bookstore',
         type: 'Online store for an independent bookshop',
-        tagline: 'Books worth reading slowly.',
+        tagline: 'There’s always a story for you.',
         desc: 'A warm, editorial online store where browsing feels like walking the shelves, not filling a spreadsheet.',
         highlights: ['Cart & checkout', 'Instagram to product page', 'Search & genre browsing'],
         url: '/samples/lembar/',

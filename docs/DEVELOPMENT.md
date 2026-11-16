@@ -152,6 +152,17 @@ Catat model/env, kasus yang dicoba, status HTTP, dan penggunaan token tanpa secr
 
 ### Portfolio dan aset
 
+Demo Lembar memakai template/state di `public/samples/lembar/index.html`,
+stylesheet `lembar.css`, dan ilustrasi sampul SVG di `book-cover.js`.
+Runtime tetap React CDN melalui `support.js`, terpisah dari island Preact.
+Setelah mengubahnya, jalankan `BASE_URL=http://localhost:4321 node scripts/check-lembar.mjs`
+terhadap server lokal. Script memakai Chrome lokal dan menguji katalog, pencarian,
+wishlist, format/harga keranjang, checkout simulasi, fokus keyboard, serta overflow
+enam lebar layar. `?lang=id` hanya melokalkan banner Skyland; toko tetap berbahasa
+Indonesia. Screenshot pemeriksaan tersimpan di `.shots/lembar/`.
+Perbarui thumbnail dengan `node scripts/capture-portfolio.mjs lembar` dan selaraskan
+palet `src/components/concept/visuals.ts` serta tagline EN/ID/JA bila identitas berubah.
+
 Project nyata: perlu memperluas union ProjectCopy.key di en.ts, entries kedua
 bahasa, URL capture script, import/map Work.astro, dan screenshot desktop/mobile.
 Konsep: ConceptCopy.key, entries kedua bahasa, demo public, map Concepts.astro,

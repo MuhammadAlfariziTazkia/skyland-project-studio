@@ -9,6 +9,31 @@ Dokumen ini adalah baseline untuk agent berikutnya. Temuan di bawah tidak
 otomatis menjadi backlog yang disetujui pemilik dan belum diperbaiki dalam
 tugas penyusunan dokumentasi ini.
 
+## Pembaruan 19 Oktober 2026 — revamp demo Lembar
+
+`/samples/lembar/` memakai tampilan editorial baru: putih hangat, sage/lilac,
+DM Sans + Newsreader, ilustrasi sampul SVG per judul, rak buku responsif,
+koleksi kurasi, catatan kurator, newsletter, serta detail produk dan drawer keranjang
+yang konsisten. Thumbnail portfolio, palet kartu konsep, dan tagline EN/ID/JA
+diselaraskan. Runtime demo tetap React CDN; stylesheet dipisahkan ke `lembar.css`.
+
+Pencarian kini menampilkan katalog saat query kosong, dengan filter buku baru,
+bestseller, pre-order, koleksi, dan tersimpan yang benar-benar berfungsi. Harga
+hardcover (+Rp 45.000) dan format ikut ke keranjang dan ringkasan checkout;
+paperback/hardcover dari judul sama menjadi baris terpisah. Pencarian/keranjang
+memiliki fokus keyboard, Escape, pengembalian fokus, serta penguncian scroll.
+Reduced motion dihormati. Checkout dan newsletter tetap simulasi lokal tanpa
+pembayaran, pengiriman email, atau persistensi.
+
+Verifikasi lokal: **117 unit test lulus**, `npm run check` **0 error / 0 warning /
+5 hints**, build berhasil. `scripts/check-lembar.mjs` lulus **60 assertion overflow**
+(320/375/390/768/1024/1440 × banner EN/ID × home/pencarian/detail/keranjang/selesai),
+ditambah assertion filter, wishlist, harga/format, ongkir, keranjang kosong,
+keyboard, reduced motion, dan newsletter. Tidak ada error browser atau request
+`/api/*`. Screenshot home, pencarian, detail, dan keranjang ditinjau visual;
+screenshot bukan pengganti assertion. Toko tetap ID, `?lang=id` melokalkan banner
+Skyland. Browser: Chrome lokal; perangkat fisik/Safari dan deployment tidak diuji.
+
 ## Pembaruan 11 Oktober 2026 — satu harga, satu tombol bahasa, consent
 
 Ronde revisi keempat. Dua dari enam temuan pemilik adalah **regresi dari ronde
@@ -406,6 +431,10 @@ Lembar menghasilkan 11 view bermasalah — overflow horizontal di Lembar pada 32
 1.024/1.440px, serta sejumlah target sentuh di bawah 32px pada keduanya.
 **Dampak:** temuan ini sudah ada sebelum penambahan Arden/Kurohane dan hanya
 menjadi terlihat karena cakupan audit diperluas. Perbaikannya belum dikerjakan.
+
+**Pembaruan 19 Oktober:** overflow Lembar tidak muncul lagi pada enam lebar ×
+lima tampilan dalam `check-lembar.mjs` setelah revamp. Pemeriksaan ini tidak
+menyatakan seluruh target sentuh lolos audit aksesibilitas. Tegak tidak diubah.
 
 ### G-16 — Cakupan test dan observability belum penuh
 

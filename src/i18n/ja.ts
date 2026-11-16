@@ -186,7 +186,7 @@ const ja: Dict = {
         name: 'Lembar Toko Buku',
         category: 'コンセプト · 書店',
         type: '独立系書店のオンラインストア',
-        tagline: 'ゆっくり読む価値のある本を。',
+        tagline: 'あなたに寄り添う物語が、きっとある。',
         desc: '表計算を埋めるのではなく、棚を歩くように選べる、温かくエディトリアルなオンラインストア。',
         highlights: ['カートと購入手続き', 'Instagram から商品ページへ', '検索とジャンル別閲覧'],
         url: '/samples/lembar/',

@@ -12,7 +12,7 @@ import type { ConceptKey } from '../../i18n/routes';
  */
 export const CONCEPT_VISUALS: Record<ConceptKey, { shot: ImageMetadata; bg: string; fg: string; accent: string; link: string }> = {
   tegak: { shot: tegak, bg: '#17181a', fg: '#f3f1ec', accent: '#e2601b', link: '#f39a63' },
-  lembar: { shot: lembar, bg: '#2f4a3a', fg: '#f5f1e8', accent: '#d9b55a', link: '#e8dcc4' },
+  lembar: { shot: lembar, bg: '#2d4939', fg: '#fcfcf9', accent: '#d8cde7', link: '#dbe4c9' },
   kurohane: { shot: kurohane, bg: '#171b1a', fg: '#f4f1e9', accent: '#b76e50', link: '#ddd8cd' },
   arden: { shot: arden, bg: '#172333', fg: '#fafaf7', accent: '#9a7754', link: '#d9c2a5' },
 };
