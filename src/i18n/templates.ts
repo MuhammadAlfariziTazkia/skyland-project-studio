@@ -23,6 +23,8 @@ export interface TemplateItemCopy {
 export interface TemplateCopy {
   items: Record<string, Record<Locale, TemplateItemCopy>>;
   presets: Record<string, Record<Locale, string>>;
+  /** Alternatives the buyer picks one of (pricing.json `group`): the question, and the "none of these" answer. */
+  groups: Record<string, Record<Locale, { label: string; none: string; noneNote: string }>>;
   /** Paid by the client straight to a provider, never to Skyland. `hosting_domain` reuses NOT_INCLUDED_COPY. */
   clientPaid: Record<string, Record<Locale, { name: string; note: string }>>;
   notIncluded: Record<Locale, { label: string; why: string }[]>;
@@ -210,9 +212,38 @@ export const TEMPLATE_COPY: Record<string, TemplateCopy> = {
         },
       },
       ai_style_photos: {
-        en: { name: 'Sample photo for each style', does: 'Each recommendation also shows a photo of that style — your own work, or licensed stock photos.' },
-        id: { name: 'Foto contoh tiap gaya', does: 'Setiap rekomendasi juga menampilkan foto contoh gayanya — hasil kerja Anda sendiri, atau foto stok berlisensi.' },
-        ja: { name: 'スタイルごとの見本写真', does: '各提案にそのスタイルの見本写真も表示します。お店の施術写真、またはライセンス済みの素材写真を使います。' },
+        en: { name: 'Sample photo of each style', does: 'Each recommendation shows a fixed photo of that style — your own work, or licensed stock photos.' },
+        id: { name: 'Foto contoh tiap gaya (statis)', does: 'Setiap rekomendasi menampilkan foto contoh gaya itu — hasil kerja Anda sendiri, atau foto stok berlisensi.' },
+        ja: { name: 'スタイルごとの見本写真', does: '各提案に、そのスタイルの見本写真（お店の施術写真、またはライセンス済みの素材写真）を表示します。' },
+      },
+      ai_style_tryon: {
+        en: {
+          name: "The customer's own photo, restyled by AI",
+          does: "Each of the 3 recommendations shows the customer's own photo with their hair changed by AI to that style.",
+          gets: [
+            'Customers take the photo with the camera inside the website, or pick one from their album',
+            'Before/after comparison on every recommendation',
+            'The photo is processed on your OpenAI account and not stored',
+          ],
+        },
+        id: {
+          name: 'Foto pelanggan sendiri, diedit AI',
+          does: 'Masing-masing dari 3 rekomendasi menampilkan foto pelanggan itu sendiri dengan rambut yang diubah AI ke gaya tersebut.',
+          gets: [
+            'Pelanggan memotret langsung dengan kamera di website, atau memilih dari album',
+            'Perbandingan sebelum/sesudah di setiap rekomendasi',
+            'Foto diproses di akun OpenAI Anda dan tidak disimpan',
+          ],
+        },
+        ja: {
+          name: 'お客様ご本人の写真をAIで髪型変更',
+          does: '3つの提案それぞれに、お客様ご本人の写真の髪型をAIでそのスタイルに変えた画像を表示します。',
+          gets: [
+            'サイト内のカメラでその場で撮影、またはアルバムから選択',
+            '各提案でビフォー・アフターを比較',
+            '写真はお客様の OpenAI アカウントで処理し、保存しません',
+          ],
+        },
       },
       dashboard: {
         en: {
@@ -244,12 +275,24 @@ export const TEMPLATE_COPY: Record<string, TemplateCopy> = {
         },
       },
     },
+    groups: {
+      ai_photo: {
+        en: { label: 'Photo on each recommendation — pick one', none: 'Text only', noneNote: 'Style name and why it suits, no photo.' },
+        id: { label: 'Foto di tiap rekomendasi — pilih salah satu', none: 'Teks saja', noneNote: 'Nama gaya dan alasannya, tanpa foto.' },
+        ja: { label: '各提案に表示する写真（ひとつ選択）', none: 'テキストのみ', noneNote: 'スタイル名と似合う理由のみ。写真なし。' },
+      },
+    },
     presets: {
       info: { en: 'Info only', id: 'Info saja', ja: '情報のみ' },
       booking: { en: 'Info + booking', id: 'Info + booking', ja: '情報＋予約' },
       all: { en: 'Everything', id: 'Semua', ja: 'すべて' },
     },
     clientPaid: {
+      openai_image: {
+        en: { name: 'OpenAI image edits (AI photo)', note: 'Each diagnosis creates 3 edited images, which costs much more than the text analysis. Billed to your OpenAI account and stopped by the same monthly limit.' },
+        id: { name: 'Edit gambar OpenAI (foto AI)', note: 'Setiap diagnosis membuat 3 gambar hasil edit, jauh lebih mahal daripada analisis teks. Ditagih ke akun OpenAI Anda dan dihentikan oleh batas bulanan yang sama.' },
+        ja: { name: 'OpenAI 画像編集料（AI写真）', note: '診断1回につき3枚の画像を生成するため、テキスト解析より大幅に高くなります。お客様の OpenAI アカウントに請求され、同じ月の上限で止まります。' },
+      },
       openai_usage: {
         en: { name: 'OpenAI usage (AI module)', note: 'Charged per analysed photo, straight to your OpenAI account. The monthly limit we set stops it at the amount you choose.' },
         id: { name: 'Pemakaian OpenAI (modul AI)', note: 'Ditagih per foto yang dianalisis, langsung ke akun OpenAI Anda. Batas bulanan yang kami pasang menghentikannya di angka yang Anda tentukan.' },
@@ -258,17 +301,14 @@ export const TEMPLATE_COPY: Record<string, TemplateCopy> = {
     },
     notIncluded: {
       en: [
-        { label: "The customer's own photo edited by AI", why: 'Results on real faces are unreliable and every image costs far more to generate. Sample photos show the style instead.' },
         { label: 'Online payment', why: 'Customers pay at the shop.' },
         { label: 'LINE or WhatsApp notifications', why: 'Notifications go by email. LINE and WhatsApp need a separate business account.' },
       ],
       id: [
-        { label: 'Foto pelanggan sendiri diedit AI', why: 'Hasilnya di wajah asli tidak bisa diandalkan dan biaya tiap gambarnya jauh lebih mahal. Foto contoh yang menunjukkan gayanya.' },
         { label: 'Pembayaran online', why: 'Pelanggan membayar di tempat.' },
         { label: 'Notifikasi LINE atau WhatsApp', why: 'Notifikasi dikirim lewat email. LINE dan WhatsApp butuh akun bisnis terpisah.' },
       ],
       ja: [
-        { label: 'お客様の写真をAIで加工した髪型イメージ', why: '実際の顔での仕上がりが安定せず、1枚ごとの生成費用も大きいためです。代わりに見本写真でスタイルを伝えます。' },
         { label: 'オンライン決済', why: 'お支払いは店頭です。' },
         { label: 'LINE・WhatsApp 通知', why: '通知はメールで送ります。LINE・WhatsApp は別途ビジネスアカウントが必要です。' },
       ],

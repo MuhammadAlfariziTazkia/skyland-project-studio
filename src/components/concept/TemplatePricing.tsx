@@ -62,6 +62,14 @@ export default function TemplatePricing({ locale, concept, consultHref, region }
       return sel.filter((id) => !drop.has(id));
     });
 
+  /** Picks one alternative of a group (or none), dropping its siblings — the engine keeps only one per group anyway. */
+  const choose = (members: TemplateItem[], id: string | null, parent?: TemplateModule) =>
+    setItems((prev) => {
+      const drop = new Set(members.map((a) => a.id));
+      const sel = templateSelection(tpl, prev).filter((x) => !drop.has(x));
+      return id ? [...sel, id, ...(parent && !sel.includes(parent.id) ? [parent.id] : [])] : sel;
+    });
+
   const accept = () => handOffToConsultant({ concept, locale, region, plan, consultHref, overwrite: c.overwrite });
 
   const check = (lines: string[]) =>
@@ -95,10 +103,47 @@ export default function TemplatePricing({ locale, concept, consultHref, region }
       </p>
     ));
 
+  /** Alternatives the buyer picks one of, shown as radio cards with a "none" option first. */
+  const groupChoice = (group: string, members: TemplateItem[], parent?: TemplateModule) => {
+    const g = copy.groups[group]?.[locale];
+    const current = members.find((a) => on.has(a.id))?.id ?? null;
+    const opt = (id: string | null, name: string, does: string, tag: string) => {
+      const sel = current === id;
+      return (
+        <li key={id ?? 'none'}>
+          <button type="button" class={`feat tp-radio${sel ? ' on' : ''}`} role="radio" aria-checked={sel} onClick={() => choose(members, id, parent)}>
+            <span class="tp-dot" aria-hidden="true" />
+            <span class="feat-main">
+              <b>{name}</b>
+              <span>{does}</span>
+            </span>
+            <span class="ftag">{tag}</span>
+          </button>
+        </li>
+      );
+    };
+    const picked = current ? word(current) : null;
+    return (
+      <div class="tp-group" key={group}>
+        <span class="tp-k">{g?.label ?? group}</span>
+        <ul class="feats stack" role="radiogroup" aria-label={g?.label ?? group}>
+          {opt(null, g?.none ?? '—', g?.noneNote ?? '', '±0')}
+          {members.map((a) => opt(a.id, word(a.id).name, word(a.id).does, `+${price(a)}`))}
+        </ul>
+        {picked?.gets?.length ? <div class="tp-addon-body">{check(picked.gets)}</div> : null}
+      </div>
+    );
+  };
+
   /** Add-ons nested under their parent (a module, or the always-on base). An active add-on spells out what it covers. */
-  const addonList = (parentName: string, addons: TemplateItem[], parent?: TemplateModule) => (
+  const addonList = (parentName: string, all: TemplateItem[], parent?: TemplateModule) => {
+    const addons = all.filter((a) => !a.group);
+    const groups = [...new Set(all.filter((a) => a.group).map((a) => a.group as string))];
+    return (
     <div class="tp-addons">
       <span class="tp-k">{L.addons(parentName)}</span>
+      {groups.map((g) => groupChoice(g, all.filter((a) => a.group === g), parent))}
+      {addons.length > 0 && (
       <ul class="feats stack">
         {addons.map((a) => {
           const aw = word(a.id);
@@ -124,8 +169,10 @@ export default function TemplatePricing({ locale, concept, consultHref, region }
           );
         })}
       </ul>
+      )}
     </div>
-  );
+    );
+  };
 
   const moduleCard = (m: TemplateModule) => {
     const w = word(m.id);

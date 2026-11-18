@@ -375,6 +375,11 @@
 .cs.tp .tp-demo { align-self: flex-start; padding: 4px 0; }
 .cs.tp .tp-addons { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding-top: 10px; border-top: 1px dashed var(--line); }
 .cs.tp .tp-addons .feats { gap: 8px; }
+.cs.tp .tp-group { display: flex; flex-direction: column; gap: 6px; }
+.cs.tp .tp-group + .feats { margin-top: 10px; }
+.cs.tp .tp-dot { flex: none; width: 20px; height: 20px; margin: 1px 8px 0; border-radius: 50%; border: 2px solid #c3d0ea; background: #fff; transition: border-color .2s, box-shadow .2s; }
+.cs.tp .tp-radio.on .tp-dot { border-color: var(--blue); box-shadow: inset 0 0 0 4px #fff, inset 0 0 0 10px var(--blue); }
+.cs.tp .tp-radio.on { background: #fff; border-color: #c9d8fb; }
 .cs.tp .tp-addon-body { display: flex; flex-direction: column; gap: 6px; padding: 8px 14px 4px 62px; }
 /* On a phone the price tag sits under the name instead of beside it, so the description keeps the full width. */
 @media (max-width: 639px) {

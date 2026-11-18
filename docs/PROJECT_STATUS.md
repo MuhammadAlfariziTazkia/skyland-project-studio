@@ -9,13 +9,43 @@ Dokumen ini adalah baseline untuk agent berikutnya. Temuan di bawah tidak
 otomatis menjadi backlog yang disetujui pemilik dan belum diperbaiki dalam
 tugas penyusunan dokumentasi ini.
 
+## Pembaruan 19 November 2026 — demo Kurohane: kamera di website + 3 hasil di foto pengunjung
+
+Diagnosis gaya rambut di `/samples/kurohane/` sekarang dimulai dari **kamera di
+dalam website** (撮影 → 確認 → 解析 → 結果). Album dan sampel tetap tersedia
+sebagai cadangan (jalur album memakai langkah 位置合わせ seperti sebelumnya).
+
+- Kamera: izin baru diminta setelah tombol ditekan; preview 3:4 dicerminkan
+  dengan oval yang sama dengan mesin render, jadi hasil jepretan sudah sejajar.
+  Ada indikator cahaya, timer 3 detik, tombol ganti kamera bila ada >1 kamera,
+  dan pesan sesuai penyebab bila kamera ditolak/tidak ada/sibuk/tidak didukung.
+  Stream dimatikan setelah jepret, saat menutup dialog, dan saat Esc.
+- Hasil: 3 kartu (desktop sejajar, HP carousel) masing-masing dengan foto
+  pengunjung bergaya baru, peringkat, % kecocokan, alasan utama, tekan-tahan
+  atau tombol BEFORE untuk perbandingan, "詳しく見る" ke tampilan detail lama,
+  dan "予約" yang mengisi menu + barber. Footer selalu membawa CTA untuk kartu
+  yang sedang dilihat.
+- Semua pintu masuk berubah label menjadi "診断結果を見る" setelah diagnosis.
+  Teaser #finder menjadi kipas 3 kartu dari hasil sampel. Banner Skyland
+  disembunyikan selama dialog terbuka (sebelumnya menutupi kontrol di HP).
+- Simulasi (`kurohane-finder.js`) diperhalus: rambut asli di luar siluet baru
+  diganti warna latar per baris (kepala, wajah, telinga tidak disentuh),
+  cahaya rambut disesuaikan dengan wajah, tepi di-feather, plus grain.
+  Tetap simulasi di browser, berlabel "合成イメージ（デモ）".
+- Verifikasi: Chrome + kamera palsu (video dari potret sampel) di 1280 dan
+  375 px: jepret, timer, konfirmasi, 3 kartu, tekan-tahan, detail/kembali,
+  booking, buka ulang, Esc mematikan kamera, izin ditolak → cadangan sampel,
+  `prefers-reduced-motion`, tanpa error console dan tanpa scroll horizontal.
+  **Belum diuji di kamera HP sungguhan** (perlu HTTPS setelah deploy).
+
 ## Pembaruan 18 November 2026 — daftar harga template Kurohane (JP)
 
 Kurohane dijual ke barbershop kecil di Jepang yang belum punya website. Harga
 katalognya (¥379.000, ¥341.000 setelah diskon) terlalu tinggi untuk pasar itu,
 jadi pasar JP kini memakai daftar harga template: paket dasar ¥68.000, modul
 Booking / AI rekomendasi gaya / Dashboard beserta tambahannya, plus bahasa
-kedua Jepang + Inggris (¥9.000), maksimal ¥127.000 (sengaja tidak pas di
+kedua Jepang + Inggris (¥9.000) dan pilihan foto di hasil AI (statis ¥3.000
+atau foto pelanggan diedit AI ¥7.000), maksimal ¥131.000 (sengaja tidak pas di
 ¥70.000/¥120.000). Rincian dan aturan ada di
 [DOMAIN_PRICING.md](DOMAIN_PRICING.md#daftar-harga-template-kurohane-pasar-jp).
 
@@ -25,7 +55,7 @@ kedua Jepang + Inggris (¥9.000), maksimal ¥127.000 (sengaja tidak pas di
 - `plan.template` (opsional) membawa pilihan ke konsultan, `/api/order`, dan
   email; revisi AI membuangnya. Langkah plan dan pilihan level desain
   disembunyikan untuk rencana template; "Ubah rencana" kembali ke halaman konsep.
-- Verifikasi: `npm run test` (128 test, termasuk semua kombinasi template),
+- Verifikasi: `npm run test` (129 test, termasuk semua kombinasi template),
   `npm run check`, `npm run build`. Chrome lokal: pasar JP (ID & JA, 1280 & 375),
   ID, dan GLOBAL; hand-off ke hasil konsultan menampilkan total yang sama.
   Order tidak dikirim (tidak ada uji SMTP/OpenAI).

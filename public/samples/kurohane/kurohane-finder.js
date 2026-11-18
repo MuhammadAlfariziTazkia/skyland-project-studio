@@ -2,7 +2,8 @@
    Everything runs in the visitor's browser: the photo is never uploaded or stored.
    In a production build the "analyze" step would be a vision model and "compose" an image-generation
    model; here analysis is a deterministic mock and the preview is a procedural hair render drawn onto
-   the visitor's own photo, aligned by the oval guide they framed their face in.
+   the visitor's own photo, aligned by the oval guide they framed their face in — either live in the
+   in-page camera, or afterwards by dragging an album photo into the same oval.
    Concept demo built by Skyland Project Studio. */
 (function () {
   var W = 768, H = 1024;
@@ -330,10 +331,112 @@
     x.restore();
   }
 
+  // ---------- realism passes (demo) ----------
+  // Average colour of a frame region, as [r, g, b, luminance].
+  function meanColor(c, a, b) {
+    var w = Math.max(1, Math.round(b[0] - a[0])), h = Math.max(1, Math.round(b[1] - a[1]));
+    var d = c.getContext('2d').getImageData(Math.round(a[0]), Math.round(a[1]), w, h).data, r = 0, g = 0, bl = 0, n = 0;
+    for (var i = 0; i < d.length; i += 16) { r += d[i]; g += d[i + 1]; bl += d[i + 2]; n++; }
+    r /= n; g /= n; bl /= n;
+    return [r, g, bl, lum(r, g, bl)];
+  }
+  var statsCache = typeof WeakMap === 'function' ? new WeakMap() : null;
+  function photoStats(cropped) {
+    var hit = statsCache && statsCache.get(cropped);
+    if (hit) return hit;
+    var st = { face: meanColor(cropped, P(-0.45, -0.2), P(0.45, 0.45)) };
+    statsCache && statsCache.set(cropped, st);
+    return st;
+  }
+  var pixCache = typeof WeakMap === 'function' ? new WeakMap() : null;
+  function pixels(c) {
+    var hit = pixCache && pixCache.get(c);
+    if (hit) return hit;
+    var d = c.getContext('2d').getImageData(0, 0, W, H).data;
+    pixCache && pixCache.set(c, d);
+    return d;
+  }
+  var canFilter = (function () { try { return typeof canvas(1, 1).getContext('2d').filter === 'string'; } catch (e) { return false; } })();
+
+  // Paints the background back over the visitor's own hair where the new style is smaller, so a tall or
+  // wide original cut does not poke out from under a short one. Only pixels that differ clearly from the
+  // background (read per row at the frame edges) are replaced, and only above the temples, outside the
+  // face and outside the new silhouette — so a plain background, the ears and the face are never touched.
+  function rowEdge(d, y, x0, x1) {
+    var r = 0, g = 0, b = 0, n = 0;
+    for (var yy = Math.max(0, y - 2); yy <= Math.min(H - 1, y + 2); yy += 2)
+      for (var xx = x0; xx < x1; xx += 2) { var i = (yy * W + xx) * 4; r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
+    return [r / n, g / n, b / n];
+  }
+  function cleanup(x, cropped, uv) {
+    var src = pixels(cropped);
+    var hm = canvas(W, H), hx = hm.getContext('2d');
+    hx.fillStyle = '#000'; pathFrom(hx, uv); hx.fill();
+    var hd = hx.getImageData(0, 0, W, H).data;
+    var zcy = P(0, SKULL.cv)[1] - O.ry * 0.08, zrx = O.rx * SKULL.ax * 1.42, zry = O.ry * SKULL.ay * 1.42;
+    var y0 = Math.max(0, Math.floor(zcy - zry)), y1 = Math.round(P(0, -0.32)[1]), skY = P(0, SKULL.cv)[1];
+    var x0 = Math.max(0, Math.floor(O.cx - zrx)), x1 = Math.min(W, Math.ceil(O.cx + zrx));
+    var patch = canvas(W, H), px = patch.getContext('2d'), pd = px.createImageData(W, H), out = pd.data, hits = 0;
+    for (var y = y0; y < y1; y++) {
+      var l = rowEdge(src, y, 0, 28), r = rowEdge(src, y, W - 28, W);
+      for (var xx = x0; xx < x1; xx++) {
+        var dx = (xx - O.cx) / zrx, dy = (y - zcy) / zry;
+        if (dx * dx + dy * dy > 1) continue;
+        var fx = (xx - O.cx) / (O.rx * 0.97), fy = (y - O.cy - O.ry * 0.06) / (O.ry * 0.99);
+        if (fx * fx + fy * fy < 1) continue;
+        // the head itself: under the new style it is scalp and forehead, never background
+        var kx = (xx - O.cx) / (O.rx * SKULL.ax * 0.98), ky = (y - skY) / (O.ry * SKULL.ay * 0.98);
+        if (kx * kx + ky * ky < 1) continue;
+        var i = (y * W + xx) * 4;
+        if (hd[i + 3]) continue;
+        var t = xx / W, er = l[0] + (r[0] - l[0]) * t, eg = l[1] + (r[1] - l[1]) * t, eb = l[2] + (r[2] - l[2]) * t;
+        var dist = Math.abs(src[i] - er) + Math.abs(src[i + 1] - eg) + Math.abs(src[i + 2] - eb);
+        if (lum(src[i], src[i + 1], src[i + 2]) < lum(er, eg, eb) - 0.06 || dist > 54) {
+          out[i] = er; out[i + 1] = eg; out[i + 2] = eb; out[i + 3] = 255; hits++;
+        }
+      }
+    }
+    if (hits < 40) return; // a few stray pixels are noise, not hair
+    px.putImageData(pd, 0, 0);
+    // drawn twice through a blur: grows over stray strands and leaves no hard edge
+    x.save();
+    if (canFilter) x.filter = 'blur(4px)';
+    x.drawImage(patch, 0, 0); x.drawImage(patch, 0, 0); x.drawImage(patch, 0, 0);
+    x.restore();
+  }
+
+  // Matches the drawn hair to the photo: darker in a dim photo, a touch of the photo's colour cast, and
+  // camera-like grain so it does not look cleaner than the skin next to it.
+  var grainTile = null;
+  function grain() {
+    if (grainTile) return grainTile;
+    grainTile = canvas(96, 96);
+    var g = grainTile.getContext('2d'), d = g.createImageData(96, 96), r = rng('grain');
+    for (var i = 0; i < d.data.length; i += 4) { var v = Math.round(r() * 255); d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 26; }
+    g.putImageData(d, 0, 0);
+    return grainTile;
+  }
+  function matchLight(hair, st) {
+    var x = hair.getContext('2d'), f = st.face;
+    x.save(); x.globalCompositeOperation = 'source-atop';
+    var dim = Math.max(0, Math.min(0.38, (0.52 - f[3]) * 0.9));
+    if (dim > 0) { x.fillStyle = 'rgba(0,0,0,' + dim.toFixed(3) + ')'; x.fillRect(0, 0, W, H); }
+    var lift = Math.max(0, Math.min(0.12, (f[3] - 0.72) * 0.5));
+    if (lift > 0) { x.fillStyle = 'rgba(255,255,255,' + lift.toFixed(3) + ')'; x.fillRect(0, 0, W, H); }
+    x.fillStyle = css([f[0], f[1], f[2]].map(Math.round), 0.07); x.fillRect(0, 0, W, H);
+    x.fillStyle = x.createPattern(grain(), 'repeat'); x.fillRect(0, 0, W, H);
+    x.restore();
+  }
+
   function compose(cropped, styleId, tone) {
     var c = canvas(W, H), x = c.getContext('2d');
     x.drawImage(cropped, 0, 0);
+    var t = T[styleId] || T.natural, st = photoStats(cropped);
+    if (t.sides !== 'buzz') cleanup(x, cropped, outline(t, rng('hair' + styleId)));
     var hair = renderHair(styleId, tone);
+    matchLight(hair, st);
+    // a feathered copy underneath softens the cut-out edge without blurring the strands
+    if (canFilter) { x.save(); x.filter = 'blur(2.5px)'; x.globalAlpha = 0.55; x.drawImage(hair, 0, 0); x.restore(); }
     // contact shadow so the hair sits on the head instead of floating
     // (drawn off-canvas so only the shadow lands; works in browsers without ctx.filter)
     x.save();
@@ -401,6 +504,59 @@
     return { src: c, url: c.toDataURL('image/jpeg', 0.92), w: W, h: H, sample: true };
   }
 
+  // ---------- in-page camera ----------
+  // The live preview is a 3:4 <video> with object-fit:cover under the same oval as everything else, so a
+  // frame grabbed with the same cover maths is already aligned: no separate framing step after a shot.
+  var cam = { stream: null };
+  function camSupported() { return !!(window.isSecureContext && navigator.mediaDevices && navigator.mediaDevices.getUserMedia); }
+  function camStop() {
+    if (cam.stream) cam.stream.getTracks().forEach(function (t) { t.stop(); });
+    cam.stream = null;
+  }
+  function camStart(facing) {
+    camStop();
+    if (!camSupported()) return Promise.reject(new Error('unsupported'));
+    return navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: facing || 'user', width: { ideal: 1280 }, height: { ideal: 960 } } })
+      .then(function (s) { cam.stream = s; return s; });
+  }
+  function camCount() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return Promise.resolve(1);
+    return navigator.mediaDevices.enumerateDevices().then(function (d) { return d.filter(function (x) { return x.kind === 'videoinput'; }).length; }, function () { return 1; });
+  }
+  // Maps a getUserMedia failure to what the visitor can do about it.
+  function camError(err) {
+    var n = (err && (err.name || err.message)) || '';
+    if (n === 'NotAllowedError' || n === 'SecurityError' || n === 'PermissionDeniedError') return 'denied';
+    if (n === 'NotFoundError' || n === 'OverconstrainedError' || n === 'DevicesNotFoundError') return 'nocam';
+    if (n === 'NotReadableError' || n === 'TrackStartError' || n === 'AbortError') return 'busy';
+    return 'unsupported';
+  }
+  function coverDraw(x, video, w, h, mirror) {
+    var vw = video.videoWidth, vh = video.videoHeight, k = Math.max(w / vw, h / vh), dw = vw * k, dh = vh * k;
+    x.save();
+    if (mirror) { x.translate(w, 0); x.scale(-1, 1); }
+    x.drawImage(video, (w - dw) / 2, (h - dh) / 2, dw, dh);
+    x.restore();
+  }
+  // The shot, exactly as the visitor saw it (mirrored for the selfie camera), already in frame coordinates.
+  function capture(video, mirror) {
+    var c = canvas(W, H);
+    coverDraw(c.getContext('2d'), video, W, H, mirror);
+    return { src: c, url: c.toDataURL('image/jpeg', 0.9), w: W, h: H, sample: false, shot: true };
+  }
+  // Mean luminance inside the face oval, 0..1, from a tiny copy of the current frame.
+  var meter = null;
+  function brightness(video) {
+    if (!video || !video.videoWidth) return null;
+    meter = meter || canvas(48, 64);
+    var x = meter.getContext('2d');
+    coverDraw(x, video, 48, 64, false);
+    var a = [O.cx - O.rx * 0.6, O.cy - O.ry * 0.6], b = [O.cx + O.rx * 0.6, O.cy + O.ry * 0.6];
+    var d = x.getImageData(Math.round(a[0] / 16), Math.round(a[1] / 16), Math.round((b[0] - a[0]) / 16), Math.round((b[1] - a[1]) / 16)).data, t = 0, n = 0;
+    for (var i = 0; i < d.length; i += 4) { t += lum(d[i], d[i + 1], d[i + 2]); n++; }
+    return n ? t / n : null;
+  }
+
   // Shareable card: the try-on plus the style name, made for saving to the camera roll.
   function poster(composite, info) {
     var c = canvas(W, H + 150), x = c.getContext('2d');
@@ -413,5 +569,6 @@
     return c.toDataURL('image/png');
   }
 
-  window.KHF = { W: W, H: H, OVAL: O, MAX_BYTES: MAX_BYTES, TEMPLATES: T, load: load, baseWidth: baseWidth, clampTf: clampTf, crop: crop, analyze: analyze, renderHair: renderHair, compose: compose, samplePortrait: samplePortrait, poster: poster };
+  window.KHF = { W: W, H: H, OVAL: O, MAX_BYTES: MAX_BYTES, TEMPLATES: T, load: load, baseWidth: baseWidth, clampTf: clampTf, crop: crop, analyze: analyze, renderHair: renderHair, compose: compose, samplePortrait: samplePortrait, poster: poster,
+    camera: { supported: camSupported, start: camStart, stop: camStop, count: camCount, error: camError }, capture: capture, brightness: brightness };
 })();

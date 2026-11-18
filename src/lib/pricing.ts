@@ -451,6 +451,8 @@ export interface TemplateItem {
   id: string;
   price: RegionPrice;
   est_hours: number;
+  /** Items sharing a group are alternatives: at most one of them can be bought (e.g. which photo a result shows). */
+  group?: string;
 }
 export interface TemplateModule extends TemplateItem {
   addons: TemplateItem[];
@@ -479,16 +481,26 @@ export function templateOffered(id: string, region: Region, data: PricingData = 
 /**
  * What a selection actually buys, in catalog order: unknown ids are dropped, and an add-on counts only
  * while its module is selected (base add-ons always count, since the base is always on). The base itself
- * is implied and never listed. Run on every quote, so a crafted
- * order cannot buy an add-on on its own.
+ * is implied and never listed. Within a `group` only the first selected item (catalog order) counts, so a
+ * crafted order cannot buy two alternatives, or an add-on on its own.
  */
 export function templateSelection(t: TemplateDef, ids: readonly string[]): string[] {
   const want = new Set(ids);
-  const out: string[] = (t.base.addons ?? []).filter((a) => want.has(a.id)).map((a) => a.id);
+  const groups = new Set<string>();
+  const out: string[] = [];
+  const take = (i: TemplateItem) => {
+    if (!want.has(i.id)) return;
+    if (i.group) {
+      if (groups.has(i.group)) return;
+      groups.add(i.group);
+    }
+    out.push(i.id);
+  };
+  (t.base.addons ?? []).forEach(take);
   for (const m of t.modules) {
     if (!want.has(m.id)) continue;
     out.push(m.id);
-    for (const a of m.addons) if (want.has(a.id)) out.push(a.id);
+    m.addons.forEach(take);
   }
   return out;
 }

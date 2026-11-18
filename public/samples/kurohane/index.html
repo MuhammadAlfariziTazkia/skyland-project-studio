@@ -220,25 +220,25 @@ section[id]{scroll-margin-top:84px}
 .privacy{display:flex;gap:10px;align-items:flex-start;margin-top:22px;font-size:12px;line-height:1.75;color:var(--muted-d)}
 .privacy svg{flex:none;margin-top:2px;color:var(--copper-hi)}
 .teaser{position:relative;max-width:520px;margin-inline:auto;width:100%}
-.tz-frame{position:relative;aspect-ratio:3/4;border-radius:22px;overflow:hidden;background:#E6E0D3;box-shadow:0 40px 90px rgba(0,0,0,.35)}
-.tz-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.tz-after{position:absolute;inset:0;clip-path:inset(0 0 0 50%);animation:tzwipe 9.6s var(--ease) infinite}
-.tz-after img{opacity:0;animation:tzfade 9.6s linear infinite}
-.tz-after img:nth-child(2){animation-delay:3.2s}
-.tz-after img:nth-child(3){animation-delay:6.4s}
-.tz-line{position:absolute;top:0;bottom:0;left:50%;width:2px;margin-left:-1px;background:var(--washi);animation:tzline 9.6s var(--ease) infinite}
-.tz-line::after{content:"";position:absolute;top:50%;left:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:var(--washi) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><path d='M16 14l-5 6 5 6M24 14l5 6-5 6' fill='none' stroke='%23171B1A' stroke-width='1.6'/></svg>") center/40px no-repeat;box-shadow:0 6px 20px rgba(0,0,0,.25)}
-@keyframes tzwipe{0%,100%{clip-path:inset(0 0 0 72%)}14%,30%{clip-path:inset(0 0 0 28%)}33.3%{clip-path:inset(0 0 0 72%)}47%,63%{clip-path:inset(0 0 0 28%)}66.6%{clip-path:inset(0 0 0 72%)}80%,96%{clip-path:inset(0 0 0 28%)}}
-@keyframes tzline{0%,100%{left:72%}14%,30%{left:28%}33.3%{left:72%}47%,63%{left:28%}66.6%{left:72%}80%,96%{left:28%}}
-@keyframes tzfade{0%{opacity:0}1%,32%{opacity:1}33.3%,100%{opacity:0}}
-.tz-tag{position:absolute;top:16px;font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.24em;padding:6px 10px;border-radius:999px;background:rgba(14,17,16,.6);color:var(--washi);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.fan{position:relative;aspect-ratio:1/1.12;width:100%}
+.fan-card{position:absolute;top:2%;left:50%;width:58%;margin:0;border-radius:18px;overflow:hidden;background:var(--ink);box-shadow:0 30px 70px rgba(0,0,0,.42);transform-origin:50% 100%;transition:transform .9s var(--ease),filter .6s ease}
+.fan-card img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;background:#E6E0D3}
+.fan-card figcaption{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:3px 12px;padding:12px 14px 14px}
+.fan-card .k{font-family:var(--ui);font-size:9.5px;font-weight:600;letter-spacing:.2em;color:var(--copper-hi)}
+.fan-card b{grid-column:1;font-family:var(--serif);font-size:15px;font-weight:500;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fan-card .m{grid-column:2;grid-row:1/3;font-family:var(--ui);font-weight:300;font-size:28px;line-height:1;color:var(--copper-hi)}
+.fan-card .m small{font-size:13px}
+.fan-card.c0{transform:translateX(-50%);z-index:3;animation:bob2 6s ease-in-out infinite}
+.fan-card.c1{transform:translateX(-84%) rotate(-8deg) scale(.86);z-index:2;filter:brightness(.78)}
+.fan-card.c2{transform:translateX(-16%) rotate(8deg) scale(.86);z-index:1;filter:brightness(.78)}
+.teaser:hover .fan-card.c1{transform:translateX(-96%) rotate(-11deg) scale(.86);filter:brightness(.9)}
+.teaser:hover .fan-card.c2{transform:translateX(-4%) rotate(11deg) scale(.86);filter:brightness(.9)}
+@keyframes bob2{50%{translate:0 -8px}}
 .float{position:absolute;z-index:2;background:var(--washi);color:var(--ink-2);border-radius:12px;padding:12px 14px;box-shadow:0 20px 50px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:4px;animation:bob 6s ease-in-out infinite}
 .float .k{font-family:var(--ui);font-size:9.5px;font-weight:600;letter-spacing:.22em;color:var(--copper)}
 .float .v{font-family:var(--serif);font-size:15px;letter-spacing:.04em}
-.float.f1{left:-28px;top:18%}
-.float.f2{right:-24px;top:48%;animation-delay:-2s}
-.float.f3{left:10%;bottom:-22px;animation-delay:-4s;flex-direction:row;align-items:center;gap:12px}
-.float.f3 b{font-family:var(--ui);font-weight:300;font-size:30px;line-height:1;color:var(--moss)}
+.float.f1{left:-28px;top:12%;z-index:4}
+.float.f2{right:-24px;top:40%;z-index:4;animation-delay:-2s}
 @keyframes bob{50%{transform:translateY(-8px)}}
 
 /* barbers */
@@ -485,6 +485,108 @@ section[id]{scroll-margin-top:84px}
 .facts small{font-family:var(--ui);font-size:9.5px;letter-spacing:.2em;color:var(--muted-d)}
 .facts b{font-size:13px;font-weight:500;letter-spacing:.02em}
 
+/* intro extras */
+.alt{display:inline-flex;align-items:center;gap:10px;margin-top:18px;padding:6px 0;font-size:13px;letter-spacing:.04em;color:var(--stone);border-bottom:1px solid rgba(243,239,230,.25);transition:color .25s ease,border-color .25s ease}
+.alt:hover{color:var(--copper-hi);border-color:var(--copper-hi)}
+.alt span{font-family:var(--ui);transition:transform .35s var(--ease)}
+.alt:hover span{transform:translateX(4px)}
+.back{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;min-height:40px;font-size:13px;letter-spacing:.06em;color:var(--stone);transition:color .2s ease}
+.back:hover{color:var(--copper-hi)}
+.back span{font-family:var(--ui)}
+
+/* camera */
+.cam{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:clamp(20px,3vw,48px);padding:clamp(18px,3vw,40px);align-items:center;min-height:100%}
+.cam > *{min-width:0}
+.cam-col{display:flex;flex-direction:column;align-items:center;gap:18px}
+.cam-stage{position:relative;height:max(320px,min(calc(100svh - 440px),560px));aspect-ratio:3/4;max-width:100%;border-radius:22px;overflow:hidden;background:radial-gradient(circle at 50% 42%,#1f2523,#0a0c0b 70%);box-shadow:0 30px 80px rgba(0,0,0,.45),inset 0 0 0 1px rgba(243,239,230,.06)}
+.cam-stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s ease}
+.cam-stage.live video{opacity:1}
+.cam-stage video.mir{transform:scaleX(-1)}
+.cam-stage svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cam-stage svg > rect{opacity:0;transition:opacity .6s ease}
+.cam-stage.live svg > rect{opacity:1}
+.cam-oval{animation:ants 16s linear infinite}
+@keyframes ants{to{stroke-dashoffset:-240}}
+.cam-light{position:absolute;top:14px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;background:rgba(14,17,16,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-size:11.5px;letter-spacing:.06em;white-space:nowrap;color:var(--washi);transition:background-color .3s ease}
+.cam-light i{width:8px;height:8px;border-radius:50%;background:#7FC29B;box-shadow:0 0 0 3px rgba(127,194,155,.22)}
+.cam-light.warn i{background:var(--copper-hi);box-shadow:0 0 0 3px rgba(227,164,135,.25)}
+.cam-guide{position:absolute;left:12px;right:12px;bottom:16px;text-align:center;font-family:var(--ui);font-size:11px;letter-spacing:.12em;color:rgba(243,239,230,.82);text-shadow:0 1px 8px rgba(0,0,0,.5)}
+.cam-flip{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(14,17,16,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:var(--washi)}
+.cam-wait{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;font-size:13.5px;letter-spacing:.04em}
+.cam-wait i{width:30px;height:30px;border-radius:50%;border:2px solid rgba(243,239,230,.2);border-top-color:var(--copper-hi);animation:spin .9s linear infinite}
+.cam-wait small{font-size:11.5px;line-height:1.7;color:var(--muted-d);max-width:22em}
+.cam-err{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:clamp(20px,3vw,32px);background:rgba(14,17,16,.9)}
+.cam-err b{font-family:var(--serif);font-size:19px;font-weight:500;letter-spacing:.06em}
+.cam-err p{margin:0;font-size:13px;line-height:1.85;color:#CFCBC1}
+.cam-err-acts{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:6px}
+.cam-err-acts label{cursor:pointer}
+.cam-err-acts .lnk{color:var(--stone);font-size:13px}
+.cam-count{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font-family:var(--ui);font-weight:200;font-size:clamp(96px,16vw,150px);line-height:1;color:var(--washi);text-shadow:0 8px 40px rgba(0,0,0,.45);pointer-events:none}
+.cam-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.cam-ctrl{display:flex;align-items:center;justify-content:center;gap:clamp(30px,7vw,64px)}
+.cam-stage.error ~ .cam-ctrl{visibility:hidden}
+.cam-side{width:58px;height:58px;border-radius:50%;border:1px solid rgba(243,239,230,.22);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;letter-spacing:.06em;color:var(--stone);cursor:pointer;transition:background-color .25s ease,border-color .25s ease,color .25s ease}
+.cam-side:hover{border-color:rgba(243,239,230,.5);color:var(--washi)}
+.cam-side[aria-pressed="true"]{background:var(--copper);border-color:var(--copper);color:var(--paper)}
+.cam-side[disabled]{opacity:.35;cursor:default}
+.shutter{width:80px;height:80px;border-radius:50%;border:2px solid var(--washi);padding:5px;transition:transform .3s var(--ease),opacity .3s ease}
+.shutter span{display:block;width:100%;height:100%;border-radius:50%;background:var(--washi);transition:transform .25s var(--ease),background-color .25s ease}
+.shutter:not([disabled]):hover span{background:var(--copper-hi)}
+.shutter:not([disabled]):active span{transform:scale(.88)}
+.shutter[disabled]{opacity:.35}
+.cam-tips{margin-top:22px}
+.cam-tips li{color:#CFCBC1}
+.shot{position:relative;height:min(calc(100svh - 300px),620px);max-width:100%;aspect-ratio:3/4;margin-inline:auto;border-radius:20px;overflow:hidden;background:#222;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.shot svg{position:absolute;inset:0;width:100%;height:100%}
+
+/* results: overview of the three styles */
+.ov{display:flex;flex-direction:column;gap:20px;padding:clamp(18px,2.8vw,36px)}
+.ov-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px 32px}
+.ov-head .fd-h em{font-family:var(--it);font-style:italic;font-weight:400;color:var(--copper-hi);margin:0 .08em;letter-spacing:0}
+.ov-head .prof{max-width:620px}
+.rcards{--ih:max(250px,calc(min(100svh - 80px,860px) - 460px));position:relative;display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:16px;width:min(100%,calc(var(--ih) * .75 * var(--n,3) + (var(--n,3) - 1) * 16px));margin-inline:auto}
+.rcard{position:relative;display:flex;flex-direction:column;min-width:0;border-radius:20px;overflow:hidden;background:var(--ink-2);border:1px solid var(--line-d);transition:border-color .3s ease,box-shadow .4s ease,transform .5s var(--ease)}
+.rcard.on{border-color:rgba(227,164,135,.7);box-shadow:0 0 0 1px rgba(227,164,135,.35),0 24px 60px rgba(0,0,0,.4)}
+@media (hover:hover){.rcard:hover{transform:translateY(-4px);border-color:rgba(243,239,230,.3)}.rcard.on:hover{border-color:rgba(227,164,135,.85)}}
+.rc-img{position:relative;aspect-ratio:3/4;overflow:hidden;background:#E6E0D3;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.rc-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none;-webkit-touch-callout:none}
+.rc-after{transition:opacity .25s ease}
+.rc-img.hold .rc-after,.rc-img.show-before .rc-after{opacity:0}
+.rc-img::after{content:"BEFORE";position:absolute;left:50%;bottom:14px;transform:translate(-50%,6px);padding:6px 12px;border-radius:999px;background:rgba(14,17,16,.7);font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.24em;color:var(--washi);opacity:0;transition:opacity .2s ease,transform .3s var(--ease);pointer-events:none}
+.rc-img.hold::after,.rc-img.show-before::after{opacity:1;transform:translate(-50%,0)}
+.rc-line{position:absolute;left:0;right:0;top:0;height:2px;background:var(--copper-hi);box-shadow:0 0 18px 4px rgba(227,164,135,.55);opacity:0;pointer-events:none}
+.rc-rank{position:absolute;top:12px;left:12px;padding:6px 11px;border-radius:999px;background:rgba(14,17,16,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:var(--ui);font-size:9.5px;font-weight:600;letter-spacing:.22em;color:var(--washi)}
+.rc-rank.best{background:var(--copper);color:var(--paper)}
+.rc-before{position:absolute;top:8px;right:8px;min-height:36px;padding:0 12px;border-radius:999px;background:rgba(14,17,16,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:var(--ui);font-size:9.5px;font-weight:600;letter-spacing:.2em;color:rgba(243,239,230,.9);transition:background-color .2s ease}
+.rc-before:hover{background:rgba(14,17,16,.75)}
+.rc-before[aria-pressed="true"]{background:var(--washi);color:var(--ink-2)}
+.rc-body{display:flex;flex-direction:column;gap:10px;padding:14px 14px 14px 16px;flex:1;cursor:pointer}
+.rc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.rc-nm{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rc-nm b{font-family:var(--serif);font-size:clamp(16px,1.4vw,19px);font-weight:500;letter-spacing:.05em;line-height:1.35}
+.rc-nm span{font-family:var(--it);font-style:italic;font-size:14px;color:var(--stone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@property --n{syntax:'<integer>';inherits:false;initial-value:0}
+.rc-score{--n:var(--s);flex:none;display:grid;grid-template-columns:auto auto;align-items:baseline;justify-items:end;font-family:var(--ui);font-weight:300;font-size:30px;line-height:.9;color:var(--copper-hi);counter-reset:n var(--n);animation:count 1.3s var(--ease) var(--d,0ms) backwards}
+.rc-score::before{content:counter(n)}
+.rcards.quiet .rc-score{animation:none}
+.rc-score small{font-size:13px}
+.rc-score em{grid-column:1/3;font-style:normal;font-size:8.5px;font-weight:600;letter-spacing:.24em;color:var(--muted-d);margin-top:6px}
+@keyframes count{from{--n:0}}
+.rc-why{margin:0;font-size:12.5px;line-height:1.75;color:#CFCBC1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rc-acts{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:6px;margin-top:auto;padding-top:4px}
+.rc-acts button{min-height:42px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:8px;transition:background-color .25s ease,border-color .25s ease,color .25s ease}
+.rc-more{border:1px solid rgba(243,239,230,.28)}
+.rc-more:hover{border-color:var(--washi)}
+.rc-book{background:var(--washi);color:var(--ink-2)}
+.rc-book:hover{background:var(--copper-hi)}
+.rc-book span{font-family:var(--ui);font-weight:400}
+.rdots{display:none}
+.ov-note{margin:0;text-align:center;font-size:11.5px;line-height:1.8;color:var(--muted-d)}
+.ov-note > span{margin-right:.6em}
+.only-touch{display:none}
+@media (hover:none){.only-touch{display:inline}.only-fine{display:none}}
+
 @media (max-width:1099px){
   .hero-grid{grid-template-columns:1fr;padding-top:104px}
   .hero-media{min-height:62vh}
@@ -500,7 +602,11 @@ section[id]{scroll-margin-top:84px}
   .fd{padding:0}
   .fd-sheet{border-radius:0;height:100%;width:100%}
   .fd-steps span .lb{display:none}
-  .intro,.align,.scan,.res{grid-template-columns:1fr}
+  .intro,.align,.scan,.res,.cam{grid-template-columns:1fr}
+  .cam-aside{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .cam{padding:14px 16px;align-content:center}
+  .cam-stage{height:auto;width:min(100%,calc((100svh - 290px) * .75))}
+  .shot{height:auto;width:min(100%,calc(56svh * .75))}
   .res-info{border-left:0;border-top:1px solid var(--line-d)}
   .ba{height:auto;width:min(100%,calc(54svh * .75))}
   .crop,.scan-img{height:auto;width:min(100%,calc(56svh * .75))}
@@ -529,12 +635,32 @@ section[id]{scroll-margin-top:84px}
   .fd-foot .grow{flex:1;justify-content:center;gap:14px}
   .fd-foot .foot-sub{width:100%}
   .fd-foot .foot-sub .btn{flex:1;justify-content:center}
+  .fd-foot .grow-m{flex:1;justify-content:center;gap:14px}
+  .alt{margin-top:14px}
+  .ov{padding:16px 16px 8px;gap:16px}
+  .ov-head .prof{max-width:none}
+  .rcards{display:flex;width:auto;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;gap:12px;margin:0 -16px;padding:2px 16px 6px;scroll-padding-inline:16px;overscroll-behavior-inline:contain}
+  .rcards::-webkit-scrollbar{display:none}
+  .rcard{flex:0 0 72%;scroll-snap-align:center}
+  .rc-img{aspect-ratio:4/5}
+  .rc-img img{object-position:50% 35%}
+  .ov-head .eyebrow{display:none}
+  .ov-head .fd-h{margin-top:0!important}
+  .ov .prof{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px}
+  .ov .prof::-webkit-scrollbar{display:none}
+  .ov .prof .pc{flex:none}
+  .ov .prof .edit{flex:none;white-space:nowrap;order:-1;margin:0 6px 0 0}
+  .rdots{display:flex;justify-content:center;gap:6px}
+  .rdots i{width:6px;height:6px;border-radius:3px;background:rgba(243,239,230,.25);transition:width .35s var(--ease),background-color .3s ease}
+  .rdots i.on{width:20px;background:var(--copper-hi)}
+  .fan-card{width:62%}
+  .cam-ctrl{gap:36px}
   .intro-art{height:30svh;width:auto;aspect-ratio:3/4;margin-inline:auto}
   .intro{padding-top:16px}
   .fd-title .lb{display:none}
   .adl{grid-template-columns:80px minmax(0,1fr)}
 }
-@media (prefers-reduced-motion: reduce){.sdot{opacity:1}*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.tz-after{clip-path:inset(0 0 0 50%)}.tz-after img:first-child{opacity:1}.tz-line{left:50%}}
+@media (prefers-reduced-motion: reduce){.sdot{opacity:1}*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </helmet>
 
@@ -598,8 +724,8 @@ section[id]{scroll-margin-top:84px}
         <div class="hero-ctas">
           <a href="#reserve" class="btn btn--washi" data-mag="1">空き状況を見て予約する<span class="arr">→</span></a>
           <button type="button" class="ai-btn" onClick="{{ openFinder }}" data-finder-trigger="1">
-            <span class="ai-ico" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 5V2.5a1 1 0 0 1 1-1H5M11 1.5h2.5a1 1 0 0 1 1 1V5M14.5 11v2.5a1 1 0 0 1-1 1H11M5 14.5H2.5a1 1 0 0 1-1-1V11"/><path d="M4 8h8"/></svg></span>
-            似合う髪型をAI診断<span class="new">NEW</span>
+            <span class="ai-ico" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1.75 5.25a1 1 0 0 1 1-1h2l1.1-1.6h4.3l1.1 1.6h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H2.75a1 1 0 0 1-1-1z"/><circle cx="8" cy="8.6" r="2.6"/></svg></span>
+            {{ aiHero }}<sc-if value="{{ !hasResult }}"><span class="new">NEW</span></sc-if>
           </button>
         </div>
         <span class="live"><i></i>{{ heroLive }}</span>
@@ -727,30 +853,29 @@ section[id]{scroll-margin-top:84px}
     <div>
       <div class="eyebrow" data-reveal="up"><b>04</b><i></i><span>AI Style Match</span><span class="new">NEW</span></div>
       <h2 id="finder-title" class="h2" data-reveal="up">写真1枚で、<br><em>似合う髪型</em>がわかる。</h2>
-      <p class="lead" data-reveal="up" style="margin:24px 0 0;max-width:30em;">顔型・頭の形・髪質をAIが読み取り、あなたに似合うスタイルを3つ提案。仕上がりは、あなた自身の写真で確かめられます。気に入ったら、そのまま担当とメニューを選んで予約へ。</p>
+      <p class="lead" data-reveal="up" style="margin:24px 0 0;max-width:30em;">カメラで正面を1枚撮るだけ。顔型・頭の形・髪質をAIが読み取り、似合うスタイルを3つ提案します。3つとも、あなた自身の写真で仕上がりを確認。気に入ったら、そのまま予約へ。</p>
       <ol class="fsteps" data-reveal="up">
-        <li><span class="n">1</span><b>正面の写真を用意</b><span>その場で撮影、またはアルバムから。サンプルでも試せます。</span></li>
+        <li><span class="n">1</span><b>カメラで正面を撮影</b><span>サイト内のカメラで、枠に顔を合わせて1枚。アルバムやサンプルでも試せます。</span></li>
         <li><span class="n">2</span><b>AIが骨格と髪質を解析</b><span>輪郭・頭の形・くせ・毛量から、相性の良いスタイルを選びます。</span></li>
-        <li><span class="n">3</span><b>仕上がりを見て、予約</b><span>合成イメージで比べて、気に入ったスタイルで予約できます。</span></li>
+        <li><span class="n">3</span><b>3つのスタイルを、あなたの写真で比較</b><span>写真を長押しするとビフォーに。気に入ったスタイルで、そのまま予約できます。</span></li>
       </ol>
       <div data-reveal="up" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:32px;">
-        <button type="button" class="btn btn--washi" onClick="{{ openFinder }}" data-finder-trigger="1" data-mag="1">診断をはじめる<span class="arr">→</span></button>
-        <button type="button" class="btn btn--ghost" onClick="{{ openSample }}" data-finder-trigger="1">サンプルで試す</button>
+        <button type="button" class="btn btn--washi" onClick="{{ openFinder }}" data-finder-trigger="1" data-mag="1">{{ aiCta }}<span class="arr">→</span></button>
+        <sc-if value="{{ !hasResult }}"><button type="button" class="btn btn--ghost" onClick="{{ openSample }}" data-finder-trigger="1">サンプルで試す</button></sc-if>
       </div>
-      <p class="privacy" data-reveal="up"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="6" width="9" height="6.5" rx="1.5"/><path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6"/></svg><span>写真は端末の中だけで処理され、送信・保存されません。※ デモ版では解析と合成イメージを簡易的に再現しています。</span></p>
+      <p class="privacy" data-reveal="up"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="6" width="9" height="6.5" rx="1.5"/><path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6"/></svg><span>写真は端末の中だけで処理され、送信・保存されません。カメラは撮影後すぐにオフになります。※ デモ版では解析と合成イメージを簡易的に再現しています。</span></p>
     </div>
     <div class="teaser" data-reveal="up">
-      <div class="tz-frame">
-        <img loading="lazy" src="{{ teaserBefore }}" alt="サンプル（イラスト）の診断前の姿">
-        <div class="tz-after">
-          <sc-for list="{{ teaser }}" as="t"><img loading="lazy" src="{{ t.img }}" alt="{{ t.name }}の合成イメージ"></sc-for>
-        </div>
-        <span class="tz-line" aria-hidden="true"></span>
-        <span class="tz-tag" style="left:14px;">BEFORE</span><span class="tz-tag" style="right:14px;">AFTER</span>
+      <div class="fan" aria-label="診断結果の例（サンプルのイラスト）" role="img">
+        <sc-for list="{{ teaser }}" as="t">
+          <figure class="fan-card {{ t.cls }}" aria-hidden="true">
+            <img loading="lazy" src="{{ t.img }}" alt="">
+            <figcaption><span class="k">{{ t.rank }}</span><b>{{ t.name }}</b><span class="m">{{ t.score }}<small>%</small></span></figcaption>
+          </figure>
+        </sc-for>
       </div>
       <div class="float f1" aria-hidden="true"><span class="k">FACE</span><span class="v">丸顔</span></div>
       <div class="float f2" aria-hidden="true"><span class="k">HAIR</span><span class="v">直毛・多い</span></div>
-      <div class="float f3" aria-hidden="true"><b>89%</b><span style="display:flex;flex-direction:column;gap:2px;"><span class="k">MATCH</span><span class="v">スキンフェード</span></span></div>
     </div>
   </div>
 </section>
@@ -876,7 +1001,7 @@ section[id]{scroll-margin-top:84px}
           </div>
         </sc-if>
         <sc-if value="{{ !hasWish }}">
-          <button type="button" class="wish-add" onClick="{{ openFinder }}" data-finder-trigger="1"><span class="ai-ico" aria-hidden="true" style="width:26px;height:26px;flex:none;"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg></span>希望スタイルを添える（AI似合わせ診断）</button>
+          <button type="button" class="wish-add" onClick="{{ openFinder }}" data-finder-trigger="1"><span class="ai-ico" aria-hidden="true" style="width:26px;height:26px;flex:none;"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg></span>{{ wishAddLabel }}</button>
         </sc-if>
         <dl>
           <div><dt class="sum-k">MENU</dt><dd>{{ bkSumService }}</dd></div>
@@ -1003,7 +1128,7 @@ section[id]{scroll-margin-top:84px}
       <p class="lead" style="margin:0;max-width:26em;">オンライン予約は24時間受付。空き状況はリアルタイムで確認できます（デモでは架空のスケジュールを表示します）。</p>
       <div style="display:flex;flex-wrap:wrap;gap:12px;">
         <a href="#reserve" class="btn btn--washi" data-mag="1">空き状況を見て予約する<span class="arr">→</span></a>
-        <button type="button" class="btn btn--ghost" onClick="{{ openFinder }}" data-finder-trigger="1">AI似合わせ診断</button>
+        <button type="button" class="btn btn--ghost" onClick="{{ openFinder }}" data-finder-trigger="1">{{ hasResult ? '診断結果を見る' : 'AI似合わせ診断' }}</button>
       </div>
     </div>
   </div>
@@ -1032,7 +1157,7 @@ section[id]{scroll-margin-top:84px}
 
 <sc-if value="{{ mobile }}">
   <div class="mbar" style="transform:{{ barShift }};">
-    <button type="button" class="s" onClick="{{ openFinder }}" data-finder-trigger="1"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1.5 5V2.5a1 1 0 0 1 1-1H5M11 1.5h2.5a1 1 0 0 1 1 1V5M14.5 11v2.5a1 1 0 0 1-1 1H11M5 14.5H2.5a1 1 0 0 1-1-1V11"/><path d="M4 8h8"/></svg>AI診断</button>
+    <button type="button" class="s" onClick="{{ openFinder }}" data-finder-trigger="1"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1.75 5.25a1 1 0 0 1 1-1h2l1.1-1.6h4.3l1.1 1.6h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H2.75a1 1 0 0 1-1-1z"/><circle cx="8" cy="8.6" r="2.6"/></svg>{{ hasResult ? '診断結果' : 'AI診断' }}</button>
     <a href="#menu" class="s">料金</a>
     <a href="#reserve" class="p">予約する →</a>
   </div>
@@ -1059,34 +1184,110 @@ section[id]{scroll-margin-top:84px}
       </div>
 
       <div class="fd-body">
-        <!-- step 1: photo -->
+        <input id="kh-file" class="sr-only" type="file" accept="image/*" onChange="{{ fFile }}" tabindex="-1">
+
+        <!-- step 1: before asking for the camera -->
         <sc-if value="{{ fStep === 'intro' }}">
           <div class="intro">
             <div class="intro-art">
               <img loading="lazy" src="{{ teaserBefore }}" alt="">
-              <svg viewBox="0 0 768 1024" aria-hidden="true"><ellipse cx="384" cy="476" rx="178" ry="238" fill="none" stroke="#B76E50" stroke-width="3" stroke-dasharray="10 10"/></svg>
+              <svg viewBox="0 0 768 1024" aria-hidden="true"><ellipse class="cam-oval" cx="384" cy="476" rx="178" ry="238" fill="none" stroke="#B76E50" stroke-width="3" stroke-dasharray="10 10"/></svg>
             </div>
             <div>
-              <div class="eyebrow"><b>STEP 1</b><i></i><span>Photo</span></div>
-              <h2 id="fd-h" class="fd-h" tabindex="-1" data-fd-focus="1" style="margin-top:18px;">正面の写真を1枚。<br>あとはAIにおまかせ。</h2>
-              <p class="fd-p">顔型・頭の形・髪質を読み取り、似合うスタイルを3つ提案します。仕上がりはあなたの写真で確認できます。{{ fFocusNote }}</p>
+              <div class="eyebrow"><b>STEP 1</b><i></i><span>Camera</span></div>
+              <h2 id="fd-h" class="fd-h" tabindex="-1" data-fd-focus="1" style="margin-top:18px;">カメラで正面を1枚。<br>あとはAIにおまかせ。</h2>
+              <p class="fd-p">顔型・頭の形・髪質を読み取り、似合うスタイルを3つ提案します。3つとも、あなたの写真で仕上がりを確認できます。{{ fFocusNote }}</p>
               <div class="tips">
                 <div class="tip"><b>01</b>顔の正面を、まっすぐに</div>
                 <div class="tip"><b>02</b>明るい場所で、影を少なく</div>
                 <div class="tip"><b>03</b>前髪を上げ、おでこを出す</div>
               </div>
               <div class="pick">
-                <input id="kh-file" class="sr-only" type="file" accept="image/*" onChange="{{ fFile }}">
-                <label for="kh-file" class="btn btn--washi">写真を選ぶ<span class="arr">↑</span></label>
-                <button type="button" class="btn btn--ghost" onClick="{{ fSample }}">サンプルで試す</button>
+                <button type="button" class="btn btn--washi" onClick="{{ fCamera }}" data-mag="1">カメラで撮影する<span class="arr">→</span></button>
+                <button type="button" class="btn btn--ghost" onClick="{{ fPickFile }}">アルバムから選ぶ</button>
               </div>
+              <button type="button" class="alt" onClick="{{ fSample }}">写真を使わずに、サンプルで試す<span aria-hidden="true">→</span></button>
               <sc-if value="{{ fErr }}"><div class="fd-err" role="alert">{{ fErr }}</div></sc-if>
-              <p class="privacy"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="6" width="9" height="6.5" rx="1.5"/><path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6"/></svg><span>写真は端末の中だけで処理され、サーバーへの送信・保存は行いません。</span></p>
+              <p class="privacy"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="6" width="9" height="6.5" rx="1.5"/><path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6"/></svg><span>写真は端末の中だけで処理され、サーバーへの送信・保存は行いません。カメラは撮影が終わるとすぐにオフになります。</span></p>
             </div>
           </div>
         </sc-if>
 
-        <!-- step 2: align -->
+        <!-- step 1b: live camera -->
+        <sc-if value="{{ fStep === 'camera' }}">
+          <div class="cam">
+            <div class="cam-col">
+              <div class="cam-stage {{ fCamCls }}">
+                <video data-cam-video="1" class="{{ fMirror ? 'mir' : '' }}"></video>
+              <svg viewBox="0 0 768 1024" preserveAspectRatio="none" aria-hidden="true">
+                <defs><mask id="ovm2"><rect width="768" height="1024" fill="#fff"/><ellipse cx="384" cy="476" rx="178" ry="238" fill="#000"/></mask></defs>
+                <rect width="768" height="1024" fill="rgba(14,17,16,.5)" mask="url(#ovm2)"/>
+                <ellipse class="cam-oval" cx="384" cy="476" rx="178" ry="238" fill="none" stroke="#E3A487" stroke-width="3" stroke-dasharray="10 10"/>
+                <path d="M226 452 H542" stroke="rgba(243,239,230,.5)" stroke-width="1.5" stroke-dasharray="4 6"/>
+              </svg>
+                <sc-if value="{{ fCam === 'live' }}">
+                  <span class="cam-light {{ fLightCls }}" role="status"><i aria-hidden="true"></i>{{ fLight }}</span>
+                  <span class="cam-guide" aria-hidden="true">目の高さを点線に　·　あごを枠の下に</span>
+                </sc-if>
+                <sc-if value="{{ fCanFlip && fCam === 'live' }}">
+                  <button type="button" class="cam-flip" onClick="{{ fFlip }}" aria-label="カメラを切り替える"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 7a6 6 0 0 1 11-2.2M15 11a6 6 0 0 1-11 2.2"/><path d="M14.4 1.8v3.2h-3.2M3.6 16.2V13h3.2"/></svg></button>
+                </sc-if>
+                <sc-if value="{{ fCam === 'starting' }}">
+                  <div class="cam-wait" role="status"><i aria-hidden="true"></i><span>カメラを起動しています…</span><small>ブラウザの確認が表示されたら「許可」を選んでください。</small></div>
+                </sc-if>
+                <sc-if value="{{ fCam === 'error' }}">
+                  <div class="cam-err" role="alert">
+                    <b>{{ fCamErrTitle }}</b>
+                    <p>{{ fCamErrText }}</p>
+                    <div class="cam-err-acts">
+                      <button type="button" class="btn btn--sm btn--washi" onClick="{{ fPickFile }}">アルバムから選ぶ</button>
+                      <button type="button" class="btn btn--sm btn--ghost" onClick="{{ fSample }}">サンプルで試す</button>
+                      <sc-if value="{{ fCamRetry }}"><button type="button" class="lnk" onClick="{{ fCamera }}">もう一度試す<span>→</span></button></sc-if>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ fCount > 0 }}"><span class="cam-count" aria-live="assertive">{{ fCount }}</span></sc-if>
+                <span class="cam-flash" data-cam-flash="1" aria-hidden="true"></span>
+              </div>
+              <div class="cam-ctrl">
+                <button type="button" class="cam-side" onClick="{{ fTimerToggle }}" aria-pressed="{{ fTimer }}" disabled="{{ fCam !== 'live' }}"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="9" cy="10" r="6.2"/><path d="M9 6.6V10l2.2 1.6M7 1.8h4"/></svg><span>3秒</span></button>
+                <button type="button" class="shutter" onClick="{{ fShoot }}" disabled="{{ fCam !== 'live' || fCount > 0 }}" aria-label="{{ fTimer ? '3秒後に撮影する' : '撮影する' }}"><span></span></button>
+                <button type="button" class="cam-side" onClick="{{ fPickFile }}"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="2" y="3" width="14" height="12" rx="1.6"/><path d="M2.5 12.5l4-4 3 3 2-2 4 4"/><circle cx="12.2" cy="6.6" r="1.2"/></svg><span>アルバム</span></button>
+              </div>
+            </div>
+            <div class="cam-aside">
+              <div class="eyebrow"><b>STEP 1</b><i></i><span>Camera</span></div>
+              <h2 id="fd-h" class="fd-h" tabindex="-1" data-fd-focus="1" style="margin-top:18px;">顔を枠に合わせて<br>撮影しましょう。</h2>
+              <ul class="checks cam-tips">
+                <li class="ok"><i>✓</i>目の高さを点線に</li>
+                <li class="ok"><i>✓</i>あご先を枠の下に</li>
+                <li class="ok"><i>✓</i>前髪を上げて、正面を向く</li>
+              </ul>
+              <p class="note" style="margin:18px 0 0;">両手がふさがるときは「3秒」タイマーが便利です。</p>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- step 2: check the shot ("submit") -->
+        <sc-if value="{{ fStep === 'confirm' }}">
+          <div class="align">
+            <div class="shot" data-shot="1">
+              <img loading="lazy" src="{{ fShotUrl }}" alt="撮影した写真">
+              <svg viewBox="0 0 768 1024" preserveAspectRatio="none" aria-hidden="true"><ellipse cx="384" cy="476" rx="178" ry="238" fill="none" stroke="rgba(227,164,135,.75)" stroke-width="2.5" stroke-dasharray="10 10"/></svg>
+            </div>
+            <div>
+              <div class="eyebrow"><b>STEP 2</b><i></i><span>Check</span></div>
+              <h2 id="fd-h" class="fd-h" tabindex="-1" data-fd-focus="1" style="margin-top:18px;">この写真で<br>診断しますか？</h2>
+              <p class="fd-p">顔が枠に収まり、明るく写っていれば大丈夫です。気になるときは撮り直してください。</p>
+              <div class="pick">
+                <button type="button" class="btn btn--washi" onClick="{{ fUseShot }}" data-mag="1">この写真で診断する<span class="arr">→</span></button>
+                <button type="button" class="btn btn--ghost" onClick="{{ fCamera }}">撮り直す</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- album path: align the photo in the oval -->
         <sc-if value="{{ fStep === 'align' }}">
           <div class="align">
             <div class="crop" data-crop="1" onPointerDown="{{ cropDown }}" onPointerMove="{{ cropMove }}" onPointerUp="{{ cropUp }}" onPointerCancel="{{ cropUp }}">
@@ -1132,8 +1333,60 @@ section[id]{scroll-margin-top:84px}
           </div>
         </sc-if>
 
-        <!-- step 4: results -->
-        <sc-if value="{{ fStep === 'result' && fCur }}">
+        <!-- step 4: three styles, each on the visitor's own photo -->
+        <sc-if value="{{ fStep === 'result' && fView === 'overview' && fCur }}">
+          <div class="ov">
+            <div class="ov-head">
+              <div>
+                <div class="eyebrow"><b>RESULT</b><i></i><span>Top {{ fList.length }} for you</span></div>
+                <h2 id="fd-h" class="fd-h" tabindex="-1" data-fd-focus="1" style="margin-top:14px;">あなたに似合う<em>{{ fList.length }}</em>スタイル</h2>
+              </div>
+              <div class="prof">
+                <sc-for list="{{ fChips }}" as="c"><span class="pc"><small>{{ c.k }}</small><b>{{ c.v }}</b></span></sc-for>
+                <button type="button" class="edit" onClick="{{ fEditToggle }}" aria-expanded="{{ fEdit }}">{{ fEdit ? '閉じる' : '修正する' }}</button>
+              </div>
+            </div>
+            <sc-if value="{{ fEdit }}">
+              <div class="editor">
+                <sc-for list="{{ fEditor }}" as="d">
+                  <div class="row" role="group" aria-label="{{ d.name }}"><span>{{ d.name }}</span>
+                    <sc-for list="{{ d.opts }}" as="o"><button type="button" aria-pressed="{{ o.active }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for>
+                  </div>
+                </sc-for>
+                <p class="note" style="margin:0;">AIの読み取りがずれていたら修正してください。提案がすぐに更新されます。</p>
+              </div>
+            </sc-if>
+            <div class="rcards {{ fQuiet ? 'quiet' : '' }}" data-rcards="1" style="--n:{{ fList.length }};" onScroll="{{ fCardsScroll }}">
+              <sc-for list="{{ fList }}" as="r">
+                <article class="rcard {{ r.active ? 'on' : '' }}" data-rcard="1" aria-label="{{ r.aria }}">
+                  <div class="rc-img" onPointerDown="{{ fHoldOn }}" onPointerUp="{{ fHoldOff }}" onPointerLeave="{{ fHoldOff }}" onPointerCancel="{{ fHoldOff }}">
+                    <img loading="lazy" src="{{ fBefore }}" alt="" draggable="false">
+                    <img loading="lazy" class="rc-after" data-rc-after="1" src="{{ r.img }}" alt="{{ r.name }}の合成イメージ" draggable="false">
+                    <span class="rc-line" data-rc-line="1" aria-hidden="true"></span>
+                    <span class="rc-rank {{ r.rankCls }}">{{ r.rank }}</span>
+                    <button type="button" class="rc-before" onClick="{{ fBeforeToggle }}" aria-pressed="false">BEFORE</button>
+                  </div>
+                  <div class="rc-body" onClick="{{ r.pick }}">
+                    <div class="rc-top">
+                      <div class="rc-nm"><b>{{ r.name }}</b><span>{{ r.en }}</span></div>
+                      <span class="rc-score" style="--s:{{ r.score }};--d:{{ r.delay }};"><small>%</small><em>MATCH</em></span>
+                    </div>
+                    <p class="rc-why">{{ r.lead }}</p>
+                    <div class="rc-acts">
+                      <button type="button" class="rc-more" onClick="{{ r.detail }}">詳しく見る</button>
+                      <button type="button" class="rc-book" onClick="{{ r.book }}">この髪型で予約<span aria-hidden="true">→</span></button>
+                    </div>
+                  </div>
+                </article>
+              </sc-for>
+            </div>
+            <div class="rdots" aria-hidden="true"><sc-for list="{{ fList }}" as="r"><i class="{{ r.active ? 'on' : '' }}"></i></sc-for></div>
+            <p class="ov-note"><span class="only-touch">写真を長押しするとビフォーに戻ります。</span><span class="only-fine">写真を押している間、ビフォーを表示します。</span>合成イメージ（デモ）— 本番ではAIがご本人の写真を編集します。</p>
+          </div>
+        </sc-if>
+
+        <!-- step 4b: one style in detail -->
+        <sc-if value="{{ fStep === 'result' && fView === 'detail' && fCur }}">
           <div class="res">
             <div class="res-view">
               <div class="ba" data-ba="1">
@@ -1143,10 +1396,11 @@ section[id]{scroll-margin-top:84px}
                 <span class="ba-tag l">BEFORE</span><span class="ba-tag r">AFTER</span>
                 <input class="ba-range" data-ba-range="1" type="range" min="0" max="100" step="1" onInput="{{ fSlide }}" aria-label="ビフォー・アフターを比較">
                 <span class="ba-ring" aria-hidden="true"></span>
-                <span class="ba-demo">合成イメージ（デモ）— 本番ではAI画像生成で、ご本人の髪で自然に仕上げます。</span>
+                <span class="ba-demo">合成イメージ（デモ）— 本番ではAIがご本人の写真を編集します。</span>
               </div>
             </div>
             <div class="res-info">
+              <button type="button" class="back" onClick="{{ fToOverview }}"><span aria-hidden="true">←</span>{{ fList.length }}つの提案に戻る</button>
               <div>
                 <div class="eyebrow"><b>RESULT</b><i></i><span>Your profile</span></div>
                 <h2 id="fd-h" class="sr-only" tabindex="-1" data-fd-focus="1">診断結果</h2>
@@ -1197,11 +1451,19 @@ section[id]{scroll-margin-top:84px}
         <sc-if value="{{ fStep === 'intro' }}">
           <span class="note only-d">所要時間は約30秒です。</span>
           <button type="button" class="btn btn--sm btn--ghost only-d" onClick="{{ closeFinder }}">あとで</button>
-          <button type="button" class="btn btn--sm btn--ghost only-m" onClick="{{ fSample }}">サンプルで試す</button>
-          <label for="kh-file" class="btn btn--sm btn--washi only-m grow">写真を選ぶ・撮る<span class="arr">↑</span></label>
+          <button type="button" class="btn btn--sm btn--ghost only-m" onClick="{{ fPickFile }}">アルバム</button>
+          <button type="button" class="btn btn--sm btn--washi only-m grow" onClick="{{ fCamera }}">カメラで撮影する<span class="arr">→</span></button>
+        </sc-if>
+        <sc-if value="{{ fStep === 'camera' }}">
+          <button type="button" class="btn btn--sm btn--ghost" onClick="{{ fBack }}">← 戻る</button>
+          <span class="note only-d">撮影した写真は、次の画面で確認できます。</span>
+        </sc-if>
+        <sc-if value="{{ fStep === 'confirm' }}">
+          <button type="button" class="btn btn--sm btn--ghost" onClick="{{ fCamera }}">撮り直す</button>
+          <button type="button" class="btn btn--sm btn--washi grow-m" onClick="{{ fUseShot }}">この写真で診断する<span class="arr">→</span></button>
         </sc-if>
         <sc-if value="{{ fStep === 'align' }}">
-          <button type="button" class="btn btn--sm btn--ghost" onClick="{{ fBack }}">← 写真を選び直す</button>
+          <button type="button" class="btn btn--sm btn--ghost" onClick="{{ fBack }}">← 選び直す</button>
           <button type="button" class="btn btn--sm btn--washi" onClick="{{ fAnalyze }}">この位置で診断する<span class="arr">→</span></button>
         </sc-if>
         <sc-if value="{{ fStep === 'scan' }}">
@@ -1210,9 +1472,9 @@ section[id]{scroll-margin-top:84px}
         <sc-if value="{{ fStep === 'result' }}">
           <div class="foot-sub">
             <button type="button" class="btn btn--sm btn--ghost" onClick="{{ fRetake }}">撮り直す</button>
-            <button type="button" class="btn btn--sm btn--ghost" onClick="{{ fSave }}">画像を保存</button>
+            <sc-if value="{{ fView === 'detail' }}"><button type="button" class="btn btn--sm btn--ghost" onClick="{{ fSave }}">画像を保存</button></sc-if>
           </div>
-          <button type="button" class="btn btn--sm btn--copper grow" onClick="{{ fBook }}">このスタイルで予約する<span class="arr">→</span></button>
+          <button type="button" class="btn btn--sm btn--copper grow" onClick="{{ fBook }}">{{ fBookLabel }}<span class="arr">→</span></button>
         </sc-if>
       </div>
     </div>
@@ -1231,6 +1493,9 @@ class Component extends DCLogic {
     // AI 似合わせ診断
     fOpen: false, fStep: 'intro', fErr: '', fPhoto: null, fTf: { x: 0, y: 0, s: 1 }, fScan: 0,
     fProfile: null, fTone: '', fFocus: null, fPick: 0, fEdit: false, fRev: 0,
+    // path: camera | album | sample · view: overview (3 cards) | detail (one style)
+    fPath: 'camera', fView: 'overview', fQuiet: false, fShotUrl: '',
+    fCam: 'idle', fCamErr: '', fFacing: 'user', fMirror: true, fCanFlip: false, fLight: '', fLightOk: true, fTimer: false, fCount: 0,
     wish: null, teaser: [], teaserBefore: ''
   };
   E = 'cubic-bezier(.2,.7,0,1)';
@@ -1272,6 +1537,7 @@ class Component extends DCLogic {
     }
     if (ps.fOpen !== st.fOpen) {
       document.documentElement.style.overflow = st.fOpen ? 'hidden' : '';
+      document.documentElement.classList.toggle('fd-open', st.fOpen);
       if (st.fOpen && !this.rm) {
         const sh = document.querySelector('.fd-sheet'), bg = document.querySelector('.fd-bg');
         bg && bg.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300 });
@@ -1282,13 +1548,22 @@ class Component extends DCLogic {
     if (st.fOpen && (ps.fStep !== st.fStep || !ps.fOpen)) {
       const h = document.querySelector('[data-fd-focus]'); h && h.focus({ preventScroll: true });
       const body = document.querySelector('.fd-body'); body && (body.scrollTop = 0);
-      if (!this.rm && ps.fOpen) { const b = document.querySelector('.fd-body > *'); b && b.animate([{ opacity: 0, transform: 'translateX(18px)' }, { opacity: 1, transform: 'none' }], { duration: 480, easing: this.E }); }
+      if (!this.rm && ps.fOpen) { const b = document.querySelector('.fd-body > :not(input)'); b && b.animate([{ opacity: 0, transform: 'translateX(18px)' }, { opacity: 1, transform: 'none' }], { duration: 480, easing: this.E }); }
     }
-    if (st.fOpen && st.fStep === 'result' && (ps.fStep !== 'result' || ps.fPick !== st.fPick || ps.fRev !== st.fRev || !ps.fOpen)) this.resetSlider();
+    if (st.fOpen && st.fStep === 'result' && st.fView === 'detail' && (ps.fStep !== 'result' || ps.fView !== 'detail' || ps.fPick !== st.fPick || ps.fRev !== st.fRev || !ps.fOpen)) this.resetSlider();
+    if (st.fOpen && st.fStep === 'result' && st.fView === 'overview' && (ps.fStep !== 'result' || ps.fView !== 'overview' || ps.fRev !== st.fRev || !ps.fOpen)) this.revealCards(ps.fView === 'detail' && ps.fStep === 'result');
+    // the camera lives only on its own step: leaving it, or closing the dialog, always switches it off
+    if ((ps.fStep === 'camera' && st.fStep !== 'camera') || (ps.fOpen && !st.fOpen)) this.stopCam();
+    if (st.fOpen && st.fStep === 'camera' && st.fCam === 'live') this.attachCam();
+    if (st.fStep === 'confirm' && ps.fStep !== 'confirm' && !this.rm) {
+      const sh = document.querySelector('[data-shot]');
+      sh && sh.animate([{ opacity: 0.6, transform: 'scale(1.04)' }, { opacity: 1, transform: 'none' }], { duration: 620, easing: this.E });
+    }
   }
   componentWillUnmount() {
     removeEventListener('scroll', this.onS); removeEventListener('resize', this.onR); removeEventListener('keydown', this.onK);
-    this.io && this.io.disconnect(); clearTimeout(this.tt); this.clearTimers();
+    this.io && this.io.disconnect(); clearTimeout(this.tt); this.clearTimers(); this.stopMeter(); this.clearCount();
+    window.KHF && KHF.camera.stop();
   }
 
   // ---------- motion ----------
@@ -1365,9 +1640,11 @@ class Component extends DCLogic {
   buildTeaser() {
     if (this.sample) return;
     this.sample = KHF.samplePortrait();
-    // ids follow the sample's fixed profile, so the teaser shows what the demo will actually recommend
-    const ids = ['skinfade', 'business7', 'mash'];
-    this.setState({ teaserBefore: this.sample.url, teaser: ids.map((id) => ({ id, name: KH.styles.find((s) => s.id === id).name, img: KHF.compose(this.sample.src, id, '#1f1a17').toDataURL('image/jpeg', 0.86) })) });
+    // the sample's fixed profile, so the teaser shows exactly what "try the sample" will recommend
+    const a = KHF.analyze(this.sample, this.sample.src);
+    const top = KH.advise(a.profile).slice(0, 3);
+    this.setState({ teaserBefore: this.sample.url, teaser: top.map((x, i) => ({ id: x.style.id, name: x.style.name, score: x.score, cls: 'c' + i,
+      rank: i === 0 ? 'BEST MATCH' : 'NO.0' + (i + 1), img: KHF.compose(this.sample.src, x.style.id, a.tone).toDataURL('image/jpeg', 0.86) })) });
   }
   clearTimers() { this.timers.forEach(clearTimeout); this.timers = []; }
   trap(e) {
@@ -1387,7 +1664,7 @@ class Component extends DCLogic {
       const list = KH.advise(st.fProfile, focus);
       this.ensure(list);
       const fi = focus ? list.findIndex((x) => x.style.id === focus) : 0;
-      this.setState({ fOpen: true, fStep: 'result', fFocus: focus, fPick: Math.max(0, fi), fEdit: false, fRev: st.fRev + 1 });
+      this.setState({ fOpen: true, fStep: 'result', fQuiet: false, fView: focus ? 'detail' : 'overview', fFocus: focus, fPick: Math.max(0, fi), fEdit: false, fRev: st.fRev + 1 });
       return;
     }
     this.setState({ fOpen: true, fStep: 'intro', fErr: '', fFocus: focus });
@@ -1395,7 +1672,7 @@ class Component extends DCLogic {
   closeFinder() {
     this.clearTimers();
     const st = this.state;
-    this.setState({ fOpen: false, fStep: st.fStep === 'scan' || st.fStep === 'align' ? 'intro' : st.fStep });
+    this.setState({ fOpen: false, fCount: 0, fStep: ['scan', 'align', 'camera', 'confirm'].indexOf(st.fStep) >= 0 ? 'intro' : st.fStep });
   }
   usePhoto(photo) {
     this.photo = photo;
@@ -1405,12 +1682,92 @@ class Component extends DCLogic {
     const file = e.target.files && e.target.files[0];
     e.target.value = '';
     if (!file) return;
-    KHF.load(file).then((p) => { this.usePhoto(p); this.setState({ fStep: 'align' }); }).catch((err) => {
+    KHF.load(file).then((p) => { this.usePhoto(p); this.setState({ fStep: 'align', fPath: 'album' }); }).catch((err) => {
       const m = { not_image: '画像ファイル（JPEG・PNG など）を選んでください。', too_large: 'ファイルが大きすぎます。12MB以下の写真を選んでください。' }[err.message] || 'この画像は読み込めませんでした。別の写真でお試しください。';
-      this.setState({ fErr: m });
+      this.setState({ fErr: m, fStep: 'intro' });
     });
   }
-  fSample() { this.buildTeaser(); this.usePhoto(this.sample); this.analyzeNow({ x: 0, y: 0, s: 1 }); }
+  fSample() { this.buildTeaser(); this.usePhoto(this.sample); this.setState({ fPath: 'sample' }); this.analyzeNow({ x: 0, y: 0, s: 1 }); }
+
+  // --- in-page camera: permission is asked only after the visitor taps "camera", never on open
+  fCamera() {
+    this.clearCount();
+    this.setState({ fStep: 'camera', fPath: 'camera', fCam: 'starting', fErr: '', fCamErr: '', fLight: '', fLightOk: true });
+    this.startCam(this.state.fFacing);
+  }
+  startCam(facing) {
+    const token = (this.camToken = (this.camToken || 0) + 1);
+    this.stopMeter();
+    if (!KHF.camera.supported()) { this.setState({ fCam: 'error', fCamErr: 'unsupported' }); return; }
+    KHF.camera.start(facing).then((stream) => {
+      // the visitor may have closed the dialog or picked a file while the permission prompt was open
+      if (token !== this.camToken || !this.state.fOpen || this.state.fStep !== 'camera') { KHF.camera.stop(); return; }
+      this.stream = stream;
+      this.setState({ fCam: 'live', fFacing: facing, fMirror: facing !== 'environment' });
+      KHF.camera.count().then((n) => { if (this.state.fStep === 'camera') this.setState({ fCanFlip: n > 1 }); });
+    }).catch((err) => {
+      if (token !== this.camToken) return;
+      this.setState({ fCam: 'error', fCamErr: KHF.camera.error(err) });
+    });
+  }
+  attachCam() {
+    const v = document.querySelector('[data-cam-video]');
+    if (!v || !this.stream || v.srcObject === this.stream) return;
+    // set imperatively: React would warn on the lowercase attributes, and iOS needs them before play()
+    v.muted = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('muted', '');
+    v.srcObject = this.stream;
+    const p = v.play(); p && p.catch(() => {});
+    this.startMeter(v);
+  }
+  startMeter(v) {
+    this.stopMeter();
+    this.meterT = setInterval(() => {
+      const b = KHF.brightness(v);
+      if (b == null) return;
+      const label = b < 0.2 ? '少し暗いです — 明るい場所へ' : b > 0.86 ? '明るすぎます — 逆光を避けて' : '明るさ OK';
+      if (label !== this.state.fLight) this.setState({ fLight: label, fLightOk: label === '明るさ OK' });
+    }, 350);
+  }
+  stopMeter() { clearInterval(this.meterT); this.meterT = null; }
+  stopCam() {
+    this.camToken = (this.camToken || 0) + 1;
+    this.stopMeter(); this.clearCount();
+    KHF.camera.stop();
+    this.stream = null;
+    const v = document.querySelector('[data-cam-video]');
+    if (v) v.srcObject = null;
+    if (this.state.fCam !== 'idle' && this.state.fStep !== 'camera') this.setState({ fCam: 'idle' });
+  }
+  clearCount() { clearInterval(this.countT); this.countT = null; }
+  fShoot() {
+    if (this.state.fCam !== 'live' || this.state.fCount) return;
+    if (!this.state.fTimer) return this.snap();
+    let n = 3;
+    this.setState({ fCount: n });
+    this.countT = setInterval(() => {
+      n -= 1;
+      if (n > 0) { this.setState({ fCount: n }); this.pulseCount(); return; }
+      this.clearCount(); this.setState({ fCount: 0 }); this.snap();
+    }, 1000);
+    setTimeout(() => this.pulseCount(), 0);
+  }
+  pulseCount() {
+    if (this.rm) return;
+    const c = document.querySelector('.cam-count');
+    c && c.animate([{ opacity: 0, transform: 'translate(-50%,-50%) scale(1.35)' }, { opacity: 1, transform: 'translate(-50%,-50%) scale(1)' }], { duration: 420, easing: this.E });
+  }
+  snap() {
+    const v = document.querySelector('[data-cam-video]');
+    if (!v || !v.videoWidth) return;
+    const photo = KHF.capture(v, this.state.fMirror);
+    v.pause();
+    this.usePhoto(photo);
+    const fl = document.querySelector('[data-cam-flash]');
+    if (fl && !this.rm) fl.animate([{ opacity: 0.85 }, { opacity: 0 }], { duration: 320, easing: 'ease-out' });
+    this.timers.push(setTimeout(() => this.setState({ fStep: 'confirm', fShotUrl: photo.url }), this.rm ? 0 : 200));
+  }
+  fUseShot() { if (this.photo) this.analyzeNow({ x: 0, y: 0, s: 1 }); }
+  fFlip() { this.startCam(this.state.fFacing === 'user' ? 'environment' : 'user'); }
   // --- framing: drag to move, pinch or slider to zoom. Live updates go straight to the DOM; state is set on release.
   applyTf(tf) {
     const img = document.querySelector('[data-crop-img]');
@@ -1470,7 +1827,7 @@ class Component extends DCLogic {
     const list = KH.advise(a.profile, this.state.fFocus);
     this.ensure(list);
     const fi = this.state.fFocus ? list.findIndex((x) => x.style.id === this.state.fFocus) : 0;
-    this.setState({ fStep: 'result', fProfile: a.profile, fTone: a.tone, fPick: Math.max(0, fi), fRev: this.state.fRev + 1 });
+    this.setState({ fStep: 'result', fQuiet: false, fView: this.state.fFocus ? 'detail' : 'overview', fProfile: a.profile, fTone: a.tone, fPick: Math.max(0, fi), fRev: this.state.fRev + 1 });
   }
   ensure(list) {
     const tone = (this.pending && this.pending.tone) || this.state.fTone;
@@ -1480,6 +1837,41 @@ class Component extends DCLogic {
       const c = KHF.compose(this.base, id, tone);
       this.cmp[id] = { canvas: c, url: c.toDataURL('image/jpeg', 0.9) };
     });
+  }
+  // The three cards arrive one by one; each photo starts as the visitor's "before" and is restyled by a
+  // copper line sweeping down it. Coming back from the detail view skips the show and returns to that card.
+  revealCards(back) {
+    document.querySelectorAll('.rc-img').forEach((b) => { b.classList.remove('hold', 'show-before'); const t = b.querySelector('.rc-before'); t && t.setAttribute('aria-pressed', 'false'); });
+    const rc = document.querySelector('[data-rcards]'), cards = rc ? rc.querySelectorAll('[data-rcard]') : [];
+    if (rc && rc.scrollWidth > rc.clientWidth + 4) {
+      const c = cards[this.state.fPick];
+      rc.scrollTo({ left: c ? c.offsetLeft - (rc.clientWidth - c.offsetWidth) / 2 : 0, behavior: 'auto' });
+    }
+    if (this.rm || back) return;
+    cards.forEach((el, i) => {
+      el.animate([{ opacity: 0, transform: 'translateY(28px) scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 760, delay: i * 120, easing: this.E, fill: 'backwards' });
+      const d = 560 + i * 280, ease = 'cubic-bezier(.65,0,.35,1)';
+      const a = el.querySelector('[data-rc-after]'), l = el.querySelector('[data-rc-line]');
+      a && a.animate([{ clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)' }], { duration: 1250, delay: d, easing: ease, fill: 'backwards' });
+      l && l.animate([{ top: '0%', opacity: 0 }, { top: '4%', opacity: 1, offset: 0.05 }, { top: '100%', opacity: 1, offset: 0.94 }, { top: '100%', opacity: 0 }], { duration: 1330, delay: d, easing: ease, fill: 'backwards' });
+    });
+  }
+  // Card carousel on phones: the card in view is the one the footer button books.
+  fCardsScroll(e) {
+    const el = e.currentTarget;
+    if (el.scrollWidth <= el.clientWidth + 4) return;
+    const cards = el.querySelectorAll('[data-rcard]');
+    let best = 0, dist = Infinity;
+    cards.forEach((c, i) => { const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - el.scrollLeft - el.clientWidth / 2); if (d < dist) { dist = d; best = i; } });
+    if (best !== this.state.fPick) this.setState({ fPick: best });
+  }
+  // Press-and-hold shows the "before"; the BEFORE button does the same for keyboards and screen readers.
+  fHoldOn(e) { if (e.pointerType === 'mouse' && e.button !== 0) return; if (e.target.closest && e.target.closest('.rc-before')) return; e.currentTarget.classList.add('hold'); }
+  fHoldOff(e) { e.currentTarget.classList.remove('hold'); }
+  fBeforeToggle(e) {
+    e.stopPropagation();
+    const box = e.currentTarget.closest('.rc-img'), on = box.classList.toggle('show-before');
+    e.currentTarget.setAttribute('aria-pressed', on ? 'true' : 'false');
   }
   resetSlider() {
     const ba = document.querySelector('[data-ba]'), r = document.querySelector('[data-ba-range]');
@@ -1491,7 +1883,7 @@ class Component extends DCLogic {
   fSetDim(dim, val) {
     const profile = Object.assign({}, this.state.fProfile, { [dim]: val });
     this.ensure(KH.advise(profile, this.state.fFocus));
-    this.setState({ fProfile: profile, fPick: 0, fRev: this.state.fRev + 1 });
+    this.setState({ fProfile: profile, fPick: 0, fQuiet: false, fRev: this.state.fRev + 1 });
   }
   currentResult() {
     const st = this.state;
@@ -1508,9 +1900,10 @@ class Component extends DCLogic {
     document.body.appendChild(a); a.click(); a.remove();
     this.say('合成イメージを保存しました（デモ）。');
   }
-  fBook() {
+  fBook(index) {
     const r = this.currentResult(); if (!r) return;
-    const s = r.cur.style, c = this.cmp[s.id];
+    const cur = typeof index === 'number' ? r.list[index] || r.cur : r.cur;
+    const s = cur.style, c = this.cmp[s.id];
     const th = document.createElement('canvas'); th.width = 180; th.height = 240;
     c && th.getContext('2d').drawImage(c.canvas, 0, 0, 180, 240);
     this.lastFocus = null;
@@ -1625,6 +2018,11 @@ class Component extends DCLogic {
       marquee: [], homeServices: [], filters: [], gallery: [], galleryEmpty: false, barbers: [], reviews: [],
       teaser: st.teaser, teaserBefore: st.teaserBefore,
       hasWish: !!st.wish, wishImg: st.wish ? st.wish.img : '', wishName: '', clearWish: () => this.setState({ wish: null }),
+      // every way into the diagnosis says what it will do now: start one, or reopen the last result
+      hasResult: !!st.fProfile,
+      aiHero: st.fProfile ? 'AI診断の結果を見る' : 'カメラで似合う髪型を診断',
+      aiCta: st.fProfile ? '診断結果を見る' : 'カメラで診断する',
+      wishAddLabel: st.fProfile ? '診断結果から希望スタイルを選ぶ' : '希望スタイルを添える（AI似合わせ診断）',
       openFinder: () => this.openFinder(), openSample: () => { this.openFinder(); if (!this.state.fProfile) this.fSample(); },
       closeFinder: () => this.closeFinder(),
       // finder
@@ -1633,9 +2031,18 @@ class Component extends DCLogic {
       fPhotoUrl: st.fPhoto ? st.fPhoto.url : '', fImgStyle: '', fZoom: st.fTf.s, fZoomSet: (e) => this.fZoomSet(e),
       cropDown: (e) => this.cropDown(e), cropMove: (e) => this.cropMove(e), cropUp: (e) => this.cropUp(e),
       fBack: () => this.setState({ fStep: 'intro' }), fAnalyze: () => this.analyzeNow(st.fTf), fSkip: () => this.finishScan(),
+      // camera
+      fCamera: () => this.fCamera(), fShoot: () => this.fShoot(), fUseShot: () => this.fUseShot(), fFlip: () => this.fFlip(),
+      fTimerToggle: () => this.setState({ fTimer: !st.fTimer }),
+      fCam: st.fCam, fCamCls: st.fCam, fMirror: st.fMirror, fCanFlip: st.fCanFlip, fTimer: st.fTimer, fCount: st.fCount,
+      fLight: st.fLight || '明るさを確認中…', fLightCls: st.fLightOk ? '' : 'warn', fShotUrl: st.fShotUrl,
+      fCamErrTitle: '', fCamErrText: '', fCamRetry: st.fCamErr !== 'unsupported',
+      // results
+      fView: st.fView, fQuiet: st.fQuiet, fToOverview: () => this.setState({ fView: 'overview', fQuiet: true }), fPickFile: () => { const i = document.getElementById('kh-file'); i && i.click(); }, fCardsScroll: (e) => this.fCardsScroll(e),
+      fHoldOn: (e) => this.fHoldOn(e), fHoldOff: (e) => this.fHoldOff(e), fBeforeToggle: (e) => this.fBeforeToggle(e), fBookLabel: 'このスタイルで予約する',
       fBefore: this.beforeUrl || '', fDots: [], fChecks: [], fChips: [], fEditor: [], fList: [], fCur: null,
       fEditToggle: () => this.setState({ fEdit: !st.fEdit }), fSlide: (e) => this.fSlide(e),
-      fRetake: () => this.setState({ fStep: 'intro', fErr: '' }), fSave: () => this.fSave(), fBook: () => this.fBook(),
+      fRetake: () => (st.fPath === 'camera' ? this.fCamera() : this.setState({ fStep: 'intro', fErr: '' })), fSave: () => this.fSave(), fBook: () => this.fBook(),
       heroLive: '空き状況を確認中…',
       bkServices: [], bkBarbers: [], bkDays: [], bkSlots: [], bkLegend: [], mine: [], hasMine: false,
       bkWindow: 14, bkMonthLabel: '', bkDateLabel: '—', bkSlotsOk: false, bkNotice: '', bkDateOk: false, bkSlotOk: false,
@@ -1673,8 +2080,17 @@ class Component extends DCLogic {
     if (st.wish) { const ws = K.styles.find((x) => x.id === st.wish.id); base.wishName = ws ? ws.name : ''; }
 
     // ---- finder view model ----
-    const order = ['intro', 'align', 'scan', 'result'], at = order.indexOf(st.fStep);
-    base.fSteps = ['写真', '位置合わせ', '解析', '結果'].map((label, i) => ({ i, label, done: i < at, cur: i === at ? 'step' : undefined, cls: i === at ? 'on' : i < at ? 'done' : '' }));
+    const at = { intro: 0, camera: 0, confirm: 1, align: 1, scan: 2, result: 3 }[st.fStep] || 0;
+    const labels = st.fPath === 'album' ? ['写真', '位置合わせ', '解析', '結果'] : ['撮影', '確認', '解析', '結果'];
+    base.fSteps = labels.map((label, i) => ({ i, label, done: i < at, cur: i === at ? 'step' : undefined, cls: i === at ? 'on' : i < at ? 'done' : '' }));
+    const CAM_ERR = {
+      denied: ['カメラの使用が許可されていません', 'アドレスバーやブラウザの設定で、このサイトのカメラを「許可」にすると撮影できます。アルバムの写真やサンプルでも診断できます。'],
+      nocam: ['カメラが見つかりません', 'この端末ではカメラを使えないようです。アルバムの写真か、サンプルでお試しください。'],
+      busy: ['カメラを起動できませんでした', '別のアプリがカメラを使っているかもしれません。そのアプリを閉じてから、もう一度お試しください。'],
+      unsupported: ['このブラウザではカメラを使えません', 'Instagram や LINE などのアプリ内ブラウザでは、カメラが使えないことがあります。Safari や Chrome で開くか、アルバムの写真でお試しください。']
+    };
+    const ce = CAM_ERR[st.fCamErr] || CAM_ERR.unsupported;
+    base.fCamErrTitle = ce[0]; base.fCamErrText = ce[1];
     if (st.fFocus) { const fs = K.styles.find((x) => x.id === st.fFocus); base.fFocusNote = fs ? '「' + fs.name + '」が似合うかどうかも、あわせてお伝えします。' : ''; }
     if (st.fPhoto) base.fImgStyle = Object.entries(this.imgStyleObj(st.fTf)).map(([k, v]) => k + ':' + v).join(';');
     base.fDots = [[0, -1], [0.71, -0.71], [1, 0], [0.71, 0.71], [0, 1], [-0.71, 0.71], [-1, 0], [-0.71, -0.71], [-0.44, -0.1], [0.44, -0.1], [0, 0.3], [-0.2, 0.58], [0.2, 0.58], [-0.45, -0.28], [0.45, -0.28], [0, -1.3]]
@@ -1686,12 +2102,18 @@ class Component extends DCLogic {
       const res = KH.advise(st.fProfile, st.fFocus), pick = Math.min(st.fPick, res.length - 1);
       base.fList = res.map((r, i) => {
         const s = r.style, sv = K.svc(s.service), bb = K.barber(s.barber), c = this.cmp[s.id];
+        const rank = r.focus && i >= 3 ? '気になる' : i === 0 ? 'BEST MATCH' : 'NO.0' + (i + 1);
         return { no: s.no, name: s.name, en: s.en, desc: s.desc, cycle: s.cycle, score: r.score, reasons: r.reasons,
           tag: r.focus && i >= 3 ? '気になる · ' + r.score + '%' : (r.focus ? '気になる · ' : '') + 'おすすめ ' + (i + 1),
+          rank, rankCls: i === 0 ? 'best' : '', lead: r.reasons[0] || s.desc, aria: rank + ' ' + s.name + ' 相性' + r.score + '%',
           svcLabel: sv.name + ' ' + K.yen(sv.price), barberName: bb.name, img: c ? c.url : this.beforeUrl,
-          active: i === pick, pick: () => { this.ensure([r]); this.setState({ fPick: i }); } };
+          delay: (760 + i * 280) + 'ms',
+          active: i === pick, pick: () => { this.ensure([r]); if (this.state.fPick !== i) this.setState({ fPick: i }); },
+          detail: (e) => { e && e.stopPropagation(); this.ensure([r]); this.setState({ fPick: i, fView: 'detail' }); },
+          book: (e) => { e && e.stopPropagation(); this.fBook(i); } };
       });
       base.fCur = base.fList[pick] || null;
+      if (base.fCur) base.fBookLabel = '「' + base.fCur.name + '」で予約する';
     }
 
     return Object.assign(base, this.bookingVals());
@@ -1703,6 +2125,7 @@ class Component extends DCLogic {
 <style>
 #sky-bar{position:fixed;left:50%;bottom:16px;transform:translate(-50%,0);z-index:200;display:flex;align-items:center;gap:6px 14px;max-width:calc(100% - 24px);width:max-content;padding:8px 8px 8px 16px;border-radius:999px;background:#fff;color:#0b1a3a;box-shadow:0 18px 40px rgba(11,26,58,.28),0 0 0 1px rgba(11,26,58,.08);font:500 13.5px/1.3 system-ui,-apple-system,'Segoe UI',sans-serif;transition:opacity .3s,transform .3s}
 #sky-bar.hide{opacity:0;transform:translate(-50%,24px);pointer-events:none}
+html.fd-open #sky-bar{display:none}
 #sky-bar .sky-txt{white-space:nowrap}
 #sky-bar b{font-weight:700}
 #sky-bar a.sky-home{color:#2459e0;font-weight:700}

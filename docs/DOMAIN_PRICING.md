@@ -204,10 +204,10 @@ tetap melihat harga katalog di atas (`templateOffered()`).
 | Modul | `booking` — booking online dasar | ¥16.000 |
 | ↳ tambahan | `booking_reschedule` · `booking_reminder` · `booking_pick_barber` | ¥4.000 · ¥3.000 · ¥5.000 |
 | Modul | `ai_style` — rekomendasi 3 gaya (teks) | ¥11.000 |
-| ↳ tambahan | `ai_style_photos` — foto contoh statis tiap gaya | ¥3.000 |
+| ↳ pilih satu (`group: ai_photo`) | `ai_style_photos` — foto contoh statis · `ai_style_tryon` — foto pelanggan diedit AI | ¥3.000 · ¥7.000 |
 | Modul | `dashboard` — panel pemilik (layar mengikuti modul aktif) | ¥8.000 |
 
-Semua kombinasi berada di ¥68.000–¥127.000 (diuji untuk setiap kombinasi).
+Semua kombinasi berada di ¥68.000–¥131.000 (diuji untuk setiap kombinasi).
 Brief pemilik "sekitar ¥70.000 sampai sekitar ¥120.000" sengaja tidak dipaskan
 ke angka bulat agar harganya tidak terlihat dibuat-buat.
 Aturan mesin (`templateQuote()`, dipanggil otomatis oleh `quote()` bila
@@ -232,9 +232,12 @@ naik per modul.
   hanya untuk mockup/email, tidak dihitung per halaman.
 - Bayar sekali. Domain + hosting dan pemakaian OpenAI (modul AI, akun milik
   barbershop dengan batas bulanan) dibayar klien langsung ke penyedia.
-- AI menampilkan **foto contoh statis**, bukan foto pelanggan yang diedit AI
-  (hasil tidak stabil di wajah asli, biaya per gambar jauh lebih besar). Edit
-  foto pelanggan tercantum di daftar "tidak termasuk".
+- Foto di tiap rekomendasi AI adalah **pilihan salah satu**: teks saja, foto
+  contoh statis (¥3.000), atau foto pelanggan diedit AI (¥7.000). Item dengan
+  `group` yang sama hanya dihitung satu (urutan katalog). ¥7.000 = ±2,25 jam
+  per klien (prompt untuk daftar gaya toko, uji 3–4 wajah, batas pengeluaran
+  OpenAI) × ¥3.150. Edit foto membuat 3 gambar per diagnosis di akun OpenAI
+  klien (`client_paid.openai_image`).
 - **Investasi awal:** ±22–38 jam per klien pada tarif JP hanya masuk akal
   karena engine booking, AI, dan dashboard dibangun sekali oleh Skyland di luar
   harga klien. Biaya itu baru kembali setelah template terjual ke beberapa

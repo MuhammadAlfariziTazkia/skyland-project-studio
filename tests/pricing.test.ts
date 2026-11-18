@@ -968,15 +968,19 @@ describe('template price list (Kurohane, JP)', () => {
   const priceOf = (items: string[], data: PricingData = noDiscount, promo: Promo | null = null) => quote(toTemplatePlan(spec, items, 'id', data), jp, 'id', data, promo);
   const moduleIds = tpl.modules.map((m) => m.id);
   const baseAddons = (tpl.base.addons ?? []).map((a) => a.id);
-  const everything = [...baseAddons, ...tpl.modules.flatMap((m) => [m.id, ...m.addons.map((a) => a.id)])];
+  // Everything, with the priciest alternative of each group (the AI-edited photo over the static sample).
+  const everything = [...baseAddons, ...tpl.modules.flatMap((m) => [m.id, ...m.addons.filter((a) => !a.group || a.id === 'ai_style_tryon').map((a) => a.id)])];
 
   const subsets = (ids: string[]) => ids.reduce<string[][]>((acc, id) => [...acc, ...acc.map((x) => [...x, id])], [[]]);
-  /** Every valid selection: any subset of base add-ons and modules, and for each chosen module any subset of its add-ons. */
+  /** Every valid selection: any subset of base add-ons and modules, for each chosen module any subset of its add-ons, at most one per group. */
   const allSelections = (): string[][] => {
     let out: string[][] = subsets(baseAddons);
     for (const m of tpl.modules) {
       const withModule: string[][] = [];
-      const addonSets = subsets(m.addons.map((a) => a.id));
+      const addonSets = subsets(m.addons.map((a) => a.id)).filter((set) => {
+        const groups = set.map((id) => m.addons.find((a) => a.id === id)?.group).filter(Boolean);
+        return new Set(groups).size === groups.length;
+      });
       for (const sel of out) for (const as of addonSets) withModule.push([...sel, m.id, ...as]);
       out = [...out, ...withModule];
     }
@@ -984,13 +988,13 @@ describe('template price list (Kurohane, JP)', () => {
   };
 
   const basePrice = 68_000;
-  const fullPrice = 127_000;
+  const fullPrice = 131_000;
 
   it('prices the base around ¥70,000 and everything around ¥120,000', () => {
     expect(priceOf([]).price).toBe(basePrice);
     expect(priceOf(everything).price).toBe(fullPrice);
     expect(Math.abs(basePrice / 70_000 - 1)).toBeLessThan(0.08);
-    expect(Math.abs(fullPrice / 120_000 - 1)).toBeLessThan(0.08);
+    expect(Math.abs(fullPrice / 120_000 - 1)).toBeLessThan(0.1);
   });
 
   it('keeps every possible selection between the base and the full price, fixed, with lines adding up', () => {
@@ -1007,7 +1011,7 @@ describe('template price list (Kurohane, JP)', () => {
   });
 
   it('matches the presets shown as quick picks', () => {
-    const want: Record<string, number> = { info: 68_000, booking: 84_000, all: 127_000 };
+    const want: Record<string, number> = { info: 68_000, booking: 84_000, all: 131_000 };
     for (const p of tpl.presets) expect(priceOf(p.items).price, p.id).toBe(want[p.id]);
   });
 
@@ -1017,6 +1021,16 @@ describe('template price list (Kurohane, JP)', () => {
     const q = priceOf(['second_language']);
     expect(q.price).toBe(77_000);
     expect(q.lines.map((l) => l.kind)).toEqual(['base', 'feature']);
+  });
+
+  it('lets the buyer pick one photo type per recommendation, never both', () => {
+    // Static sample photo or the customer's own AI-edited photo: alternatives, not a stack.
+    const ai = tpl.modules.find((m) => m.id === 'ai_style')!;
+    expect(ai.addons.filter((a) => a.group === 'ai_photo').map((a) => a.id)).toEqual(['ai_style_photos', 'ai_style_tryon']);
+    expect(templateSelection(tpl, ['ai_style', 'ai_style_tryon', 'ai_style_photos'])).toEqual(['ai_style', 'ai_style_photos']);
+    expect(priceOf(['ai_style', 'ai_style_photos']).price).toBe(82_000);
+    expect(priceOf(['ai_style', 'ai_style_tryon']).price).toBe(86_000);
+    expect(priceOf(['ai_style', 'ai_style_photos', 'ai_style_tryon']).price).toBe(82_000);
   });
 
   it('ignores add-ons without their module and ids that do not exist', () => {

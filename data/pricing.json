@@ -1490,10 +1490,19 @@
           "addons": [
             {
               "id": "ai_style_photos",
+              "group": "ai_photo",
               "price": {
                 "JP": 3000
               },
               "est_hours": 1
+            },
+            {
+              "id": "ai_style_tryon",
+              "group": "ai_photo",
+              "price": {
+                "JP": 7000
+              },
+              "est_hours": 2.25
             }
           ]
         },
@@ -1525,7 +1534,7 @@
             "booking_reminder",
             "booking_pick_barber",
             "ai_style",
-            "ai_style_photos",
+            "ai_style_tryon",
             "dashboard",
             "second_language"
           ]
@@ -1538,6 +1547,10 @@
         {
           "id": "openai_usage",
           "requires": "ai_style"
+        },
+        {
+          "id": "openai_image",
+          "requires": "ai_style_tryon"
         }
       ]
     }
