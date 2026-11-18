@@ -34,7 +34,7 @@
   var NO_WS = { svg: 1, g: 1, select: 1, table: 1, thead: 1, tbody: 1, tr: 1, 'sc-for': 1, 'sc-if': 1 };
   var BOOL = { required: 1, disabled: 1, checked: 1, multiple: 1, readonly: 1, autofocus: 1, hidden: 1, novalidate: 1 };
   var RENAME = { 'class': 'className', 'for': 'htmlFor', tabindex: 'tabIndex', readonly: 'readOnly', maxlength: 'maxLength', autocomplete: 'autoComplete', novalidate: 'noValidate', autofocus: 'autoFocus', colspan: 'colSpan', rowspan: 'rowSpan' };
-  var EVENTS = { onclick: 'onClick', onmouseenter: 'onMouseEnter', onmouseleave: 'onMouseLeave', onscroll: 'onScroll', onsubmit: 'onSubmit', onchange: 'onChange', oninput: 'onInput', onkeydown: 'onKeyDown', onkeyup: 'onKeyUp', onfocus: 'onFocus', onblur: 'onBlur', onpointerdown: 'onPointerDown', onpointerup: 'onPointerUp' };
+  var EVENTS = { onclick: 'onClick', onmouseenter: 'onMouseEnter', onmouseleave: 'onMouseLeave', onscroll: 'onScroll', onsubmit: 'onSubmit', onchange: 'onChange', oninput: 'onInput', onkeydown: 'onKeyDown', onkeyup: 'onKeyUp', onfocus: 'onFocus', onblur: 'onBlur', onpointerdown: 'onPointerDown', onpointerup: 'onPointerUp', onpointermove: 'onPointerMove', onpointercancel: 'onPointerCancel', onpointerleave: 'onPointerLeave' };
 
   var hoverCss = [], hoverN = 0;
   var fnCache = {};

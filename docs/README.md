@@ -41,6 +41,10 @@ Baca berurutan; jangan memakai angka dokumen 1 versi lama.
 | [PRICING_RESEARCH_04_STRATEGY.md](PRICING_RESEARCH_04_STRATEGY.md) | Rancangan scope/estimator, rate card, status policy, urutan implementasi |
 | [PRICING_RESEARCH_05_COMMERCIAL.md](PRICING_RESEARCH_05_COMMERCIAL.md) | Bauran pasar, termin pembayaran, kebijakan diskon, pekerjaan yang ditolak |
 
+## Riset pemasaran dan akuisisi klien
+
+- [Akuisisi klien dan target UMKM Jepang — 16 November 2026](CLIENT_ACQUISITION_JAPAN_2026-11-16.md): bukti kepemilikan website, prioritas sektor, kanal penjualan, brief mockup, dan eksperimen enam minggu. Rekomendasi riset, bukan keputusan produk atau perubahan harga.
+
 ## Memulai agent lain
 
 Codex dapat menemukan instruksi root melalui `AGENTS.md`. `CLAUDE.md` memakai

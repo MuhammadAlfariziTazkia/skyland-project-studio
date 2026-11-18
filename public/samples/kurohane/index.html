@@ -2,10 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>黒羽 KUROHANE BARBER STUDIO · Concept by Skyland</title>
 <meta name="robots" content="noindex">
-<meta name="description" content="架空の理容室のための予約サイト・コンセプト。Skyland Project Studio がデザインと実装を担当しました。">
+<meta name="description" content="架空の理容室のための予約サイト・コンセプト。AI似合わせ診断とリアルタイム空き状況。Skyland Project Studio がデザインと実装を担当しました。">
+<meta name="theme-color" content="#0E1110">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <script src="/samples/kurohane/support.js"></script>
 </head>
@@ -14,385 +15,916 @@
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="/samples/kurohane/kurohane-data.js"></script>
+<script src="/samples/kurohane/kurohane-finder.js"></script>
 <style>
-html{scroll-behavior:smooth}
-body{margin:0;background:#F4F1E9;color:#171B1A;font-family:'Zen Kaku Gothic New',sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+:root{
+  --ink:#0E1110;--ink-2:#171B1A;--ink-3:#232927;--washi:#F3EFE6;--paper:#FAF8F3;--stone:#DDD8CD;--stone-2:#E8E3D8;
+  --moss:#29483F;--moss-d:#1D342E;--copper:#B76E50;--copper-hi:#E3A487;--muted:#696D68;--muted-d:#A9AEA8;
+  --line:rgba(23,27,26,.14);--line-d:rgba(243,239,230,.14);
+  --serif:'Noto Serif JP',serif;--sans:'Zen Kaku Gothic New',sans-serif;--ui:'Inter Tight',sans-serif;--it:'Instrument Serif',serif;
+  --ease:cubic-bezier(.2,.7,0,1);--gut:clamp(20px,4vw,56px);--r:14px;
+}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--washi);color:var(--ink-2);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
 *{box-sizing:border-box}
-img{max-width:100%}
-a{color:#29483F;text-decoration:none}
-a:hover{color:#B76E50}
-button{font:inherit;color:inherit}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 button[disabled]{cursor:not-allowed}
-:focus-visible{outline:2px solid #B76E50;outline-offset:3px}
-section[id]{scroll-margin-top:92px}
-@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+:focus-visible{outline:2px solid var(--copper);outline-offset:3px}
+section[id]{scroll-margin-top:84px}
+::selection{background:var(--copper);color:var(--paper)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.wrap{max-width:1440px;margin:0 auto;padding-inline:var(--gut)}
+.pad{padding-block:clamp(88px,11vw,168px)}
+.dark{background:var(--ink);color:var(--washi)}
+.grain{position:relative;isolation:isolate}
+.grain::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.5;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+/* barber-pole stripe motif */
+.stripe{background-image:repeating-linear-gradient(135deg,currentColor 0 1px,transparent 1px 9px)}
+
+/* type */
+.eyebrow{display:flex;align-items:center;gap:14px;font-family:var(--ui);font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+.eyebrow b{color:var(--copper);font-weight:600}
+.eyebrow i{width:28px;height:1px;background:currentColor;opacity:.5}
+.dark .eyebrow,.moss .eyebrow{color:var(--stone)}
+.dark .eyebrow b,.moss .eyebrow b{color:var(--copper-hi)}
+.h2{margin:22px 0 0;font-family:var(--serif);font-weight:500;font-size:clamp(32px,3.8vw,56px);line-height:1.38;letter-spacing:.06em}
+.h2 em{font-family:var(--it);font-style:italic;font-weight:400;letter-spacing:0;color:var(--copper)}
+.dark .h2 em,.moss .h2 em{color:var(--copper-hi)}
+.lead{font-size:15px;line-height:2.05;letter-spacing:.04em;color:#3a3f3d;text-wrap:pretty}
+.dark .lead,.moss .lead{color:#CFCBC1}
+.note{font-size:12px;line-height:1.8;color:var(--muted)}
+.dark .note,.moss .note{color:var(--muted-d)}
+.sec-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px 40px}
+
+/* buttons */
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:space-between;gap:28px;min-height:58px;padding:0 24px 0 28px;border-radius:999px;font-size:14.5px;font-weight:700;letter-spacing:.14em;white-space:nowrap;transition:background-color .25s ease,color .25s ease,border-color .25s ease,transform .5s var(--ease);will-change:transform}
+.btn .arr{font-family:var(--ui);font-weight:400;font-size:17px;transition:transform .35s var(--ease)}
+.btn:hover .arr{transform:translateX(4px)}
+.btn--ink{background:var(--ink-2);color:var(--paper)}
+.btn--ink:hover{background:var(--moss)}
+.btn--washi{background:var(--washi);color:var(--ink-2)}
+.btn--washi:hover{background:var(--copper-hi)}
+.btn--ghost{border:1px solid currentColor;padding:0 22px;gap:12px;font-weight:500;letter-spacing:.08em}
+.dark .btn--ghost,.moss .btn--ghost{border-color:rgba(243,239,230,.35)}
+.dark .btn--ghost:hover,.moss .btn--ghost:hover{border-color:var(--washi);background:rgba(243,239,230,.06)}
+.btn--copper{background:var(--copper);color:var(--paper)}
+.btn--copper:hover{background:#A25E42}
+.btn--sm{min-height:46px;padding:0 18px;font-size:13px;gap:10px}
+.new{display:inline-flex;align-items:center;height:18px;padding:0 6px;border-radius:4px;background:var(--copper);color:var(--paper);font-family:var(--ui);font-size:9.5px;font-weight:700;letter-spacing:.12em}
+.lnk{display:inline-flex;gap:12px;align-items:center;padding:8px 0 6px;font-size:14px;font-weight:500;letter-spacing:.06em;border-bottom:1px solid currentColor}
+.lnk span{font-family:var(--ui);transition:transform .35s var(--ease)}
+.lnk:hover span{transform:translateX(4px)}
+
+/* header */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:60;color:var(--washi);transition:background-color .35s ease,color .35s ease,box-shadow .35s ease,backdrop-filter .35s ease}
+.hdr.is-scrolled{background:rgba(243,239,230,.78);-webkit-backdrop-filter:saturate(1.4) blur(16px);backdrop-filter:saturate(1.4) blur(16px);color:var(--ink-2);box-shadow:0 1px 0 var(--line)}
+.hdr-in{max-width:1440px;margin:0 auto;padding:0 var(--gut);height:84px;display:flex;align-items:center;justify-content:space-between;gap:24px;transition:height .35s ease}
+.hdr.is-scrolled .hdr-in{height:66px}
+.logo{display:flex;align-items:center;gap:12px;padding:6px 0}
+.logo-k{font-family:var(--serif);font-size:23px;font-weight:600;letter-spacing:.06em;line-height:1}
+.logo-bar{width:1px;height:22px;background:currentColor;opacity:.35}
+.logo-t{display:flex;flex-direction:column;gap:4px;font-family:var(--ui);line-height:1}
+.logo-t b{font-size:12px;font-weight:700;letter-spacing:.34em}
+.logo-t small{font-size:8.5px;font-weight:500;letter-spacing:.42em;opacity:.65}
+.nav{display:flex;align-items:center;gap:clamp(16px,2vw,30px)}
+.nav a.nl{position:relative;display:flex;align-items:center;gap:7px;padding:8px 0;font-size:13.5px;font-weight:500;letter-spacing:.06em;white-space:nowrap}
+.nav a.nl::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .4s var(--ease)}
+.nav a.nl:hover::after{transform:scaleX(1);transform-origin:left}
+.hdr-cta{display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;border-radius:999px;background:var(--copper);color:var(--paper);font-size:13.5px;font-weight:700;letter-spacing:.12em;white-space:nowrap;transition:background-color .25s ease}
+.hdr-cta:hover{background:#A25E42}
+.hdr-cta small{font-family:var(--ui);font-size:10.5px;letter-spacing:.2em;opacity:.75;font-weight:500}
+.burger{width:44px;height:44px;border:1px solid currentColor;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;opacity:.9}
+.burger span{width:16px;height:1px;background:currentColor}
+.progress{position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--copper);transform-origin:0 50%;transform:scaleX(0)}
+
+/* drawer */
+.drawer{position:fixed;inset:0;z-index:80;background:var(--ink);color:var(--washi);display:flex;flex-direction:column;padding:18px 22px calc(26px + env(safe-area-inset-bottom))}
+.drawer-top{display:flex;justify-content:space-between;align-items:center;height:48px}
+.drawer nav{display:flex;flex-direction:column;margin-top:24px;flex:1;overflow:auto}
+.drawer nav a{display:flex;align-items:baseline;gap:18px;padding:15px 0;border-bottom:1px solid var(--line-d)}
+.drawer nav a .no{font-family:var(--ui);font-size:11px;letter-spacing:.2em;color:var(--copper-hi)}
+.drawer nav a .jp{font-family:var(--serif);font-size:25px;font-weight:500;letter-spacing:.06em}
+.drawer nav a .en{margin-left:auto;font-family:var(--ui);font-size:10px;letter-spacing:.24em;color:var(--stone)}
+.xbtn{width:44px;height:44px;border-radius:50%;border:1px solid rgba(243,239,230,.3);font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center}
+
+/* hero */
+.hero{min-height:100svh;display:flex;flex-direction:column;overflow:hidden}
+.hero-grid{flex:1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(28px,4vw,72px);align-items:stretch;padding-top:clamp(112px,15vh,150px)}
+.hero-copy{position:relative;display:flex;flex-direction:column;justify-content:center;gap:40px;padding-bottom:24px;z-index:1}
+.hero-kanji{position:absolute;left:-.06em;bottom:-.22em;font-family:var(--serif);font-weight:600;font-size:clamp(180px,24vw,380px);line-height:1;letter-spacing:-.02em;color:transparent;-webkit-text-stroke:1px rgba(243,239,230,.09);pointer-events:none;user-select:none;z-index:-1}
+.hero h1{margin:0;font-family:var(--serif);font-weight:500;font-size:clamp(40px,6vw,96px);line-height:1.2;letter-spacing:.04em}
+.hero h1 .ln{display:block;overflow:hidden;padding-bottom:.05em}
+.hero h1 .ln > span{display:block}
+.hero h1 .ln.in{padding-left:clamp(0px,9vw,170px)}
+.hero h1 em{font-style:normal;color:var(--copper-hi)}
+.hero-sub{margin:26px 0 0;font-family:var(--it);font-style:italic;font-size:clamp(20px,1.8vw,26px);color:var(--stone)}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:12px}
+.ai-btn{display:inline-flex;align-items:center;gap:12px;min-height:58px;padding:0 22px 0 18px;border-radius:999px;border:1px solid rgba(243,239,230,.3);font-size:14px;font-weight:500;letter-spacing:.08em;transition:border-color .25s ease,background-color .25s ease;white-space:nowrap}
+.ai-btn:hover{border-color:var(--copper-hi);background:rgba(227,164,135,.08)}
+.ai-ico{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(227,164,135,.14);color:var(--copper-hi)}
+.live{display:inline-flex;align-items:center;gap:10px;font-size:12.5px;letter-spacing:.06em;color:var(--stone)}
+.live i{position:relative;width:8px;height:8px;border-radius:50%;background:#7FC29B}
+.live i::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid #7FC29B;animation:ping 2.4s var(--ease) infinite}
+@keyframes ping{0%{transform:scale(.5);opacity:1}100%{transform:scale(1.6);opacity:0}}
+.live b{font-family:var(--ui);font-weight:600;color:var(--washi)}
+.hero-media{position:relative;min-height:clamp(420px,72vh,820px)}
+.hero-img{position:absolute;inset:0;overflow:hidden;border-radius:var(--r) var(--r) 0 0;background:#1d2221}
+.hero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.85)}
+.hero-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,17,16,0) 55%,rgba(14,17,16,.55))}
+.hero-tag{position:absolute;left:clamp(-40px,-2.5vw,0px);bottom:28px;z-index:2;background:var(--washi);color:var(--ink-2);padding:16px 20px 15px;border-radius:10px;display:flex;flex-direction:column;gap:5px;min-width:206px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.hero-tag .k{font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.26em;color:var(--copper)}
+.hero-tag .n{font-family:var(--serif);font-size:17px;letter-spacing:.06em}
+.hero-tag .b{font-size:12px;color:var(--muted)}
+.hero-vert{position:absolute;top:24px;right:20px;z-index:2;writing-mode:vertical-rl;font-family:var(--serif);font-size:12.5px;letter-spacing:.6em;color:rgba(243,239,230,.8)}
+.hero-strip{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 24px;padding:18px 0 22px;border-top:1px solid var(--line-d);font-family:var(--ui);font-size:11px;font-weight:500;letter-spacing:.22em;color:var(--muted-d)}
+
+/* marquee */
+.mq{overflow:hidden;background:var(--copper);color:var(--paper);border-block:1px solid rgba(0,0,0,.08)}
+.mq-track{display:flex;width:max-content;animation:mq 46s linear infinite}
+.mq:hover .mq-track{animation-play-state:paused}
+.mq-item{display:flex;align-items:center;gap:22px;padding:18px 22px;white-space:nowrap}
+.mq-item .jp{font-family:var(--serif);font-size:19px;letter-spacing:.08em}
+.mq-item .en{font-family:var(--it);font-style:italic;font-size:19px;opacity:.85}
+.mq-item .dot{width:22px;height:8px;color:rgba(250,248,243,.55)}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* philosophy */
+.philo{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(40px,6vw,120px);align-items:start}
+.figure{position:relative;aspect-ratio:4/5;max-height:760px;overflow:hidden;border-radius:var(--r);background:var(--stone)}
+.figure img{width:100%;height:100%;object-fit:cover}
+.figcap{display:flex;justify-content:space-between;margin-top:14px;font-family:var(--ui);font-size:10.5px;letter-spacing:.22em;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin-top:52px;background:var(--line);border-block:1px solid var(--line)}
+.stat{background:var(--washi);padding:22px 0 20px;display:flex;flex-direction:column;gap:8px}
+.stat:not(:first-child){padding-left:20px}
+.stat b{font-family:var(--ui);font-weight:300;font-size:clamp(34px,3.4vw,48px);line-height:1;letter-spacing:-.02em}
+.stat span{font-size:12.5px;color:var(--muted);letter-spacing:.04em}
+
+/* menu */
+.menu{background:var(--paper)}
+.mlist{margin-top:56px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 clamp(32px,4vw,72px)}
+.mrow{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:6px 18px;align-items:baseline;padding:28px 6px 26px;border-top:1px solid var(--line);transition:background-color .3s ease,padding .4s var(--ease);border-radius:2px}
+.mrow:hover{background:var(--washi);padding-inline:16px}
+.mrow .no{font-family:var(--ui);font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--copper)}
+.mrow .nm{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
+.mrow .nm b{font-family:var(--serif);font-size:clamp(20px,1.8vw,24px);font-weight:500;letter-spacing:.06em}
+.mrow .nm small{font-family:var(--ui);font-size:10.5px;font-weight:600;letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
+.mrow .pr{font-family:var(--ui);font-size:clamp(20px,1.7vw,24px);font-weight:400}
+.mrow .ds{font-size:13px;line-height:1.85;color:var(--muted);text-wrap:pretty}
+.mrow .mn{font-family:var(--ui);font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--moss);white-space:nowrap}
+.mrow .go{margin-top:10px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:var(--moss);display:flex;gap:10px;align-items:center}
+.mprev{position:fixed;left:0;top:0;z-index:30;width:220px;aspect-ratio:3/4;border-radius:12px;overflow:hidden;pointer-events:none;opacity:0;transform:translate3d(-999px,-999px,0) scale(.85);transition:opacity .3s ease,scale .45s var(--ease);box-shadow:0 30px 60px rgba(0,0,0,.25)}
+.mprev.on{opacity:1}
+.mprev img{width:100%;height:100%;object-fit:cover}
+
+/* styles gallery */
+.styles{overflow:hidden}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{height:40px;padding:0 16px;border-radius:999px;border:1px solid rgba(243,239,230,.25);font-size:13px;letter-spacing:.06em;white-space:nowrap;transition:background-color .25s ease,color .25s ease,border-color .25s ease}
+.chip:hover{border-color:var(--washi)}
+.chip[aria-selected="true"]{background:var(--washi);color:var(--ink-2);border-color:var(--washi)}
+.track{margin-top:52px;display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:6px;padding-inline:var(--gut);margin-inline:calc(-1 * var(--gut));scroll-padding-inline:var(--gut);cursor:grab;overscroll-behavior-inline:contain}
+.track::-webkit-scrollbar{display:none}
+.track.drag{cursor:grabbing;scroll-snap-type:none}
+.track.drag *{pointer-events:none}
+.scard{position:relative;flex:none;width:clamp(258px,25vw,330px);scroll-snap-align:start;border-radius:var(--r);overflow:hidden;background:var(--ink-3);aspect-ratio:3/4.3;display:flex;flex-direction:column;justify-content:flex-end}
+.scard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1s var(--ease);user-select:none;-webkit-user-drag:none}
+.scard:hover img{transform:scale(1.06)}
+.scard-body{position:relative;padding:60px 18px 18px;background:linear-gradient(rgba(14,17,16,0),rgba(14,17,16,.72) 40%,rgba(14,17,16,.96));display:flex;flex-direction:column;gap:6px}
+.scard .k{font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.24em;color:var(--copper-hi)}
+.scard .n{font-family:var(--serif);font-size:19px;letter-spacing:.04em}
+.scard .e{font-family:var(--it);font-style:italic;font-size:15px;color:var(--stone)}
+.scard-acts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
+.scard-acts button{min-height:42px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;transition:background-color .25s ease,border-color .25s ease}
+.scard-acts .a1{background:var(--washi);color:var(--ink-2)}
+.scard-acts .a1:hover{background:var(--copper-hi)}
+.scard-acts .a2{border:1px solid rgba(243,239,230,.35);display:flex;align-items:center;justify-content:center;gap:6px}
+.scard-acts .a2:hover{border-color:var(--copper-hi);color:var(--copper-hi)}
+.track-nav{display:flex;gap:8px}
+.track-nav button{width:48px;height:48px;border-radius:50%;border:1px solid rgba(243,239,230,.3);font-family:var(--ui);font-size:17px;transition:background-color .25s ease}
+.track-nav button:hover{background:rgba(243,239,230,.08)}
+
+/* AI finder teaser */
+.finder{background:var(--moss-d);color:var(--washi);overflow:hidden}
+.moss{color:var(--washi)}
+.fgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(40px,6vw,110px);align-items:center}
+.fsteps{list-style:none;margin:40px 0 0;padding:0;display:grid;gap:0;border-top:1px solid var(--line-d)}
+.fsteps li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 14px;padding:18px 0;border-bottom:1px solid var(--line-d)}
+.fsteps .n{font-family:var(--ui);font-weight:300;font-size:26px;line-height:1;color:var(--copper-hi)}
+.fsteps b{font-size:15.5px;letter-spacing:.06em}
+.fsteps li > span:not(.n){grid-column:2;font-size:13px;line-height:1.8;color:#CFCBC1}
+.fsteps .n{grid-row:span 2}
+.privacy{display:flex;gap:10px;align-items:flex-start;margin-top:22px;font-size:12px;line-height:1.75;color:var(--muted-d)}
+.privacy svg{flex:none;margin-top:2px;color:var(--copper-hi)}
+.teaser{position:relative;max-width:520px;margin-inline:auto;width:100%}
+.tz-frame{position:relative;aspect-ratio:3/4;border-radius:22px;overflow:hidden;background:#E6E0D3;box-shadow:0 40px 90px rgba(0,0,0,.35)}
+.tz-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tz-after{position:absolute;inset:0;clip-path:inset(0 0 0 50%);animation:tzwipe 9.6s var(--ease) infinite}
+.tz-after img{opacity:0;animation:tzfade 9.6s linear infinite}
+.tz-after img:nth-child(2){animation-delay:3.2s}
+.tz-after img:nth-child(3){animation-delay:6.4s}
+.tz-line{position:absolute;top:0;bottom:0;left:50%;width:2px;margin-left:-1px;background:var(--washi);animation:tzline 9.6s var(--ease) infinite}
+.tz-line::after{content:"";position:absolute;top:50%;left:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:var(--washi) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><path d='M16 14l-5 6 5 6M24 14l5 6-5 6' fill='none' stroke='%23171B1A' stroke-width='1.6'/></svg>") center/40px no-repeat;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+@keyframes tzwipe{0%,100%{clip-path:inset(0 0 0 72%)}14%,30%{clip-path:inset(0 0 0 28%)}33.3%{clip-path:inset(0 0 0 72%)}47%,63%{clip-path:inset(0 0 0 28%)}66.6%{clip-path:inset(0 0 0 72%)}80%,96%{clip-path:inset(0 0 0 28%)}}
+@keyframes tzline{0%,100%{left:72%}14%,30%{left:28%}33.3%{left:72%}47%,63%{left:28%}66.6%{left:72%}80%,96%{left:28%}}
+@keyframes tzfade{0%{opacity:0}1%,32%{opacity:1}33.3%,100%{opacity:0}}
+.tz-tag{position:absolute;top:16px;font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.24em;padding:6px 10px;border-radius:999px;background:rgba(14,17,16,.6);color:var(--washi);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.float{position:absolute;z-index:2;background:var(--washi);color:var(--ink-2);border-radius:12px;padding:12px 14px;box-shadow:0 20px 50px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:4px;animation:bob 6s ease-in-out infinite}
+.float .k{font-family:var(--ui);font-size:9.5px;font-weight:600;letter-spacing:.22em;color:var(--copper)}
+.float .v{font-family:var(--serif);font-size:15px;letter-spacing:.04em}
+.float.f1{left:-28px;top:18%}
+.float.f2{right:-24px;top:48%;animation-delay:-2s}
+.float.f3{left:10%;bottom:-22px;animation-delay:-4s;flex-direction:row;align-items:center;gap:12px}
+.float.f3 b{font-family:var(--ui);font-weight:300;font-size:30px;line-height:1;color:var(--moss)}
+@keyframes bob{50%{transform:translateY(-8px)}}
+
+/* barbers */
+.bgrid{margin-top:56px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:40px clamp(16px,1.8vw,28px)}
+.bcard{display:flex;flex-direction:column}
+.plate{position:relative;aspect-ratio:3/4;overflow:hidden;border-radius:var(--r);color:rgba(243,239,230,.09)}
+.plate .pat{position:absolute;inset:-20%;background-image:repeating-linear-gradient(135deg,currentColor 0 1px,transparent 1px 11px);transition:transform 1.2s var(--ease)}
+.bcard:hover .plate .pat{transform:translate(-6%,4%)}
+.plate .glow{position:absolute;inset:0;background:radial-gradient(130% 85% at 50% 0,rgba(243,239,230,.18),transparent 72%)}
+.plate .kj{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);font-family:var(--serif);font-size:clamp(76px,9vw,124px);font-weight:500;line-height:1;color:rgba(243,239,230,.93)}
+.plate .ini{position:absolute;left:0;right:0;bottom:16px;text-align:center;font-family:var(--ui);font-size:9.5px;font-weight:600;letter-spacing:.32em;color:rgba(243,239,230,.62)}
+.plate .yrs{position:absolute;top:14px;right:14px;font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.2em;color:var(--ink-2);background:var(--washi);padding:6px 10px;border-radius:999px}
+.bname{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:20px}
+.bname h3{margin:0;font-family:var(--serif);font-size:23px;font-weight:500;letter-spacing:.1em}
+.bname span{font-family:var(--it);font-style:italic;font-size:15px;color:var(--muted);white-space:nowrap}
+.brole{margin-top:6px;font-size:12.5px;color:var(--moss);font-weight:500;letter-spacing:.06em}
+.bbio{margin:12px 0 0;font-size:13.5px;line-height:1.95;color:#3a3f3d;text-wrap:pretty}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.tags span{font-size:11.5px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;letter-spacing:.04em;white-space:nowrap}
+.bstyles{margin-top:12px;font-size:12px;color:var(--muted)}
+.bbtn{margin-top:20px;display:flex;justify-content:space-between;align-items:center;min-height:48px;padding:0 18px;border:1px solid var(--ink-2);border-radius:999px;font-size:13px;font-weight:700;letter-spacing:.1em;white-space:nowrap;transition:background-color .25s ease,color .25s ease}
+.bbtn:hover{background:var(--ink-2);color:var(--washi)}
+
+/* first visit */
+.first{background:var(--moss)}
+.fv{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:40px clamp(40px,6vw,120px)}
+.fv ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px}
+.fv li{padding:26px 0 30px;border-top:1px solid rgba(243,239,230,.22);display:flex;flex-direction:column;gap:12px}
+.fv li .n{font-family:var(--ui);font-size:44px;font-weight:300;line-height:1}
+.fv li b{font-size:17px;letter-spacing:.06em}
+.fv li span{font-size:13px;line-height:1.9;color:#D5D9D2}
+.hint{display:inline-flex;align-items:center;gap:12px;margin-top:28px;padding:12px 16px 12px 12px;border-radius:999px;background:rgba(243,239,230,.08);border:1px solid rgba(243,239,230,.16);font-size:13px;letter-spacing:.04em;transition:background-color .25s ease}
+.hint:hover{background:rgba(243,239,230,.14)}
+.tiles{margin-top:64px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:rgba(243,239,230,.16);border-radius:var(--r);overflow:hidden}
+.tile{background:var(--moss);padding:24px}
+.tile .k{font-family:var(--ui);font-size:10.5px;letter-spacing:.24em;color:var(--copper-hi);font-weight:600}
+.tile p{margin:10px 0 0;font-size:14px;line-height:1.85}
+
+/* reservation */
+.rsv{background:var(--paper)}
+.rgrid{margin-top:48px;display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}
+.panel{background:var(--washi);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.pstep{padding:clamp(22px,2.6vw,32px);border-bottom:1px solid var(--line)}
+.pstep:last-child{border-bottom:0}
+.phead{display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-family:var(--ui);font-size:10.5px;font-weight:600;letter-spacing:.24em;color:var(--muted)}
+.phead .ok{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--ink-2);color:var(--washi);font-size:11px;letter-spacing:0}
+.phead .ok.todo{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.phead .jp{font-family:var(--serif);letter-spacing:.1em;color:var(--ink-2);font-size:14px;font-weight:500}
+.phead .aside{margin-left:auto;letter-spacing:.06em;font-family:var(--serif);font-size:13px;color:var(--ink-2);font-weight:500}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.opt{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:60px;padding:11px 16px;border:1px solid rgba(23,27,26,.2);border-radius:12px;text-align:left;transition:background-color .2s ease,border-color .2s ease,color .2s ease}
+.opt:hover{border-color:var(--ink-2)}
+.opt[aria-pressed="true"]{background:var(--ink-2);color:var(--washi);border-color:var(--ink-2)}
+.opt .a{font-family:var(--serif);font-size:14.5px;font-weight:500;letter-spacing:.04em;white-space:nowrap}
+.opt .b{font-family:var(--ui);font-size:11px;letter-spacing:.06em;opacity:.7;white-space:nowrap}
+.opt.bar{flex-direction:row;align-items:center;gap:10px;min-height:54px}
+.opt .chipk{width:24px;height:24px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--washi);font-family:var(--serif);font-size:12px}
+.days{display:flex;gap:8px;margin-top:18px;overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:8px;overscroll-behavior-inline:contain;scrollbar-width:thin}
+.day{scroll-snap-align:start;flex:none;width:62px;min-height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(23,27,26,.18);border-radius:12px;transition:background-color .2s ease,border-color .2s ease}
+.day:not([disabled]):hover{border-color:var(--ink-2)}
+.day[aria-pressed="true"]{background:var(--ink-2);color:var(--washi);border-color:var(--ink-2)}
+.day[disabled]{opacity:.4}
+.day .w{font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.12em;opacity:.75}
+.day .d{font-family:var(--ui);font-size:20px;font-weight:400;line-height:1}
+.day .m{font-size:10.5px;line-height:1.2}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;font-size:11px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:8px;height:8px;border-radius:50%}
+.slots{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,84px),1fr));gap:8px}
+.slot{min-height:46px;border:1px solid rgba(23,27,26,.22);border-radius:10px;font-family:var(--ui);font-size:14px;letter-spacing:.04em;transition:background-color .2s ease,border-color .2s ease}
+.slot:not([disabled]):hover{border-color:var(--ink-2)}
+.slot[aria-pressed="true"]{background:var(--ink-2);color:var(--washi);border-color:var(--ink-2)}
+.slot[disabled]{background:rgba(23,27,26,.04);color:#9A9A94;border-color:rgba(23,27,26,.08);text-decoration:line-through}
+.sum{position:sticky;top:86px;background:var(--ink);color:var(--washi);border-radius:22px;padding:26px;display:flex;flex-direction:column;gap:22px}
+.sum-k{font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.24em;color:var(--muted-d)}
+.sum dl{margin:0;display:grid;gap:14px}
+.sum dl div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--line-d)}
+.sum dd{margin:0;font-family:var(--serif);font-size:15px;letter-spacing:.04em;text-align:right}
+.sum .tot dd{font-family:var(--ui);font-size:26px;font-weight:300}
+.wish{display:flex;align-items:center;gap:12px;padding:10px;border-radius:14px;background:rgba(243,239,230,.07);border:1px solid rgba(227,164,135,.35)}
+.wish img{width:46px;height:60px;object-fit:cover;border-radius:8px;flex:none}
+.wish .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.wish .t small{font-family:var(--ui);font-size:9.5px;letter-spacing:.22em;color:var(--copper-hi);font-weight:600}
+.wish .t b{font-family:var(--serif);font-weight:500;font-size:15px}
+.wish .t span{font-size:11.5px;color:var(--muted-d)}
+.wish button{width:34px;height:34px;border-radius:50%;border:1px solid rgba(243,239,230,.25);flex:none}
+.wish-add{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;border:1px dashed rgba(243,239,230,.25);font-size:12.5px;color:var(--stone);text-align:left;transition:border-color .25s ease}
+.wish-add:hover{border-color:var(--copper-hi)}
+.confirm{display:flex;align-items:center;justify-content:space-between;min-height:60px;padding:0 24px;border-radius:999px;font-size:15px;font-weight:700;letter-spacing:.14em;transition:background-color .25s ease}
+.confirm:not([disabled]){background:var(--washi);color:var(--ink-2)}
+.confirm:not([disabled]):hover{background:var(--copper-hi)}
+.confirm[disabled]{background:#2C3230;color:#7d827f}
+.mine{margin-top:40px}
+.mine ul{list-style:none;margin:16px 0 0;padding:0}
+.mine li{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:18px 0;border-top:1px solid var(--line)}
+.mine .ref{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.06em;color:var(--muted)}
+.mine .w{font-family:var(--serif);font-size:15.5px;letter-spacing:.04em;flex:1 1 220px;min-width:0}
+.mine .x{font-size:13px;color:#3a3f3d;flex:1 1 220px;min-width:0}
+.mine button{min-height:40px;padding:0 16px;border:1px solid rgba(23,27,26,.3);border-radius:999px;font-size:12.5px;letter-spacing:.08em}
+.mine button:hover{background:var(--ink-2);color:var(--washi)}
+
+/* voices */
+.vgrid{margin-top:56px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.vcard{margin:0;padding:32px 28px;border-radius:22px;background:var(--paper);border:1px solid var(--line);display:flex;flex-direction:column;gap:22px}
+.vcard .q{font-family:var(--it);font-size:64px;line-height:.5;height:24px;color:var(--copper)}
+.vcard blockquote{margin:0;font-family:var(--serif);font-size:clamp(16px,1.3vw,18.5px);line-height:2;letter-spacing:.04em;text-wrap:pretty;flex:1}
+.vcard figcaption{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);letter-spacing:.04em}
+.vcard figcaption i{width:20px;height:1px;background:currentColor}
+
+/* access */
+.access{background:var(--stone)}
+.agrid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:48px clamp(40px,5vw,96px)}
+.map{position:relative;aspect-ratio:5/4;max-height:620px;overflow:hidden;border-radius:22px;background:#E8E4DA}
+.adl{margin:36px 0 0;display:grid;grid-template-columns:96px minmax(0,1fr);font-size:14px;line-height:1.85}
+.adl dt,.adl dd{margin:0;padding:15px 0;border-top:1px solid rgba(23,27,26,.18)}
+.adl dt{color:#55594f;font-size:12.5px}
+.abtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+.abtns button{min-height:46px;padding:0 18px;border:1px solid var(--ink-2);border-radius:999px;font-size:13px;letter-spacing:.06em;display:flex;align-items:center;gap:10px;transition:background-color .25s ease,color .25s ease}
+.abtns button:hover{background:var(--ink-2);color:var(--washi)}
+
+/* closing CTA & footer */
+.cta h2{margin:28px 0 0;font-family:var(--serif);font-weight:500;font-size:clamp(56px,11vw,190px);line-height:1.05;letter-spacing:.02em}
+.cta h2 .in{padding-left:clamp(0px,10vw,200px);display:inline-block}
+.cta h2 em{font-style:normal;color:var(--copper-hi)}
+.foot{border-top:1px solid var(--line-d)}
+.foot-in{padding-block:56px clamp(96px,8vw,48px);display:flex;flex-wrap:wrap;gap:40px 64px;justify-content:space-between}
+.foot nav{display:grid;grid-template-columns:repeat(2,minmax(120px,auto));gap:4px 48px;font-size:13px}
+.foot nav a{display:block;padding:7px 0;color:var(--stone);transition:color .2s ease}
+.foot nav a:hover{color:var(--washi)}
+.foot-bt{flex-basis:100%;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-top:24px;border-top:1px solid rgba(243,239,230,.1);font-size:11px;color:var(--muted-d);letter-spacing:.04em}
+
+/* mobile bar & toast */
+.mbar{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(243,239,230,.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;gap:8px;transition:transform .35s var(--ease)}
+.mbar a,.mbar button{height:50px;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;font-size:13px;white-space:nowrap}
+.mbar .s{flex:0 0 auto;padding:0 15px;border:1px solid rgba(23,27,26,.25)}
+.mbar .p{flex:1;background:var(--moss);color:var(--paper);font-size:15px;font-weight:700;letter-spacing:.12em}
+.toast{position:fixed;left:50%;transform:translateX(-50%);z-index:120;background:var(--ink-2);color:var(--washi);padding:14px 20px;border-radius:14px;font-size:13px;line-height:1.7;max-width:min(92vw,480px);box-shadow:0 14px 40px rgba(0,0,0,.28)}
+
+/* ---------- finder dialog ---------- */
+.fd{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:clamp(0px,3vw,40px)}
+.fd-bg{position:absolute;inset:0;background:rgba(8,10,9,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.fd-sheet{position:relative;width:min(1180px,100%);height:min(860px,100%);background:var(--ink);color:var(--washi);border-radius:24px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.5)}
+.fd-head{display:flex;align-items:center;gap:16px;padding:16px 18px 16px 24px;border-bottom:1px solid var(--line-d);flex:none}
+.fd-title{display:flex;align-items:center;gap:10px;font-family:var(--ui);font-size:11px;font-weight:600;letter-spacing:.26em;color:var(--stone)}
+.fd-title b{color:var(--copper-hi);font-weight:600}
+.fd-steps{display:flex;gap:6px;margin-left:auto;margin-right:8px}
+.fd-steps span{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted-d);letter-spacing:.06em;white-space:nowrap}
+.fd-steps i{width:22px;height:22px;border-radius:50%;border:1px solid rgba(243,239,230,.25);display:flex;align-items:center;justify-content:center;font-style:normal;font-family:var(--ui);font-size:10.5px}
+.fd-steps .on{color:var(--washi)}
+.fd-steps .on i{background:var(--copper);border-color:var(--copper);color:var(--paper)}
+.fd-steps .done i{background:rgba(243,239,230,.12);border-color:transparent}
+.fd-steps em{width:18px;height:1px;background:rgba(243,239,230,.2);align-self:center}
+.fd-body{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}
+.fd-foot{flex:none;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px calc(14px + env(safe-area-inset-bottom)) 24px;border-top:1px solid var(--line-d);background:var(--ink)}
+.only-m{display:none!important}
+.foot-sub{display:flex;gap:8px}
+.res > *,.intro > *,.align > *,.scan > *{min-width:0}
+.fd-h{margin:0;font-family:var(--serif);font-weight:500;font-size:clamp(26px,2.6vw,38px);line-height:1.4;letter-spacing:.06em;outline:none}
+.fd-p{margin:14px 0 0;font-size:14px;line-height:1.95;color:#CFCBC1;max-width:34em}
+.fd-err{margin-top:16px;padding:12px 14px;border-radius:12px;background:rgba(183,110,80,.16);border:1px solid rgba(227,164,135,.4);font-size:13px;color:#F2C8B4}
+.intro{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(24px,4vw,64px);padding:clamp(22px,3.4vw,48px);align-items:center;min-height:100%}
+.intro-art{position:relative;aspect-ratio:3/4;max-height:600px;border-radius:20px;overflow:hidden;background:#E6E0D3}
+.intro-art img{width:100%;height:100%;object-fit:cover}
+.intro-art svg{position:absolute;inset:0;width:100%;height:100%}
+.tips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:26px}
+.tip{padding:14px;border-radius:14px;background:rgba(243,239,230,.05);border:1px solid var(--line-d);display:flex;flex-direction:column;gap:8px;font-size:12.5px;line-height:1.6;color:#CFCBC1}
+.tip b{font-family:var(--ui);font-size:10px;letter-spacing:.22em;color:var(--copper-hi)}
+.pick{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.pick label,.pick button{cursor:pointer}
+.pick input:focus-visible + label{outline:2px solid var(--copper-hi);outline-offset:3px}
+.align{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:clamp(20px,3vw,48px);padding:clamp(18px,3vw,40px);align-items:center;min-height:100%}
+.crop{position:relative;height:min(calc(100svh - 300px),620px);max-width:100%;aspect-ratio:3/4;margin-inline:auto;border-radius:20px;overflow:hidden;background:#222;touch-action:none;cursor:grab;user-select:none}
+.crop:active{cursor:grabbing}
+.crop img{position:absolute;max-width:none;transform:translate(-50%,-50%);pointer-events:none;-webkit-user-drag:none}
+.crop svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.zoom{display:flex;align-items:center;gap:12px;margin-top:22px;font-family:var(--ui);font-size:12px;color:var(--muted-d)}
+.zoom input{flex:1;accent-color:var(--copper)}
+.scan{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:clamp(20px,3vw,48px);padding:clamp(18px,3vw,40px);align-items:center;min-height:100%}
+.scan-img{position:relative;height:min(calc(100svh - 300px),620px);max-width:100%;aspect-ratio:3/4;margin-inline:auto;border-radius:20px;overflow:hidden}
+.scan-img img{width:100%;height:100%;object-fit:cover;filter:saturate(.6) contrast(1.05)}
+.scan-img::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,17,16,.1),rgba(14,17,16,.35));z-index:1}
+.scan-line{position:absolute;left:0;right:0;height:120px;z-index:2;background:linear-gradient(180deg,rgba(227,164,135,0),rgba(227,164,135,.28) 85%,var(--copper-hi) 86%,rgba(227,164,135,0) 88%);animation:scan 1.6s var(--ease) infinite alternate}
+@keyframes scan{from{top:-120px}to{top:calc(100% - 20px)}}
+.scan-img svg{position:absolute;inset:0;width:100%;height:100%;z-index:3}
+.sdot{position:absolute;z-index:4;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--copper-hi);box-shadow:0 0 0 4px rgba(227,164,135,.2);opacity:0;animation:dot .5s var(--ease) forwards}
+.scan-img svg path{fill:none;stroke:rgba(227,164,135,.6);stroke-width:1.4;stroke-dasharray:6 6}
+@keyframes dot{to{opacity:.95}}
+.checks{list-style:none;margin:26px 0 0;padding:0;display:grid;gap:0;border-top:1px solid var(--line-d)}
+.checks li{display:flex;align-items:center;gap:14px;padding:15px 0;border-bottom:1px solid var(--line-d);font-size:14px;color:var(--muted-d);transition:color .3s ease}
+.checks li i{width:22px;height:22px;border-radius:50%;border:1px solid rgba(243,239,230,.25);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:11px;flex:none}
+.checks li.now{color:var(--washi)}
+.checks li.now i{border-color:var(--copper-hi);border-top-color:transparent;animation:spin .8s linear infinite}
+.checks li.ok{color:var(--washi)}
+.checks li.ok i{background:var(--copper);border-color:var(--copper);color:var(--paper)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.res{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);min-height:100%}
+.res-view{position:relative;padding:clamp(16px,2.4vw,32px);display:flex;align-items:center;justify-content:center;background:radial-gradient(120% 80% at 50% 0,#1b201e,var(--ink))}
+.ba{position:relative;height:min(calc(100svh - 300px),620px);max-width:100%;aspect-ratio:3/4;border-radius:20px;overflow:hidden;background:#E6E0D3;--pos:28%;user-select:none}
+.ba img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+.ba-after{position:absolute;inset:0;clip-path:inset(0 0 0 var(--pos))}
+.ba-line{position:absolute;top:0;bottom:0;left:var(--pos);width:2px;margin-left:-1px;background:var(--washi);pointer-events:none}
+.ba-line::after{content:"";position:absolute;top:50%;left:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:var(--washi) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44'><path d='M18 16l-5 6 5 6M26 16l5 6-5 6' fill='none' stroke='%23171B1A' stroke-width='1.6'/></svg>") center/44px no-repeat;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.ba-range{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;-webkit-appearance:none;appearance:none}
+.ba-range:focus-visible + .ba-ring{outline:2px solid var(--copper-hi);outline-offset:-2px}
+.ba-ring{position:absolute;inset:0;border-radius:20px;pointer-events:none}
+.ba-tag{position:absolute;top:14px;font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.24em;padding:6px 10px;border-radius:999px;background:rgba(14,17,16,.6);color:var(--washi);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);pointer-events:none}
+.ba-tag.l{left:14px}.ba-tag.r{right:14px}
+.ba-demo{position:absolute;left:14px;right:14px;bottom:14px;font-size:10.5px;line-height:1.6;color:rgba(243,239,230,.88);background:rgba(14,17,16,.55);padding:8px 10px;border-radius:10px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);pointer-events:none}
+.res-info{padding:clamp(20px,2.8vw,40px);display:flex;flex-direction:column;gap:22px;border-left:1px solid var(--line-d)}
+.prof{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.prof .pc{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border-radius:12px;background:rgba(243,239,230,.06);border:1px solid var(--line-d)}
+.prof .pc small{font-family:var(--ui);font-size:9.5px;letter-spacing:.2em;color:var(--muted-d)}
+.prof .pc b{font-size:13.5px;font-weight:500;letter-spacing:.04em}
+.prof .edit{margin-left:auto;font-size:12.5px;color:var(--copper-hi);padding:8px 2px;border-bottom:1px solid currentColor}
+.editor{display:grid;gap:14px;padding:16px;border-radius:16px;background:rgba(243,239,230,.04);border:1px solid var(--line-d)}
+.editor .row{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.editor .row > span{width:64px;font-size:12px;color:var(--muted-d)}
+.editor button{height:34px;padding:0 12px;border-radius:999px;border:1px solid rgba(243,239,230,.2);font-size:12.5px;transition:background-color .2s ease}
+.editor button[aria-pressed="true"]{background:var(--washi);color:var(--ink-2);border-color:var(--washi)}
+.rtabs{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:8px}
+.rtab{display:flex;gap:10px;align-items:center;padding:8px;border-radius:14px;border:1px solid var(--line-d);text-align:left;transition:border-color .2s ease,background-color .2s ease;min-width:0}
+.rtab:hover{border-color:rgba(243,239,230,.4)}
+.rtab[aria-selected="true"]{border-color:var(--copper-hi);background:rgba(227,164,135,.08)}
+.rtab img{width:40px;height:52px;border-radius:8px;object-fit:cover;flex:none;background:#E6E0D3}
+.rtab .t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rtab small{font-family:var(--ui);font-size:9.5px;font-weight:600;letter-spacing:.18em;color:var(--copper-hi);white-space:nowrap}
+.rtab b{font-family:var(--serif);font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rcur-top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
+.rcur-top h3{margin:6px 0 0;font-family:var(--serif);font-weight:500;font-size:clamp(28px,2.6vw,38px);letter-spacing:.06em;line-height:1.3}
+.rcur-top .en{font-family:var(--it);font-style:italic;font-size:19px;color:var(--stone)}
+.match{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+.match b{font-family:var(--ui);font-weight:300;font-size:46px;line-height:.9;letter-spacing:-.02em;color:var(--copper-hi)}
+.match b small{font-size:20px}
+.match span{font-family:var(--ui);font-size:9.5px;letter-spacing:.24em;color:var(--muted-d)}
+.meter{height:3px;border-radius:2px;background:rgba(243,239,230,.1);overflow:hidden}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--copper),var(--copper-hi));transform-origin:0 50%;transition:transform .8s var(--ease)}
+.rdesc{margin:0;font-size:14px;line-height:1.95;color:#DAD6CC}
+.why{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.why li{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;font-size:13.5px;line-height:1.8;color:#E6E2D8}
+.why li::before{content:"";width:14px;height:14px;margin-top:5px;border-radius:50%;background:rgba(227,164,135,.2) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14'><path d='M4 7.2l2 2 4-4.4' fill='none' stroke='%23E3A487' stroke-width='1.5'/></svg>") center no-repeat}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line-d);border-radius:14px;overflow:hidden}
+.facts div{background:var(--ink);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.facts div:first-child{background:var(--ink)}
+.facts small{font-family:var(--ui);font-size:9.5px;letter-spacing:.2em;color:var(--muted-d)}
+.facts b{font-size:13px;font-weight:500;letter-spacing:.02em}
+
+@media (max-width:1099px){
+  .hero-grid{grid-template-columns:1fr;padding-top:104px}
+  .hero-media{min-height:62vh}
+  .hero-tag{left:16px}
+  .philo,.fgrid,.fv,.agrid{grid-template-columns:1fr}
+  .mlist{grid-template-columns:1fr}
+  .bgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rgrid{grid-template-columns:1fr}
+  .sum{position:relative;top:0}
+  .vgrid{grid-template-columns:1fr}
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .teaser{max-width:440px}
+  .fd{padding:0}
+  .fd-sheet{border-radius:0;height:100%;width:100%}
+  .fd-steps span .lb{display:none}
+  .intro,.align,.scan,.res{grid-template-columns:1fr}
+  .res-info{border-left:0;border-top:1px solid var(--line-d)}
+  .ba{height:auto;width:min(100%,calc(54svh * .75))}
+  .crop,.scan-img{height:auto;width:min(100%,calc(56svh * .75))}
+  .foot-in{padding-bottom:150px}
+}
+@media (max-width:640px){
+  .hero h1{font-size:clamp(36px,10.5vw,52px)}
+  .ai-btn,.btn{width:100%}
+  .stats{grid-template-columns:1fr 1fr 1fr}
+  .stat:not(:first-child){padding-left:12px}
+  .fv ol{grid-template-columns:1fr}
+  .bgrid{grid-template-columns:1fr}
+  .plate{aspect-ratio:16/11}
+  .plate .kj{font-size:96px}
+  .tiles{grid-template-columns:1fr}
+  .tips{grid-template-columns:1fr}
+  .tip{flex-direction:row;align-items:baseline}
+  .facts{grid-template-columns:1fr 1fr}
+  .rtabs{grid-template-columns:repeat(var(--n,3),minmax(150px,1fr));overflow-x:auto;margin-inline:-4px;padding:0 4px 4px}
+  .float.f1{left:-8px}.float.f2{right:-8px}
+  .fd-head{padding-left:16px}
+  .only-m{display:inline-flex!important}.only-d{display:none!important}
+  .pick{display:none}
+  .fd-foot{padding-left:16px;padding-right:16px}
+  .fd-foot .btn{width:auto}
+  .fd-foot .grow{flex:1;justify-content:center;gap:14px}
+  .fd-foot .foot-sub{width:100%}
+  .fd-foot .foot-sub .btn{flex:1;justify-content:center}
+  .intro-art{height:30svh;width:auto;aspect-ratio:3/4;margin-inline:auto}
+  .intro{padding-top:16px}
+  .fd-title .lb{display:none}
+  .adl{grid-template-columns:80px minmax(0,1fr)}
+}
+@media (prefers-reduced-motion: reduce){.sdot{opacity:1}*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.tz-after{clip-path:inset(0 0 0 50%)}.tz-after img:first-child{opacity:1}.tz-line{left:50%}}
 </style>
 </helmet>
 
-<div style="background:#F4F1E9;min-height:100vh;overflow-x:hidden;">
+<div id="kh">
 
-<header style="position:fixed;top:0;left:0;right:0;z-index:50;transition:background-color .28s ease, box-shadow .28s ease;background:{{ navBg }};box-shadow:{{ navLine }};">
-  <div style="max-width:1440px;margin:0 auto;padding:0 clamp(20px,4vw,56px);height:{{ navH }};transition:height .28s ease;display:flex;align-items:center;justify-content:space-between;gap:24px;">
-    <a href="#top" aria-label="KUROHANE BARBER STUDIO ホーム" style="display:flex;align-items:center;gap:12px;padding:7px 0;color:#171B1A;">
-      <span style="font-family:'Noto Serif JP',serif;font-size:22px;font-weight:600;letter-spacing:.06em;line-height:1;">黒羽</span>
-      <span style="width:1px;height:22px;background:#171B1A;opacity:.3;"></span>
-      <span style="display:flex;flex-direction:column;gap:3px;font-family:Manrope,sans-serif;line-height:1;">
-        <span style="font-size:12px;font-weight:700;letter-spacing:.34em;">KUROHANE</span>
-        <span style="font-size:8.5px;font-weight:500;letter-spacing:.42em;color:#696D68;">BARBER STUDIO</span>
-      </span>
+<header class="hdr {{ scrolled ? 'is-scrolled' : '' }}">
+  <div class="hdr-in">
+    <a href="#top" class="logo" aria-label="KUROHANE BARBER STUDIO ホーム">
+      <span class="logo-k">黒羽</span><span class="logo-bar"></span>
+      <span class="logo-t"><b>KUROHANE</b><small>BARBER STUDIO</small></span>
     </a>
-    <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}">
-      <nav aria-label="メインナビゲーション" style="display:flex;align-items:center;gap:clamp(18px,2.2vw,34px);">
-        <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="6">
-          <a href="{{ n.href }}" style="font-size:13.5px;font-weight:500;letter-spacing:.06em;color:#171B1A;padding:6px 0;white-space:nowrap;background-image:linear-gradient(#171B1A,#171B1A);background-repeat:no-repeat;background-position:0 100%;background-size:0 1px;transition:background-size .24s ease;" style-hover="background-size:100% 1px;color:#171B1A">{{ n.label }}</a>
+    <sc-if value="{{ desktop }}">
+      <nav class="nav" aria-label="メインナビゲーション">
+        <sc-for list="{{ navItems }}" as="n">
+          <a class="nl" href="{{ n.href }}" onClick="{{ n.go }}">{{ n.label }}<sc-if value="{{ n.badge }}"><span class="new">{{ n.badge }}</span></sc-if></a>
         </sc-for>
-        <a href="#reserve" style="display:flex;align-items:center;gap:12px;height:44px;padding:0 22px;background:#29483F;color:#FAF9F5;font-size:14px;font-weight:700;letter-spacing:.12em;white-space:nowrap;flex:none;transition:background-color .22s ease;" style-hover="background:#171B1A;color:#FAF9F5">予約する<span style="font-family:Manrope,sans-serif;font-size:11px;letter-spacing:.2em;opacity:.7;font-weight:500;">BOOK</span></a>
+        <a href="#reserve" class="hdr-cta" data-mag="1">予約する<small>BOOK</small></a>
       </nav>
     </sc-if>
-    <sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+    <sc-if value="{{ mobile }}">
       <div style="display:flex;align-items:center;gap:8px;">
-        <a href="#reserve" style="display:flex;align-items:center;height:44px;padding:0 16px;background:#29483F;color:#FAF9F5;font-size:13px;font-weight:700;letter-spacing:.1em;">予約</a>
-        <button onClick="{{ openMenu }}" aria-label="メニューを開く" aria-expanded="{{ menuOpen }}" style="width:44px;height:44px;border:1px solid rgba(23,27,26,.25);background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;">
-          <span style="width:18px;height:1px;background:#171B1A;"></span>
-          <span style="width:18px;height:1px;background:#171B1A;"></span>
-        </button>
+        <a href="#reserve" class="hdr-cta">予約</a>
+        <button type="button" class="burger" onClick="{{ openMenu }}" aria-label="メニューを開く" aria-expanded="{{ menuOpen }}"><span></span><span></span></button>
       </div>
     </sc-if>
   </div>
+  <span class="progress" data-progress="1" aria-hidden="true"></span>
 </header>
 
-<sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
-  <div data-drawer="1" role="dialog" aria-modal="true" aria-label="メニュー" style="position:fixed;inset:0;z-index:80;background:#171B1A;color:#F4F1E9;display:flex;flex-direction:column;padding:20px 24px 28px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;height:48px;">
-      <span style="font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.3em;color:#DDD8CD;">MENU</span>
-      <button onClick="{{ closeMenu }}" aria-label="メニューを閉じる" style="width:44px;height:44px;border:1px solid rgba(244,241,233,.3);background:transparent;color:#F4F1E9;font-size:20px;cursor:pointer;">×</button>
+<sc-if value="{{ menuOpen }}">
+  <div class="drawer" data-drawer="1" role="dialog" aria-modal="true" aria-label="メニュー">
+    <div class="drawer-top">
+      <span style="font-family:var(--ui);font-size:11px;font-weight:600;letter-spacing:.3em;color:var(--stone);">MENU</span>
+      <button type="button" class="xbtn" onClick="{{ closeMenu }}" aria-label="メニューを閉じる">×</button>
     </div>
-    <nav style="display:flex;flex-direction:column;margin-top:28px;flex:1;">
-      <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="6">
-        <a href="{{ n.href }}" onClick="{{ closeMenu }}" data-drawer-item="1" style="display:flex;align-items:baseline;gap:18px;padding:14px 0;border-bottom:1px solid rgba(244,241,233,.12);color:#F4F1E9;">
-          <span style="font-family:Manrope,sans-serif;font-size:11px;letter-spacing:.2em;color:#B76E50;">{{ n.no }}</span>
-          <span style="font-family:'Noto Serif JP',serif;font-size:26px;font-weight:500;letter-spacing:.06em;">{{ n.label }}</span>
-          <span style="margin-left:auto;font-family:Manrope,sans-serif;font-size:10px;letter-spacing:.24em;color:#DDD8CD;">{{ n.en }}</span>
-        </a>
+    <nav>
+      <sc-for list="{{ drawerItems }}" as="n">
+        <a href="{{ n.href }}" onClick="{{ n.go }}" data-drawer-item="1"><span class="no">{{ n.no }}</span><span class="jp">{{ n.label }}</span><sc-if value="{{ n.badge }}"><span class="new">{{ n.badge }}</span></sc-if><span class="en">{{ n.en }}</span></a>
       </sc-for>
     </nav>
-    <div style="display:flex;gap:10px;margin-top:24px;">
-      <a href="#reserve" onClick="{{ closeMenu }}" style="flex:1;height:54px;display:flex;align-items:center;justify-content:center;background:#F4F1E9;color:#171B1A;font-weight:700;letter-spacing:.14em;">予約する</a>
-    </div>
+    <a href="#reserve" onClick="{{ closeMenu }}" class="btn btn--washi" style="margin-top:22px;justify-content:center;">予約する</a>
   </div>
 </sc-if>
 
 <main>
-<section id="top" aria-labelledby="hero-title" style="position:relative;max-width:1440px;margin:0 auto;padding:clamp(104px,12vh,132px) clamp(20px,4vw,56px) 40px;">
-  <div style="display:flex;flex-wrap:wrap;gap:clamp(32px,4vw,64px);align-items:stretch;">
-    <div style="flex:1 1 460px;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:48px;padding-top:clamp(8px,4vh,48px);">
-      <div data-fadein="1" style="display:flex;gap:18px;align-items:center;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.3em;color:#696D68;">
-        <span>TOKYO</span><span style="width:40px;height:1px;background:#B76E50;"></span><span>BARBER STUDIO</span>
-      </div>
+<!-- ============ HERO ============ -->
+<section id="top" class="hero dark grain" aria-labelledby="hero-title">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="hero-kanji" aria-hidden="true">黒羽</span>
+      <div data-fadein="1" class="eyebrow"><span>TOKYO</span><i style="background:var(--copper);opacity:1;"></i><span>BARBER STUDIO</span></div>
       <div>
-        <h1 id="hero-title" style="margin:0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(34px,5.8vw,90px);line-height:1.22;letter-spacing:.04em;color:#171B1A;">
-          <span style="display:block;overflow:hidden;padding-bottom:.04em;"><span data-line="1" style="display:block;">髪を整える。</span></span>
-          <span style="display:block;overflow:hidden;padding-bottom:.04em;"><span data-line="1" style="display:block;">自分らしさを、</span></span>
-          <span style="display:block;overflow:hidden;padding-bottom:.04em;padding-left:clamp(0px,14vw,220px);"><span data-line="1" style="display:block;">磨く。</span></span>
+        <h1 id="hero-title">
+          <span class="ln"><span data-line="1">髪を整える。</span></span>
+          <span class="ln"><span data-line="1">自分らしさを、</span></span>
+          <span class="ln in"><span data-line="1"><em>磨く。</em></span></span>
         </h1>
-        <p data-fadein="1" style="margin:28px 0 0;font-family:Manrope,sans-serif;font-weight:300;font-size:clamp(17px,1.5vw,21px);letter-spacing:.02em;color:#29483F;font-style:italic;">Precision in every detail.</p>
+        <p class="hero-sub" data-fadein="1">Precision in every detail.</p>
       </div>
-      <div data-fadein="1" style="display:flex;flex-wrap:wrap;align-items:center;gap:20px 32px;">
-        <a href="#reserve" style="display:flex;align-items:center;justify-content:space-between;gap:40px;height:60px;padding:0 26px 0 30px;background:#171B1A;color:#FAF9F5;font-size:15px;font-weight:700;letter-spacing:.16em;transition:background-color .22s ease;" style-hover="background:#29483F;color:#FAF9F5">空き状況を見て予約する<span style="font-family:Manrope,sans-serif;font-size:18px;">→</span></a>
-        <a href="#menu" style="font-size:14px;font-weight:500;letter-spacing:.06em;color:#171B1A;padding:10px 0;border-bottom:1px solid #171B1A;">メニューと料金</a>
+      <div data-fadein="1" style="display:flex;flex-direction:column;gap:20px;">
+        <div class="hero-ctas">
+          <a href="#reserve" class="btn btn--washi" data-mag="1">空き状況を見て予約する<span class="arr">→</span></a>
+          <button type="button" class="ai-btn" onClick="{{ openFinder }}" data-finder-trigger="1">
+            <span class="ai-ico" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 5V2.5a1 1 0 0 1 1-1H5M11 1.5h2.5a1 1 0 0 1 1 1V5M14.5 11v2.5a1 1 0 0 1-1 1H11M5 14.5H2.5a1 1 0 0 1-1-1V11"/><path d="M4 8h8"/></svg></span>
+            似合う髪型をAI診断<span class="new">NEW</span>
+          </button>
+        </div>
+        <span class="live"><i></i>{{ heroLive }}</span>
       </div>
     </div>
-    <div style="flex:1 1 420px;min-width:0;position:relative;">
-      <div data-hero-img="1" style="position:relative;height:clamp(440px,76vh,820px);overflow:hidden;background:#1d2221;">
-        <img data-hero-inner="1" src="img/hero.webp" width="1200" height="1500" alt="バリカンで襟足の刈り上げを整えているところ" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;">
+    <div class="hero-media">
+      <div class="hero-img" data-hero-img="1">
+        <img data-hero-inner="1" src="img/hero.webp" width="1200" height="1500" alt="バリカンで襟足の刈り上げを整えているところ">
       </div>
-      <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}">
-        <div style="position:absolute;top:0;right:calc(-1 * clamp(20px,4vw,56px));height:clamp(440px,76vh,820px);display:flex;align-items:center;">
-          <span style="writing-mode:vertical-rl;font-family:'Noto Serif JP',serif;font-size:13px;letter-spacing:.6em;color:#696D68;padding:0 4px;">黒羽理容室　東京</span>
-        </div>
-      </sc-if>
-      <div data-fadein="1" style="position:absolute;left:clamp(-48px,-3vw,0px);bottom:-28px;background:#F4F1E9;padding:18px 22px 16px;display:flex;flex-direction:column;gap:6px;min-width:200px;">
-        <span style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.26em;color:#B76E50;">STYLE NO.01</span>
-        <span style="font-family:'Noto Serif JP',serif;font-size:17px;letter-spacing:.06em;">スキンフェード</span>
-        <span style="font-size:12px;color:#696D68;">担当 — 柊 海斗</span>
+      <sc-if value="{{ desktop }}"><span class="hero-vert" aria-hidden="true">黒羽理容室　東京</span></sc-if>
+      <div class="hero-tag" data-fadein="1">
+        <span class="k">STYLE NO.01</span><span class="n">スキンフェード</span><span class="b">担当 — 柊 海斗</span>
       </div>
     </div>
   </div>
-  <div data-fadein="1" style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;margin-top:72px;padding-top:18px;border-top:1px solid rgba(23,27,26,.14);font-family:Manrope,sans-serif;font-size:11px;font-weight:500;letter-spacing:.2em;color:#696D68;">
-    <span>OPEN 10:00 — 20:00</span><span>定休日 火曜・第3水曜</span><span>架空区 黒羽町 / DEMO</span><span>SCROLL ↓</span>
+  <div class="wrap">
+    <div class="hero-strip" data-fadein="1"><span>OPEN 10:00 — 20:00</span><span>定休日 火曜・第3水曜</span><span>架空区 黒羽町 / DEMO</span><span>SCROLL ↓</span></div>
   </div>
 </section>
 
-<section id="philosophy" aria-labelledby="philo-title" style="max-width:1440px;margin:0 auto;padding:clamp(96px,14vw,200px) clamp(20px,4vw,56px) clamp(80px,10vw,140px);">
-  <div style="display:flex;flex-wrap:wrap;gap:clamp(40px,6vw,120px);align-items:flex-start;">
-    <div style="flex:1.1 1 420px;min-width:0;">
-      <div data-reveal="mask" style="aspect-ratio:4/5;max-height:760px;width:100%;overflow:hidden;background:#DDD8CD;">
-        <img src="img/interior.webp" width="1200" height="1500" loading="lazy" alt="木と石でしつらえた店内。理容椅子が二脚並んでいる" style="width:100%;height:100%;object-fit:cover;display:block;">
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-top:14px;font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.2em;color:#696D68;"><span>THE STUDIO, 2F</span><span>FIG. 01</span></div>
+<div class="mq" aria-hidden="true">
+  <div class="mq-track">
+    <sc-for list="{{ marquee }}" as="m">
+      <span class="mq-item"><span class="jp">{{ m.name }}</span><span class="en">{{ m.en }}</span><span class="dot stripe"></span></span>
+    </sc-for>
+  </div>
+</div>
+
+<!-- ============ PHILOSOPHY ============ -->
+<section id="philosophy" class="pad" aria-labelledby="philo-title">
+  <div class="wrap philo">
+    <div>
+      <div class="figure" data-reveal="mask"><img src="img/interior.webp" width="1200" height="1500" loading="lazy" alt="木と石でしつらえた店内。理容椅子が二脚並んでいる"></div>
+      <div class="figcap"><span>THE STUDIO, 2F</span><span>FIG. 01</span></div>
     </div>
-    <div style="flex:1 1 380px;min-width:0;padding-top:clamp(0px,8vw,140px);">
-      <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#696D68;"><span style="color:#B76E50;">01</span><span style="width:28px;height:1px;background:#696D68;"></span><span>PHILOSOPHY</span></div>
-      <h2 id="philo-title" data-reveal="up" style="margin:28px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);line-height:1.5;letter-spacing:.06em;">静かな手仕事を、<br>毎日の身だしなみに。</h2>
-      <div data-reveal="up" style="margin-top:40px;max-width:30em;display:flex;flex-direction:column;gap:22px;font-size:15.5px;line-height:2.1;letter-spacing:.04em;color:#2c302f;text-wrap:pretty;">
+    <div style="padding-top:clamp(0px,7vw,120px);">
+      <div class="eyebrow" data-reveal="up"><b>01</b><i></i><span>Philosophy</span></div>
+      <h2 id="philo-title" class="h2" data-reveal="up">静かな手仕事を、<br>毎日の<em>身だしなみ</em>に。</h2>
+      <div data-reveal="up" class="lead" style="margin-top:36px;max-width:30em;display:flex;flex-direction:column;gap:20px;">
         <p style="margin:0;">黒羽は、二脚の椅子だけを置いた小さな理容室です。ひとりのお客様に、ひとりの理容師が、最初から最後まで向き合います。</p>
         <p style="margin:0;">流行を押しつけるのではなく、骨格や髪の流れ、毎朝かけられる時間を伺ってから、長さを決めます。次の来店まで心地よく過ごせること。それが、私たちの考える良い仕上がりです。</p>
       </div>
-      <div data-reveal="up" style="display:flex;flex-wrap:wrap;gap:28px 48px;margin-top:56px;padding-top:28px;border-top:1px solid rgba(23,27,26,.14);">
-        <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.22em;color:#B76E50;font-weight:600;">CONSULT</span><span style="font-size:14px;">施術前に必ずカウンセリング</span></div>
-        <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.22em;color:#B76E50;font-weight:600;">ONE TO ONE</span><span style="font-size:14px;">担当者がひとりで最後まで</span></div>
+      <div class="stats" data-reveal="up">
+        <div class="stat"><b>2</b><span>脚だけの理容椅子</span></div>
+        <div class="stat"><b>1:1</b><span>担当がひとりで最後まで</span></div>
+        <div class="stat"><b>5<small style="font-size:.45em;">min</small></b><span>施術前のカウンセリング</span></div>
       </div>
-      <a href="#barbers" data-reveal="up" style="display:inline-flex;gap:14px;margin-top:44px;font-size:14px;font-weight:500;letter-spacing:.06em;color:#171B1A;border-bottom:1px solid #171B1A;padding-top:8px;padding-bottom:6px;">担当する理容師を見る<span style="font-family:Manrope,sans-serif;">→</span></a>
+      <a href="#barbers" class="lnk" data-reveal="up" style="margin-top:40px;">担当する理容師を見る<span>→</span></a>
     </div>
   </div>
 </section>
 
-<section id="menu" aria-labelledby="menu-title" style="background:#FAF9F5;">
-  <div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);">
-    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px;">
+<!-- ============ MENU ============ -->
+<section id="menu" class="menu pad" aria-labelledby="menu-title">
+  <div class="wrap">
+    <div class="sec-head">
       <div>
-        <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#696D68;"><span style="color:#B76E50;">02</span><span style="width:28px;height:1px;background:#696D68;"></span><span>SIGNATURE MENU</span></div>
-        <h2 id="menu-title" data-reveal="up" style="margin:24px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);letter-spacing:.08em;">メニュー</h2>
+        <div class="eyebrow" data-reveal="up"><b>02</b><i></i><span>Signature menu</span></div>
+        <h2 id="menu-title" class="h2" data-reveal="up">メニュー</h2>
       </div>
-      <p data-reveal="up" style="margin:0;max-width:24em;font-size:13px;line-height:1.9;color:#696D68;">価格はすべて税込です。ディレクター指名は＋¥550。<br>※掲載の料金・所要時間はデモ用の架空の値です。</p>
+      <p class="note" data-reveal="up" style="margin:0;max-width:24em;">価格はすべて税込です。ディレクター指名は＋¥550。<br>※掲載の料金・所要時間はデモ用の架空の値です。</p>
     </div>
-    <div role="list" style="margin-top:56px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:0 clamp(32px,4vw,72px);">
-      <sc-for list="{{ homeServices }}" as="s" hint-placeholder-count="6">
-        <a role="listitem" href="{{ s.href }}" onClick="{{ s.go }}" data-reveal="up" aria-label="{{ s.aria }}" style="display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:6px 18px;align-items:baseline;padding:30px 4px 28px;border-top:1px solid rgba(23,27,26,.16);color:#171B1A;transition:background-color .24s ease, padding .24s ease;" style-hover="background:#F4F1E9;padding-left:16px;padding-right:16px;color:#171B1A">
-          <span style="font-family:Manrope,sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;color:#B76E50;">{{ s.no }}</span>
-          <span style="display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;">
-            <span style="font-family:'Noto Serif JP',serif;font-size:clamp(20px,1.8vw,24px);font-weight:500;letter-spacing:.06em;">{{ s.name }}</span>
-            <span style="font-family:Manrope,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.22em;color:#696D68;text-transform:uppercase;">{{ s.en }}</span>
-          </span>
-          <span style="font-family:Manrope,sans-serif;font-size:clamp(20px,1.7vw,24px);font-weight:500;letter-spacing:.01em;">{{ s.priceLabel }}</span>
-          <span></span>
-          <span style="font-size:13px;line-height:1.85;color:#696D68;max-width:30em;text-wrap:pretty;">{{ s.desc }}</span>
-          <span style="font-family:Manrope,sans-serif;font-size:12px;font-weight:600;letter-spacing:.08em;color:#29483F;white-space:nowrap;">{{ s.minLabel }}</span>
-          <span></span>
-          <span style="margin-top:10px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:#29483F;display:flex;gap:10px;align-items:center;">このメニューで予約<span style="font-family:Manrope,sans-serif;">→</span></span>
+    <div class="mlist" role="list" onPointerMove="{{ menuMove }}" onMouseLeave="{{ menuLeave }}">
+      <sc-for list="{{ homeServices }}" as="s">
+        <a role="listitem" class="mrow" href="#reserve" onClick="{{ s.go }}" onMouseEnter="{{ s.enter }}" data-reveal="up" aria-label="{{ s.aria }}">
+          <span class="no">{{ s.no }}</span>
+          <span class="nm"><b>{{ s.name }}</b><small>{{ s.en }}</small></span>
+          <span class="pr">{{ s.priceLabel }}</span>
+          <span></span><span class="ds">{{ s.desc }}</span><span class="mn">{{ s.minLabel }}</span>
+          <span></span><span class="go">このメニューで予約<span style="font-family:var(--ui);">→</span></span>
         </a>
       </sc-for>
     </div>
-    <div style="margin-top:40px;display:flex;justify-content:flex-end;">
-      <a href="#reserve" style="font-size:14px;font-weight:500;letter-spacing:.06em;color:#171B1A;border-bottom:1px solid #171B1A;padding-top:8px;padding-bottom:6px;display:flex;gap:14px;">空き状況を見て予約する<span style="font-family:Manrope,sans-serif;">→</span></a>
-    </div>
+    <div style="margin-top:40px;display:flex;justify-content:flex-end;"><a href="#reserve" class="lnk">空き状況を見て予約する<span>→</span></a></div>
   </div>
+  <div class="mprev" data-mprev="1" aria-hidden="true"><img src="img/style-02.webp" alt=""></div>
 </section>
 
-<section id="styles" aria-labelledby="style-title" style="background:#171B1A;color:#F4F1E9;">
-  <div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);">
-    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:32px;">
+<!-- ============ STYLES ============ -->
+<section id="styles" class="styles dark grain pad" aria-labelledby="style-title">
+  <div class="wrap">
+    <div class="sec-head">
       <div>
-        <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#DDD8CD;"><span style="color:#B76E50;">03</span><span style="width:28px;height:1px;background:#DDD8CD;opacity:.5;"></span><span>STYLE ARCHIVE</span></div>
-        <h2 id="style-title" data-reveal="up" style="margin:24px 0 0;font-family:Manrope,sans-serif;font-weight:300;font-size:clamp(56px,9vw,150px);line-height:.9;letter-spacing:-.03em;">Styles<span style="font-family:'Noto Serif JP',serif;font-size:.24em;letter-spacing:.1em;font-weight:400;margin-left:.5em;vertical-align:.9em;">スタイル</span></h2>
+        <div class="eyebrow" data-reveal="up"><b>03</b><i></i><span>Style book</span></div>
+        <h2 id="style-title" data-reveal="up" style="margin:20px 0 0;font-family:var(--ui);font-weight:300;font-size:clamp(60px,9vw,150px);line-height:.9;letter-spacing:-.035em;">Styles<span style="font-family:var(--serif);font-size:.22em;letter-spacing:.12em;font-weight:400;margin-left:.6em;vertical-align:.9em;">スタイル</span></h2>
       </div>
-      <div role="tablist" aria-label="スタイルの絞り込み" style="display:flex;flex-wrap:wrap;gap:4px;">
-        <sc-for list="{{ filters }}" as="f" hint-placeholder-count="6">
-          <button role="tab" aria-selected="{{ f.active }}" onClick="{{ f.pick }}" style="height:40px;padding:0 16px;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }};font-size:13px;letter-spacing:.06em;cursor:pointer;white-space:nowrap;transition:all .2s ease;">{{ f.name }}</button>
-        </sc-for>
-      </div>
-    </div>
-    <div data-gallery="1" style="margin-top:56px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));align-items:start;gap:14px;">
-      <sc-for list="{{ gallery }}" as="g" hint-placeholder-count="8">
-        <a href="{{ g.href }}" onClick="{{ g.go }}" data-gitem="1" aria-label="{{ g.aria }}" style="position:relative;overflow:hidden;display:block;aspect-ratio:3/4;margin-top:{{ g.offset }};color:#F4F1E9;background:#222827;">
-          <img src="{{ g.img }}" width="750" height="1000" loading="lazy" alt="{{ g.alt }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .9s cubic-bezier(.2,.7,0,1);" style-hover="transform:scale(1.06)">
-          <span style="position:absolute;left:0;right:0;bottom:0;padding:44px 18px 18px;display:flex;flex-direction:column;gap:5px;background:linear-gradient(rgba(23,27,26,0),rgba(23,27,26,.62) 45%,rgba(23,27,26,.94));pointer-events:none;">
-            <span style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.24em;color:#E3A487;">NO.{{ g.no }} — {{ g.catName }}</span>
-            <span style="font-family:'Noto Serif JP',serif;font-size:17px;letter-spacing:.04em;line-height:1.35;">{{ g.name }}</span>
-            <span style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.1em;color:#DDD8CD;">{{ g.en }}</span>
-          </span>
-        </a>
-      </sc-for>
-    </div>
-    <sc-if value="{{ galleryEmpty }}" hint-placeholder-val="{{ false }}">
-      <p style="margin:40px 0 0;color:#DDD8CD;">該当するスタイルはまだありません。</p>
-    </sc-if>
-    <div style="margin-top:48px;display:flex;justify-content:flex-end;">
-      <a href="#reserve" style="font-size:14px;font-weight:500;letter-spacing:.06em;color:#F4F1E9;border-bottom:1px solid #F4F1E9;padding-top:8px;padding-bottom:6px;display:flex;gap:14px;">スタイルを選んで予約する<span style="font-family:Manrope,sans-serif;">→</span></a>
-    </div>
-  </div>
-</section>
-
-<section id="barbers" aria-labelledby="barber-title" style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);">
-  <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px;">
-    <div>
-      <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#696D68;"><span style="color:#B76E50;">04</span><span style="width:28px;height:1px;background:#696D68;"></span><span>BARBERS</span></div>
-      <h2 id="barber-title" data-reveal="up" style="margin:24px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);letter-spacing:.08em;">理容師</h2>
-    </div>
-    <a href="#reserve" onClick="{{ pickAnyBarber }}" style="font-size:14px;font-weight:500;letter-spacing:.06em;color:#171B1A;border-bottom:1px solid #171B1A;padding-top:8px;padding-bottom:6px;display:flex;gap:14px;">指名なしで予約する<span style="font-family:Manrope,sans-serif;">→</span></a>
-  </div>
-  <div style="margin-top:56px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:48px clamp(20px,2vw,32px);">
-    <sc-for list="{{ barbers }}" as="b" hint-placeholder-count="4">
-      <article data-reveal="up" style="display:flex;flex-direction:column;margin-top:{{ b.offset }};">
-        <div role="img" aria-label="{{ b.plateAlt }}" style="position:relative;aspect-ratio:3/4;overflow:hidden;background:{{ b.color }};">
-          <div aria-hidden="true" style="position:absolute;inset:0;background-image:repeating-linear-gradient(135deg,rgba(244,241,233,.08) 0 1px,transparent 1px 11px),radial-gradient(130% 85% at 50% 0,rgba(244,241,233,.16),transparent 72%);transition:transform .9s cubic-bezier(.2,.7,0,1);" style-hover="transform:scale(1.05)"></div>
-          <span aria-hidden="true" style="position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);font-family:'Noto Serif JP',serif;font-size:clamp(76px,11vw,124px);font-weight:500;line-height:1;letter-spacing:.02em;color:rgba(244,241,233,.92);pointer-events:none;">{{ b.kanji }}</span>
-          <span aria-hidden="true" style="position:absolute;left:0;right:0;bottom:16px;text-align:center;font-family:Manrope,sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.32em;color:rgba(244,241,233,.62);pointer-events:none;">{{ b.initials }}</span>
-          <span style="position:absolute;top:14px;right:14px;font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.2em;color:#171B1A;background:#F4F1E9;padding:6px 10px;pointer-events:none;">{{ b.yearsLabel }}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:22px;">
-          <h3 style="margin:0;font-family:'Noto Serif JP',serif;font-size:24px;font-weight:500;letter-spacing:.1em;">{{ b.name }}</h3>
-          <span style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.18em;color:#696D68;text-transform:uppercase;white-space:nowrap;">{{ b.en }}</span>
-        </div>
-        <span style="margin-top:6px;font-size:12.5px;color:#29483F;font-weight:500;letter-spacing:.06em;">{{ b.role }}{{ b.feeLabel }}</span>
-        <p style="margin:14px 0 0;font-size:13.5px;line-height:1.95;color:#2c302f;text-wrap:pretty;">{{ b.bio }}</p>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;">
-          <sc-for list="{{ b.spec }}" as="t" hint-placeholder-count="3">
-            <span style="font-size:11.5px;padding:5px 10px;border:1px solid rgba(23,27,26,.2);letter-spacing:.04em;white-space:nowrap;">{{ t }}</span>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:16px;">
+        <div class="chips" role="tablist" aria-label="スタイルの絞り込み">
+          <sc-for list="{{ filters }}" as="f">
+            <button type="button" role="tab" class="chip" aria-selected="{{ f.active }}" onClick="{{ f.pick }}">{{ f.name }}</button>
           </sc-for>
         </div>
-        <span style="margin-top:14px;font-size:12px;color:#696D68;">得意なスタイル — {{ b.styleNames }}</span>
-        <a href="{{ b.href }}" onClick="{{ b.go }}" style="margin-top:22px;display:flex;justify-content:space-between;align-items:center;height:48px;padding:0 18px;border:1px solid #171B1A;color:#171B1A;font-size:13px;font-weight:700;letter-spacing:.1em;white-space:nowrap;transition:background-color .22s ease, color .22s ease;" style-hover="background:#171B1A;color:#FAF9F5"><span>{{ b.short }}を指名して予約</span><span style="font-family:Manrope,sans-serif;">→</span></a>
-      </article>
-    </sc-for>
+        <sc-if value="{{ desktop }}">
+          <div class="track-nav"><button type="button" onClick="{{ trackPrev }}" aria-label="前のスタイル">←</button><button type="button" onClick="{{ trackNext }}" aria-label="次のスタイル">→</button></div>
+        </sc-if>
+      </div>
+    </div>
+    <div class="track" data-track="1">
+      <sc-for list="{{ gallery }}" as="g">
+        <article class="scard" data-gitem="1">
+          <img src="{{ g.img }}" width="750" height="1000" loading="lazy" alt="{{ g.alt }}" draggable="false">
+          <div class="scard-body">
+            <span class="k">NO.{{ g.no }} — {{ g.catName }}</span>
+            <span class="n">{{ g.name }}</span>
+            <span class="e">{{ g.en }}</span>
+            <div class="scard-acts">
+              <button type="button" class="a1" onClick="{{ g.go }}" aria-label="{{ g.aria }}">この髪型で予約</button>
+              <button type="button" class="a2" onClick="{{ g.check }}" aria-label="{{ g.checkAria }}" data-finder-trigger="1">似合うか診断</button>
+            </div>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+    <sc-if value="{{ galleryEmpty }}"><p style="margin:40px 0 0;color:var(--stone);">該当するスタイルはまだありません。</p></sc-if>
+    <div style="margin-top:44px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;">
+      <p class="note" style="margin:0;">どれが似合うか迷ったら、写真1枚で診断できます。</p>
+      <a href="#finder" class="lnk" style="color:var(--copper-hi);">AI似合わせ診断について<span>↓</span></a>
+    </div>
   </div>
 </section>
 
-<section id="first" aria-labelledby="first-title" style="background:#29483F;color:#F4F1E9;">
-  <div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);">
-    <div style="display:flex;flex-wrap:wrap;gap:40px clamp(40px,6vw,120px);">
-      <div style="flex:1 1 320px;min-width:0;">
-        <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#DDD8CD;"><span style="color:#E3A487;">05</span><span style="width:28px;height:1px;background:#DDD8CD;opacity:.5;"></span><span>FIRST VISIT</span></div>
-        <h2 id="first-title" data-reveal="up" style="margin:24px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);line-height:1.5;letter-spacing:.08em;">初めての<br>お客様へ</h2>
-        <p data-reveal="up" style="margin:28px 0 0;max-width:24em;font-size:15px;line-height:2;color:#E6E2D8;">ご予約は4つのステップで完了します。会員登録は必要ありません。わからないことは、当日お気軽にお尋ねください。</p>
-        <a href="#reserve" data-reveal="up" style="display:inline-flex;gap:14px;margin-top:36px;font-size:14px;font-weight:500;letter-spacing:.06em;color:#F4F1E9;border-bottom:1px solid #F4F1E9;padding-top:8px;padding-bottom:6px;">空き状況を確認する<span style="font-family:Manrope,sans-serif;">→</span></a>
+<!-- ============ AI FINDER (teaser; the flow opens in a dialog) ============ -->
+<section id="finder" class="finder moss grain pad" aria-labelledby="finder-title">
+  <div class="wrap fgrid">
+    <div>
+      <div class="eyebrow" data-reveal="up"><b>04</b><i></i><span>AI Style Match</span><span class="new">NEW</span></div>
+      <h2 id="finder-title" class="h2" data-reveal="up">写真1枚で、<br><em>似合う髪型</em>がわかる。</h2>
+      <p class="lead" data-reveal="up" style="margin:24px 0 0;max-width:30em;">顔型・頭の形・髪質をAIが読み取り、あなたに似合うスタイルを3つ提案。仕上がりは、あなた自身の写真で確かめられます。気に入ったら、そのまま担当とメニューを選んで予約へ。</p>
+      <ol class="fsteps" data-reveal="up">
+        <li><span class="n">1</span><b>正面の写真を用意</b><span>その場で撮影、またはアルバムから。サンプルでも試せます。</span></li>
+        <li><span class="n">2</span><b>AIが骨格と髪質を解析</b><span>輪郭・頭の形・くせ・毛量から、相性の良いスタイルを選びます。</span></li>
+        <li><span class="n">3</span><b>仕上がりを見て、予約</b><span>合成イメージで比べて、気に入ったスタイルで予約できます。</span></li>
+      </ol>
+      <div data-reveal="up" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:32px;">
+        <button type="button" class="btn btn--washi" onClick="{{ openFinder }}" data-finder-trigger="1" data-mag="1">診断をはじめる<span class="arr">→</span></button>
+        <button type="button" class="btn btn--ghost" onClick="{{ openSample }}" data-finder-trigger="1">サンプルで試す</button>
       </div>
-      <ol style="flex:1.6 1 520px;min-width:0;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:0;">
-        <li data-reveal="up" style="padding:28px 24px 32px 0;border-top:1px solid rgba(244,241,233,.25);display:flex;flex-direction:column;gap:14px;"><span style="font-family:Manrope,sans-serif;font-size:44px;font-weight:300;line-height:1;">01</span><span style="font-size:17px;font-weight:700;letter-spacing:.06em;">メニューを選ぶ</span><span style="font-size:13px;line-height:1.9;color:#DDD8CD;">迷ったら「カット」で。当日に相談して変更できます。</span></li>
-        <li data-reveal="up" data-delay="80" style="padding:28px 24px 32px 0;border-top:1px solid rgba(244,241,233,.25);display:flex;flex-direction:column;gap:14px;"><span style="font-family:Manrope,sans-serif;font-size:44px;font-weight:300;line-height:1;">02</span><span style="font-size:17px;font-weight:700;letter-spacing:.06em;">理容師を選ぶ</span><span style="font-size:13px;line-height:1.9;color:#DDD8CD;">指名なしなら、空いている理容師がご案内します。</span></li>
-        <li data-reveal="up" data-delay="160" style="padding:28px 24px 32px 0;border-top:1px solid rgba(244,241,233,.25);display:flex;flex-direction:column;gap:14px;"><span style="font-family:Manrope,sans-serif;font-size:44px;font-weight:300;line-height:1;">03</span><span style="font-size:17px;font-weight:700;letter-spacing:.06em;">日時を選ぶ</span><span style="font-size:13px;line-height:1.9;color:#DDD8CD;">カレンダーで空き時間を確認し、ご希望の枠を選択。</span></li>
-        <li data-reveal="up" data-delay="240" style="padding:28px 24px 32px 0;border-top:1px solid rgba(244,241,233,.25);display:flex;flex-direction:column;gap:14px;"><span style="font-family:Manrope,sans-serif;font-size:44px;font-weight:300;line-height:1;">04</span><span style="font-size:17px;font-weight:700;letter-spacing:.06em;">ご来店</span><span style="font-size:13px;line-height:1.9;color:#DDD8CD;">ご予約の5分前を目安にお越しください。</span></li>
+      <p class="privacy" data-reveal="up"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="6" width="9" height="6.5" rx="1.5"/><path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6"/></svg><span>写真は端末の中だけで処理され、送信・保存されません。※ デモ版では解析と合成イメージを簡易的に再現しています。</span></p>
+    </div>
+    <div class="teaser" data-reveal="up">
+      <div class="tz-frame">
+        <img loading="lazy" src="{{ teaserBefore }}" alt="サンプル（イラスト）の診断前の姿">
+        <div class="tz-after">
+          <sc-for list="{{ teaser }}" as="t"><img loading="lazy" src="{{ t.img }}" alt="{{ t.name }}の合成イメージ"></sc-for>
+        </div>
+        <span class="tz-line" aria-hidden="true"></span>
+        <span class="tz-tag" style="left:14px;">BEFORE</span><span class="tz-tag" style="right:14px;">AFTER</span>
+      </div>
+      <div class="float f1" aria-hidden="true"><span class="k">FACE</span><span class="v">丸顔</span></div>
+      <div class="float f2" aria-hidden="true"><span class="k">HAIR</span><span class="v">直毛・多い</span></div>
+      <div class="float f3" aria-hidden="true"><b>89%</b><span style="display:flex;flex-direction:column;gap:2px;"><span class="k">MATCH</span><span class="v">スキンフェード</span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BARBERS ============ -->
+<section id="barbers" class="pad" aria-labelledby="barber-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="eyebrow" data-reveal="up"><b>05</b><i></i><span>Barbers</span></div>
+        <h2 id="barber-title" class="h2" data-reveal="up">理容師</h2>
+      </div>
+      <a href="#reserve" class="lnk" onClick="{{ pickAnyBarber }}">指名なしで予約する<span>→</span></a>
+    </div>
+    <div class="bgrid">
+      <sc-for list="{{ barbers }}" as="b">
+        <article class="bcard" data-reveal="up" style="margin-top:{{ b.offset }};">
+          <div class="plate" role="img" aria-label="{{ b.plateAlt }}" style="background:{{ b.color }};">
+            <span class="pat" aria-hidden="true"></span><span class="glow" aria-hidden="true"></span>
+            <span class="kj" aria-hidden="true">{{ b.kanji }}</span><span class="ini" aria-hidden="true">{{ b.initials }}</span>
+            <span class="yrs">{{ b.yearsLabel }}</span>
+          </div>
+          <div class="bname"><h3>{{ b.name }}</h3><span>{{ b.en }}</span></div>
+          <span class="brole">{{ b.role }}{{ b.feeLabel }}</span>
+          <p class="bbio">{{ b.bio }}</p>
+          <div class="tags"><sc-for list="{{ b.spec }}" as="t"><span>{{ t }}</span></sc-for></div>
+          <span class="bstyles">得意なスタイル — {{ b.styleNames }}</span>
+          <a href="#reserve" class="bbtn" onClick="{{ b.go }}">{{ b.short }}を指名して予約<span style="font-family:var(--ui);">→</span></a>
+        </article>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FIRST VISIT ============ -->
+<section id="first" class="first moss pad" aria-labelledby="first-title">
+  <div class="wrap">
+    <div class="fv">
+      <div>
+        <div class="eyebrow" data-reveal="up"><b>06</b><i></i><span>First visit</span></div>
+        <h2 id="first-title" class="h2" data-reveal="up">初めての<br>お客様へ</h2>
+        <p class="lead" data-reveal="up" style="margin:26px 0 0;max-width:24em;">ご予約は4つのステップで完了します。会員登録は必要ありません。わからないことは、当日お気軽にお尋ねください。</p>
+        <button type="button" class="hint" data-reveal="up" onClick="{{ openFinder }}" data-finder-trigger="1"><span class="ai-ico" aria-hidden="true" style="width:28px;height:28px;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 5V2.5a1 1 0 0 1 1-1H5M11 1.5h2.5a1 1 0 0 1 1 1V5M14.5 11v2.5a1 1 0 0 1-1 1H11M5 14.5H2.5a1 1 0 0 1-1-1V11"/><path d="M4 8h8"/></svg></span>スタイルに迷ったら、先にAI似合わせ診断<span style="font-family:var(--ui);">→</span></button>
+      </div>
+      <ol>
+        <li data-reveal="up"><span class="n">01</span><b>メニューを選ぶ</b><span>迷ったら「カット」で。当日に相談して変更できます。</span></li>
+        <li data-reveal="up" data-delay="80"><span class="n">02</span><b>理容師を選ぶ</b><span>指名なしなら、空いている理容師がご案内します。</span></li>
+        <li data-reveal="up" data-delay="160"><span class="n">03</span><b>日時を選ぶ</b><span>カレンダーで空き時間を確認し、ご希望の枠を選択。</span></li>
+        <li data-reveal="up" data-delay="240"><span class="n">04</span><b>ご来店</b><span>ご予約の5分前を目安にお越しください。</span></li>
       </ol>
     </div>
-    <div style="margin-top:72px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:1px;background:rgba(244,241,233,.18);">
-      <div style="background:#29483F;padding:24px 24px 26px 0;"><div style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.24em;color:#E3A487;font-weight:600;">CONSULTATION</div><div style="margin-top:10px;font-size:14px;line-height:1.85;">施術前に5分ほど、長さや普段のお手入れを伺います。</div></div>
-      <div style="background:#29483F;padding:24px 24px 26px {{ tilePadL }};"><div style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.24em;color:#E3A487;font-weight:600;">PAYMENT</div><div style="margin-top:10px;font-size:14px;line-height:1.85;">現金・カード・交通系IC・QRコード決済。お支払いは施術後に。</div></div>
-      <div style="background:#29483F;padding:24px 24px 26px {{ tilePadL }};"><div style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.24em;color:#E3A487;font-weight:600;">ARRIVAL</div><div style="margin-top:10px;font-size:14px;line-height:1.85;">15分以上遅れる場合は、メニューを調整することがあります。</div></div>
-      <div style="background:#29483F;padding:24px 24px 26px {{ tilePadL }};"><div style="font-family:Manrope,sans-serif;font-size:10.5px;letter-spacing:.24em;color:#E3A487;font-weight:600;">CANCELLATION</div><div style="margin-top:10px;font-size:14px;line-height:1.85;">前日20:00まではオンラインで無料変更・キャンセルできます。</div></div>
+    <div class="tiles">
+      <div class="tile"><div class="k">CONSULTATION</div><p>施術前に5分ほど、長さや普段のお手入れを伺います。</p></div>
+      <div class="tile"><div class="k">PAYMENT</div><p>現金・カード・交通系IC・QRコード決済。お支払いは施術後に。</p></div>
+      <div class="tile"><div class="k">ARRIVAL</div><p>15分以上遅れる場合は、メニューを調整することがあります。</p></div>
+      <div class="tile"><div class="k">CANCELLATION</div><p>前日20:00まではオンラインで無料変更・キャンセルできます。</p></div>
     </div>
   </div>
 </section>
 
-<section id="reserve" aria-labelledby="reserve-title" style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);">
-  <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px;">
-    <div>
-      <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#696D68;"><span style="color:#B76E50;">06</span><span style="width:28px;height:1px;background:#696D68;"></span><span>RESERVATION</span></div>
-      <h2 id="reserve-title" data-reveal="up" style="margin:24px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);letter-spacing:.08em;">空き状況</h2>
-    </div>
-    <p data-reveal="up" style="margin:0;max-width:26em;font-size:13px;line-height:1.9;color:#696D68;">空き枠は{{ bkWindow }}日先まで表示しています。<br>※ デモ用の架空スケジュールです。確定した予約はこのブラウザのセッションにのみ保存されます。</p>
-  </div>
-
-  <div data-reveal="up" style="margin-top:48px;border:1px solid rgba(23,27,26,.16);background:#FAF9F5;">
-
-    <div style="padding:clamp(22px,3vw,32px);border-bottom:1px solid rgba(23,27,26,.12);">
-      <div style="display:flex;align-items:baseline;gap:12px;font-family:Manrope,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.24em;color:#696D68;"><span style="color:#B76E50;">01</span><span>MENU</span><span style="font-family:'Noto Serif JP',serif;letter-spacing:.1em;color:#171B1A;font-size:13px;font-weight:500;">メニューを選ぶ</span></div>
-      <div role="group" aria-label="メニューを選ぶ" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;">
-        <sc-for list="{{ bkServices }}" as="s" hint-placeholder-count="9">
-          <button type="button" onClick="{{ s.pick }}" aria-pressed="{{ s.active }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:60px;padding:11px 16px;border:1px solid {{ s.border }};background:{{ s.bg }};color:{{ s.fg }};cursor:pointer;text-align:left;transition:background-color .2s ease,border-color .2s ease;" style-hover="border-color:#171B1A">
-            <span style="font-family:'Noto Serif JP',serif;font-size:14.5px;font-weight:500;letter-spacing:.04em;white-space:nowrap;">{{ s.name }}</span>
-            <span style="font-family:Manrope,sans-serif;font-size:11px;letter-spacing:.06em;opacity:.72;white-space:nowrap;">{{ s.meta }}</span>
-          </button>
-        </sc-for>
+<!-- ============ RESERVATION ============ -->
+<section id="reserve" class="rsv pad" aria-labelledby="reserve-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="eyebrow" data-reveal="up"><b>07</b><i></i><span>Reservation</span></div>
+        <h2 id="reserve-title" class="h2" data-reveal="up" tabindex="-1" style="outline:none;">空き状況</h2>
       </div>
+      <p class="note" data-reveal="up" style="margin:0;max-width:26em;">空き枠は{{ bkWindow }}日先まで表示しています。<br>※ デモ用の架空スケジュールです。確定した予約はこのブラウザのセッションにのみ保存されます。</p>
     </div>
-
-    <div style="padding:clamp(22px,3vw,32px);border-bottom:1px solid rgba(23,27,26,.12);">
-      <div style="display:flex;align-items:baseline;gap:12px;font-family:Manrope,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.24em;color:#696D68;"><span style="color:#B76E50;">02</span><span>BARBER</span><span style="font-family:'Noto Serif JP',serif;letter-spacing:.1em;color:#171B1A;font-size:13px;font-weight:500;">理容師を選ぶ</span></div>
-      <div role="group" aria-label="理容師を選ぶ" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;">
-        <sc-for list="{{ bkBarbers }}" as="b" hint-placeholder-count="5">
-          <button type="button" onClick="{{ b.pick }}" aria-pressed="{{ b.active }}" style="display:flex;align-items:center;gap:10px;min-height:52px;padding:0 16px;border:1px solid {{ b.border }};background:{{ b.bg }};color:{{ b.fg }};cursor:pointer;transition:background-color .2s ease,border-color .2s ease;" style-hover="border-color:#171B1A">
-            <span aria-hidden="true" style="width:22px;height:22px;flex:none;display:flex;align-items:center;justify-content:center;background:{{ b.chip }};color:#F4F1E9;font-family:'Noto Serif JP',serif;font-size:12px;">{{ b.kanji }}</span>
-            <span style="display:flex;flex-direction:column;gap:2px;text-align:left;">
-              <span style="font-family:'Noto Serif JP',serif;font-size:14px;letter-spacing:.06em;white-space:nowrap;">{{ b.name }}</span>
-              <span style="font-family:Manrope,sans-serif;font-size:10px;letter-spacing:.14em;opacity:.7;white-space:nowrap;">{{ b.sub }}</span>
-            </span>
-          </button>
-        </sc-for>
-      </div>
-    </div>
-
-    <div style="padding:clamp(22px,3vw,32px);border-bottom:1px solid rgba(23,27,26,.12);">
-      <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;font-family:Manrope,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.24em;color:#696D68;"><span style="color:#B76E50;">03</span><span>DATE</span><span style="font-family:'Noto Serif JP',serif;letter-spacing:.1em;color:#171B1A;font-size:13px;font-weight:500;">日付を選ぶ</span><span style="margin-left:auto;font-family:Manrope,sans-serif;font-size:11px;letter-spacing:.1em;color:#696D68;">{{ bkMonthLabel }}</span></div>
-      <div role="group" aria-label="日付を選ぶ" style="display:flex;gap:8px;margin-top:18px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;padding-bottom:8px;">
-        <sc-for list="{{ bkDays }}" as="d" hint-placeholder-count="14">
-          <button type="button" onClick="{{ d.pick }}" disabled="{{ d.disabled }}" aria-pressed="{{ d.active }}" aria-label="{{ d.aria }}" style="scroll-snap-align:start;flex:none;width:62px;min-height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 0;border:1px solid {{ d.border }};background:{{ d.bg }};color:{{ d.fg }};cursor:{{ d.cursor }};opacity:{{ d.opacity }};transition:background-color .2s ease,border-color .2s ease;">
-            <span style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;opacity:.75;">{{ d.wd }}</span>
-            <span style="font-family:Manrope,sans-serif;font-size:19px;font-weight:500;line-height:1;">{{ d.day }}</span>
-            <span aria-hidden="true" style="font-size:10.5px;line-height:1.2;letter-spacing:.02em;color:{{ d.noteColor }};">{{ d.note }}</span>
-          </button>
-        </sc-for>
-      </div>
-      <div aria-hidden="true" style="display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;font-size:11px;color:#696D68;">
-        <sc-for list="{{ bkLegend }}" as="l" hint-placeholder-count="4">
-          <span style="display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;background:{{ l.c }};"></span>{{ l.t }}</span>
-        </sc-for>
-      </div>
-    </div>
-
-    <div style="padding:clamp(22px,3vw,32px);">
-      <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;font-family:Manrope,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.24em;color:#696D68;"><span style="color:#B76E50;">04</span><span>TIME</span><span style="font-family:'Noto Serif JP',serif;letter-spacing:.1em;color:#171B1A;font-size:13px;font-weight:500;">時間を選ぶ</span><span style="margin-left:auto;font-family:'Noto Serif JP',serif;font-size:13px;letter-spacing:.06em;color:#171B1A;">{{ bkDateLabel }}</span></div>
-      <sc-if value="{{ bkSlotsOk }}" hint-placeholder-val="{{ true }}">
-        <div role="group" aria-label="時間を選ぶ" style="margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,86px),1fr));gap:8px;">
-          <sc-for list="{{ bkSlots }}" as="t" hint-placeholder-count="12">
-            <button type="button" onClick="{{ t.pick }}" disabled="{{ t.disabled }}" aria-pressed="{{ t.active }}" aria-label="{{ t.aria }}" style="min-height:46px;padding:0 6px;border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};font-family:Manrope,sans-serif;font-size:14px;letter-spacing:.06em;cursor:{{ t.cursor }};text-decoration:{{ t.strike }};transition:background-color .2s ease,border-color .2s ease;">{{ t.label }}</button>
-          </sc-for>
+    <div class="rgrid">
+      <div class="panel" data-reveal="up">
+        <div class="pstep">
+          <div class="phead"><span class="ok">✓</span><span>01 MENU</span><span class="jp">メニューを選ぶ</span></div>
+          <div class="opts" role="group" aria-label="メニューを選ぶ">
+            <sc-for list="{{ bkServices }}" as="s">
+              <button type="button" class="opt" onClick="{{ s.pick }}" aria-pressed="{{ s.active }}"><span class="a">{{ s.name }}</span><span class="b">{{ s.meta }}</span></button>
+            </sc-for>
+          </div>
         </div>
-      </sc-if>
-      <sc-if value="{{ bkNotice }}" hint-placeholder-val="{{ false }}">
-        <p style="margin:18px 0 0;font-size:13.5px;line-height:1.9;color:#696D68;">{{ bkNotice }}</p>
-      </sc-if>
+        <div class="pstep">
+          <div class="phead"><span class="ok">✓</span><span>02 BARBER</span><span class="jp">理容師を選ぶ</span></div>
+          <div class="opts" role="group" aria-label="理容師を選ぶ">
+            <sc-for list="{{ bkBarbers }}" as="b">
+              <button type="button" class="opt bar" onClick="{{ b.pick }}" aria-pressed="{{ b.active }}">
+                <span class="chipk" aria-hidden="true" style="background:{{ b.chip }};">{{ b.kanji }}</span>
+                <span style="display:flex;flex-direction:column;gap:2px;"><span class="a">{{ b.name }}</span><span class="b">{{ b.sub }}</span></span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        <div class="pstep">
+          <div class="phead"><span class="{{ bkDateOk ? 'ok' : 'ok todo' }}">{{ bkDateOk ? '✓' : '3' }}</span><span>03 DATE</span><span class="jp">日付を選ぶ</span><span class="aside" style="font-family:var(--ui);color:var(--muted);">{{ bkMonthLabel }}</span></div>
+          <div class="days" role="group" aria-label="日付を選ぶ">
+            <sc-for list="{{ bkDays }}" as="d">
+              <button type="button" class="day" onClick="{{ d.pick }}" disabled="{{ d.disabled }}" aria-pressed="{{ d.active }}" aria-label="{{ d.aria }}">
+                <span class="w">{{ d.wd }}</span><span class="d">{{ d.day }}</span><span class="m" aria-hidden="true" style="color:{{ d.noteColor }};">{{ d.note }}</span>
+              </button>
+            </sc-for>
+          </div>
+          <div class="legend" aria-hidden="true"><sc-for list="{{ bkLegend }}" as="l"><span><i style="background:{{ l.c }};"></i>{{ l.t }}</span></sc-for></div>
+        </div>
+        <div class="pstep">
+          <div class="phead"><span class="{{ bkSlotOk ? 'ok' : 'ok todo' }}">{{ bkSlotOk ? '✓' : '4' }}</span><span>04 TIME</span><span class="jp">時間を選ぶ</span><span class="aside">{{ bkDateLabel }}</span></div>
+          <sc-if value="{{ bkSlotsOk }}">
+            <div class="slots" role="group" aria-label="時間を選ぶ">
+              <sc-for list="{{ bkSlots }}" as="t">
+                <button type="button" class="slot" onClick="{{ t.pick }}" disabled="{{ t.disabled }}" aria-pressed="{{ t.active }}" aria-label="{{ t.aria }}">{{ t.label }}</button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ bkNotice }}"><p class="note" style="margin:18px 0 0;font-size:13.5px;">{{ bkNotice }}</p></sc-if>
+        </div>
+      </div>
+
+      <aside class="sum" aria-label="予約内容">
+        <span class="sum-k">YOUR BOOKING</span>
+        <sc-if value="{{ hasWish }}">
+          <div class="wish">
+            <img loading="lazy" src="{{ wishImg }}" alt="{{ wishName }}の合成イメージ">
+            <span class="t"><small>希望スタイル · AI診断</small><b>{{ wishName }}</b><span>担当者に事前共有されます</span></span>
+            <button type="button" onClick="{{ clearWish }}" aria-label="希望スタイルを外す">×</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ !hasWish }}">
+          <button type="button" class="wish-add" onClick="{{ openFinder }}" data-finder-trigger="1"><span class="ai-ico" aria-hidden="true" style="width:26px;height:26px;flex:none;"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10M3 8h10"/></svg></span>希望スタイルを添える（AI似合わせ診断）</button>
+        </sc-if>
+        <dl>
+          <div><dt class="sum-k">MENU</dt><dd>{{ bkSumService }}</dd></div>
+          <div><dt class="sum-k">BARBER</dt><dd>{{ bkSumBarber }}</dd></div>
+          <div><dt class="sum-k">WHEN</dt><dd>{{ bkSumWhen }}</dd></div>
+          <div class="tot" style="border-bottom:0;padding-bottom:0;"><dt class="sum-k">TOTAL</dt><dd>{{ bkSumTotal }}</dd></div>
+        </dl>
+        <button type="button" class="confirm" onClick="{{ bkConfirm }}" disabled="{{ bkDisabled }}">この内容で予約する<span style="font-family:var(--ui);font-size:17px;">→</span></button>
+      </aside>
     </div>
 
-    <div style="background:#171B1A;color:#F4F1E9;padding:clamp(22px,3vw,32px);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:28px;">
-      <dl style="margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,132px),auto));gap:18px 36px;">
-        <div><dt style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.24em;color:#A9AEA8;">MENU</dt><dd style="margin:6px 0 0;font-family:'Noto Serif JP',serif;font-size:16px;letter-spacing:.04em;">{{ bkSumService }}</dd></div>
-        <div><dt style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.24em;color:#A9AEA8;">BARBER</dt><dd style="margin:6px 0 0;font-family:'Noto Serif JP',serif;font-size:16px;letter-spacing:.04em;">{{ bkSumBarber }}</dd></div>
-        <div><dt style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.24em;color:#A9AEA8;">WHEN</dt><dd style="margin:6px 0 0;font-family:'Noto Serif JP',serif;font-size:16px;letter-spacing:.04em;">{{ bkSumWhen }}</dd></div>
-        <div><dt style="font-family:Manrope,sans-serif;font-size:10px;font-weight:600;letter-spacing:.24em;color:#A9AEA8;">TOTAL</dt><dd style="margin:6px 0 0;font-family:Manrope,sans-serif;font-size:20px;font-weight:500;letter-spacing:.02em;">{{ bkSumTotal }}</dd></div>
-      </dl>
-      <button type="button" onClick="{{ bkConfirm }}" disabled="{{ bkDisabled }}" style="display:flex;align-items:center;justify-content:space-between;gap:36px;min-height:60px;padding:0 24px 0 28px;border:0;background:{{ bkCtaBg }};color:{{ bkCtaFg }};font-size:15px;font-weight:700;letter-spacing:.14em;cursor:{{ bkCtaCursor }};white-space:nowrap;transition:background-color .22s ease;">{{ bkCtaLabel }}<span style="font-family:Manrope,sans-serif;font-size:17px;">→</span></button>
-    </div>
+    <sc-if value="{{ hasMine }}">
+      <div class="mine">
+        <div class="phead"><span>MY RESERVATIONS</span><span class="jp">予約の確認・変更</span></div>
+        <ul>
+          <sc-for list="{{ mine }}" as="m">
+            <li><span class="ref">{{ m.ref }}</span><span class="w">{{ m.when }}</span><span class="x">{{ m.what }}</span><button type="button" onClick="{{ m.cancel }}">取消</button></li>
+          </sc-for>
+        </ul>
+        <p class="note" style="margin:16px 0 0;">※ 前日20:00まではオンラインで無料変更・キャンセルできます（デモでは常に取消できます）。</p>
+      </div>
+    </sc-if>
   </div>
-
-  <sc-if value="{{ hasMine }}" hint-placeholder-val="{{ true }}">
-    <div style="margin-top:44px;">
-      <div style="display:flex;align-items:baseline;gap:12px;font-family:Manrope,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.24em;color:#696D68;"><span>MY RESERVATIONS</span><span style="font-family:'Noto Serif JP',serif;letter-spacing:.1em;color:#171B1A;font-size:13px;font-weight:500;">予約の確認・変更</span></div>
-      <ul style="list-style:none;margin:18px 0 0;padding:0;">
-        <sc-for list="{{ mine }}" as="m" hint-placeholder-count="2">
-          <li style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:18px 0;border-top:1px solid rgba(23,27,26,.16);">
-            <span style="font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.06em;color:#696D68;flex:none;">{{ m.ref }}</span>
-            <span style="font-family:'Noto Serif JP',serif;font-size:15.5px;letter-spacing:.04em;flex:1 1 220px;min-width:0;">{{ m.when }}</span>
-            <span style="font-size:13px;color:#2c302f;flex:1 1 200px;min-width:0;">{{ m.what }}</span>
-            <button type="button" onClick="{{ m.cancel }}" style="flex:none;min-height:40px;padding:0 16px;border:1px solid rgba(23,27,26,.3);background:transparent;font-size:12.5px;letter-spacing:.08em;cursor:pointer;" style-hover="background:#171B1A;color:#F4F1E9">取消</button>
-          </li>
-        </sc-for>
-      </ul>
-      <p style="margin:18px 0 0;font-size:11.5px;color:#696D68;">※ 前日20:00まではオンラインで無料変更・キャンセルできます（デモでは常に取消できます）。</p>
-    </div>
-  </sc-if>
 </section>
 
-<section id="voices" aria-labelledby="voice-title" style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);">
-  <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#696D68;"><span style="color:#B76E50;">07</span><span style="width:28px;height:1px;background:#696D68;"></span><span>VOICES</span></div>
-  <h2 id="voice-title" data-reveal="up" style="margin:24px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);letter-spacing:.08em;">お客様の声</h2>
-  <div style="margin-top:56px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:48px clamp(32px,4vw,72px);">
-    <sc-for list="{{ reviews }}" as="r" hint-placeholder-count="3">
-      <figure data-reveal="up" style="margin:0;margin-top:{{ r.offset }};display:flex;flex-direction:column;gap:22px;">
-        <span aria-hidden="true" style="font-family:'Noto Serif JP',serif;font-size:64px;line-height:.6;color:#B76E50;height:30px;">“</span>
-        <blockquote style="margin:0;font-family:'Noto Serif JP',serif;font-size:clamp(17px,1.4vw,20px);line-height:2;letter-spacing:.04em;text-wrap:pretty;">{{ r.q }}</blockquote>
-        <figcaption style="display:flex;gap:12px;align-items:center;font-size:12px;color:#696D68;letter-spacing:.04em;"><span style="width:20px;height:1px;background:#696D68;"></span>{{ r.who }} ／ {{ r.svc }}</figcaption>
-      </figure>
-    </sc-for>
+<!-- ============ VOICES ============ -->
+<section id="voices" class="pad" aria-labelledby="voice-title">
+  <div class="wrap">
+    <div class="eyebrow" data-reveal="up"><b>08</b><i></i><span>Voices</span></div>
+    <h2 id="voice-title" class="h2" data-reveal="up">お客様の声</h2>
+    <div class="vgrid">
+      <sc-for list="{{ reviews }}" as="r">
+        <figure class="vcard" data-reveal="up" style="margin-top:{{ r.offset }};">
+          <span class="q" aria-hidden="true">“</span>
+          <blockquote>{{ r.q }}</blockquote>
+          <figcaption><i></i>{{ r.who }} ／ {{ r.svc }}</figcaption>
+        </figure>
+      </sc-for>
+    </div>
+    <p class="note" style="margin:48px 0 0;">※ 掲載のコメントはデモ用に作成した架空のものです。実在のお客様・外部レビューサイトの評価ではありません。</p>
   </div>
-  <p style="margin:56px 0 0;font-size:12px;color:#696D68;">※ 掲載のコメントはデモ用に作成した架空のものです。実在のお客様・外部レビューサイトの評価ではありません。</p>
 </section>
 
-<section id="access" aria-labelledby="access-title" style="background:#DDD8CD;">
-  <div style="max-width:1440px;margin:0 auto;padding:clamp(80px,10vw,150px) clamp(20px,4vw,56px);display:flex;flex-wrap:wrap;gap:48px clamp(40px,5vw,96px);">
-    <div style="flex:1.2 1 420px;min-width:0;">
-      <div data-reveal="mask" style="position:relative;aspect-ratio:5/4;max-height:620px;width:100%;overflow:hidden;background:#E8E4DA;">
+<!-- ============ ACCESS ============ -->
+<section id="access" class="access pad" aria-labelledby="access-title">
+  <div class="wrap agrid">
+    <div>
+      <div class="map" data-reveal="mask">
         <svg viewBox="0 0 500 400" role="img" aria-label="黒羽駅から店舗までの案内図。架空の地図です。" style="width:100%;height:100%;display:block;">
           <rect width="500" height="400" fill="#E8E4DA"></rect>
           <g fill="#DFDACE">
@@ -439,120 +971,335 @@ section[id]{scroll-margin-top:92px}
             <text x="62" y="4" font-family="ui-monospace,Menlo,monospace" font-size="9" fill="#55594f">100m（概略）</text>
           </g>
         </svg>
-        <span style="position:absolute;right:14px;top:14px;font-family:Manrope,sans-serif;font-size:9.5px;font-weight:600;letter-spacing:.24em;color:#55594f;background:rgba(244,241,233,.85);padding:6px 10px;">DEMO MAP</span>
+        <span style="position:absolute;right:14px;top:14px;font-family:var(--ui);font-size:9.5px;font-weight:600;letter-spacing:.24em;color:#55594f;background:rgba(244,241,233,.85);padding:6px 10px;border-radius:999px;">DEMO MAP</span>
       </div>
     </div>
-    <div style="flex:1 1 360px;min-width:0;">
-      <div data-reveal="up" style="display:flex;align-items:center;gap:14px;font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.26em;color:#55594f;"><span style="color:#9A5638;">08</span><span style="width:28px;height:1px;background:#55594f;"></span><span>ACCESS</span></div>
-      <h2 id="access-title" data-reveal="up" style="margin:24px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(30px,3.4vw,50px);letter-spacing:.08em;">アクセス</h2>
-      <dl style="margin:40px 0 0;display:grid;grid-template-columns:96px minmax(0,1fr);font-size:14px;line-height:1.85;">
-        <dt style="padding:16px 0;border-top:1px solid rgba(23,27,26,.18);color:#55594f;font-size:12.5px;">住所</dt><dd style="margin:0;padding:16px 0;border-top:1px solid rgba(23,27,26,.18);">〒000-0000 東京都架空区黒羽町1-2-3 デモビル2F<br><span style="font-size:12px;color:#55594f;">※架空の住所です</span></dd>
-        <dt style="padding:16px 0;border-top:1px solid rgba(23,27,26,.18);color:#55594f;font-size:12.5px;">営業時間</dt><dd style="margin:0;padding:16px 0;border-top:1px solid rgba(23,27,26,.18);">10:00 — 20:00<span style="color:#55594f;font-size:12.5px;">（最終受付 19:00）</span></dd>
-        <dt style="padding:16px 0;border-top:1px solid rgba(23,27,26,.18);color:#55594f;font-size:12.5px;">定休日</dt><dd style="margin:0;padding:16px 0;border-top:1px solid rgba(23,27,26,.18);">毎週火曜日・第3水曜日</dd>
-        <dt style="padding:16px 0;border-top:1px solid rgba(23,27,26,.18);color:#55594f;font-size:12.5px;">交通</dt><dd style="margin:0;padding:16px 0;border-top:1px solid rgba(23,27,26,.18);">架空線「黒羽駅」A2出口より徒歩3分（デモ）</dd>
-        <dt style="padding:16px 0;border-top:1px solid rgba(23,27,26,.18);border-bottom:1px solid rgba(23,27,26,.18);color:#55594f;font-size:12.5px;">お支払い</dt><dd style="margin:0;padding:16px 0;border-top:1px solid rgba(23,27,26,.18);border-bottom:1px solid rgba(23,27,26,.18);">現金・クレジットカード・交通系IC・QRコード決済</dd>
+    <div>
+      <div class="eyebrow" data-reveal="up" style="color:#55594f;"><b style="color:#9A5638;">09</b><i></i><span>Access</span></div>
+      <h2 id="access-title" class="h2" data-reveal="up">アクセス</h2>
+      <dl class="adl">
+        <dt>住所</dt><dd>〒000-0000 東京都架空区黒羽町1-2-3 デモビル2F<br><span style="font-size:12px;color:#55594f;">※架空の住所です</span></dd>
+        <dt>営業時間</dt><dd>10:00 — 20:00<span style="color:#55594f;font-size:12.5px;">（最終受付 19:00）</span></dd>
+        <dt>定休日</dt><dd>毎週火曜日・第3水曜日</dd>
+        <dt>交通</dt><dd>架空線「黒羽駅」A2出口より徒歩3分（デモ）</dd>
+        <dt style="border-bottom:1px solid rgba(23,27,26,.18);">お支払い</dt><dd style="border-bottom:1px solid rgba(23,27,26,.18);">現金・クレジットカード・交通系IC・QRコード決済</dd>
       </dl>
-      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:32px;">
-        <button onClick="{{ mockLine }}" style="height:46px;padding:0 18px;border:1px solid #171B1A;background:transparent;font-size:13px;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:10px;" style-hover="background:#171B1A;color:#F4F1E9"><span style="width:8px;height:8px;background:#29483F;"></span>LINEで問い合わせ</button>
-        <button onClick="{{ mockInsta }}" style="height:46px;padding:0 18px;border:1px solid #171B1A;background:transparent;font-size:13px;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:10px;" style-hover="background:#171B1A;color:#F4F1E9"><span style="width:8px;height:8px;border-radius:50%;background:#B76E50;"></span>Instagram</button>
-        <button onClick="{{ mockMap }}" style="height:46px;padding:0 18px;border:1px solid #171B1A;background:transparent;font-size:13px;letter-spacing:.06em;cursor:pointer;" style-hover="background:#171B1A;color:#F4F1E9">Google マップで開く</button>
+      <div class="abtns">
+        <button type="button" onClick="{{ mockLine }}"><span style="width:8px;height:8px;border-radius:50%;background:var(--moss);"></span>LINEで問い合わせ</button>
+        <button type="button" onClick="{{ mockInsta }}"><span style="width:8px;height:8px;border-radius:50%;background:var(--copper);"></span>Instagram</button>
+        <button type="button" onClick="{{ mockMap }}">Google マップで開く</button>
       </div>
       <p style="margin:14px 0 0;font-size:11.5px;color:#55594f;">※ LINE・Instagram・Google マップの連携はモックです（外部には接続しません）。</p>
     </div>
   </div>
 </section>
 
-<section aria-labelledby="cta-title" style="background:#171B1A;color:#F4F1E9;position:relative;overflow:hidden;">
-  <div style="max-width:1440px;margin:0 auto;padding:clamp(100px,12vw,180px) clamp(20px,4vw,56px) clamp(80px,9vw,130px);">
-    <div style="font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.3em;color:#DDD8CD;">RESERVE YOUR CHAIR</div>
-    <h2 id="cta-title" data-reveal="up" style="margin:28px 0 0;font-family:'Noto Serif JP',serif;font-weight:500;font-size:clamp(56px,11vw,190px);line-height:1.05;letter-spacing:.02em;">次の、<br><span style="padding-left:clamp(0px,10vw,200px);">整える日。</span></h2>
-    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:32px;margin-top:64px;">
-      <p style="margin:0;max-width:26em;font-size:15px;line-height:2;color:#DDD8CD;">オンライン予約は24時間受付。空き状況はリアルタイムで確認できます（デモでは架空のスケジュールを表示します）。</p>
+<!-- ============ CLOSING ============ -->
+<section class="cta dark grain" aria-labelledby="cta-title">
+  <div class="wrap" style="padding-block:clamp(100px,12vw,180px) clamp(80px,9vw,130px);">
+    <div class="eyebrow"><span>Reserve your chair</span></div>
+    <h2 id="cta-title" data-reveal="up">次の、<br><span class="in"><em>整える</em>日。</span></h2>
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:32px;margin-top:60px;">
+      <p class="lead" style="margin:0;max-width:26em;">オンライン予約は24時間受付。空き状況はリアルタイムで確認できます（デモでは架空のスケジュールを表示します）。</p>
       <div style="display:flex;flex-wrap:wrap;gap:12px;">
-        <a href="#reserve" style="display:flex;align-items:center;justify-content:space-between;gap:48px;height:64px;padding:0 28px 0 32px;background:#F4F1E9;color:#171B1A;font-size:16px;font-weight:700;letter-spacing:.18em;transition:background-color .22s ease;" style-hover="background:#B76E50;color:#171B1A">予約する<span style="font-family:Manrope,sans-serif;font-size:18px;">→</span></a>
-        <a href="#reserve" style="display:flex;align-items:center;height:64px;padding:0 24px;border:1px solid rgba(244,241,233,.35);color:#F4F1E9;font-size:14px;letter-spacing:.08em;white-space:nowrap;" style-hover="border-color:#F4F1E9;color:#F4F1E9">予約の確認・変更</a>
+        <a href="#reserve" class="btn btn--washi" data-mag="1">空き状況を見て予約する<span class="arr">→</span></a>
+        <button type="button" class="btn btn--ghost" onClick="{{ openFinder }}" data-finder-trigger="1">AI似合わせ診断</button>
       </div>
     </div>
   </div>
-  <footer style="border-top:1px solid rgba(244,241,233,.14);">
-    <div style="max-width:1440px;margin:0 auto;padding:56px clamp(20px,4vw,56px) clamp(96px,8vw,48px);display:flex;flex-wrap:wrap;gap:40px 64px;justify-content:space-between;">
+  <footer class="foot">
+    <div class="wrap foot-in">
       <div style="display:flex;flex-direction:column;gap:14px;">
-        <span style="font-family:'Noto Serif JP',serif;font-size:28px;letter-spacing:.08em;">黒羽</span>
-        <span style="font-family:Manrope,sans-serif;font-size:11px;font-weight:600;letter-spacing:.3em;color:#DDD8CD;">KUROHANE BARBER STUDIO</span>
-        <span style="font-size:12px;color:#A9AEA8;line-height:1.8;">TEL 00-0000-0000（デモ用）<br>〒000-0000 東京都架空区黒羽町1-2-3（架空）</span>
+        <span style="font-family:var(--serif);font-size:28px;letter-spacing:.08em;">黒羽</span>
+        <span style="font-family:var(--ui);font-size:11px;font-weight:600;letter-spacing:.3em;color:var(--stone);">KUROHANE BARBER STUDIO</span>
+        <span style="font-size:12px;color:var(--muted-d);line-height:1.8;">TEL 00-0000-0000（デモ用）<br>〒000-0000 東京都架空区黒羽町1-2-3（架空）</span>
       </div>
-      <nav aria-label="フッター" style="display:grid;grid-template-columns:repeat(2,minmax(120px,auto));gap:12px 48px;font-size:13px;">
-        <a href="#menu" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">メニュー・料金</a>
-        <a href="#barbers" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">スタッフ</a>
-        <a href="#styles" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">スタイル</a>
-        <a href="#philosophy" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">スタジオについて</a>
-        <a href="#first" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">初めての方へ</a>
-        <a href="#access" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">アクセス</a>
-        <a href="#reserve" onClick="{{ mockPage }}" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">よくある質問・規約</a>
-        <a href="#reserve" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">予約の確認・変更</a>
-        <a href="#reserve" onClick="{{ mockPage }}" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">スタッフ管理画面（デモ）</a>
-        <a href="#reserve" onClick="{{ mockPage }}" style="display:block;padding:7px 0;color:#DDD8CD;" style-hover="color:#F4F1E9">デザインシステム</a>
+      <nav aria-label="フッター">
+        <a href="#menu">メニュー・料金</a><a href="#barbers">スタッフ</a>
+        <a href="#styles">スタイル</a><a href="#finder">AI似合わせ診断</a>
+        <a href="#philosophy">スタジオについて</a><a href="#first">初めての方へ</a>
+        <a href="#access">アクセス</a><a href="#reserve">予約の確認・変更</a>
+        <a href="#reserve" onClick="{{ mockPage }}">よくある質問・規約</a><a href="#reserve" onClick="{{ mockPage }}">スタッフ管理画面（デモ）</a>
       </nav>
-      <div style="flex-basis:100%;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-top:24px;border-top:1px solid rgba(244,241,233,.1);font-size:11px;color:#A9AEA8;letter-spacing:.04em;">
+      <div class="foot-bt">
         <span>本サイトは架空の店舗によるポートフォリオ用デモです。名称・ロゴは公開前に商標調査が必要です。</span>
-        <span style="font-family:Manrope,sans-serif;letter-spacing:.16em;">© KUROHANE (FICTIONAL) — DEMO</span>
+        <span style="font-family:var(--ui);letter-spacing:.16em;">© KUROHANE (FICTIONAL) — DEMO</span>
       </div>
     </div>
   </footer>
 </section>
 </main>
 
-<sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
-  <div style="position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(244,241,233,.96);border-top:1px solid rgba(23,27,26,.12);display:flex;gap:8px;transition:transform .28s ease;transform:{{ barShift }};">
-    <a href="#menu" style="flex:0 0 auto;white-space:nowrap;height:50px;padding:0 16px;display:flex;align-items:center;border:1px solid rgba(23,27,26,.3);color:#171B1A;font-size:13px;">料金</a>
-    <a href="#access" style="flex:0 0 auto;white-space:nowrap;height:50px;padding:0 16px;display:flex;align-items:center;border:1px solid rgba(23,27,26,.3);color:#171B1A;font-size:13px;">アクセス</a>
-    <a href="#reserve" style="flex:1;height:50px;display:flex;align-items:center;justify-content:center;gap:10px;background:#29483F;color:#FAF9F5;font-size:15px;font-weight:700;letter-spacing:.14em;">予約する →</a>
+<sc-if value="{{ mobile }}">
+  <div class="mbar" style="transform:{{ barShift }};">
+    <button type="button" class="s" onClick="{{ openFinder }}" data-finder-trigger="1"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1.5 5V2.5a1 1 0 0 1 1-1H5M11 1.5h2.5a1 1 0 0 1 1 1V5M14.5 11v2.5a1 1 0 0 1-1 1H11M5 14.5H2.5a1 1 0 0 1-1-1V11"/><path d="M4 8h8"/></svg>AI診断</button>
+    <a href="#menu" class="s">料金</a>
+    <a href="#reserve" class="p">予約する →</a>
   </div>
 </sc-if>
 
-<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
-  <div role="status" aria-live="polite" style="position:fixed;left:50%;bottom:{{ toastY }};transform:translateX(-50%);z-index:90;background:#171B1A;color:#F4F1E9;padding:14px 20px;font-size:13px;line-height:1.7;max-width:min(92vw,460px);box-shadow:0 12px 40px rgba(23,27,26,.25);">{{ toast }}</div>
+<sc-if value="{{ hasToast }}">
+  <div class="toast" role="status" aria-live="polite" style="bottom:{{ toastY }};">{{ toast }}</div>
+</sc-if>
+
+<!-- ============ AI FINDER DIALOG ============ -->
+<sc-if value="{{ fOpen }}">
+  <div class="fd" data-fd="1">
+    <div class="fd-bg" onClick="{{ closeFinder }}"></div>
+    <div class="fd-sheet" role="dialog" aria-modal="true" aria-labelledby="fd-h">
+      <div class="fd-head">
+        <span class="fd-title"><b>AI</b><span class="lb">似合わせ診断</span><span class="new">DEMO</span></span>
+        <div class="fd-steps" aria-label="進行状況">
+          <sc-for list="{{ fSteps }}" as="s">
+            <sc-if value="{{ s.i > 0 }}"><em aria-hidden="true"></em></sc-if>
+            <span class="{{ s.cls }}" aria-current="{{ s.cur }}"><i>{{ s.done ? '✓' : s.i + 1 }}</i><span class="lb">{{ s.label }}</span></span>
+          </sc-for>
+        </div>
+        <button type="button" class="xbtn" onClick="{{ closeFinder }}" aria-label="診断を閉じる">×</button>
+      </div>
+
+      <div class="fd-body">
+        <!-- step 1: photo -->
+        <sc-if value="{{ fStep === 'intro' }}">
+          <div class="intro">
+            <div class="intro-art">
+              <img loading="lazy" src="{{ teaserBefore }}" alt="">
+              <svg viewBox="0 0 768 1024" aria-hidden="true"><ellipse cx="384" cy="476" rx="178" ry="238" fill="none" stroke="#B76E50" stroke-width="3" stroke-dasharray="10 10"/></svg>
+            </div>
+            <div>
+              <div class="eyebrow"><b>STEP 1</b><i></i><span>Photo</span></div>
+              <h2 id="fd-h" class="fd-h" tabindex="-1" data-fd-focus="1" style="margin-top:18px;">正面の写真を1枚。<br>あとはAIにおまかせ。</h2>
+              <p class="fd-p">顔型・頭の形・髪質を読み取り、似合うスタイルを3つ提案します。仕上がりはあなたの写真で確認できます。{{ fFocusNote }}</p>
+              <div class="tips">
+                <div class="tip"><b>01</b>顔の正面を、まっすぐに</div>
+                <div class="tip"><b>02</b>明るい場所で、影を少なく</div>
+                <div class="tip"><b>03</b>前髪を上げ、おでこを出す</div>
+              </div>
+              <div class="pick">
+                <input id="kh-file" class="sr-only" type="file" accept="image/*" onChange="{{ fFile }}">
+                <label for="kh-file" class="btn btn--washi">写真を選ぶ<span class="arr">↑</span></label>
+                <button type="button" class="btn btn--ghost" onClick="{{ fSample }}">サンプルで試す</button>
+              </div>
+              <sc-if value="{{ fErr }}"><div class="fd-err" role="alert">{{ fErr }}</div></sc-if>
+              <p class="privacy"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="6" width="9" height="6.5" rx="1.5"/><path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6"/></svg><span>写真は端末の中だけで処理され、サーバーへの送信・保存は行いません。</span></p>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- step 2: align -->
+        <sc-if value="{{ fStep === 'align' }}">
+          <div class="align">
+            <div class="crop" data-crop="1" onPointerDown="{{ cropDown }}" onPointerMove="{{ cropMove }}" onPointerUp="{{ cropUp }}" onPointerCancel="{{ cropUp }}">
+              <img loading="lazy" data-crop-img="1" src="{{ fPhotoUrl }}" alt="位置合わせ中の写真" style="{{ fImgStyle }}">
+              <svg viewBox="0 0 768 1024" preserveAspectRatio="none" aria-hidden="true">
+                <defs><mask id="ovm"><rect width="768" height="1024" fill="#fff"/><ellipse cx="384" cy="476" rx="178" ry="238" fill="#000"/></mask></defs>
+                <rect width="768" height="1024" fill="rgba(14,17,16,.6)" mask="url(#ovm)"/>
+                <ellipse cx="384" cy="476" rx="178" ry="238" fill="none" stroke="#E3A487" stroke-width="3" stroke-dasharray="10 10"/>
+                <path d="M226 452 H542" stroke="rgba(243,239,230,.55)" stroke-width="1.5" stroke-dasharray="4 6"/>
+                <text x="556" y="457" font-family="Inter Tight, sans-serif" font-size="17" fill="rgba(243,239,230,.8)">目</text>
+                <text x="384" y="752" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="17" fill="rgba(243,239,230,.8)">あご</text>
+              </svg>
+            </div>
+            <div>
+              <div class="eyebrow"><b>STEP 2</b><i></i><span>Align</span></div>
+              <h2 id="fd-h" class="fd-h" tabindex="-1" data-fd-focus="1" style="margin-top:18px;">顔を枠に<br>合わせてください。</h2>
+              <p class="fd-p">ドラッグで位置、スライダー（またはピンチ）で大きさを調整。目の高さを点線に、あご先を枠の下に合わせると精度が上がります。</p>
+              <label class="zoom"><span>小</span><input type="range" min="1" max="3" step="0.01" value="{{ fZoom }}" onInput="{{ fZoomSet }}" onChange="{{ fZoomSet }}" aria-label="写真の大きさ"><span>大</span></label>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- step 3: scan -->
+        <sc-if value="{{ fStep === 'scan' }}">
+          <div class="scan">
+            <div class="scan-img">
+              <img loading="lazy" src="{{ fBefore }}" alt="解析中の写真">
+              <span class="scan-line" aria-hidden="true"></span>
+              <svg viewBox="0 0 768 1024" aria-hidden="true">
+                <ellipse cx="384" cy="476" rx="178" ry="238" fill="none" stroke="rgba(227,164,135,.55)" stroke-width="1.4" stroke-dasharray="6 6"/>
+                <path d="M384 238 L384 714 M206 476 L562 476"/>
+                </svg>
+              <sc-for list="{{ fDots }}" as="d"><i class="sdot" style="left:{{ d.x }};top:{{ d.y }};animation-delay:{{ d.delay }};"></i></sc-for>
+            </div>
+            <div>
+              <div class="eyebrow"><b>STEP 3</b><i></i><span>Analyzing</span></div>
+              <h2 id="fd-h" class="fd-h" tabindex="-1" data-fd-focus="1" style="margin-top:18px;" aria-live="polite">解析しています…</h2>
+              <ul class="checks">
+                <sc-for list="{{ fChecks }}" as="c"><li class="{{ c.cls }}"><i>{{ c.cls === 'ok' ? '✓' : '' }}</i>{{ c.label }}</li></sc-for>
+              </ul>
+              <button type="button" class="lnk" style="margin-top:22px;color:var(--stone);" onClick="{{ fSkip }}">結果へスキップ<span>→</span></button>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- step 4: results -->
+        <sc-if value="{{ fStep === 'result' && fCur }}">
+          <div class="res">
+            <div class="res-view">
+              <div class="ba" data-ba="1">
+                <img loading="lazy" src="{{ fBefore }}" alt="診断前の写真">
+                <div class="ba-after"><img loading="lazy" src="{{ fCur.img }}" alt="{{ fCur.name }}の合成イメージ"></div>
+                <span class="ba-line" aria-hidden="true"></span>
+                <span class="ba-tag l">BEFORE</span><span class="ba-tag r">AFTER</span>
+                <input class="ba-range" data-ba-range="1" type="range" min="0" max="100" step="1" onInput="{{ fSlide }}" aria-label="ビフォー・アフターを比較">
+                <span class="ba-ring" aria-hidden="true"></span>
+                <span class="ba-demo">合成イメージ（デモ）— 本番ではAI画像生成で、ご本人の髪で自然に仕上げます。</span>
+              </div>
+            </div>
+            <div class="res-info">
+              <div>
+                <div class="eyebrow"><b>RESULT</b><i></i><span>Your profile</span></div>
+                <h2 id="fd-h" class="sr-only" tabindex="-1" data-fd-focus="1">診断結果</h2>
+                <div class="prof" style="margin-top:14px;">
+                  <sc-for list="{{ fChips }}" as="c"><span class="pc"><small>{{ c.k }}</small><b>{{ c.v }}</b></span></sc-for>
+                  <button type="button" class="edit" onClick="{{ fEditToggle }}" aria-expanded="{{ fEdit }}">{{ fEdit ? '閉じる' : '修正する' }}</button>
+                </div>
+              </div>
+              <sc-if value="{{ fEdit }}">
+                <div class="editor">
+                  <sc-for list="{{ fEditor }}" as="d">
+                    <div class="row" role="group" aria-label="{{ d.name }}"><span>{{ d.name }}</span>
+                      <sc-for list="{{ d.opts }}" as="o"><button type="button" aria-pressed="{{ o.active }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for>
+                    </div>
+                  </sc-for>
+                  <p class="note" style="margin:0;">AIの読み取りがずれていたら修正してください。提案がすぐに更新されます。</p>
+                </div>
+              </sc-if>
+              <div class="rtabs" role="tablist" aria-label="おすすめスタイル" style="--n:{{ fList.length }};">
+                <sc-for list="{{ fList }}" as="r">
+                  <button type="button" role="tab" class="rtab" aria-selected="{{ r.active }}" onClick="{{ r.pick }}">
+                    <img loading="lazy" src="{{ r.img }}" alt="">
+                    <span class="t"><small>{{ r.tag }}</small><b>{{ r.name }}</b></span>
+                  </button>
+                </sc-for>
+              </div>
+              <div class="rcur-top">
+                <div><span class="eyebrow"><b>{{ fCur.tag }}</b><i></i><span>NO.{{ fCur.no }}</span></span><h3>{{ fCur.name }}</h3><span class="en">{{ fCur.en }}</span></div>
+                <div class="match"><b>{{ fCur.score }}<small>%</small></b><span>MATCH</span></div>
+              </div>
+              <div class="meter" aria-hidden="true"><i style="transform:scaleX({{ fCur.score / 100 }});"></i></div>
+              <p class="rdesc">{{ fCur.desc }}</p>
+              <div>
+                <div class="sum-k" style="margin-bottom:12px;">似合う理由</div>
+                <ul class="why"><sc-for list="{{ fCur.reasons }}" as="w"><li>{{ w }}</li></sc-for></ul>
+              </div>
+              <div class="facts">
+                <div><small>MENU</small><b>{{ fCur.svcLabel }}</b></div>
+                <div><small>BARBER</small><b>{{ fCur.barberName }}</b></div>
+                <div><small>CYCLE</small><b>{{ fCur.cycle }}</b></div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div class="fd-foot">
+        <sc-if value="{{ fStep === 'intro' }}">
+          <span class="note only-d">所要時間は約30秒です。</span>
+          <button type="button" class="btn btn--sm btn--ghost only-d" onClick="{{ closeFinder }}">あとで</button>
+          <button type="button" class="btn btn--sm btn--ghost only-m" onClick="{{ fSample }}">サンプルで試す</button>
+          <label for="kh-file" class="btn btn--sm btn--washi only-m grow">写真を選ぶ・撮る<span class="arr">↑</span></label>
+        </sc-if>
+        <sc-if value="{{ fStep === 'align' }}">
+          <button type="button" class="btn btn--sm btn--ghost" onClick="{{ fBack }}">← 写真を選び直す</button>
+          <button type="button" class="btn btn--sm btn--washi" onClick="{{ fAnalyze }}">この位置で診断する<span class="arr">→</span></button>
+        </sc-if>
+        <sc-if value="{{ fStep === 'scan' }}">
+          <span class="note">写真は端末内で処理中です。</span><span></span>
+        </sc-if>
+        <sc-if value="{{ fStep === 'result' }}">
+          <div class="foot-sub">
+            <button type="button" class="btn btn--sm btn--ghost" onClick="{{ fRetake }}">撮り直す</button>
+            <button type="button" class="btn btn--sm btn--ghost" onClick="{{ fSave }}">画像を保存</button>
+          </div>
+          <button type="button" class="btn btn--sm btn--copper grow" onClick="{{ fBook }}">このスタイルで予約する<span class="arr">→</span></button>
+        </sc-if>
+      </div>
+    </div>
+  </div>
 </sc-if>
 </div>
 </x-dc>
+
 <script type="text/x-dc" data-dc-script="">
 class Component extends DCLogic {
   state = {
     ready: !!window.KH, scrolled: false, mobile: window.innerWidth < 1100, menu: false,
+    coarse: window.matchMedia('(pointer: coarse)').matches,
     filter: 'all', toast: '', nearEnd: false,
-    svcId: 'cut', barberId: 'any', date: null, slot: null, rev: 0
+    svcId: 'cut', barberId: 'any', date: null, slot: null, rev: 0,
+    // AI 似合わせ診断
+    fOpen: false, fStep: 'intro', fErr: '', fPhoto: null, fTf: { x: 0, y: 0, s: 1 }, fScan: 0,
+    fProfile: null, fTone: '', fFocus: null, fPick: 0, fEdit: false, fRev: 0,
+    wish: null, teaser: [], teaserBefore: ''
   };
   E = 'cubic-bezier(.2,.7,0,1)';
+  cmp = {}; ptrs = {}; timers = [];
+
   componentDidMount() {
     this.rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const w = () => (window.KH ? this.setState({ ready: true }) : setTimeout(w, 40)); w();
+    this.fine = window.matchMedia('(pointer: fine)').matches;
+    const w = () => (window.KH && window.KHF ? (this.setState({ ready: true }), this.buildTeaser()) : setTimeout(w, 40)); w();
     this.onS = () => {
-      const s = window.scrollY > 40, ne = window.innerHeight + window.scrollY > document.body.scrollHeight - 420;
+      const y = window.scrollY, s = y > 40, ne = window.innerHeight + y > document.body.scrollHeight - 420;
+      const pb = document.querySelector('[data-progress]');
+      if (pb) pb.style.transform = 'scaleX(' + Math.min(1, y / Math.max(1, document.body.scrollHeight - window.innerHeight)) + ')';
       if (s !== this.state.scrolled || ne !== this.state.nearEnd) this.setState({ scrolled: s, nearEnd: ne });
     };
     this.onR = () => { const m = window.innerWidth < 1100; if (m !== this.state.mobile) this.setState({ mobile: m }); };
-    addEventListener('scroll', this.onS, { passive: true }); addEventListener('resize', this.onR);
+    this.onK = (e) => {
+      if (this.state.fOpen) {
+        if (e.key === 'Escape') { e.preventDefault(); this.closeFinder(); return; }
+        if (e.key === 'Tab') this.trap(e);
+      } else if (this.state.menu && e.key === 'Escape') this.setState({ menu: false });
+    };
+    addEventListener('scroll', this.onS, { passive: true }); addEventListener('resize', this.onR); addEventListener('keydown', this.onK);
     this.io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { this.play(e.target); this.io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
-    this.intro(); setTimeout(() => this.scan(), 60);
+    this.intro(); setTimeout(() => { this.scan(); this.bindTrack(); this.bindMagnet(); }, 60);
+    this.onS();
   }
   componentDidUpdate(pp, ps) {
+    const st = this.state;
     this.scan();
-    if (ps.filter !== this.state.filter && !this.rm) document.querySelectorAll('[data-gitem]').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay: i * 45, easing: this.E, fill: 'backwards' }));
-    if (!ps.menu && this.state.menu && !this.rm) {
+    if (ps.filter !== st.filter) {
+      const t = document.querySelector('[data-track]'); if (t) t.scrollTo({ left: 0, behavior: 'auto' });
+      if (!this.rm) document.querySelectorAll('[data-gitem]').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(18px) scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 560, delay: i * 50, easing: this.E, fill: 'backwards' }));
+    }
+    if (!ps.menu && st.menu && !this.rm) {
       const d = document.querySelector('[data-drawer]');
       d && d.animate([{ clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 520, easing: this.E });
       document.querySelectorAll('[data-drawer-item]').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 480, delay: 160 + i * 50, easing: this.E, fill: 'backwards' }));
     }
+    if (ps.fOpen !== st.fOpen) {
+      document.documentElement.style.overflow = st.fOpen ? 'hidden' : '';
+      if (st.fOpen && !this.rm) {
+        const sh = document.querySelector('.fd-sheet'), bg = document.querySelector('.fd-bg');
+        bg && bg.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300 });
+        sh && sh.animate([{ opacity: 0, transform: 'translateY(28px) scale(.985)' }, { opacity: 1, transform: 'none' }], { duration: 560, easing: this.E });
+      }
+      if (!st.fOpen && this.lastFocus && document.contains(this.lastFocus)) this.lastFocus.focus({ preventScroll: true });
+    }
+    if (st.fOpen && (ps.fStep !== st.fStep || !ps.fOpen)) {
+      const h = document.querySelector('[data-fd-focus]'); h && h.focus({ preventScroll: true });
+      const body = document.querySelector('.fd-body'); body && (body.scrollTop = 0);
+      if (!this.rm && ps.fOpen) { const b = document.querySelector('.fd-body > *'); b && b.animate([{ opacity: 0, transform: 'translateX(18px)' }, { opacity: 1, transform: 'none' }], { duration: 480, easing: this.E }); }
+    }
+    if (st.fOpen && st.fStep === 'result' && (ps.fStep !== 'result' || ps.fPick !== st.fPick || ps.fRev !== st.fRev || !ps.fOpen)) this.resetSlider();
   }
-  componentWillUnmount() { removeEventListener('scroll', this.onS); removeEventListener('resize', this.onR); this.io && this.io.disconnect(); clearTimeout(this.tt); }
+  componentWillUnmount() {
+    removeEventListener('scroll', this.onS); removeEventListener('resize', this.onR); removeEventListener('keydown', this.onK);
+    this.io && this.io.disconnect(); clearTimeout(this.tt); this.clearTimers();
+  }
+
+  // ---------- motion ----------
   intro() {
     if (this.rm) return;
     const E = this.E;
-    document.querySelectorAll('[data-line]').forEach((el, i) => el.animate([{ transform: 'translateY(108%)' }, { transform: 'none' }], { duration: 1050, delay: 250 + i * 130, easing: E, fill: 'backwards' }));
+    document.querySelectorAll('[data-line]').forEach((el, i) => el.animate([{ transform: 'translateY(110%)' }, { transform: 'none' }], { duration: 1100, delay: 250 + i * 130, easing: E, fill: 'backwards' }));
     const img = document.querySelector('[data-hero-img]'), inner = document.querySelector('[data-hero-inner]');
-    img && img.animate([{ clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 1100, delay: 120, easing: E, fill: 'backwards' });
-    inner && inner.animate([{ transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { duration: 1800, delay: 120, easing: E, fill: 'backwards' });
-    document.querySelectorAll('[data-fadein]').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: 700, delay: 700 + i * 110, easing: E, fill: 'backwards' }));
+    img && img.animate([{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 1300, delay: 120, easing: E, fill: 'backwards' });
+    inner && inner.animate([{ transform: 'scale(1.18)' }, { transform: 'scale(1.04)' }], { duration: 2400, delay: 120, easing: E, fill: 'both' });
+    document.querySelectorAll('[data-fadein]').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 760, delay: 650 + i * 110, easing: E, fill: 'backwards' }));
   }
   scan() {
     if (this.rm || !this.io) return;
@@ -565,167 +1312,393 @@ class Component extends DCLogic {
   play(el) {
     el.style.opacity = '';
     const d = +(el.dataset.delay || 0);
-    if (el.dataset.reveal === 'mask') el.animate([{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 1100, delay: d, easing: this.E, fill: 'backwards' });
-    else el.animate([{ opacity: 0, transform: 'translateY(26px)' }, { opacity: 1, transform: 'none' }], { duration: 820, delay: d, easing: this.E, fill: 'backwards' });
+    if (el.dataset.reveal === 'mask') el.animate([{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0 0 0 0)' }], { duration: 1150, delay: d, easing: this.E, fill: 'backwards' });
+    else el.animate([{ opacity: 0, transform: 'translateY(28px)' }, { opacity: 1, transform: 'none' }], { duration: 860, delay: d, easing: this.E, fill: 'backwards' });
+  }
+  // Primary buttons lean a few pixels toward the pointer. Mouse/trackpad only.
+  bindMagnet() {
+    if (this.rm || !this.fine) return;
+    let cur = null;
+    const reset = () => { if (cur) { cur.style.transform = ''; cur = null; } };
+    addEventListener('pointermove', (e) => {
+      const el = e.target.closest && e.target.closest('[data-mag]');
+      if (el !== cur) reset();
+      if (!el) return;
+      cur = el;
+      const r = el.getBoundingClientRect();
+      el.style.transform = 'translate(' + ((e.clientX - r.left - r.width / 2) * 0.16).toFixed(1) + 'px,' + ((e.clientY - r.top - r.height / 2) * 0.28).toFixed(1) + 'px)';
+    }, { passive: true });
+    document.addEventListener('pointerleave', reset);
+  }
+  // Drag-to-scroll for the style book (mouse only; touch already scrolls natively).
+  bindTrack() {
+    const t = document.querySelector('[data-track]');
+    if (!t || t.dataset.bound) return;
+    t.dataset.bound = '1';
+    let down = null, moved = false;
+    t.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' || e.target.closest('button')) return; down = { x: e.clientX, l: t.scrollLeft }; moved = false; });
+    addEventListener('pointermove', (e) => {
+      if (!down) return;
+      const dx = e.clientX - down.x;
+      if (Math.abs(dx) > 4) { moved = true; t.classList.add('drag'); }
+      t.scrollLeft = down.l - dx;
+    });
+    addEventListener('pointerup', () => { if (!down) return; down = null; setTimeout(() => t.classList.remove('drag'), 0); });
+    t.addEventListener('click', (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+  }
+  trackBy(dir) {
+    const t = document.querySelector('[data-track]'), c = t && t.querySelector('[data-gitem]');
+    if (t && c) t.scrollBy({ left: dir * (c.getBoundingClientRect().width + 16) * 2, behavior: this.rm ? 'auto' : 'smooth' });
   }
   say(t) { clearTimeout(this.tt); this.setState({ toast: t }); this.tt = setTimeout(() => this.setState({ toast: '' }), 5200); }
-  // Jumping to #reserve is the point of these links; the preset just saves the visitor two taps.
   preset(p) { this.setState(Object.assign({ slot: null }, p)); }
-  renderVals() {
-    const K = window.KH, st = this.state;
-    const navItems = [
-      { no: '01', label: 'ホーム', en: 'HOME', href: '#top' },
-      { no: '02', label: 'メニュー', en: 'MENU', href: '#menu' },
-      { no: '03', label: 'スタイル', en: 'STYLES', href: '#styles' },
-      { no: '04', label: 'スタッフ', en: 'BARBERS', href: '#barbers' },
-      { no: '05', label: '予約', en: 'RESERVE', href: '#reserve' },
-      { no: '06', label: 'アクセス', en: 'ACCESS', href: '#access' }
-    ];
-    const base = {
-      navItems, desktop: !st.mobile, mobile: st.mobile, menuOpen: st.menu,
-      navBg: st.scrolled ? 'rgba(244,241,233,.94)' : 'transparent', navLine: st.scrolled ? '0 1px 0 rgba(23,27,26,.1)' : 'none', navH: st.scrolled ? '68px' : '88px',
-      barShift: st.nearEnd ? 'translateY(110%)' : 'none', tilePadL: st.mobile ? '0px' : '24px',
-      openMenu: () => this.setState({ menu: true }), closeMenu: () => this.setState({ menu: false }),
-      mockLine: () => this.say('LINE公式アカウントへの遷移はモックです。実際には接続しません。'),
-      mockInsta: () => this.say('Instagramへのリンクはモックです。公開前に実アカウントへ差し替えてください。'),
-      mockMap: () => this.say('Google マップ連携はモックです。住所が架空のため、案内図はイラストで表示しています。'),
-      mockPage: (e) => { e && e.preventDefault(); this.say('このデモはホーム1ページのみの構成です。該当ページは制作範囲外です。'); },
-      pickAnyBarber: () => this.preset({ barberId: 'any' }),
-      hasToast: !!st.toast, toast: st.toast, toastY: st.mobile ? '156px' : '96px',
-      homeServices: [], filters: [], gallery: [], galleryEmpty: false, barbers: [], reviews: [],
-      bkServices: [], bkBarbers: [], bkDays: [], bkSlots: [], bkLegend: [], mine: [], hasMine: false,
-      bkWindow: 14, bkMonthLabel: '', bkDateLabel: '—', bkSlotsOk: false, bkNotice: '',
-      bkSumService: '—', bkSumBarber: '—', bkSumWhen: '—', bkSumTotal: '—',
-      bkDisabled: true, bkCtaLabel: 'この内容で予約する', bkCtaBg: '#3a403e', bkCtaFg: '#A9AEA8', bkCtaCursor: 'not-allowed',
-      bkConfirm: () => {}
-    };
-    if (!K) return base;
+  goReserve() {
+    setTimeout(() => {
+      const r = document.getElementById('reserve');
+      if (!r) return;
+      r.scrollIntoView({ behavior: this.rm ? 'auto' : 'smooth', block: 'start' });
+      const h = document.getElementById('reserve-title'); h && h.focus({ preventScroll: true });
+    }, 60);
+  }
 
-    const kanji = (b) => b.name.charAt(0);
-    const initials = (b) => b.en.split(' ').map((p) => p.charAt(0)).join(' · ');
-
-    const pick = ['cut', 'fade', 'shave', 'cutshave', 'spa', 'premium'];
-    base.homeServices = pick.map((id, i) => {
-      const s = K.svc(id);
-      return Object.assign({}, s, { no: K.pad(i + 1), priceLabel: K.yen(s.price), minLabel: s.min + '分', href: '#reserve',
-        go: () => this.preset({ svcId: id }), aria: s.name + ' ' + K.yen(s.price) + ' ' + s.min + '分 を予約する' });
+  // ---------- AI 似合わせ診断 ----------
+  buildTeaser() {
+    if (this.sample) return;
+    this.sample = KHF.samplePortrait();
+    // ids follow the sample's fixed profile, so the teaser shows what the demo will actually recommend
+    const ids = ['skinfade', 'business7', 'mash'];
+    this.setState({ teaserBefore: this.sample.url, teaser: ids.map((id) => ({ id, name: KH.styles.find((s) => s.id === id).name, img: KHF.compose(this.sample.src, id, '#1f1a17').toDataURL('image/jpeg', 0.86) })) });
+  }
+  clearTimers() { this.timers.forEach(clearTimeout); this.timers = []; }
+  trap(e) {
+    const root = document.querySelector('[data-fd] .fd-sheet');
+    if (!root) return;
+    const f = [...root.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter((el) => el.offsetParent !== null || el.classList.contains('sr-only'));
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && (document.activeElement === first || !root.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+  openFinder(focusId) {
+    this.lastFocus = document.activeElement;
+    const st = this.state, focus = typeof focusId === 'string' ? focusId : null;
+    // A finished diagnosis is kept for the visit: reopening (or asking about another style) goes straight to results.
+    if (st.fProfile && this.base) {
+      const list = KH.advise(st.fProfile, focus);
+      this.ensure(list);
+      const fi = focus ? list.findIndex((x) => x.style.id === focus) : 0;
+      this.setState({ fOpen: true, fStep: 'result', fFocus: focus, fPick: Math.max(0, fi), fEdit: false, fRev: st.fRev + 1 });
+      return;
+    }
+    this.setState({ fOpen: true, fStep: 'intro', fErr: '', fFocus: focus });
+  }
+  closeFinder() {
+    this.clearTimers();
+    const st = this.state;
+    this.setState({ fOpen: false, fStep: st.fStep === 'scan' || st.fStep === 'align' ? 'intro' : st.fStep });
+  }
+  usePhoto(photo) {
+    this.photo = photo;
+    this.setState({ fPhoto: { url: photo.url, w: photo.w, h: photo.h, sample: photo.sample }, fTf: { x: 0, y: 0, s: 1 }, fErr: '' });
+  }
+  fFile(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    KHF.load(file).then((p) => { this.usePhoto(p); this.setState({ fStep: 'align' }); }).catch((err) => {
+      const m = { not_image: '画像ファイル（JPEG・PNG など）を選んでください。', too_large: 'ファイルが大きすぎます。12MB以下の写真を選んでください。' }[err.message] || 'この画像は読み込めませんでした。別の写真でお試しください。';
+      this.setState({ fErr: m });
     });
+  }
+  fSample() { this.buildTeaser(); this.usePhoto(this.sample); this.analyzeNow({ x: 0, y: 0, s: 1 }); }
+  // --- framing: drag to move, pinch or slider to zoom. Live updates go straight to the DOM; state is set on release.
+  applyTf(tf) {
+    const img = document.querySelector('[data-crop-img]');
+    if (img) Object.assign(img.style, this.imgStyleObj(tf));
+  }
+  imgStyleObj(tf) {
+    const p = this.state.fPhoto; if (!p) return {};
+    return { width: (KHF.baseWidth(p.w, p.h) * tf.s * 100).toFixed(3) + '%', left: (50 + tf.x * 100).toFixed(3) + '%', top: (50 + tf.y * 100).toFixed(3) + '%' };
+  }
+  cropDown(e) {
+    e.currentTarget.setPointerCapture && e.currentTarget.setPointerCapture(e.pointerId);
+    this.ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
+    this.live = Object.assign({}, this.live || this.state.fTf);
+  }
+  cropMove(e) {
+    const prev = this.ptrs[e.pointerId];
+    if (!prev || !this.state.fPhoto) return;
+    const r = e.currentTarget.getBoundingClientRect(), ids = Object.keys(this.ptrs), p = this.state.fPhoto;
+    let tf = Object.assign({}, this.live || this.state.fTf);
+    if (ids.length >= 2) {
+      const other = this.ptrs[ids.find((k) => +k !== e.pointerId)];
+      const d0 = Math.hypot(prev.x - other.x, prev.y - other.y), d1 = Math.hypot(e.clientX - other.x, e.clientY - other.y);
+      if (d0 > 0) tf.s = Math.max(1, Math.min(3, tf.s * d1 / d0));
+    } else {
+      tf.x += (e.clientX - prev.x) / r.width; tf.y += (e.clientY - prev.y) / r.height;
+    }
+    this.ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
+    this.live = KHF.clampTf(tf, p.w, p.h);
+    this.applyTf(this.live);
+  }
+  cropUp(e) {
+    delete this.ptrs[e.pointerId];
+    if (!Object.keys(this.ptrs).length && this.live) { this.setState({ fTf: this.live }); this.live = null; }
+  }
+  fZoomSet(e) {
+    const p = this.state.fPhoto; if (!p) return;
+    this.setState({ fTf: KHF.clampTf(Object.assign({}, this.state.fTf, { s: +e.target.value }), p.w, p.h) });
+  }
+  analyzeNow(tf) {
+    const photo = this.photo;
+    this.base = KHF.crop(photo, tf);
+    const a = KHF.analyze(photo, this.base);
+    this.cmp = {};
+    this.beforeUrl = this.base.toDataURL('image/jpeg', 0.9);
+    this.pending = a;
+    this.clearTimers();
+    this.setState({ fStep: 'scan', fScan: 0, fEdit: false });
+    const step = this.rm ? 60 : 640;
+    for (let i = 1; i <= 4; i++) this.timers.push(setTimeout(() => this.setState({ fScan: i }), step * i));
+    // render the try-ons while the scan animation plays, so the result opens instantly
+    this.timers.push(setTimeout(() => this.ensure(KH.advise(a.profile, this.state.fFocus)), 80));
+    this.timers.push(setTimeout(() => this.finishScan(), step * 4 + (this.rm ? 0 : 420)));
+  }
+  finishScan() {
+    this.clearTimers();
+    const a = this.pending; if (!a) return;
+    const list = KH.advise(a.profile, this.state.fFocus);
+    this.ensure(list);
+    const fi = this.state.fFocus ? list.findIndex((x) => x.style.id === this.state.fFocus) : 0;
+    this.setState({ fStep: 'result', fProfile: a.profile, fTone: a.tone, fPick: Math.max(0, fi), fRev: this.state.fRev + 1 });
+  }
+  ensure(list) {
+    const tone = (this.pending && this.pending.tone) || this.state.fTone;
+    list.forEach((x) => {
+      const id = x.style.id;
+      if (this.cmp[id]) return;
+      const c = KHF.compose(this.base, id, tone);
+      this.cmp[id] = { canvas: c, url: c.toDataURL('image/jpeg', 0.9) };
+    });
+  }
+  resetSlider() {
+    const ba = document.querySelector('[data-ba]'), r = document.querySelector('[data-ba-range]');
+    if (!ba || !r) return;
+    r.value = 28; ba.style.setProperty('--pos', '28%');
+    if (!this.rm) ba.animate([{ opacity: 0.4, transform: 'scale(.985)' }, { opacity: 1, transform: 'none' }], { duration: 520, easing: this.E });
+  }
+  fSlide(e) { const ba = document.querySelector('[data-ba]'); ba && ba.style.setProperty('--pos', e.target.value + '%'); }
+  fSetDim(dim, val) {
+    const profile = Object.assign({}, this.state.fProfile, { [dim]: val });
+    this.ensure(KH.advise(profile, this.state.fFocus));
+    this.setState({ fProfile: profile, fPick: 0, fRev: this.state.fRev + 1 });
+  }
+  currentResult() {
+    const st = this.state;
+    if (!st.fProfile) return null;
+    const list = KH.advise(st.fProfile, st.fFocus);
+    return { list, cur: list[Math.min(st.fPick, list.length - 1)] };
+  }
+  fSave() {
+    const r = this.currentResult(); if (!r) return;
+    const c = this.cmp[r.cur.style.id]; if (!c) return;
+    const a = document.createElement('a');
+    a.href = KHF.poster(c.canvas, { name: r.cur.style.name, en: r.cur.style.en, score: r.cur.score });
+    a.download = 'kurohane-' + r.cur.style.id + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    this.say('合成イメージを保存しました（デモ）。');
+  }
+  fBook() {
+    const r = this.currentResult(); if (!r) return;
+    const s = r.cur.style, c = this.cmp[s.id];
+    const th = document.createElement('canvas'); th.width = 180; th.height = 240;
+    c && th.getContext('2d').drawImage(c.canvas, 0, 0, 180, 240);
+    this.lastFocus = null;
+    this.setState({ fOpen: false, wish: { id: s.id, img: th.toDataURL('image/jpeg', 0.85) }, svcId: s.service, barberId: s.barber, slot: null });
+    this.goReserve();
+    this.say('「' + s.name + '」を希望スタイルとして予約に添えました。メニューと担当も選択済みです。');
+  }
 
-    base.filters = K.styleCats.map((c) => { const a = c.id === st.filter; return Object.assign({}, c, { active: a, bg: a ? '#F4F1E9' : 'transparent', fg: a ? '#171B1A' : '#F4F1E9', border: a ? '#F4F1E9' : 'rgba(244,241,233,.3)', pick: () => this.setState({ filter: c.id }) }); });
-    const catName = (id) => (K.styleCats.find((c) => c.id === id) || {}).name;
-    const list = K.styles.filter((s) => st.filter === 'all' || s.cat === st.filter).slice(0, 8);
-    base.gallery = list.map((s, i) => Object.assign({}, s, {
-      catName: catName(s.cat), offset: st.mobile ? '0px' : (i % 2 ? '44px' : '0px'),
-      img: 'img/style-' + s.no + '.webp', alt: s.name + '（' + s.en + '）のスタイル例',
-      href: '#reserve', go: () => this.preset({ svcId: s.service, barberId: s.barber }),
-      aria: s.name + 'で予約する（メニューと担当を自動で選びます）'
-    }));
-    base.galleryEmpty = list.length === 0;
-
-    base.barbers = K.barbers.map((b, i) => Object.assign({}, b, {
-      short: b.name.split(' ')[1], offset: st.mobile ? '0px' : (i % 2 ? '64px' : '0px'), yearsLabel: 'EXP. ' + b.years + ' YRS',
-      feeLabel: b.fee ? '　指名料 ' + K.yen(b.fee) : '', href: '#reserve', go: () => this.preset({ barberId: b.id }),
-      kanji: kanji(b), initials: initials(b),
-      plateAlt: b.name + '（' + b.en + '）の図版。架空の人物のため写真は使用していません。',
-      styleNames: b.styles.map((id) => (K.styles.find((s) => s.id === id) || {}).name).join('・')
-    }));
-    base.reviews = K.reviews.map((r, i) => Object.assign({}, r, { offset: st.mobile ? '0px' : ['0px', '72px', '24px'][i] }));
-
-    // ---- reservation panel, driven by the mock scheduling engine in kurohane-data.js ----
+  // ---------- booking (memoised: the slot engine is the expensive part of a render) ----------
+  bookingVals() {
+    const K = window.KH, st = this.state;
+    const key = [st.svcId, st.barberId, st.date, st.slot, st.rev, K.todayTokyo(), Math.floor(K.nowMinTokyo() / 5)].join('|');
+    if (this.bkKey === key) return this.bkVals;
+    const b = {};
     const DAYS = 14;
-    base.bkWindow = DAYS;
+    b.bkWindow = DAYS;
     const sv = K.svc(st.svcId) || K.svc('cut');
     const fee = st.barberId !== 'any' && K.barber(st.barberId) ? K.barber(st.barberId).fee : 0;
-
-    base.bkServices = K.services.map((s) => {
-      const a = s.id === st.svcId;
-      return { name: s.name, meta: K.yen(s.price) + ' ／ ' + s.min + '分', active: a,
-        bg: a ? '#171B1A' : 'transparent', fg: a ? '#F4F1E9' : '#171B1A', border: a ? '#171B1A' : 'rgba(23,27,26,.22)',
-        pick: () => this.preset({ svcId: s.id }) };
-    });
-
-    base.bkBarbers = [{ id: 'any', name: '指名なし', sub: 'ANY BARBER', kanji: '◎', chip: '#696D68', fee: 0 }]
-      .concat(K.barbers.map((b) => ({ id: b.id, name: b.name, sub: b.roleEn.toUpperCase() + (b.fee ? ' +' + K.yen(b.fee) : ''), kanji: kanji(b), chip: b.color })))
-      .map((b) => {
-        const a = b.id === st.barberId;
-        return Object.assign({}, b, { active: a, bg: a ? '#171B1A' : 'transparent', fg: a ? '#F4F1E9' : '#171B1A', border: a ? '#171B1A' : 'rgba(23,27,26,.22)',
-          pick: () => this.preset({ barberId: b.id }) });
-      });
-
+    const kanji = (x) => x.name.charAt(0);
+    b.bkServices = K.services.map((s) => ({ name: s.name, meta: K.yen(s.price) + ' ／ ' + s.min + '分', active: s.id === st.svcId, pick: () => this.preset({ svcId: s.id }) }));
+    b.bkBarbers = [{ id: 'any', name: '指名なし', sub: 'ANY BARBER', kanji: '◎', chip: '#696D68' }]
+      .concat(K.barbers.map((x) => ({ id: x.id, name: x.name, sub: x.roleEn.toUpperCase() + (x.fee ? ' +' + K.yen(x.fee) : ''), kanji: kanji(x), chip: x.color })))
+      .map((x) => Object.assign({}, x, { active: x.id === st.barberId, pick: () => this.preset({ barberId: x.id }) }));
     const MARK = { many: ['◎', '#29483F'], some: ['○', '#29483F'], few: ['△', '#B76E50'], full: ['×', '#9A9A94'], closed: ['休', '#9A9A94'], off: ['−', '#9A9A94'], out: ['−', '#9A9A94'], past: ['−', '#9A9A94'] };
-    const today = K.todayTokyo();
-    const raw = [];
-    for (let i = 0; i < DAYS; i++) {
-      const iso = K.addDays(today, i), stt = K.dayStatus(iso, sv.min, st.barberId);
-      raw.push({ iso, stt, disabled: stt !== 'many' && stt !== 'some' && stt !== 'few' });
-    }
+    const today = K.todayTokyo(), raw = [];
+    for (let i = 0; i < DAYS; i++) { const iso = K.addDays(today, i), s = K.dayStatus(iso, sv.min, st.barberId); raw.push({ iso, s, disabled: s !== 'many' && s !== 'some' && s !== 'few' }); }
     const open = raw.filter((d) => !d.disabled).map((d) => d.iso);
     const date = open.indexOf(st.date) >= 0 ? st.date : (open[0] || null);
-
-    base.bkDays = raw.map((d) => {
-      const dt = K.parse(d.iso), a = d.iso === date, m = MARK[d.stt] || MARK.out;
-      const reason = d.stt === 'closed' ? (K.closedReason(d.iso) || '定休日') : d.stt === 'off' ? '担当者休み' : d.stt === 'full' ? '満席' : '空きあり';
-      return { day: dt.getUTCDate(), wd: K.WD[dt.getUTCDay()], note: m[0], noteColor: a ? '#DDD8CD' : m[1],
-        active: a, disabled: d.disabled, cursor: d.disabled ? 'not-allowed' : 'pointer', opacity: d.disabled ? '.42' : '1',
-        bg: a ? '#171B1A' : 'transparent', fg: a ? '#F4F1E9' : '#171B1A', border: a ? '#171B1A' : 'rgba(23,27,26,.2)',
-        aria: K.fmt(d.iso) + ' ' + reason, pick: () => this.setState({ date: d.iso, slot: null }) };
+    b.bkDays = raw.map((d) => {
+      const dt = K.parse(d.iso), a = d.iso === date, m = MARK[d.s] || MARK.out;
+      const reason = d.s === 'closed' ? (K.closedReason(d.iso) || '定休日') : d.s === 'off' ? '担当者休み' : d.s === 'full' ? '満席' : '空きあり';
+      return { day: dt.getUTCDate(), wd: K.WD[dt.getUTCDay()], note: m[0], noteColor: a ? '#DDD8CD' : m[1], active: a, disabled: d.disabled, aria: K.fmt(d.iso) + ' ' + reason, pick: () => this.setState({ date: d.iso, slot: null }) };
     });
-    base.bkLegend = [{ c: '#29483F', t: '◎ 余裕あり' }, { c: '#29483F', t: '○ 空きあり' }, { c: '#B76E50', t: '△ わずか' }, { c: '#9A9A94', t: '× 満席 ／ 休 定休日' }];
-    base.bkMonthLabel = date ? K.parse(date).getUTCFullYear() + '年' + (K.parse(date).getUTCMonth() + 1) + '月' : '';
-    base.bkDateLabel = date ? K.fmt(date) : '—';
-
+    b.bkLegend = [{ c: '#29483F', t: '◎ 余裕あり' }, { c: '#29483F', t: '○ 空きあり' }, { c: '#B76E50', t: '△ わずか' }, { c: '#9A9A94', t: '× 満席 ／ 休 定休日' }];
+    b.bkMonthLabel = date ? K.parse(date).getUTCFullYear() + '年' + (K.parse(date).getUTCMonth() + 1) + '月' : '';
+    b.bkDateLabel = date ? K.fmt(date) : '—';
+    b.bkDateOk = !!date; b.bkSlotsOk = false; b.bkNotice = ''; b.bkSlots = [];
     let slot = null;
-    if (!date) base.bkNotice = '表示中の' + DAYS + '日間に空いている日がありません。期間を広げてご相談ください。';
+    if (!date) b.bkNotice = '表示中の' + DAYS + '日間に空いている日がありません。期間を広げてご相談ください。';
     else {
-      const all = K.slotsFor(date, sv.min, st.barberId);
-      const ok = all.filter((x) => x.ok).map((x) => x.t);
-      if (!ok.length) base.bkNotice = 'この日は空きがありません。別の日をお選びください。';
+      const all = K.slotsFor(date, sv.min, st.barberId), ok = all.filter((x) => x.ok).map((x) => x.t);
+      if (!ok.length) b.bkNotice = 'この日は空きがありません。別の日をお選びください。';
       else {
         slot = ok.indexOf(st.slot) >= 0 ? st.slot : ok[0];
-        base.bkSlotsOk = true;
-        base.bkSlots = all.map((x) => {
-          const a = x.t === slot;
-          return { label: x.label, active: a, disabled: !x.ok, cursor: x.ok ? 'pointer' : 'not-allowed', strike: x.ok ? 'none' : 'line-through',
-            bg: a ? '#171B1A' : x.ok ? 'transparent' : 'rgba(23,27,26,.05)', fg: a ? '#F4F1E9' : x.ok ? '#171B1A' : '#9A9A94',
-            border: a ? '#171B1A' : x.ok ? 'rgba(23,27,26,.24)' : 'rgba(23,27,26,.1)',
-            aria: x.label + (x.ok ? ' を選ぶ' : ' は予約できません'), pick: () => this.setState({ slot: x.t }) };
-        });
+        b.bkSlotsOk = true;
+        b.bkSlots = all.map((x) => ({ label: x.label, active: x.t === slot, disabled: !x.ok, aria: x.label + (x.ok ? ' を選ぶ' : ' は予約できません'), pick: () => this.setState({ slot: x.t }) }));
       }
     }
-
-    base.bkSumService = sv.name;
-    base.bkSumBarber = st.barberId === 'any' ? '指名なし' : K.barber(st.barberId).name;
-    base.bkSumWhen = date && slot != null ? K.fmt(date) + ' ' + K.hm(slot) + '〜' + K.hm(slot + sv.min) : '—';
-    base.bkSumTotal = K.yen(sv.price + fee);
-    base.bkDisabled = !(date && slot != null);
-    if (!base.bkDisabled) { base.bkCtaBg = '#F4F1E9'; base.bkCtaFg = '#171B1A'; base.bkCtaCursor = 'pointer'; }
-    base.bkConfirm = () => {
+    b.bkSlotOk = slot != null;
+    b.bkSumService = sv.name;
+    b.bkSumBarber = st.barberId === 'any' ? '指名なし' : K.barber(st.barberId).name;
+    b.bkSumWhen = date && slot != null ? K.fmt(date) + ' ' + K.hm(slot) + '〜' + K.hm(slot + sv.min) : '—';
+    b.bkSumTotal = K.yen(sv.price + fee);
+    b.bkDisabled = !(date && slot != null);
+    b.bkConfirm = () => {
       if (!date || slot == null) return;
       const live = K.slotsFor(date, sv.min, st.barberId).find((x) => x.t === slot);
       if (!live || !live.ok) { this.setState({ slot: null, rev: st.rev + 1 }); this.say('申し訳ありません、その枠はちょうど埋まりました。別の時間をお選びください。'); return; }
       const bid = st.barberId !== 'any' ? st.barberId : live.barbers[0];
       const ref = 'KH-' + date.replace(/-/g, '').slice(2) + '-' + K.pad(Math.floor(slot / 60)) + K.pad(slot % 60);
+      const wish = this.state.wish, ws = wish && K.styles.find((x) => x.id === wish.id);
       const l = K.loadSession();
-      l.push({ ref, date, start: slot, min: sv.min, service: sv.id, barber: bid, status: 'confirmed' });
+      l.push({ ref, date, start: slot, min: sv.min, service: sv.id, barber: bid, status: 'confirmed', style: wish ? wish.id : null });
       K.saveSession(l);
-      this.setState({ slot: null, rev: st.rev + 1 });
-      this.say('ご予約を承りました（デモ）　' + ref + '　' + K.fmt(date) + ' ' + K.hm(slot) + '　' + sv.name + '／' + K.barber(bid).name);
+      this.setState({ slot: null, rev: st.rev + 1, wish: null });
+      this.say('ご予約を承りました（デモ）　' + ref + '　' + K.fmt(date) + ' ' + K.hm(slot) + '　' + sv.name + '／' + K.barber(bid).name + (ws ? '　希望スタイル：' + ws.name : ''));
     };
-
-    const mine = K.loadSession().filter((x) => x.status !== 'canceled')
-      .sort((a, b) => (a.date === b.date ? a.start - b.start : a.date < b.date ? -1 : 1));
-    base.hasMine = mine.length > 0;
-    base.mine = mine.map((m) => {
-      const ms = K.svc(m.service), mb = K.barber(m.barber);
+    const mine = K.loadSession().filter((x) => x.status !== 'canceled').sort((a, c) => (a.date === c.date ? a.start - c.start : a.date < c.date ? -1 : 1));
+    b.hasMine = mine.length > 0;
+    b.mine = mine.map((m) => {
+      const ms = K.svc(m.service), mb = K.barber(m.barber), sy = m.style && K.styles.find((x) => x.id === m.style);
       return { ref: m.ref, when: K.fmt(m.date) + '　' + K.hm(m.start) + '〜' + K.hm(m.start + m.min),
-        what: (ms ? ms.name : '—') + ' ／ ' + (mb ? mb.name : '指名なし') + ' ／ ' + K.yen((ms ? ms.price : 0) + (mb ? mb.fee : 0)),
-        cancel: () => { K.saveSession(K.loadSession().filter((x) => x.ref !== m.ref)); this.setState({ rev: st.rev + 1 }); this.say('予約を取消しました（デモ）　' + m.ref); } };
+        what: (ms ? ms.name : '—') + ' ／ ' + (mb ? mb.name : '指名なし') + ' ／ ' + K.yen((ms ? ms.price : 0) + (mb ? mb.fee : 0)) + (sy ? ' ／ 希望：' + sy.name : ''),
+        cancel: () => { K.saveSession(K.loadSession().filter((x) => x.ref !== m.ref)); this.setState({ rev: this.state.rev + 1 }); this.say('予約を取消しました（デモ）　' + m.ref); } };
     });
+    // hero: the next free cut today
+    const t0 = K.slotsFor(today, 60, 'any').find((x) => x.ok);
+    b.heroLive = K.isClosed(today) ? '本日は定休日 · 明日以降の空きを表示中' : t0 ? '本日 ' + t0.label + ' から空きあり' : '本日は満席 · 明日以降に空きあり';
+    this.bkKey = key; this.bkVals = b;
+    return b;
+  }
 
-    return base;
+  renderVals() {
+    const K = window.KH, st = this.state;
+    const close = () => this.setState({ menu: false });
+    const nav = [
+      { no: '01', label: 'メニュー', en: 'MENU', href: '#menu' },
+      { no: '02', label: 'スタイル', en: 'STYLES', href: '#styles' },
+      { no: '03', label: 'AI診断', en: 'AI MATCH', href: '#finder', badge: 'NEW' },
+      { no: '04', label: 'スタッフ', en: 'BARBERS', href: '#barbers' },
+      { no: '05', label: '予約', en: 'RESERVE', href: '#reserve' },
+      { no: '06', label: 'アクセス', en: 'ACCESS', href: '#access' }
+    ];
+    const base = {
+      navItems: nav.map((n) => Object.assign({}, n, { go: () => {} })), drawerItems: nav.map((n) => Object.assign({}, n, { go: close })),
+      desktop: !st.mobile, mobile: st.mobile, menuOpen: st.menu, scrolled: st.scrolled, coarse: st.coarse,
+      barShift: st.nearEnd ? 'translateY(110%)' : 'none',
+      openMenu: () => this.setState({ menu: true }), closeMenu: close,
+      mockLine: () => this.say('LINE公式アカウントへの遷移はモックです。実際には接続しません。'),
+      mockInsta: () => this.say('Instagramへのリンクはモックです。公開前に実アカウントへ差し替えてください。'),
+      mockMap: () => this.say('Google マップ連携はモックです。住所が架空のため、案内図はイラストで表示しています。'),
+      mockPage: (e) => { e && e.preventDefault(); this.say('このデモはホーム1ページのみの構成です。該当ページは制作範囲外です。'); },
+      pickAnyBarber: () => this.preset({ barberId: 'any' }),
+      trackPrev: () => this.trackBy(-1), trackNext: () => this.trackBy(1),
+      menuMove: (e) => {
+        if (!this.fine || st.mobile) return;
+        const pv = document.querySelector('[data-mprev]');
+        pv && (pv.style.transform = 'translate3d(' + (e.clientX + 28) + 'px,' + (e.clientY - 150) + 'px,0)');
+      },
+      menuLeave: () => { const pv = document.querySelector('[data-mprev]'); pv && pv.classList.remove('on'); },
+      hasToast: !!st.toast, toast: st.toast, toastY: st.mobile ? '86px' : '96px',
+      marquee: [], homeServices: [], filters: [], gallery: [], galleryEmpty: false, barbers: [], reviews: [],
+      teaser: st.teaser, teaserBefore: st.teaserBefore,
+      hasWish: !!st.wish, wishImg: st.wish ? st.wish.img : '', wishName: '', clearWish: () => this.setState({ wish: null }),
+      openFinder: () => this.openFinder(), openSample: () => { this.openFinder(); if (!this.state.fProfile) this.fSample(); },
+      closeFinder: () => this.closeFinder(),
+      // finder
+      fOpen: st.fOpen, fStep: st.fStep, fErr: st.fErr, fEdit: st.fEdit,
+      fSteps: [], fFocusNote: '', fFile: (e) => this.fFile(e), fSample: () => this.fSample(),
+      fPhotoUrl: st.fPhoto ? st.fPhoto.url : '', fImgStyle: '', fZoom: st.fTf.s, fZoomSet: (e) => this.fZoomSet(e),
+      cropDown: (e) => this.cropDown(e), cropMove: (e) => this.cropMove(e), cropUp: (e) => this.cropUp(e),
+      fBack: () => this.setState({ fStep: 'intro' }), fAnalyze: () => this.analyzeNow(st.fTf), fSkip: () => this.finishScan(),
+      fBefore: this.beforeUrl || '', fDots: [], fChecks: [], fChips: [], fEditor: [], fList: [], fCur: null,
+      fEditToggle: () => this.setState({ fEdit: !st.fEdit }), fSlide: (e) => this.fSlide(e),
+      fRetake: () => this.setState({ fStep: 'intro', fErr: '' }), fSave: () => this.fSave(), fBook: () => this.fBook(),
+      heroLive: '空き状況を確認中…',
+      bkServices: [], bkBarbers: [], bkDays: [], bkSlots: [], bkLegend: [], mine: [], hasMine: false,
+      bkWindow: 14, bkMonthLabel: '', bkDateLabel: '—', bkSlotsOk: false, bkNotice: '', bkDateOk: false, bkSlotOk: false,
+      bkSumService: '—', bkSumBarber: '—', bkSumWhen: '—', bkSumTotal: '—', bkDisabled: true, bkConfirm: () => {}
+    };
+    if (!K) return base;
+
+    const kanji = (b) => b.name.charAt(0);
+    const initials = (b) => b.en.split(' ').map((p) => p.charAt(0)).join(' · ');
+    const IMG = { cut: 'style-02', fade: 'style-01', shave: 'style-11', cutshave: 'style-07', spa: 'style-08', premium: 'style-04' };
+    base.marquee = [0, 1].flatMap(() => K.services.map((s) => ({ name: s.name, en: s.en })));
+    base.homeServices = ['cut', 'fade', 'shave', 'cutshave', 'spa', 'premium'].map((id, i) => {
+      const s = K.svc(id);
+      return Object.assign({}, s, { no: K.pad(i + 1), priceLabel: K.yen(s.price), minLabel: s.min + '分',
+        go: () => this.preset({ svcId: id }), aria: s.name + ' ' + K.yen(s.price) + ' ' + s.min + '分 を予約する',
+        enter: () => { if (!this.fine || st.mobile) return; const pv = document.querySelector('[data-mprev]'); if (!pv) return; pv.querySelector('img').src = 'img/' + IMG[id] + '.webp'; pv.classList.add('on'); } });
+    });
+    base.filters = K.styleCats.map((c) => Object.assign({}, c, { active: c.id === st.filter, pick: () => this.setState({ filter: c.id }) }));
+    const catName = (id) => (K.styleCats.find((c) => c.id === id) || {}).name;
+    const list = K.styles.filter((s) => st.filter === 'all' || s.cat === st.filter);
+    base.gallery = list.map((s) => Object.assign({}, s, {
+      catName: catName(s.cat), img: 'img/style-' + s.no + '.webp', alt: s.name + '（' + s.en + '）のスタイル例',
+      go: () => { this.preset({ svcId: s.service, barberId: s.barber }); this.goReserve(); },
+      aria: s.name + 'で予約する（メニューと担当を自動で選びます）',
+      check: () => this.openFinder(s.id), checkAria: s.name + 'が似合うかAIで診断する'
+    }));
+    base.galleryEmpty = list.length === 0;
+    base.barbers = K.barbers.map((b, i) => Object.assign({}, b, {
+      short: b.name.split(' ')[1], offset: st.mobile ? '0px' : (i % 2 ? '56px' : '0px'), yearsLabel: 'EXP. ' + b.years + ' YRS',
+      feeLabel: b.fee ? '　指名料 ' + K.yen(b.fee) : '', go: () => this.preset({ barberId: b.id }),
+      kanji: kanji(b), initials: initials(b), plateAlt: b.name + '（' + b.en + '）の図版。架空の人物のため写真は使用していません。',
+      styleNames: b.styles.map((id) => (K.styles.find((s) => s.id === id) || {}).name).join('・')
+    }));
+    base.reviews = K.reviews.map((r, i) => Object.assign({}, r, { offset: st.mobile ? '0px' : ['0px', '48px', '16px'][i] }));
+    if (st.wish) { const ws = K.styles.find((x) => x.id === st.wish.id); base.wishName = ws ? ws.name : ''; }
+
+    // ---- finder view model ----
+    const order = ['intro', 'align', 'scan', 'result'], at = order.indexOf(st.fStep);
+    base.fSteps = ['写真', '位置合わせ', '解析', '結果'].map((label, i) => ({ i, label, done: i < at, cur: i === at ? 'step' : undefined, cls: i === at ? 'on' : i < at ? 'done' : '' }));
+    if (st.fFocus) { const fs = K.styles.find((x) => x.id === st.fFocus); base.fFocusNote = fs ? '「' + fs.name + '」が似合うかどうかも、あわせてお伝えします。' : ''; }
+    if (st.fPhoto) base.fImgStyle = Object.entries(this.imgStyleObj(st.fTf)).map(([k, v]) => k + ':' + v).join(';');
+    base.fDots = [[0, -1], [0.71, -0.71], [1, 0], [0.71, 0.71], [0, 1], [-0.71, 0.71], [-1, 0], [-0.71, -0.71], [-0.44, -0.1], [0.44, -0.1], [0, 0.3], [-0.2, 0.58], [0.2, 0.58], [-0.45, -0.28], [0.45, -0.28], [0, -1.3]]
+      .map((p, i) => ({ x: ((384 + p[0] * 178) / 7.68).toFixed(2) + '%', y: ((476 + p[1] * 238) / 10.24).toFixed(2) + '%', delay: (i * 0.11).toFixed(2) + 's' }));
+    base.fChecks = ['輪郭を検出', '頭の形を推定', '髪質・毛量を判定', 'スタイルと照合'].map((label, i) => ({ label, cls: i < st.fScan ? 'ok' : i === st.fScan ? 'now' : '' }));
+    if (st.fProfile) {
+      base.fChips = K.profileDims.map((d) => ({ k: d.name, v: K.dimLabel(d.id, st.fProfile[d.id]) }));
+      base.fEditor = K.profileDims.map((d) => ({ name: d.name, opts: d.opts.map((o) => ({ label: o[1], active: st.fProfile[d.id] === o[0], pick: () => this.fSetDim(d.id, o[0]) })) }));
+      const res = KH.advise(st.fProfile, st.fFocus), pick = Math.min(st.fPick, res.length - 1);
+      base.fList = res.map((r, i) => {
+        const s = r.style, sv = K.svc(s.service), bb = K.barber(s.barber), c = this.cmp[s.id];
+        return { no: s.no, name: s.name, en: s.en, desc: s.desc, cycle: s.cycle, score: r.score, reasons: r.reasons,
+          tag: r.focus && i >= 3 ? '気になる · ' + r.score + '%' : (r.focus ? '気になる · ' : '') + 'おすすめ ' + (i + 1),
+          svcLabel: sv.name + ' ' + K.yen(sv.price), barberName: bb.name, img: c ? c.url : this.beforeUrl,
+          active: i === pick, pick: () => { this.ensure([r]); this.setState({ fPick: i }); } };
+      });
+      base.fCur = base.fList[pick] || null;
+    }
+
+    return Object.assign(base, this.bookingVals());
   }
 }
 </script>
+
 <!-- Skyland concept banner (not part of the Kurohane design) -->
 <style>
 #sky-bar{position:fixed;left:50%;bottom:16px;transform:translate(-50%,0);z-index:200;display:flex;align-items:center;gap:6px 14px;max-width:calc(100% - 24px);width:max-content;padding:8px 8px 8px 16px;border-radius:999px;background:#fff;color:#0b1a3a;box-shadow:0 18px 40px rgba(11,26,58,.28),0 0 0 1px rgba(11,26,58,.08);font:500 13.5px/1.3 system-ui,-apple-system,'Segoe UI',sans-serif;transition:opacity .3s,transform .3s}
@@ -764,3 +1737,4 @@ html:not(.sky-bar-off) footer{padding-bottom:150px}
 </script>
 </body>
 </html>
+

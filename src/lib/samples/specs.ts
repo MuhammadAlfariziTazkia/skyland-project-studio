@@ -492,6 +492,16 @@ export const SAMPLE_SPECS: Record<ConceptKey, SampleSpec> = {
         ['理容師は自分のカレンダーだけ見え、料金を変えられるのは店主だけにするログイン分離。',
          '理容師が自分で予約を管理するようになったら価値があります。']),
     ],
+    notOffered: [
+      {
+        label: { en: 'AI hairstyle match (shown in the demo)', id: 'AI rekomendasi gaya rambut (ada di demo)', ja: 'AI似合わせ診断（デモに掲載）' },
+        why: {
+          en: 'The demo shows the direction with an in-browser simulation. The real version runs a vision model and an image-generation model on every photo, so it is quoted separately as a custom AI feature, and the AI usage is billed to your own API account.',
+          id: 'Demo menunjukkan arahnya lewat simulasi di browser. Versi sungguhan menjalankan model vision dan model pembuat gambar untuk setiap foto, jadi dihitung terpisah sebagai fitur AI custom, dan biaya pemakaian AI ditagihkan ke akun API Anda sendiri.',
+          ja: 'デモではブラウザ内のシミュレーションで方向性をお見せしています。本番では写真ごとに画像解析AIと画像生成AIを使うため、カスタムAI機能として別途お見積りし、AIの利用料はお客様ご自身のAPIアカウントでのお支払いとなります。',
+        },
+      },
+    ],
   },
 
   /**

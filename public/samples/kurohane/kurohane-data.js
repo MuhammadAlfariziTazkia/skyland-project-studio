@@ -33,17 +33,17 @@
     { id: 'perm', name: 'パーマ' }, { id: 'business', name: 'ビジネス' }, { id: 'casual', name: 'カジュアル' }
   ];
   const styles = [
-    { id: 'skinfade', no: '01', name: 'スキンフェード', en: 'Skin Fade', cat: 'fade', service: 'fade', barber: 'kaito', cycle: '3〜4週間', shape: 'tall', desc: '地肌から自然につながるグラデーション。トップは長さを残し、横顔をすっきり見せます。' },
-    { id: 'natural', no: '02', name: 'ナチュラルショート', en: 'Natural Short', cat: 'short', service: 'cut', barber: 'mio', cycle: '4〜5週間', shape: 'sq', desc: '手ぐしで整う、扱いやすいショート。毎朝のスタイリングは数分で済みます。' },
-    { id: 'twist', no: '03', name: 'ツイストパーマ', en: 'Twist Perm', cat: 'perm', service: 'perm', barber: 'ren', cycle: '6〜8週間', shape: 'tall', desc: '束感のあるねじれで立体感を。ワックスを揉み込むだけで形が決まります。' },
-    { id: 'business7', no: '04', name: '七三ビジネス', en: 'Side Part', cat: 'business', service: 'cut', barber: 'kaito', cycle: '3〜4週間', shape: 'wide', desc: '品のある分け目と短めのサイド。スーツにも休日の服にもなじみます。' },
-    { id: 'crop', no: '05', name: 'クロップ', en: 'Textured Crop', cat: 'short', service: 'fade', barber: 'mio', cycle: '3〜4週間', shape: 'sq', desc: '前髪を短く揃え、トップに質感を。くせ毛の方にもおすすめです。' },
-    { id: 'wave', no: '06', name: '波巻きパーマ', en: 'Wave Perm', cat: 'perm', service: 'perm', barber: 'ren', cycle: '6〜8週間', shape: 'sq', desc: 'ゆるやかな波で柔らかい印象に。乾かすだけでも形になります。' },
-    { id: 'taper', no: '07', name: 'テーパーフェード', en: 'Taper Fade', cat: 'fade', service: 'fade', barber: 'kaito', cycle: '3〜4週間', shape: 'tall', desc: 'もみあげと襟足だけを短く絞る、控えめなフェード。職場でも浮きません。' },
-    { id: 'centre', no: '08', name: 'センターパート', en: 'Centre Part', cat: 'casual', service: 'cut', barber: 'mio', cycle: '4〜6週間', shape: 'wide', desc: '中央で分けた前髪が額を自然に見せます。伸ばしかけの時期にも。' },
-    { id: 'mash', no: '09', name: 'ソフトマッシュ', en: 'Soft Mash', cat: 'casual', service: 'cut', barber: 'ren', cycle: '4〜5週間', shape: 'sq', desc: '丸みのあるシルエットに軽さを加えた、親しみやすいスタイル。' },
-    { id: 'buzz', no: '10', name: 'バズカット', en: 'Buzz Cut', cat: 'short', service: 'fade', barber: 'minato', cycle: '2〜3週間', shape: 'sq', desc: '頭の形を整えて見せる、潔い短髪。お手入れはほとんど不要です。' },
-    { id: 'softmohawk', no: '11', name: 'ソフトモヒカン', en: 'Soft Mohawk', cat: 'casual', service: 'fade', barber: 'minato', cycle: '3〜4週間', shape: 'tall', desc: 'トップを立ち上げ、サイドを締めた動きのあるスタイル。' }
+    { id: 'skinfade', no: '01', name: 'スキンフェード', en: 'Skin Fade', cat: 'fade', service: 'fade', barber: 'kaito', cycle: '3〜4週間', shape: 'tall', traits: ['sideTight','topVolume'], desc: '地肌から自然につながるグラデーション。トップは長さを残し、横顔をすっきり見せます。' },
+    { id: 'natural', no: '02', name: 'ナチュラルショート', en: 'Natural Short', cat: 'short', service: 'cut', barber: 'mio', cycle: '4〜5週間', shape: 'sq', traits: ['lowMaint','fringe'], desc: '手ぐしで整う、扱いやすいショート。毎朝のスタイリングは数分で済みます。' },
+    { id: 'twist', no: '03', name: 'ツイストパーマ', en: 'Twist Perm', cat: 'perm', service: 'perm', barber: 'ren', cycle: '6〜8週間', shape: 'tall', traits: ['texture','topVolume','sideTight'], desc: '束感のあるねじれで立体感を。ワックスを揉み込むだけで形が決まります。' },
+    { id: 'business7', no: '04', name: '七三ビジネス', en: 'Side Part', cat: 'business', service: 'cut', barber: 'kaito', cycle: '3〜4週間', shape: 'wide', traits: ['parted','sideTight'], desc: '品のある分け目と短めのサイド。スーツにも休日の服にもなじみます。' },
+    { id: 'crop', no: '05', name: 'クロップ', en: 'Textured Crop', cat: 'short', service: 'fade', barber: 'mio', cycle: '3〜4週間', shape: 'sq', traits: ['fringe','texture','sideTight'], desc: '前髪を短く揃え、トップに質感を。くせ毛の方にもおすすめです。' },
+    { id: 'wave', no: '06', name: '波巻きパーマ', en: 'Wave Perm', cat: 'perm', service: 'perm', barber: 'ren', cycle: '6〜8週間', shape: 'sq', traits: ['texture','roundSil','fringe'], desc: 'ゆるやかな波で柔らかい印象に。乾かすだけでも形になります。' },
+    { id: 'taper', no: '07', name: 'テーパーフェード', en: 'Taper Fade', cat: 'fade', service: 'fade', barber: 'kaito', cycle: '3〜4週間', shape: 'tall', traits: ['sideTight','lowMaint'], desc: 'もみあげと襟足だけを短く絞る、控えめなフェード。職場でも浮きません。' },
+    { id: 'centre', no: '08', name: 'センターパート', en: 'Centre Part', cat: 'casual', service: 'cut', barber: 'mio', cycle: '4〜6週間', shape: 'wide', traits: ['parted','roundSil'], desc: '中央で分けた前髪が額を自然に見せます。伸ばしかけの時期にも。' },
+    { id: 'mash', no: '09', name: 'ソフトマッシュ', en: 'Soft Mash', cat: 'casual', service: 'cut', barber: 'ren', cycle: '4〜5週間', shape: 'sq', traits: ['roundSil','fringe'], desc: '丸みのあるシルエットに軽さを加えた、親しみやすいスタイル。' },
+    { id: 'buzz', no: '10', name: 'バズカット', en: 'Buzz Cut', cat: 'short', service: 'fade', barber: 'minato', cycle: '2〜3週間', shape: 'sq', traits: ['short','lowMaint','sideTight'], desc: '頭の形を整えて見せる、潔い短髪。お手入れはほとんど不要です。' },
+    { id: 'softmohawk', no: '11', name: 'ソフトモヒカン', en: 'Soft Mohawk', cat: 'casual', service: 'fade', barber: 'minato', cycle: '3〜4週間', shape: 'tall', traits: ['topVolume','sideTight','texture'], desc: 'トップを立ち上げ、サイドを締めた動きのあるスタイル。' }
   ];
   const reviews = [
     { q: '初めてで緊張していましたが、最初に髪の悩みをじっくり聞いてもらえて安心しました。', who: '30代・会社員', svc: 'カット' },
@@ -149,7 +149,77 @@
       next: r() < 0.5 ? addDays(todayTokyo(), 1 + Math.floor(r() * 20)) : null, fav: services[Math.floor(r() * 5)].id, isNew: visits === 1,
       memo: ['トップは長めを希望', '肌が敏感。シェービングは低刺激で', '毎回同じ長さで', 'つむじ付近に癖あり', ''][i % 5] };
   });
+
+  // ---- AI 似合わせ診断 (DEMO). The real service would run a vision model + image generation;
+  // here the profile comes from kurohane-finder.js and the ranking is a transparent rule table. ----
+  const profileDims = [
+    { id: 'face', name: '顔型', opts: [['oval', '卵型'], ['round', '丸顔'], ['long', '面長'], ['square', 'ベース型'], ['heart', '逆三角形']] },
+    { id: 'head', name: '頭の形', opts: [['round', '丸みがある'], ['flat', '後頭部が平ら'], ['wide', 'ハチが張っている']] },
+    { id: 'texture', name: '髪質', opts: [['straight', '直毛'], ['wavy', 'ゆるいくせ'], ['curly', '強いくせ']] },
+    { id: 'density', name: '毛量', opts: [['normal', 'ふつう'], ['thick', '多い・硬め'], ['thin', '少なめ・細い']] }
+  ];
+  const dimLabel = (dim, val) => { const d = profileDims.find((x) => x.id === dim); const o = d && d.opts.find((x) => x[0] === val); return o ? o[1] : ''; };
+  // How much each style trait helps a given profile value, with the sentence shown as the reason.
+  const FIT = {
+    face: {
+      oval: { _all: [1, '卵型はバランスの良い輪郭。スタイル本来の形がそのまま活きます。'] },
+      round: { sideTight: [2, 'サイドを締めることで、丸顔の横幅がすっきり見えます。'], topVolume: [2, 'トップの高さで重心が上がり、顔が縦長の印象に。'], parted: [1, '分け目の直線が、丸みに程よいシャープさを足します。'], roundSil: [-2], fringe: [-1] },
+      long: { fringe: [2, '前髪で額をほどよく隠し、面長の縦の印象をやわらげます。'], roundSil: [2, '横に丸みを持たせたシルエットが、顔の長さを中和します。'], texture: [1, '動きのある質感が、縦のラインを分散させます。'], topVolume: [-2], sideTight: [-1] },
+      square: { texture: [2, '柔らかな動きが、エラの張りの直線的な印象を和らげます。'], roundSil: [1, '丸みのあるシルエットで輪郭の角が目立ちにくくなります。'], parted: [1, '斜めの分け目が、四角い輪郭に抜けをつくります。'], short: [-1] },
+      heart: { fringe: [1, '前髪で額の広さを抑え、あご先とのバランスを整えます。'], roundSil: [1, '下に向かう丸みが、シャープなあごを自然に見せます。'], texture: [1, '毛先の動きで、顔まわりに柔らかさが出ます。'], sideTight: [-1] }
+    },
+    head: {
+      round: { short: [2, '頭の形がきれいなので、短髪でも美しいシルエットになります。'], sideTight: [1, '整った骨格を刈り上げのラインが引き立てます。'] },
+      flat: { roundSil: [2, '後頭部に丸みを足し、横から見た形を補正します。'], texture: [1, '質感で後頭部にボリュームが出て、絶壁が目立ちません。'], topVolume: [1, 'トップの高さが、平らな後頭部をカバーします。'], short: [-2] },
+      wide: { sideTight: [2, 'ハチまわりを刈り上げで締め、頭が小さく見えます。'], roundSil: [-1] }
+    },
+    texture: {
+      straight: { parted: [1, '直毛は分け目がきれいに決まり、清潔感が長持ちします。'], roundSil: [1, '直毛の素直さが、なめらかな丸いシルエットに向いています。'], texture: [-1] },
+      wavy: { texture: [2, 'もともとのくせを活かせるので、スタイリングが楽になります。'], parted: [-1] },
+      curly: { texture: [2, '強いくせをそのまま魅力に変えるスタイルです。'], short: [1, '短く整えることで、くせが扱いやすくなります。'], sideTight: [1, 'サイドを短くすると、くせによる広がりを抑えられます。'], parted: [-2], roundSil: [-1] }
+    },
+    density: {
+      normal: {},
+      thick: { sideTight: [2, '毛量の多いサイドを刈り上げで軽くし、膨らみを防ぎます。'], short: [1, '硬く多い髪でも、短髪なら手入れが簡単です。'], lowMaint: [1, '多い髪でも乾かすだけで形が決まります。'], roundSil: [-1] },
+      thin: { texture: [2, '動きのある質感で、髪の量が多く見えます。'], topVolume: [1, 'トップの立ち上がりで、ボリューム不足をカバーします。'], short: [1, '短く整えると、細い髪でも密度があるように見えます。'], roundSil: [-1], parted: [-1] }
+    }
+  };
+  function scoreStyle(st, profile) {
+    let raw = 0; const reasons = [];
+    profileDims.forEach((d) => {
+      const m = (FIT[d.id] || {})[profile[d.id]] || {};
+      if (m._all) { raw += m._all[0]; reasons.push({ w: 0.5, t: m._all[1] }); }
+      (st.traits || []).forEach((t) => { const f = m[t]; if (!f) return; raw += f[0]; if (f[0] > 0 && f[1]) reasons.push({ w: f[0], t: f[1] }); });
+    });
+    reasons.sort((a, b) => b.w - a.w);
+    const seen = {};
+    // Small stable jitter so equal rule scores still read as distinct, honest-looking percentages.
+    const jit = rng(st.id + profileDims.map((d) => profile[d.id]).join('|'))();
+    const score = raw > 0 ? Math.round(62 + 34 * (1 - Math.exp(-raw / 5)) + jit * 2) : Math.max(50, Math.round(62 + raw * 3 + jit * 2));
+    return { style: st, score: Math.min(97, score), raw: raw + jit * 0.5,
+      reasons: reasons.filter((r) => (seen[r.t] ? false : (seen[r.t] = true))).map((r) => r.t) };
+  }
+  const LOW = '骨格との相性はやや控えめ。担当理容師が長さやサイドの量で似合う形に調整します。';
+  function advise(profile, focusId) {
+    const all = styles.map((st) => scoreStyle(st, profile)).sort((a, b) => b.raw - a.raw);
+    let list = all.slice(0, 3);
+    if (focusId) {
+      const f = all.find((x) => x.style.id === focusId);
+      if (f && list.indexOf(f) < 0) list = list.concat([f]);
+      if (f) f.focus = true;
+    }
+    // Each card leads with reasons the cards above it have not already said.
+    const used = {};
+    return list.map((x) => {
+      const fresh = x.reasons.filter((t) => !used[t]), rest = x.reasons.filter((t) => used[t]);
+      const reasons = fresh.concat(rest).slice(0, 3);
+      reasons.forEach((t) => { used[t] = true; });
+      if (x.score < 74) reasons.push(LOW);
+      if (!reasons.length) reasons.push(LOW);
+      return Object.assign({}, x, { reasons });
+    });
+  }
   window.KH = { OPEN, CLOSE, STEP, WINDOW_DAYS, services, cats, barbers, styleCats, styles, reviews, shop, customers,
     rng, pad, parse, iso, addDays, dow, WD, todayTokyo, nowMinTokyo, hm, yen, fmt, fmtLong, isClosed, closedReason,
-    svc, barber, works, genDay, loadSession, saveSession, busy, slotsFor, dayStatus };
+    svc, barber, works, genDay, loadSession, saveSession, busy, slotsFor, dayStatus, profileDims, dimLabel, scoreStyle, advise };
 })();

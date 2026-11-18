@@ -32,3 +32,8 @@ Two constraints the licence puts on us, applied when these were chosen:
 | `img/style-09.webp` | 750×1000 | Clipper work along the nape | [pexels.com/photo/…-18503604](https://www.pexels.com/photo/a-person-getting-a-haircut-18503604/) |
 | `img/style-10.webp` | 750×1000 | Comb and clipper held over a very short cut, grayscale | [pexels.com/photo/…-10775085](https://www.pexels.com/photo/a-person-holding-comb-and-hair-clipper-10775085/) |
 | `img/style-11.webp` | 750×1000 | Razor and comb at the neckline, grayscale | [pexels.com/photo/…-10775070](https://www.pexels.com/photo/grayscale-photo-of-person-holding-a-comb-and-a-razor-to-cut-a-someone-s-hair-10775070/) |
+
+## AI 似合わせ診断 (demo)
+
+- The sample portrait used by 「サンプルで試す」 is drawn procedurally in `kurohane-finder.js` — an illustration, not a photograph of a real person.
+- Visitor photos are processed only in the browser (canvas). Nothing is uploaded, sent or stored; the try-on is a procedural hair render over the visitor's own photo, and the "analysis" is a deterministic mock with a transparent rule table in `kurohane-data.js` (`advise`).
