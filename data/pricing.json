@@ -1429,5 +1429,118 @@
       "note": "Klien memilih provider dan paketnya sendiri, akun atas nama klien. Setup oleh Skyland, gratis."
     }
   ],
+  "templates_note": "Harga template: demo yang dipasang ulang untuk bisnis lain, bukan dibangun dari nol. Daftar harganya terpisah dari katalog konsultasi dan hanya berlaku di pasar yang punya harga (kunci price). Engine-nya dibangun sekali oleh Skyland di luar harga klien. Diskon founding/promo berlaku dengan aturan yang sama. Diuji di tests/pricing.test.ts.",
+  "templates": {
+    "kurohane": {
+      "name": "Template barbershop (Kurohane)",
+      "base": {
+        "id": "barber_info",
+        "price": {
+          "JP": 68000
+        },
+        "est_hours": 22,
+        "workdays": "5-8",
+        "addons": [
+          {
+            "id": "second_language",
+            "price": {
+              "JP": 9000
+            },
+            "est_hours": 3
+          }
+        ]
+      },
+      "modules": [
+        {
+          "id": "booking",
+          "price": {
+            "JP": 16000
+          },
+          "est_hours": 5,
+          "addons": [
+            {
+              "id": "booking_reschedule",
+              "price": {
+                "JP": 4000
+              },
+              "est_hours": 1.5
+            },
+            {
+              "id": "booking_reminder",
+              "price": {
+                "JP": 3000
+              },
+              "est_hours": 1
+            },
+            {
+              "id": "booking_pick_barber",
+              "price": {
+                "JP": 5000
+              },
+              "est_hours": 1.5
+            }
+          ]
+        },
+        {
+          "id": "ai_style",
+          "price": {
+            "JP": 11000
+          },
+          "est_hours": 3.5,
+          "addons": [
+            {
+              "id": "ai_style_photos",
+              "price": {
+                "JP": 3000
+              },
+              "est_hours": 1
+            }
+          ]
+        },
+        {
+          "id": "dashboard",
+          "price": {
+            "JP": 8000
+          },
+          "est_hours": 2.5,
+          "addons": []
+        }
+      ],
+      "presets": [
+        {
+          "id": "info",
+          "items": []
+        },
+        {
+          "id": "booking",
+          "items": [
+            "booking"
+          ]
+        },
+        {
+          "id": "all",
+          "items": [
+            "booking",
+            "booking_reschedule",
+            "booking_reminder",
+            "booking_pick_barber",
+            "ai_style",
+            "ai_style_photos",
+            "dashboard",
+            "second_language"
+          ]
+        }
+      ],
+      "client_paid": [
+        {
+          "id": "hosting_domain"
+        },
+        {
+          "id": "openai_usage",
+          "requires": "ai_style"
+        }
+      ]
+    }
+  },
   "services_note": "workdays adalah rentang hari kerja paket dasar. Batas bawahnya tidak boleh di bawah ceil(est_hours / 6) karena itu berarti menjanjikan waktu yang tidak mungkin dipenuhi; diuji sebagai invariant di tests/pricing.test.ts."
 }

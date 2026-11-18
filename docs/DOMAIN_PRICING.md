@@ -189,6 +189,57 @@ scope penuh supaya bukan harga umpan.
 
 Lembar berstatus `range`, bukan `fixed`, karena `payment` bertier elevated.
 
+### Daftar harga template (Kurohane, pasar JP)
+
+Konsep yang dijual sebagai **template yang dipasang ulang** punya daftar harga
+sendiri di `pricing.json` → `templates`, terpisah dari katalog konsultasi.
+Saat ini hanya `kurohane`, dan hanya untuk pasar **JP**: item tanpa harga untuk
+suatu pasar berarti template tidak ditawarkan di sana, jadi pengunjung ID/GLOBAL
+tetap melihat harga katalog di atas (`templateOffered()`).
+
+| Bagian | Item | JP |
+| --- | --- | ---: |
+| Paket dasar (selalu) | `barber_info` — website info barbershop | ¥68.000 |
+| ↳ tambahan | `second_language` — Jepang + Inggris, diterjemahkan Skyland | ¥9.000 |
+| Modul | `booking` — booking online dasar | ¥16.000 |
+| ↳ tambahan | `booking_reschedule` · `booking_reminder` · `booking_pick_barber` | ¥4.000 · ¥3.000 · ¥5.000 |
+| Modul | `ai_style` — rekomendasi 3 gaya (teks) | ¥11.000 |
+| ↳ tambahan | `ai_style_photos` — foto contoh statis tiap gaya | ¥3.000 |
+| Modul | `dashboard` — panel pemilik (layar mengikuti modul aktif) | ¥8.000 |
+
+Semua kombinasi berada di ¥68.000–¥127.000 (diuji untuk setiap kombinasi).
+Brief pemilik "sekitar ¥70.000 sampai sekitar ¥120.000" sengaja tidak dipaskan
+ke angka bulat agar harganya tidak terlihat dibuat-buat.
+Aturan mesin (`templateQuote()`, dipanggil otomatis oleh `quote()` bila
+`plan.template` ada): item tak dikenal dibuang, add-on hanya dihitung bila
+modulnya dipilih, multiplier desain/konten/timeline tidak berlaku, diskon
+founding/promo memakai `discountRule()` yang sama dengan katalog (tidak
+bertumpuk). Server menghitung ulang di `/api/order` lewat jalur yang sama.
+Tambahan paket dasar (`base.addons`) selalu bisa dipilih karena paket dasar
+selalu aktif.
+
+Bahasa kedua ¥9.000: ±3 jam per klien (terjemahan isi toko dibantu AI lalu
+dirapikan, cek tata letak teks Inggris, satu putaran koreksi pemilik, cek email
+booking dan hasil AI versi Inggris) × ¥3.150 ≈ ¥9.450. Jauh di bawah `multilang`
+katalog (¥22.000, 7 jam) karena tombol ganti bahasa dan teks bawaan template
+(form, email, hasil AI) disiapkan sekali dalam bahasa Inggris. Harga flat, tidak
+naik per modul.
+
+- Copy EN/ID/JA ada di `src/i18n/templates.ts`. Setiap item ditulis sebagai
+  "siapa bisa melakukan apa"; kata abstrak (cepat, SEO, optimal, modern,
+  profesional) ditolak oleh test.
+- Halaman yang dibawa tiap item ada di `templatePages` pada spec Kurohane;
+  hanya untuk mockup/email, tidak dihitung per halaman.
+- Bayar sekali. Domain + hosting dan pemakaian OpenAI (modul AI, akun milik
+  barbershop dengan batas bulanan) dibayar klien langsung ke penyedia.
+- AI menampilkan **foto contoh statis**, bukan foto pelanggan yang diedit AI
+  (hasil tidak stabil di wajah asli, biaya per gambar jauh lebih besar). Edit
+  foto pelanggan tercantum di daftar "tidak termasuk".
+- **Investasi awal:** ±22–38 jam per klien pada tarif JP hanya masuk akal
+  karena engine booking, AI, dan dashboard dibangun sekali oleh Skyland di luar
+  harga klien. Biaya itu baru kembali setelah template terjual ke beberapa
+  barbershop. Demo Kurohane saat ini masih simulasi; AI di demo memakai mock.
+
 ### Ketergantungan pihak ketiga
 
 Fitur dengan `external_dependency: true` menuntut akun atau langganan pihak

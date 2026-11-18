@@ -1,6 +1,6 @@
 import { FEATURE_COPY, SERVICE_COPY } from '../../i18n/catalog';
-import { PRICING, featurePrice, getFeature, type PricingData } from '../pricing';
-import { PlanSchema, type Locale, type Plan, type Region } from '../schemas';
+import { PRICING, featurePrice, getFeature, getTemplate, templateSelection, type PricingData } from '../pricing';
+import { PAGE_TYPES, PlanSchema, type Locale, type Plan, type Region } from '../schemas';
 import type { SampleSpec } from './specs';
 
 /**
@@ -90,6 +90,31 @@ export function toPlan(spec: SampleSpec, selected: readonly string[], locale: Lo
     customRequests: [],
     questions: [],
     assumptions: [],
+  });
+}
+
+/**
+ * The plan for a concept bought from its template price list, with `items` (modules and add-ons) selected.
+ *
+ * No catalog features are switched on: the template list prices `template.items` on its own (see
+ * `templateQuote`). Pages are listed for the mockup and the order email only. Their `type` is dropped on
+ * purpose — a typed page that a catalog feature brings would be hidden by `visiblePages()`, because no
+ * catalog feature is on — and the area is carried over from the type instead.
+ */
+export function toTemplatePlan(spec: SampleSpec, items: readonly string[], locale: Locale, data: PricingData = PRICING): Plan {
+  const t = getTemplate(spec.key, data);
+  if (!t) throw new Error(`No template price list for ${spec.key}`);
+  const chosen = templateSelection(t, items);
+  const on = new Set(chosen);
+  const extra = (spec.templatePages ?? [])
+    .filter((tp) => tp.when.every((id) => on.has(id)))
+    .map(({ page }) => ({ name: page.name[locale], area: PAGE_TYPES.get(page.type)?.area ?? 'public', purpose: '', sections: [], covers: [] }));
+  return PlanSchema.parse({
+    ...toPlan(spec, [], locale, data),
+    pages: [...spec.contentPages.map((page) => ({ type: page.type, name: page.name[locale], purpose: '', sections: [], covers: [] })), ...extra],
+    features: [],
+    suggestions: [],
+    template: { id: spec.key, items: chosen },
   });
 }
 

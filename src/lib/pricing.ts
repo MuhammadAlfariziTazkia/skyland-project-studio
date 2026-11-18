@@ -3,6 +3,7 @@
 // The AI never sees or produces prices; it only picks ids that this engine prices.
 import raw from '../../data/pricing.json';
 import { FEATURE_COPY, MULTIPLIER_COPY, SERVICE_COPY } from '../i18n/catalog';
+import { TEMPLATE_COPY } from '../i18n/templates';
 import type { ServiceKey } from '../i18n/routes';
 import type { Choices, Currency, Locale, Plan, Region } from './schemas';
 
@@ -266,6 +267,9 @@ export function blockingDomains(plan: Plan, locale: Locale, data: PricingData = 
 }
 
 export function quote(plan: Plan, choices: Choices, locale: Locale, data: PricingData = pricing, promo: Promo | null = null): Quote {
+  // A template plan has its own price list. Delegating here, rather than at each caller, is what keeps the
+  // concept panel, the consultant, the order API and the email on one number.
+  if (plan.template) return templateQuote(plan, choices, locale, data, promo);
   const svc = getService(plan.serviceId, data);
   const region = choices.region;
   const reg = data.regions[region];
@@ -374,30 +378,7 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
   const mustDiscuss = blocking.length > 0 || svc.risk_tier === 'review' || plan.scopeTruncated || price > reg.max_price;
   const status: QuoteStatus = mustDiscuss ? 'discuss' : elevated.length > 0 || plan.customRequests.length > 0 ? 'range' : 'fixed';
 
-  /*
-   * One discount, never a stack. Founding 20% + promo 20% used to reach 40% off, which on an Indonesian
-   * booking project worked out at roughly a third of the Kanagawa minimum wage per hour. Markets listed in
-   * discount_policy.no_discount_markets get none at all, because their list price is already subsidised.
-   */
-  const subsidised = (data.discount_policy.no_discount_markets as string[]).includes(region);
-  const offers: { kind: Discount['kind']; label: string; percent: number }[] = [];
-  if (!subsidised && foundingSpotsLeft(data) > 0) offers.push({ kind: 'founding', label: DISCOUNT.founding[locale], percent: data.founding_offer.percent });
-  if (!subsidised && promo && promo.percent > 0) offers.push({ kind: 'promo', label: `${DISCOUNT.promo[locale]} ${promo.code}`, percent: promo.percent });
-
-  const best = offers.sort((a, b) => b.percent - a.percent)[0];
-  const capped = best ? [{ ...best, percent: Math.max(0, Math.min(best.percent, data.max_discount_percent)) }] : [];
-
-  const applyDiscounts = (p: number): { discounts: Discount[]; savings: number } => {
-    const room = Math.max(0, p - reg.min_price);
-    let savings = 0;
-    const discounts = capped.map((d) => {
-      const amount = Math.max(0, Math.min(roundTo((p * d.percent) / 100, reg.round_to), room - savings));
-      savings += amount;
-      return { ...d, amount };
-    });
-    return { discounts, savings };
-  };
-
+  const applyDiscounts = discountRule(region, locale, data, promo);
   const { discounts, savings } = applyDiscounts(price);
 
   // Timeline: the package's workdays, plus the extra work, scaled by design/content effort and the chosen pace.
@@ -424,6 +405,169 @@ export function quote(plan: Plan, choices: Choices, locale: Locale, data: Pricin
     pagesCount,
     featuresCount: seen.size,
     validDays: data.quote_valid_days,
+    risk,
+  };
+}
+
+/*
+ * One discount, never a stack. Founding 20% + promo 20% used to reach 40% off, which on an Indonesian
+ * booking project worked out at roughly a third of the Kanagawa minimum wage per hour. Markets listed in
+ * discount_policy.no_discount_markets get none at all, because their list price is already subsidised.
+ * Shared by the catalog and the template price lists, so both follow exactly the same discount rules.
+ */
+function discountRule(region: Region, locale: Locale, data: PricingData, promo: Promo | null): (p: number) => { discounts: Discount[]; savings: number } {
+  const reg = data.regions[region];
+  const subsidised = (data.discount_policy.no_discount_markets as string[]).includes(region);
+  const offers: { kind: Discount['kind']; label: string; percent: number }[] = [];
+  if (!subsidised && foundingSpotsLeft(data) > 0) offers.push({ kind: 'founding', label: DISCOUNT.founding[locale], percent: data.founding_offer.percent });
+  if (!subsidised && promo && promo.percent > 0) offers.push({ kind: 'promo', label: `${DISCOUNT.promo[locale]} ${promo.code}`, percent: promo.percent });
+
+  const best = offers.sort((a, b) => b.percent - a.percent)[0];
+  const capped = best ? [{ ...best, percent: Math.max(0, Math.min(best.percent, data.max_discount_percent)) }] : [];
+
+  return (p: number) => {
+    const room = Math.max(0, p - reg.min_price);
+    let savings = 0;
+    const discounts = capped.map((d) => {
+      const amount = Math.max(0, Math.min(roundTo((p * d.percent) / 100, reg.round_to), room - savings));
+      savings += amount;
+      return { ...d, amount };
+    });
+    return { discounts, savings };
+  };
+}
+
+// ---------------------------------------------------------------------------------------------------------
+// Template price lists (pricing.json `templates`)
+//
+// A concept sold as a template is re-installed for a new business rather than built from scratch, so it has
+// its own short price list: a base that is always on, modules, and add-ons that only exist under their
+// module. Only markets with a price for every item are offered; elsewhere the concept keeps its catalog
+// price. Multipliers do not apply — the design is the template's — but discounts do, by the same rule.
+// ---------------------------------------------------------------------------------------------------------
+
+type RegionPrice = Partial<Record<Region, number>>;
+export interface TemplateItem {
+  id: string;
+  price: RegionPrice;
+  est_hours: number;
+}
+export interface TemplateModule extends TemplateItem {
+  addons: TemplateItem[];
+}
+export interface TemplateDef {
+  name: string;
+  /** The base package is always on, so its add-ons are always available (e.g. a second language). */
+  base: TemplateItem & { workdays: string; addons?: TemplateItem[] };
+  modules: TemplateModule[];
+  presets: { id: string; items: string[] }[];
+  client_paid: { id: string; requires?: string }[];
+}
+
+export function getTemplate(id: string, data: PricingData = pricing): TemplateDef | undefined {
+  return (data.templates as Record<string, TemplateDef>)[id];
+}
+
+const templateItems = (t: TemplateDef): TemplateItem[] => [t.base, ...(t.base.addons ?? []), ...t.modules.flatMap((m) => [m, ...m.addons])];
+
+/** True when this template has a price for every item in this market. */
+export function templateOffered(id: string, region: Region, data: PricingData = pricing): boolean {
+  const t = getTemplate(id, data);
+  return !!t && templateItems(t).every((i) => typeof i.price[region] === 'number');
+}
+
+/**
+ * What a selection actually buys, in catalog order: unknown ids are dropped, and an add-on counts only
+ * while its module is selected (base add-ons always count, since the base is always on). The base itself
+ * is implied and never listed. Run on every quote, so a crafted
+ * order cannot buy an add-on on its own.
+ */
+export function templateSelection(t: TemplateDef, ids: readonly string[]): string[] {
+  const want = new Set(ids);
+  const out: string[] = (t.base.addons ?? []).filter((a) => want.has(a.id)).map((a) => a.id);
+  for (const m of t.modules) {
+    if (!want.has(m.id)) continue;
+    out.push(m.id);
+    for (const a of m.addons) if (want.has(a.id)) out.push(a.id);
+  }
+  return out;
+}
+
+const ADDON_OF: Record<Locale, (module: string) => string> = {
+  en: (m) => `Add-on to ${m}`,
+  id: (m) => `Tambahan untuk ${m}`,
+  ja: (m) => `${m}の追加機能`,
+};
+
+export function templateQuote(plan: Plan, choices: Choices, locale: Locale, data: PricingData = pricing, promo: Promo | null = null): Quote {
+  const region = choices.region;
+  const reg = data.regions[region];
+  const id = plan.template?.id ?? '';
+  const t = getTemplate(id, data);
+  const copy = TEMPLATE_COPY[id]?.items ?? {};
+  const name = (itemId: string) => copy[itemId]?.[locale].name ?? itemId;
+  const pagesCount = contentPages(plan, data).length;
+  const validDays = data.quote_valid_days;
+  const risk = { blocking: [] as string[], elevated: [] as string[], truncated: false };
+
+  // No price list for this market: never fall back to another market's number. `discuss` with no lines
+  // still satisfies "lines add up to the price" (0 = 0).
+  if (!t || !templateOffered(id, region, data)) {
+    const days = parseDays(t?.base.workdays ?? '1-1');
+    return { region, currency: reg.currency as Currency, status: 'discuss', lines: [], subtotal: 0, price: 0, priceHigh: 0, discounts: [], savings: 0, savingsPercent: 0, total: 0, totalHigh: 0, workdays: days, pagesCount, featuresCount: 0, validDays, risk };
+  }
+
+  const selected = templateSelection(t, plan.template?.items ?? []);
+  const lines: QuoteLine[] = [];
+  const at = (i: TemplateItem) => i.price[region] as number;
+  lines.push({ kind: 'base', label: name(t.base.id), quantity: 1, unitPrice: at(t.base), amount: at(t.base) });
+  let hours = 0;
+  for (const a of t.base.addons ?? []) {
+    if (!selected.includes(a.id)) continue;
+    lines.push({ kind: 'feature', label: name(a.id), detail: ADDON_OF[locale](name(t.base.id)), quantity: 1, unitPrice: at(a), amount: at(a) });
+    hours += a.est_hours;
+  }
+  for (const m of t.modules) {
+    if (!selected.includes(m.id)) continue;
+    lines.push({ kind: 'feature', label: name(m.id), quantity: 1, unitPrice: at(m), amount: at(m) });
+    hours += m.est_hours;
+    for (const a of m.addons) {
+      if (!selected.includes(a.id)) continue;
+      lines.push({ kind: 'feature', label: name(a.id), detail: ADDON_OF[locale](name(m.id)), quantity: 1, unitPrice: at(a), amount: at(a) });
+      hours += a.est_hours;
+    }
+  }
+
+  const subtotal = lines.reduce((s, l) => s + l.amount, 0);
+  let price = roundTo(subtotal, reg.round_to);
+  if (price !== subtotal) lines.push({ kind: 'adjust', label: ADJUST.round[locale], quantity: 1, unitPrice: price - subtotal, amount: price - subtotal });
+  if (price < reg.min_price) {
+    lines.push({ kind: 'adjust', label: ADJUST.minimum[locale], quantity: 1, unitPrice: reg.min_price - price, amount: reg.min_price - price });
+    price = reg.min_price;
+  }
+
+  const applyDiscounts = discountRule(region, locale, data, promo);
+  const { discounts, savings } = applyDiscounts(price);
+  const [lo, hi] = parseDays(t.base.workdays);
+  const extraDays = Math.ceil(hours / HOURS_PER_DAY);
+
+  return {
+    region,
+    currency: reg.currency as Currency,
+    status: 'fixed',
+    lines,
+    subtotal,
+    price,
+    priceHigh: price,
+    discounts,
+    savings,
+    savingsPercent: price > 0 ? Math.round((savings / price) * 100) : 0,
+    total: price - savings,
+    totalHigh: price - savings,
+    workdays: [lo + extraDays, hi + extraDays],
+    pagesCount,
+    featuresCount: selected.length,
+    validDays,
     risk,
   };
 }

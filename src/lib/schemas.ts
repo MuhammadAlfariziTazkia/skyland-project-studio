@@ -12,6 +12,8 @@ export const REGIONS = ['ID', 'JP', 'GLOBAL'] as const;
 export type Region = (typeof REGIONS)[number];
 export const SERVICE_IDS = pricing.services.map((s) => s.id) as [string, ...string[]];
 export const FEATURE_IDS = pricing.features.map((f) => f.id) as [string, ...string[]];
+// Template price lists (pricing.json `templates`): a concept sold as a re-installed template, priced on its own.
+export const TEMPLATE_IDS = Object.keys(pricing.templates) as [string, ...string[]];
 const ids = (list: { id: string }[]) => list.map((o) => o.id) as [string, ...string[]];
 export const DESIGN_IDS = ids(pricing.multipliers.design_level);
 export const CONTENT_IDS = ids(pricing.multipliers.content_readiness);
@@ -92,6 +94,15 @@ const PlanObject = z.object({
    * the pricing engine turns this into `discuss`, because a quote over an unknown remainder is not a quote.
    */
   scopeTruncated: z.boolean().catch(false).default(false),
+  /**
+   * Set only when the plan came from a template price list (a concept page in a market that has one). The
+   * engine then prices `items` from that list instead of the consultation catalog. Item ids are checked by
+   * the engine, not here, so an unknown id is ignored rather than failing the whole order.
+   */
+  template: z
+    .object({ id: z.enum(TEMPLATE_IDS), items: list(z.string().trim().max(40), 24) })
+    .optional()
+    .catch(undefined),
 });
 
 /** Field schemas of the plan, for callers that parse a single field (page types, theme ids). */

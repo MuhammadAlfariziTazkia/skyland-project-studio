@@ -65,6 +65,12 @@ export interface SampleSpec {
   notOffered?: { label: Record<Locale, string>; why: Record<Locale, string> }[];
   /** A caveat the client must read before ordering, e.g. how shipping is handled without a courier API. */
   caveats?: Record<Locale, string>[];
+  /**
+   * Screens each template item brings, when this concept also has a template price list (pricing.json
+   * `templates`). A page appears once every id in `when` is selected. They describe scope only; the
+   * template price list never charges per page.
+   */
+  templatePages?: { when: string[]; page: SamplePage }[];
 }
 
 const p = (type: string, en: string, id: string, ja: string): SamplePage => ({ type, name: { en, id, ja } });
@@ -492,6 +498,18 @@ export const SAMPLE_SPECS: Record<ConceptKey, SampleSpec> = {
         ['理容師は自分のカレンダーだけ見え、料金を変えられるのは店主だけにするログイン分離。',
          '理容師が自分で予約を管理するようになったら価値があります。']),
     ],
+    templatePages: [
+      { when: ['booking'], page: p('booking', 'Book an appointment', 'Pesan jadwal', 'ご予約') },
+      { when: ['booking'], page: p('legal', 'Privacy & cancellation', 'Privasi & pembatalan', 'プライバシー・キャンセル規定') },
+      { when: ['booking_reschedule'], page: p('manage_booking', 'Manage your booking', 'Kelola booking Anda', 'ご予約の確認・変更') },
+      { when: ['ai_style'], page: p('custom', 'Hairstyle finder', 'Pencari gaya rambut', 'AI髪型診断') },
+      { when: ['dashboard'], page: p('manage_content', 'Manage content', 'Kelola konten', 'コンテンツ管理') },
+      { when: ['dashboard', 'booking'], page: p('manage_bookings', 'Booking calendar', 'Kalender booking', '予約カレンダー') },
+      { when: ['dashboard', 'booking_pick_barber'], page: p('custom_admin', 'Staff & shifts', 'Staf & jadwal kerja', 'スタッフ・シフト') },
+      { when: ['dashboard', 'ai_style'], page: p('custom_admin', 'Style list', 'Daftar gaya', 'スタイル一覧') },
+    ],
+    // Shown only where the template price list is not offered (outside the JP market); there the concept
+    // keeps its catalog price, which does not cover the AI feature.
     notOffered: [
       {
         label: { en: 'AI hairstyle match (shown in the demo)', id: 'AI rekomendasi gaya rambut (ada di demo)', ja: 'AI似合わせ診断（デモに掲載）' },

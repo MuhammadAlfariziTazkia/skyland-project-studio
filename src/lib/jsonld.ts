@@ -1,9 +1,9 @@
 import pricing from '../../data/pricing.json';
-import { currencyOf, quote, regionFor, startingPrice } from './pricing';
+import { currencyOf, quote, regionFor, startingPrice, templateOffered } from './pricing';
 import { SITE, socialLinks } from '../config/site';
 import { getDict } from '../i18n';
 import { ROUTES, SERVICE_KEYS, conceptPath, servicePath, type ConceptKey, type ServiceKey } from '../i18n/routes';
-import { essentialIds, toPlan } from './samples/plan';
+import { essentialIds, toPlan, toTemplatePlan } from './samples/plan';
 import { SAMPLE_SPECS } from './samples/specs';
 import { LOCALES, type Locale } from './schemas';
 
@@ -126,7 +126,9 @@ export function conceptLd(site: string, locale: Locale, concept: ConceptKey) {
   const copy = t.work.concepts.find((x) => x.key === concept)!;
   const spec = SAMPLE_SPECS[concept];
   const region = regionFor(locale);
-  const q = quote(toPlan(spec, essentialIds(spec), locale), { region, design: spec.design as never, content: 'ready', timeline: 'normal', promoCode: '' }, locale);
+  // Where the concept has a template price list for this market, that list is what the page sells from.
+  const plan = templateOffered(concept, region) ? toTemplatePlan(spec, [], locale) : toPlan(spec, essentialIds(spec), locale);
+  const q = quote(plan, { region, design: spec.design as never, content: 'ready', timeline: 'normal', promoCode: '' }, locale);
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',

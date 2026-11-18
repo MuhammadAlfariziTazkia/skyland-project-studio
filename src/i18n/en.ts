@@ -336,6 +336,21 @@ const en = {
     discussText: 'The scope here goes past what we price automatically. Send it over and we will come back with a phased proposal.',
     othersTitle: 'Other concepts',
     overwrite: 'You have a consultation in progress. Replace it with this concept?',
+    /** The template price list panel (shown only in markets that have one). */
+    tpl: {
+      quick: 'Quick pick',
+      base: 'Base package',
+      baseNote: 'Always included. This is what your customers see.',
+      modules: 'Modules',
+      modulesNote: 'Switch on only what you need. Each one adds the price shown.',
+      addons: (module: string) => `Add-ons for ${module}`,
+      steps: 'How it works',
+      includes: 'Includes',
+      tryDemo: 'Try it in the demo',
+      payOnce: 'One-time payment for building the website. No monthly fee to Skyland.',
+      clientPaid: 'Paid by you, directly to the provider',
+      notIncluded: 'Not included',
+    },
   },
   services_list: {} as Record<ServiceKey, ServiceCopy>,
 };

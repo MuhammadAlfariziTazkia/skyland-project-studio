@@ -2,14 +2,15 @@ import { afterEach, describe, expect, it } from 'vitest';
 import pricing from '../data/pricing.json';
 import { CATEGORY_COPY, FEATURE_COPY, MULTIPLIER_COPY, NOT_INCLUDED_COPY, PAGE_COPY, RECURRING_COPY, SERVICE_COPY } from '../src/i18n/catalog';
 import { SERVICE_KEYS } from '../src/i18n/routes';
-import { HOURS_PER_DAY, SERVICE_PRICING_ID, contentPages, marketFromClient, publicPages, quote, visiblePages, withEnv, type PricingData, type Promo } from '../src/lib/pricing';
+import { HOURS_PER_DAY, SERVICE_PRICING_ID, contentPages, getTemplate, marketFromClient, publicPages, quote, templateOffered, templateSelection, visiblePages, withEnv, type PricingData, type Promo } from '../src/lib/pricing';
 import { validatePromo } from '../src/lib/promo';
 import { ContactSchema, LOCALES, MockupSchema, PAGE_TYPES, PlanSchema, PlanShape, type Choices, type Plan } from '../src/lib/schemas';
 import { CONCEPT_KEYS, CONCEPT_SLUGS, SERVICE_SLUGS, allPagePairs, conceptPath, servicePath } from '../src/i18n/routes';
 import { consultStrings } from '../src/i18n/consult';
 import { getDict } from '../src/i18n';
 import { CONCEPT_MOCKUPS } from '../src/lib/samples/mockups';
-import { essentialIds, needsThirdParty, orderedFeatures, planKey, toPlan } from '../src/lib/samples/plan';
+import { essentialIds, needsThirdParty, orderedFeatures, planKey, toPlan, toTemplatePlan } from '../src/lib/samples/plan';
+import { TEMPLATE_COPY } from '../src/i18n/templates';
 import { SAMPLE_SPECS } from '../src/lib/samples/specs';
 
 type Page = Plan['pages'][number];
@@ -954,4 +955,140 @@ it('every breakdown adds up to the price it states', () => {
       expect(sum, `${key}/${region}: rows sum to ${sum} but the price is ${q.price}`).toBe(q.price);
     }
   }
+});
+
+
+describe('template price list (Kurohane, JP)', () => {
+  // A concept sold as a re-installed template has its own short price list instead of the catalog. The
+  // owner's brief: base package *around* ¥70,000, everything switched on at most *around* ¥120,000, JP only.
+  // "Around" on purpose: prices that land exactly on 70,000 and 120,000 read as engineered, not natural.
+  const spec = SAMPLE_SPECS.kurohane;
+  const tpl = getTemplate('kurohane')!;
+  const jp = choices({ region: 'JP', design: 'full_custom', content: 'ready' });
+  const priceOf = (items: string[], data: PricingData = noDiscount, promo: Promo | null = null) => quote(toTemplatePlan(spec, items, 'id', data), jp, 'id', data, promo);
+  const moduleIds = tpl.modules.map((m) => m.id);
+  const baseAddons = (tpl.base.addons ?? []).map((a) => a.id);
+  const everything = [...baseAddons, ...tpl.modules.flatMap((m) => [m.id, ...m.addons.map((a) => a.id)])];
+
+  const subsets = (ids: string[]) => ids.reduce<string[][]>((acc, id) => [...acc, ...acc.map((x) => [...x, id])], [[]]);
+  /** Every valid selection: any subset of base add-ons and modules, and for each chosen module any subset of its add-ons. */
+  const allSelections = (): string[][] => {
+    let out: string[][] = subsets(baseAddons);
+    for (const m of tpl.modules) {
+      const withModule: string[][] = [];
+      const addonSets = subsets(m.addons.map((a) => a.id));
+      for (const sel of out) for (const as of addonSets) withModule.push([...sel, m.id, ...as]);
+      out = [...out, ...withModule];
+    }
+    return out;
+  };
+
+  const basePrice = 68_000;
+  const fullPrice = 127_000;
+
+  it('prices the base around ¥70,000 and everything around ¥120,000', () => {
+    expect(priceOf([]).price).toBe(basePrice);
+    expect(priceOf(everything).price).toBe(fullPrice);
+    expect(Math.abs(basePrice / 70_000 - 1)).toBeLessThan(0.08);
+    expect(Math.abs(fullPrice / 120_000 - 1)).toBeLessThan(0.08);
+  });
+
+  it('keeps every possible selection between the base and the full price, fixed, with lines adding up', () => {
+    const sels = allSelections();
+    expect(sels.length).toBeGreaterThan(20);
+    for (const sel of sels) {
+      const q = priceOf(sel);
+      expect(q.status, sel.join(',')).toBe('fixed');
+      expect(q.price).toBeGreaterThanOrEqual(basePrice);
+      expect(q.price).toBeLessThanOrEqual(fullPrice);
+      expect(q.lines.reduce((sum, l) => sum + l.amount, 0)).toBe(q.price);
+      expect(q.currency).toBe('JPY');
+    }
+  });
+
+  it('matches the presets shown as quick picks', () => {
+    const want: Record<string, number> = { info: 68_000, booking: 84_000, all: 127_000 };
+    for (const p of tpl.presets) expect(priceOf(p.items).price, p.id).toBe(want[p.id]);
+  });
+
+  it('offers the second language on the base package, with or without any module', () => {
+    expect(baseAddons).toContain('second_language');
+    expect(templateSelection(tpl, ['second_language'])).toEqual(['second_language']);
+    const q = priceOf(['second_language']);
+    expect(q.price).toBe(77_000);
+    expect(q.lines.map((l) => l.kind)).toEqual(['base', 'feature']);
+  });
+
+  it('ignores add-ons without their module and ids that do not exist', () => {
+    // What a forged order would send: the server must price only what the selection really buys.
+    expect(templateSelection(tpl, ['booking_reminder', 'ai_style_photos', 'free_money'])).toEqual([]);
+    const forged = PlanSchema.parse({ ...toTemplatePlan(spec, [], 'id'), template: { id: 'kurohane', items: ['booking_reminder', 'nope', 'dashboard'] } });
+    expect(quote(forged, jp, 'id', noDiscount).price).toBe(76_000);
+  });
+
+  it('is offered only in JP; elsewhere a template plan is never given the yen number', () => {
+    expect(templateOffered('kurohane', 'JP')).toBe(true);
+    expect(templateOffered('kurohane', 'ID')).toBe(false);
+    expect(templateOffered('kurohane', 'GLOBAL')).toBe(false);
+    for (const region of ['ID', 'GLOBAL'] as const) {
+      const q = quote(toTemplatePlan(spec, everything, 'id'), choices({ region }), 'id', noDiscount);
+      expect(q.status).toBe('discuss');
+      expect(q.total).toBe(0);
+    }
+    // And the catalog price for the same concept outside JP is untouched.
+    expect(quote(toPlan(spec, essentialIds(spec), 'id'), choices({ region: 'ID', design: 'full_custom' }), 'id', noDiscount).price).toBeGreaterThan(5_000_000);
+  });
+
+  it('applies the founding offer and promo codes by the usual rule: one discount, never a stack', () => {
+    const founding = priceOf([], pricing as PricingData);
+    expect(founding.discounts.map((d) => d.kind)).toEqual(['founding']);
+    expect(founding.total).toBe(61_000);
+    const both = priceOf([], pricing as PricingData, { code: 'TEST', percent: 15 });
+    expect(both.discounts).toHaveLength(1);
+    expect(both.discounts[0].kind).toBe('promo');
+  });
+
+  it('ignores the design, content and pace multipliers', () => {
+    const plain = priceOf(everything).price;
+    const extreme = quote(toTemplatePlan(spec, everything, 'id'), choices({ region: 'JP', design: 'full_custom', content: 'none', timeline: 'rush' }), 'id', noDiscount);
+    expect(extreme.price).toBe(plain);
+  });
+
+  it('survives the schema round trip an order takes', () => {
+    const p = toTemplatePlan(spec, ['booking', 'dashboard'], 'ja');
+    const again = PlanSchema.parse(JSON.parse(JSON.stringify(p)));
+    expect(again.template).toEqual({ id: 'kurohane', items: ['booking', 'dashboard'] });
+    expect(quote(again, jp, 'ja', noDiscount).price).toBe(92_000);
+    // Plans without the field still parse, so stored consultations need no migration.
+    expect(PlanSchema.parse({ ...p, template: undefined }).template).toBeUndefined();
+  });
+
+  it('lists the screens each module brings, and only those', () => {
+    const names = (items: string[]) => toTemplatePlan(spec, items, 'en').pages.map((p) => p.name);
+    expect(names([])).not.toContain('Book an appointment');
+    expect(names(['booking'])).toContain('Book an appointment');
+    expect(names(['booking'])).not.toContain('Booking calendar');
+    expect(names(['booking', 'dashboard'])).toContain('Booking calendar');
+    // Every listed page is visible: none is hidden behind a catalog feature that is not switched on.
+    const p = toTemplatePlan(spec, everything, 'en');
+    expect(visiblePages(p)).toHaveLength(p.pages.length);
+  });
+
+  it('has copy in every locale for every item, preset and client-paid cost, without vague promises', () => {
+    const copy = TEMPLATE_COPY.kurohane;
+    const vague = /\b(fast|seo|optimi[sz]ed|modern|professional)\b|cepat|optimal|profesional|高速|最適化/i;
+    for (const l of LOCALES) {
+      for (const i of [tpl.base, ...(tpl.base.addons ?? []), ...tpl.modules.flatMap((m) => [m, ...m.addons])]) {
+        const c = copy.items[i.id]?.[l];
+        expect(c?.name, `${i.id}/${l}`).toBeTruthy();
+        expect(c?.does, `${i.id}/${l}`).toBeTruthy();
+        for (const text of [c.name, c.does, ...(c.steps ?? []), ...(c.gets ?? [])]) expect(text, `${i.id}/${l}`).not.toMatch(vague);
+      }
+      for (const p of tpl.presets) expect(copy.presets[p.id]?.[l], `preset ${p.id}/${l}`).toBeTruthy();
+      for (const p of tpl.client_paid) expect(p.id === 'hosting_domain' ? NOT_INCLUDED_COPY[p.id]?.[l] : copy.clientPaid[p.id]?.[l], `${p.id}/${l}`).toBeTruthy();
+      expect(copy.notIncluded[l].length).toBeGreaterThan(0);
+      expect(getDict(l).conceptPage.tpl.base, l).toBeTruthy();
+    }
+    for (const id of Object.keys(copy.demo)) expect(moduleIds).toContain(id);
+  });
 });

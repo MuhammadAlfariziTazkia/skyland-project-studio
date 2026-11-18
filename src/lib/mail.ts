@@ -3,10 +3,16 @@ import { env } from './env';
 import pricing from '../../data/pricing.json';
 import { SITE } from '../config/site';
 import { PAGE_COPY, FEATURE_COPY, MULTIPLIER_COPY, SERVICE_COPY } from '../i18n/catalog';
-import { formatPrice, visiblePages, quotePriceText, type Quote } from './pricing';
+import { formatPrice, visiblePages, quotePriceText, type Quote, getTemplate, templateSelection } from './pricing';
 import type { Locale, OrderRequest } from './schemas';
 import { THEMES } from './mockup/themes';
 
+/** The template items the price actually covers (unknown ids and orphan add-ons dropped, as the engine does). */
+const templateItemsText = (tpl: { id: string; items: string[] }) => {
+  const def = getTemplate(tpl.id);
+  const items = def ? templateSelection(def, tpl.items) : [];
+  return items.length ? items.join(', ') : 'paket dasar saja';
+};
 const esc = (s: string) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const nl2br = (s: string) => esc(s).replace(/\n/g, '<br>');
 
@@ -92,7 +98,7 @@ export async function sendOrderEmails(o: OrderRequest, q: Quote, id: string, moc
   const ownerHtml = box(`
 <div style="background:#2459e0;color:#fff;padding:20px 24px"><div style="font-size:12px;letter-spacing:.1em;opacity:.8">ORDER BARU · ${id}</div><div style="font-size:22px;font-weight:800;margin-top:4px">${esc(o.plan.projectName || typeName)} — ${totalText}</div></div>
 <div style="padding:8px 24px 24px">
-${h('Kontak klien')}<table>${row('Nama', esc(c.name))}${c.company ? row('Perusahaan', esc(c.company)) : ''}${row('Email', `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`)}${row('WhatsApp', `<a href="https://wa.me/${waNum}?text=${encodeURIComponent(`Halo ${c.name}, saya Alfarizi dari Skyland. Terima kasih sudah memesan (${id}).`)}">${esc(c.whatsapp)}</a>`)}${row('Bahasa / region', `${o.locale.toUpperCase()} / ${q.region} (${q.currency})`)}${row('Tema', THEMES[o.theme].name.id)}${row('Desain', choice('design_level', o.choices.design))}${row('Konten', choice('content_readiness', o.choices.content))}${row('Waktu', `${choice('timeline', o.choices.timeline)} · ${q.workdays[0]}–${q.workdays[1]} hari kerja`)}${o.choices.promoCode ? row('Kode promo', esc(o.choices.promoCode)) : ''}</table>
+${h('Kontak klien')}<table>${row('Nama', esc(c.name))}${c.company ? row('Perusahaan', esc(c.company)) : ''}${row('Email', `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`)}${row('WhatsApp', `<a href="https://wa.me/${waNum}?text=${encodeURIComponent(`Halo ${c.name}, saya Alfarizi dari Skyland. Terima kasih sudah memesan (${id}).`)}">${esc(c.whatsapp)}</a>`)}${row('Bahasa / region', `${o.locale.toUpperCase()} / ${q.region} (${q.currency})`)}${row('Tema', THEMES[o.theme].name.id)}${o.plan.template ? row('Template', esc(`${o.plan.template.id}: ${templateItemsText(o.plan.template)} (harga dari daftar template, bukan katalog)`)) : ''}${row('Desain', choice('design_level', o.choices.design))}${row('Konten', choice('content_readiness', o.choices.content))}${row('Waktu', `${choice('timeline', o.choices.timeline)} · ${q.workdays[0]}–${q.workdays[1]} hari kerja`)}${o.choices.promoCode ? row('Kode promo', esc(o.choices.promoCode)) : ''}</table>
 ${c.notes ? `${h('Catatan klien')}<p style="margin:0;font-size:14px;color:#33415e">${nl2br(c.notes)}</p>` : ''}
 ${q.status !== 'fixed' ? `<p style="margin:16px 0 0;padding:12px 14px;background:#fff7e6;border:1px solid #f5d9a8;border-radius:10px;font-size:13.5px">⚠️ ${q.status === 'range' ? 'Ada kebutuhan di luar katalog: harga ditampilkan sebagai rentang, konfirmasi lewat obrolan singkat.' : 'Melebihi batas harga otomatis: angka tidak ditampilkan ke klien, perlu diskusi langsung.'}</p>` : ''}
 ${h('Brief asli')}<p style="margin:0;font-size:14px;color:#33415e;background:#f7faff;border-radius:10px;padding:12px 14px">${nl2br(o.description)}</p>

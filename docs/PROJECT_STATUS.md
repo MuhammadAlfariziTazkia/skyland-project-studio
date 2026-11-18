@@ -9,6 +9,29 @@ Dokumen ini adalah baseline untuk agent berikutnya. Temuan di bawah tidak
 otomatis menjadi backlog yang disetujui pemilik dan belum diperbaiki dalam
 tugas penyusunan dokumentasi ini.
 
+## Pembaruan 18 November 2026 — daftar harga template Kurohane (JP)
+
+Kurohane dijual ke barbershop kecil di Jepang yang belum punya website. Harga
+katalognya (¥379.000, ¥341.000 setelah diskon) terlalu tinggi untuk pasar itu,
+jadi pasar JP kini memakai daftar harga template: paket dasar ¥68.000, modul
+Booking / AI rekomendasi gaya / Dashboard beserta tambahannya, plus bahasa
+kedua Jepang + Inggris (¥9.000), maksimal ¥127.000 (sengaja tidak pas di
+¥70.000/¥120.000). Rincian dan aturan ada di
+[DOMAIN_PRICING.md](DOMAIN_PRICING.md#daftar-harga-template-kurohane-pasar-jp).
+
+- Panel baru `src/components/concept/TemplatePricing.tsx` (pilih cepat, paket
+  dasar, kartu modul dengan alur langkah, tambahan bersarang, tidak termasuk,
+  biaya yang dibayar langsung klien). Pasar ID/GLOBAL tetap panel katalog.
+- `plan.template` (opsional) membawa pilihan ke konsultan, `/api/order`, dan
+  email; revisi AI membuangnya. Langkah plan dan pilihan level desain
+  disembunyikan untuk rencana template; "Ubah rencana" kembali ke halaman konsep.
+- Verifikasi: `npm run test` (128 test, termasuk semua kombinasi template),
+  `npm run check`, `npm run build`. Chrome lokal: pasar JP (ID & JA, 1280 & 375),
+  ID, dan GLOBAL; hand-off ke hasil konsultan menampilkan total yang sama.
+  Order tidak dikirim (tidak ada uji SMTP/OpenAI).
+- Belum: demo Kurohane sendiri (AI masih simulasi), estimasi biaya OpenAI per
+  foto belum dicantumkan.
+
 ## Pembaruan 19 Oktober 2026 — revamp demo Lembar
 
 `/samples/lembar/` memakai tampilan editorial baru: putih hangat, sage/lilac,

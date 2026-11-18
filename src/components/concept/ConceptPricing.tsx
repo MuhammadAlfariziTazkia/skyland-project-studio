@@ -3,12 +3,13 @@ import '../consult/consult.css';
 import { consultStrings } from '../../i18n/consult';
 import { getDict } from '../../i18n';
 import type { ConceptKey } from '../../i18n/routes';
-import { formatPrice, quote, quotePriceText } from '../../lib/pricing';
-import { CONCEPT_MOCKUPS } from '../../lib/samples/mockups';
-import { conceptBrief, essentialIds, orderedFeatures, planKey, toPlan } from '../../lib/samples/plan';
+import { formatPrice, quote, quotePriceText, templateOffered } from '../../lib/pricing';
+import { essentialIds, orderedFeatures, toPlan } from '../../lib/samples/plan';
 import { SAMPLE_SPECS } from '../../lib/samples/specs';
 import { useMarket } from '../useMarket';
-import type { Locale } from '../../lib/schemas';
+import type { Locale, Region } from '../../lib/schemas';
+import { handOffToConsultant } from './handoff';
+import TemplatePricing from './TemplatePricing';
 
 interface Props {
   locale: Locale;
@@ -17,23 +18,28 @@ interface Props {
   consultHref: string;
 }
 
-const STORE = 'skyland-consult-v2';
+/**
+ * The priced scope on a concept page, and the hand-off into the consultant.
+ *
+ * A concept with a template price list in the visitor's market (pricing.json `templates`) is sold from that
+ * list; everywhere else it is priced from the consultation catalog. Either way the number comes from
+ * `quote()` — there is no second pricing path — and the market is read from the device, never asked.
+ */
+export default function ConceptPricing(props: Props) {
+  const region = useMarket(props.locale);
+  return templateOffered(props.concept, region) ? <TemplatePricing {...props} region={region} /> : <CatalogPricing {...props} region={region} />;
+}
 
 /**
- * The priced feature breakdown on a concept page, and the hand-off into the consultant.
- *
- * This island is the concept route's answer to step 2 of the consultation: the client adjusts scope here
- * instead of reviewing an AI plan, so they never choose features twice. Everything it shows comes from
- * `quote()` — there is no second pricing path — and nothing it does touches the network.
+ * The catalog breakdown. This island is the concept route's answer to step 2 of the consultation: the
+ * client adjusts scope here instead of reviewing an AI plan, so they never choose features twice.
  */
-export default function ConceptPricing({ locale, concept, consultHref }: Props) {
+function CatalogPricing({ locale, concept, consultHref, region }: Props & { region: Region }) {
   const spec = SAMPLE_SPECS[concept];
   const t = consultStrings[locale];
   const c = getDict(locale).conceptPage;
 
   const [selected, setSelected] = useState<string[]>(() => essentialIds(spec));
-  // Read from the device, never asked. This panel is the only place on the page that states a price.
-  const region = useMarket(locale);
 
   const rows = useMemo(() => orderedFeatures(spec, region, locale), [spec, region, locale]);
   const essentials = rows.filter((r) => r.need === 'core');
@@ -47,43 +53,7 @@ export default function ConceptPricing({ locale, concept, consultHref }: Props) 
   );
 
   const toggle = (id: string) => setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-
-  /**
-   * Seeds the consultant's own state and jumps to its result step. The consultant restores whatever is in
-   * this key, so the client lands on a rendered mockup and a price with no AI call: `mockupKey` has to
-   * match `planKey(plan)` or the result step would ask the model for copy it already has.
-   */
-  const accept = () => {
-    try {
-      const raw = localStorage.getItem(STORE);
-      const saved = raw ? (JSON.parse(raw) as { plan?: unknown; step?: string }) : null;
-      if (saved?.plan && saved.step && saved.step !== 'describe' && !confirm(c.overwrite)) return;
-    } catch {
-      /* unreadable state is nothing worth protecting */
-    }
-    const mockup = CONCEPT_MOCKUPS[concept][locale];
-    const state = {
-      step: 'result',
-      description: conceptBrief(spec, locale),
-      plan,
-      mockup,
-      mockupKey: planKey(plan),
-      theme: spec.theme,
-      choices: { region, design: spec.design, content: 'ready', timeline: 'normal', promoCode: '' },
-      promo: null,
-      revision: '',
-      revisionUsed: false,
-      reviseNote: '',
-      answers: {},
-      quoteId: '',
-    };
-    try {
-      localStorage.setItem(STORE, JSON.stringify(state));
-    } catch {
-      /* private mode: fall through to the consultant, which will start from the brief instead */
-    }
-    location.href = consultHref;
-  };
+  const accept = () => handOffToConsultant({ concept, locale, region, plan, consultHref, overwrite: c.overwrite });
 
   const tag = (r: (typeof rows)[number]) =>
     r.included ? (

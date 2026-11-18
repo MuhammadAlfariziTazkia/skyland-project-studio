@@ -241,6 +241,8 @@ export function applyPatch(plan: Plan, p: PlanPatch): Plan {
   const features = [...plan.features.filter((f) => !removeIds.has(f.id) && !addIds.has(f.id)), ...p.addFeatures];
   return PlanSchema.parse({
     ...plan,
+    // A revised plan is a consultation plan: the template price list covers only the template's own scope.
+    template: undefined,
     serviceId: p.serviceId,
     pages: [
       ...plan.pages

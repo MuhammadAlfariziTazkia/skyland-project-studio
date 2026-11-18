@@ -3,7 +3,9 @@ import pricing from '../../../data/pricing.json';
 import { consultStrings } from '../../i18n/consult';
 import { renderMockup } from '../../lib/mockup/render';
 import { MULTIPLIER_COPY, NOT_INCLUDED_COPY, RECURRING_COPY } from '../../i18n/catalog';
-import { quote as computeQuote, defaultChoices, formatPrice, formatShort, quotePriceText, type Promo } from '../../lib/pricing';
+import { conceptPath, type ConceptKey } from '../../i18n/routes';
+import { TEMPLATE_COPY } from '../../i18n/templates';
+import { quote as computeQuote, defaultChoices, formatPrice, formatShort, getTemplate, quotePriceText, type Promo } from '../../lib/pricing';
 import { planKey } from '../../lib/samples/plan';
 import { PlanSchema, type Choices, type Locale, type Mockup, type Plan, type ThemeId } from '../../lib/schemas';
 import { LivePrice, PlanStep, livePrice } from './PlanStep';
@@ -114,7 +116,18 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
   const tsRef = useRef<HTMLDivElement>(null);
 
   const set = (patch: Partial<State>) => setS((prev) => ({ ...prev, ...patch }));
+  /**
+   * A plan bought from a template price list (`plan.template`) is scoped on its concept page, not in the
+   * plan step: the AI plan editor works on catalog features the template list does not price. "Edit plan"
+   * therefore goes back to the concept page.
+   */
+  const template = s.plan?.template;
+  const templateHref = template ? conceptPath(template.id as ConceptKey, locale) : '';
   const go = (step: Step) => {
+    if (step === 'plan' && templateHref) {
+      location.href = templateHref;
+      return;
+    }
     set({ step });
     setError('');
     requestAnimationFrame(() => topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
@@ -331,6 +344,8 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
               <p>{t.theme.hint}</p>
             </div>
             <StylePicker t={t} locale={locale} plan={s.plan} value={s.theme} onChange={(theme) => set({ theme })} />
+            {/* A template's design is the template; the design multiplier does not apply to its price list. */}
+            {!template && (
             <div class="design">
               <h3>{MULTIPLIER_COPY.design_level.question[locale]}</h3>
               <div class="levels" role="radiogroup" aria-label={MULTIPLIER_COPY.design_level.question[locale]}>
@@ -346,6 +361,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                 })}
               </div>
             </div>
+            )}
             {error && <p class="err" role="alert">{error}</p>}
             <div class="cs-actions sticky">
               <button type="button" class="btn btn-ghost" onClick={() => go('plan')}>
@@ -493,8 +509,24 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                         </li>
                       );
                     })}
+                    {template &&
+                      getTemplate(template.id)
+                        ?.client_paid.filter((p) => p.id !== 'hosting_domain' && (!p.requires || template.items.includes(p.requires)))
+                        .map((p) => {
+                          const c = TEMPLATE_COPY[template.id]?.clientPaid[p.id]?.[locale];
+                          return (
+                            c && (
+                              <li>
+                                {c.name}
+                                <em>{c.note}</em>
+                              </li>
+                            )
+                          );
+                        })}
                   </ul>
                 </div>
+                {/* A template is paid once; the optional monthly care offer belongs to catalog projects. */}
+                {!template && (
                 <div class="incl muted">
                   <b>{t.result.recurring}</b>
                   <ul>
@@ -505,6 +537,7 @@ export default function Consultant({ locale, whatsapp, privacyHref, turnstileSit
                     ))}
                   </ul>
                 </div>
+                )}
                 <div class="cs-actions sticky col">
                   <p class="fine from-draft">{t.result.fromDraft}</p>
                   <button type="button" class="btn btn-primary" onClick={() => go('order')}>

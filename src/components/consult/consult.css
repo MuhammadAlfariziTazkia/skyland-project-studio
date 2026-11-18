@@ -352,3 +352,36 @@
 /* Concept feature rows carry two lines: what it is on this site, then why it matters. */
 .cs.cp .feat-main em { font-style: normal; font-size: 12.5px; color: var(--muted-2); line-height: 1.5; margin-top: 2px; }
 .cs.cp .feat.on .feat-main em { color: var(--blue-d); }
+
+/* Template price list (concept page, markets with a template). One card per module: the switch on top,
+   then the steps and the checklist, then its add-ons nested inside once the module is on. */
+.cs.tp .tp-presets .chip b { color: var(--ink); }
+.cs.tp .tp-presets .chip.sel b { color: var(--blue); }
+.cs.tp .tp-mods { list-style: none; margin: 8px 0 0; padding: 0; gap: 12px; }
+.cs.tp .tp-card { border: 1px solid var(--line); border-radius: 16px; background: #fafcff; overflow: hidden; transition: border-color .2s, background .2s; }
+.cs.tp .tp-card.on { background: #fff; border-color: #c9d8fb; }
+.cs.tp .tp-row, .cs.tp .tp-row:hover { border: 0; border-radius: 0; background: transparent; padding: 14px 16px 8px; }
+.cs.tp .tp-row-static { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px 4px; }
+.cs.tp .tp-body { display: flex; flex-direction: column; gap: 6px; padding: 0 16px 14px 64px; }
+.cs.tp .tp-base .tp-body { padding-left: 16px; }
+.cs.tp .tp-k { font-size: 11.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); margin-top: 6px; }
+.cs.tp .tp-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.cs.tp .tp-steps li { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-2); background: var(--bg-soft); border: 1px solid var(--line-2); border-radius: 999px; padding: 4px 10px 4px 4px; }
+.cs.tp .tp-steps li span { flex: none; width: 18px; height: 18px; border-radius: 50%; background: var(--blue-soft); color: var(--blue); font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+.cs.tp .tp-check { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.cs.tp .tp-check li { position: relative; padding-left: 22px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+.cs.tp .tp-check li::before { content: '✓'; position: absolute; left: 0; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--green-soft); color: var(--green); font-size: 9.5px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+.cs.tp .tp-note { margin: 2px 0 0; font-size: 12.5px; color: #7a4d0b; background: #fffbf2; border: 1px solid #f3e3c3; border-radius: 10px; padding: 6px 10px; }
+.cs.tp .tp-demo { align-self: flex-start; padding: 4px 0; }
+.cs.tp .tp-addons { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.cs.tp .tp-addons .feats { gap: 8px; }
+.cs.tp .tp-addon-body { display: flex; flex-direction: column; gap: 6px; padding: 8px 14px 4px 62px; }
+/* On a phone the price tag sits under the name instead of beside it, so the description keeps the full width. */
+@media (max-width: 639px) {
+  .cs.tp .tp-body { padding-left: 16px; }
+  .cs.tp .tp-addon-body { padding-left: 14px; }
+  .cs.tp .feat, .cs.tp .tp-row-static { flex-wrap: wrap; }
+  .cs.tp .feat .feat-main { flex: 1 1 calc(100% - 48px); order: 1; }
+  .cs.tp .feat .ftag { order: 2; margin-left: 48px; }
+  .cs.tp .tp-row-static .feat-main { flex: 1 1 100%; }
+}
