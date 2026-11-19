@@ -51,7 +51,7 @@ section[id]{scroll-margin-top:84px}
 .eyebrow i{width:28px;height:1px;background:currentColor;opacity:.5}
 .dark .eyebrow,.moss .eyebrow{color:var(--stone)}
 .dark .eyebrow b,.moss .eyebrow b{color:var(--copper-hi)}
-.h2{margin:22px 0 0;font-family:var(--serif);font-weight:500;font-size:clamp(32px,3.8vw,56px);line-height:1.38;letter-spacing:.06em}
+.h2{margin:22px 0 0;font-family:var(--serif);font-weight:500;font-size:clamp(32px,3.8vw,56px);line-height:1.38;letter-spacing:.06em;word-break:keep-all;overflow-wrap:anywhere}
 .h2 em{font-family:var(--it);font-style:italic;font-weight:400;letter-spacing:0;color:var(--copper)}
 .dark .h2 em,.moss .h2 em{color:var(--copper-hi)}
 .lead{font-size:15px;line-height:2.05;letter-spacing:.04em;color:#3a3f3d;text-wrap:pretty}
@@ -74,7 +74,7 @@ section[id]{scroll-margin-top:84px}
 .btn--copper{background:var(--copper);color:var(--paper)}
 .btn--copper:hover{background:#A25E42}
 .btn--sm{min-height:46px;padding:0 18px;font-size:13px;gap:10px}
-.new{display:inline-flex;align-items:center;height:18px;padding:0 6px;border-radius:4px;background:var(--copper);color:var(--paper);font-family:var(--ui);font-size:9.5px;font-weight:700;letter-spacing:.12em}
+.new{display:inline-flex;align-items:center;white-space:nowrap;flex:none;height:18px;padding:0 6px;border-radius:4px;background:var(--copper);color:var(--paper);font-family:var(--ui);font-size:9.5px;font-weight:700;letter-spacing:.12em}
 .lnk{display:inline-flex;gap:12px;align-items:center;padding:8px 0 6px;font-size:14px;font-weight:500;letter-spacing:.06em;border-bottom:1px solid currentColor}
 .lnk span{font-family:var(--ui);transition:transform .35s var(--ease)}
 .lnk:hover span{transform:translateX(4px)}
@@ -85,9 +85,9 @@ section[id]{scroll-margin-top:84px}
 .hdr-in{max-width:1440px;margin:0 auto;padding:0 var(--gut);height:84px;display:flex;align-items:center;justify-content:space-between;gap:24px;transition:height .35s ease}
 .hdr.is-scrolled .hdr-in{height:66px}
 .logo{display:flex;align-items:center;gap:12px;padding:6px 0}
-.logo-k{font-family:var(--serif);font-size:23px;font-weight:600;letter-spacing:.06em;line-height:1}
+.logo-k{font-family:var(--serif);font-size:23px;font-weight:600;letter-spacing:.06em;line-height:1;white-space:nowrap}
 .logo-bar{width:1px;height:22px;background:currentColor;opacity:.35}
-.logo-t{display:flex;flex-direction:column;gap:4px;font-family:var(--ui);line-height:1}
+.logo-t{display:flex;flex-direction:column;gap:4px;font-family:var(--ui);line-height:1;white-space:nowrap}
 .logo-t b{font-size:12px;font-weight:700;letter-spacing:.34em}
 .logo-t small{font-size:8.5px;font-weight:500;letter-spacing:.42em;opacity:.65}
 .nav{display:flex;align-items:center;gap:clamp(16px,2vw,30px)}
@@ -170,12 +170,12 @@ section[id]{scroll-margin-top:84px}
 .mrow:hover{background:var(--washi);padding-inline:16px}
 .mrow .no{font-family:var(--ui);font-size:12px;font-weight:600;letter-spacing:.1em;color:var(--copper)}
 .mrow .nm{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
-.mrow .nm b{font-family:var(--serif);font-size:clamp(20px,1.8vw,24px);font-weight:500;letter-spacing:.06em}
+.mrow .nm b{font-family:var(--serif);font-size:clamp(20px,1.8vw,24px);font-weight:500;letter-spacing:.06em;word-break:keep-all;overflow-wrap:anywhere}
 .mrow .nm small{font-family:var(--ui);font-size:10.5px;font-weight:600;letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
 .mrow .pr{font-family:var(--ui);font-size:clamp(20px,1.7vw,24px);font-weight:400}
 .mrow .ds{font-size:13px;line-height:1.85;color:var(--muted);text-wrap:pretty}
 .mrow .mn{font-family:var(--ui);font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--moss);white-space:nowrap}
-.mrow .go{margin-top:10px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:var(--moss);display:flex;gap:10px;align-items:center}
+.mrow .go{word-break:keep-all;margin-top:10px;font-size:12.5px;font-weight:700;letter-spacing:.1em;color:var(--moss);display:flex;gap:10px;align-items:center}
 .mprev{position:fixed;left:0;top:0;z-index:30;width:220px;aspect-ratio:3/4;border-radius:12px;overflow:hidden;pointer-events:none;opacity:0;transform:translate3d(-999px,-999px,0) scale(.85);transition:opacity .3s ease,scale .45s var(--ease);box-shadow:0 30px 60px rgba(0,0,0,.25)}
 .mprev.on{opacity:1}
 .mprev img{width:100%;height:100%;object-fit:cover}
@@ -366,7 +366,7 @@ section[id]{scroll-margin-top:84px}
 .foot{border-top:1px solid var(--line-d)}
 .foot-in{padding-block:56px clamp(96px,8vw,48px);display:flex;flex-wrap:wrap;gap:40px 64px;justify-content:space-between}
 .foot nav{display:grid;grid-template-columns:repeat(2,minmax(120px,auto));gap:4px 48px;font-size:13px}
-.foot nav a{display:block;padding:7px 0;color:var(--stone);transition:color .2s ease}
+.foot nav a{display:block;word-break:keep-all;padding:7px 0;color:var(--stone);transition:color .2s ease}
 .foot nav a:hover{color:var(--washi)}
 .foot-bt{flex-basis:100%;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-top:24px;border-top:1px solid rgba(243,239,230,.1);font-size:11px;color:var(--muted-d);letter-spacing:.04em}
 
@@ -396,7 +396,7 @@ section[id]{scroll-margin-top:84px}
 .only-m{display:none!important}
 .foot-sub{display:flex;gap:8px}
 .res > *,.intro > *,.align > *,.scan > *{min-width:0}
-.fd-h{margin:0;font-family:var(--serif);font-weight:500;font-size:clamp(26px,2.6vw,38px);line-height:1.4;letter-spacing:.06em;outline:none}
+.fd-h{margin:0;font-family:var(--serif);font-weight:500;font-size:clamp(26px,2.6vw,38px);line-height:1.4;letter-spacing:.06em;outline:none;word-break:keep-all;overflow-wrap:anywhere}
 .fd-p{margin:14px 0 0;font-size:14px;line-height:1.95;color:#CFCBC1;max-width:34em}
 .fd-err{margin-top:16px;padding:12px 14px;border-radius:12px;background:rgba(183,110,80,.16);border:1px solid rgba(227,164,135,.4);font-size:13px;color:#F2C8B4}
 .intro{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(24px,4vw,64px);padding:clamp(22px,3.4vw,48px);align-items:center;min-height:100%}
@@ -444,7 +444,7 @@ section[id]{scroll-margin-top:84px}
 .ba-range{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;-webkit-appearance:none;appearance:none}
 .ba-range:focus-visible + .ba-ring{outline:2px solid var(--copper-hi);outline-offset:-2px}
 .ba-ring{position:absolute;inset:0;border-radius:20px;pointer-events:none}
-.ba-tag{position:absolute;top:14px;font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.24em;padding:6px 10px;border-radius:999px;background:rgba(14,17,16,.6);color:var(--washi);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);pointer-events:none}
+.ba-tag{position:absolute;z-index:2;top:14px;font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.24em;padding:6px 10px;border-radius:999px;background:rgba(14,17,16,.6);color:var(--washi);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);pointer-events:none}
 .ba-tag.l{left:14px}.ba-tag.r{right:14px}
 .ba-demo{position:absolute;left:14px;right:14px;bottom:14px;font-size:10.5px;line-height:1.6;color:rgba(243,239,230,.88);background:rgba(14,17,16,.55);padding:8px 10px;border-radius:10px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);pointer-events:none}
 .res-info{padding:clamp(20px,2.8vw,40px);display:flex;flex-direction:column;gap:22px;border-left:1px solid var(--line-d)}
@@ -459,13 +459,14 @@ section[id]{scroll-margin-top:84px}
 .editor button{height:34px;padding:0 12px;border-radius:999px;border:1px solid rgba(243,239,230,.2);font-size:12.5px;transition:background-color .2s ease}
 .editor button[aria-pressed="true"]{background:var(--washi);color:var(--ink-2);border-color:var(--washi)}
 .rtabs{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:8px}
-.rtab{display:flex;gap:10px;align-items:center;padding:8px;border-radius:14px;border:1px solid var(--line-d);text-align:left;transition:border-color .2s ease,background-color .2s ease;min-width:0}
+.rtab{container:rt / inline-size;display:flex;gap:8px;align-items:center;padding:8px;border-radius:14px;border:1px solid var(--line-d);text-align:left;transition:border-color .2s ease,background-color .2s ease;min-width:0}
 .rtab:hover{border-color:rgba(243,239,230,.4)}
 .rtab[aria-selected="true"]{border-color:var(--copper-hi);background:rgba(227,164,135,.08)}
-.rtab img{width:40px;height:52px;border-radius:8px;object-fit:cover;flex:none;background:#E6E0D3}
+.rtab img{width:34px;height:45px;border-radius:8px;object-fit:cover;flex:none;background:#E6E0D3}
 .rtab .t{display:flex;flex-direction:column;gap:2px;min-width:0}
 .rtab small{font-family:var(--ui);font-size:9.5px;font-weight:600;letter-spacing:.18em;color:var(--copper-hi);white-space:nowrap}
-.rtab b{font-family:var(--serif);font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rtab b{font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.02em;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}
+@container rt (max-width:150px){.rtab img{display:none}}
 .rcur-top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
 .rcur-top h3{margin:6px 0 0;font-family:var(--serif);font-weight:500;font-size:clamp(28px,2.6vw,38px);letter-spacing:.06em;line-height:1.3}
 .rcur-top .en{font-family:var(--it);font-style:italic;font-size:19px;color:var(--stone)}
@@ -515,9 +516,9 @@ section[id]{scroll-margin-top:84px}
 .cam-wait{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;font-size:13.5px;letter-spacing:.04em}
 .cam-wait i{width:30px;height:30px;border-radius:50%;border:2px solid rgba(243,239,230,.2);border-top-color:var(--copper-hi);animation:spin .9s linear infinite}
 .cam-wait small{font-size:11.5px;line-height:1.7;color:var(--muted-d);max-width:22em}
-.cam-err{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:clamp(20px,3vw,32px);background:rgba(14,17,16,.9)}
-.cam-err b{font-family:var(--serif);font-size:19px;font-weight:500;letter-spacing:.06em}
-.cam-err p{margin:0;font-size:13px;line-height:1.85;color:#CFCBC1}
+.cam-err{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:safe center;overflow-y:auto;gap:10px;padding:clamp(18px,2.4vw,28px);background:rgba(14,17,16,.9)}
+.cam-err b{font-family:var(--serif);font-size:17px;line-height:1.5;font-weight:500;letter-spacing:.06em}
+.cam-err p{margin:0;font-size:12.5px;line-height:1.75;color:#CFCBC1}
 .cam-err-acts{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:6px}
 .cam-err-acts label{cursor:pointer}
 .cam-err-acts .lnk{color:var(--stone);font-size:13px}
@@ -525,6 +526,9 @@ section[id]{scroll-margin-top:84px}
 .cam-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
 .cam-ctrl{display:flex;align-items:center;justify-content:center;gap:clamp(30px,7vw,64px)}
 .cam-stage.error ~ .cam-ctrl{visibility:hidden}
+.cam-stage.error{aspect-ratio:auto;height:auto;width:min(100%,440px);min-height:0}
+.cam-stage.error video,.cam-stage.error svg{display:none}
+.cam-stage.error .cam-err{position:relative;inset:auto;overflow:visible}
 .cam-side{width:58px;height:58px;border-radius:50%;border:1px solid rgba(243,239,230,.22);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;letter-spacing:.06em;color:var(--stone);cursor:pointer;transition:background-color .25s ease,border-color .25s ease,color .25s ease}
 .cam-side:hover{border-color:rgba(243,239,230,.5);color:var(--washi)}
 .cam-side[aria-pressed="true"]{background:var(--copper);border-color:var(--copper);color:var(--paper)}
@@ -545,26 +549,35 @@ section[id]{scroll-margin-top:84px}
 .ov-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px 32px}
 .ov-head .fd-h em{font-family:var(--it);font-style:italic;font-weight:400;color:var(--copper-hi);margin:0 .08em;letter-spacing:0}
 .ov-head .prof{max-width:620px}
-.rcards{--ih:max(250px,calc(min(100svh - 80px,860px) - 460px));position:relative;display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:16px;width:min(100%,calc(var(--ih) * .75 * var(--n,3) + (var(--n,3) - 1) * 16px));margin-inline:auto}
-.rcard{position:relative;display:flex;flex-direction:column;min-width:0;border-radius:20px;overflow:hidden;background:var(--ink-2);border:1px solid var(--line-d);transition:border-color .3s ease,box-shadow .4s ease,transform .5s var(--ease)}
+.rcards{--ih:max(340px,calc(min(100svh - 80px,860px) - 460px));position:relative;display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:16px;width:min(100%,calc(var(--ih) * .75 * var(--n,3) + (var(--n,3) - 1) * 16px));margin-inline:auto}
+.rcard{position:relative;display:flex;flex-direction:column;min-width:0;container:rc / inline-size;border-radius:20px;overflow:hidden;background:var(--ink-2);border:1px solid var(--line-d);transition:border-color .3s ease,box-shadow .4s ease,transform .5s var(--ease)}
 .rcard.on{border-color:rgba(227,164,135,.7);box-shadow:0 0 0 1px rgba(227,164,135,.35),0 24px 60px rgba(0,0,0,.4)}
 @media (hover:hover){.rcard:hover{transform:translateY(-4px);border-color:rgba(243,239,230,.3)}.rcard.on:hover{border-color:rgba(227,164,135,.85)}}
 .rc-img{position:relative;aspect-ratio:3/4;overflow:hidden;background:#E6E0D3;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .rc-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none;-webkit-touch-callout:none}
 .rc-after{transition:opacity .25s ease}
 .rc-img.hold .rc-after,.rc-img.show-before .rc-after{opacity:0}
-.rc-img::after{content:"BEFORE";position:absolute;left:50%;bottom:14px;transform:translate(-50%,6px);padding:6px 12px;border-radius:999px;background:rgba(14,17,16,.7);font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.24em;color:var(--washi);opacity:0;transition:opacity .2s ease,transform .3s var(--ease);pointer-events:none}
-.rc-img.hold::after,.rc-img.show-before::after{opacity:1;transform:translate(-50%,0)}
+.rc-img::after{content:"BEFORE";position:absolute;top:12px;right:12px;transform:translateY(-4px);padding:6px 12px;border-radius:999px;background:rgba(14,17,16,.7);font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.24em;color:var(--washi);opacity:0;transition:opacity .2s ease,transform .3s var(--ease);pointer-events:none}
+.rc-img.hold::after,.rc-img.show-before::after{opacity:1;transform:none}
 .rc-line{position:absolute;left:0;right:0;top:0;height:2px;background:var(--copper-hi);box-shadow:0 0 18px 4px rgba(227,164,135,.55);opacity:0;pointer-events:none}
-.rc-rank{position:absolute;top:12px;left:12px;padding:6px 11px;border-radius:999px;background:rgba(14,17,16,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:var(--ui);font-size:9.5px;font-weight:600;letter-spacing:.22em;color:var(--washi)}
+.rc-rank{position:absolute;z-index:2;top:12px;left:12px;padding:6px 11px;border-radius:999px;background:rgba(14,17,16,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:var(--ui);font-size:9.5px;font-weight:600;letter-spacing:.22em;color:var(--washi)}
 .rc-rank.best{background:var(--copper);color:var(--paper)}
-.rc-before{position:absolute;top:8px;right:8px;min-height:36px;padding:0 12px;border-radius:999px;background:rgba(14,17,16,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:var(--ui);font-size:9.5px;font-weight:600;letter-spacing:.2em;color:rgba(243,239,230,.9);transition:background-color .2s ease}
+.rc-gen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:10px;padding:0 14px 18px;text-align:center;font-size:12px;letter-spacing:.08em;color:var(--washi);background:linear-gradient(180deg,rgba(14,17,16,0) 40%,rgba(14,17,16,.72));pointer-events:none}
+.rc-gen::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,rgba(243,239,230,0) 30%,rgba(243,239,230,.22) 50%,rgba(243,239,230,0) 70%);background-size:250% 100%;animation:shimmer 1.8s linear infinite}
+.rc-gen i{width:22px;height:22px;border-radius:50%;border:2px solid rgba(243,239,230,.25);border-top-color:var(--copper-hi);animation:spin .9s linear infinite}
+.rc-gen.err{pointer-events:auto;justify-content:flex-end;background:linear-gradient(180deg,rgba(14,17,16,.1),rgba(14,17,16,.8))}
+.rc-gen.err::before,.rc-gen.err i{display:none}
+.rc-gen button{min-height:38px;padding:0 16px;border-radius:999px;background:var(--washi);color:var(--ink-2);font-size:12px;font-weight:700;letter-spacing:.06em}
+.ba .rc-gen{justify-content:center;padding-bottom:0;background:rgba(14,17,16,.35)}
+.ba:has(.rc-gen) .ba-demo{opacity:0}
+@keyframes shimmer{from{background-position:150% 0}to{background-position:-100% 0}}
+.rc-before{position:absolute;z-index:2;bottom:10px;right:10px;min-height:36px;padding:0 12px;border-radius:999px;background:rgba(14,17,16,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:var(--ui);font-size:9.5px;font-weight:600;letter-spacing:.2em;color:rgba(243,239,230,.9);transition:background-color .2s ease}
 .rc-before:hover{background:rgba(14,17,16,.75)}
 .rc-before[aria-pressed="true"]{background:var(--washi);color:var(--ink-2)}
 .rc-body{display:flex;flex-direction:column;gap:10px;padding:14px 14px 14px 16px;flex:1;cursor:pointer}
 .rc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .rc-nm{display:flex;flex-direction:column;gap:2px;min-width:0}
-.rc-nm b{font-family:var(--serif);font-size:clamp(16px,1.4vw,19px);font-weight:500;letter-spacing:.05em;line-height:1.35}
+.rc-nm b{font-family:var(--serif);font-size:clamp(16px,1.4vw,19px);font-weight:500;letter-spacing:.05em;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}
 .rc-nm span{font-family:var(--it);font-style:italic;font-size:14px;color:var(--stone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @property --n{syntax:'<integer>';inherits:false;initial-value:0}
 .rc-score{--n:var(--s);flex:none;display:grid;grid-template-columns:auto auto;align-items:baseline;justify-items:end;font-family:var(--ui);font-weight:300;font-size:30px;line-height:.9;color:var(--copper-hi);counter-reset:n var(--n);animation:count 1.3s var(--ease) var(--d,0ms) backwards}
@@ -575,12 +588,19 @@ section[id]{scroll-margin-top:84px}
 @keyframes count{from{--n:0}}
 .rc-why{margin:0;font-size:12.5px;line-height:1.75;color:#CFCBC1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .rc-acts{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:6px;margin-top:auto;padding-top:4px}
-.rc-acts button{min-height:42px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:8px;transition:background-color .25s ease,border-color .25s ease,color .25s ease}
+.rc-acts button{min-height:42px;padding:0 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;white-space:nowrap;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;transition:background-color .25s ease,border-color .25s ease,color .25s ease}
 .rc-more{border:1px solid rgba(243,239,230,.28)}
 .rc-more:hover{border-color:var(--washi)}
 .rc-book{background:var(--washi);color:var(--ink-2)}
 .rc-book:hover{background:var(--copper-hi)}
 .rc-book span{font-family:var(--ui);font-weight:400}
+/* placed after the base card rules so it wins: a card lays itself out by its own width */
+@container rc (max-width:330px){
+  .rc-acts{grid-template-columns:1fr}
+  .rc-nm b{font-size:16px}
+  .rc-score{font-size:26px}
+  .rc-body{padding:12px 12px 12px 14px}
+}
 .rdots{display:none}
 .ov-note{margin:0;text-align:center;font-size:11.5px;line-height:1.8;color:var(--muted-d)}
 .ov-note > span{margin-right:.6em}
@@ -612,6 +632,10 @@ section[id]{scroll-margin-top:84px}
   .crop,.scan-img{height:auto;width:min(100%,calc(56svh * .75))}
   .foot-in{padding-bottom:150px}
 }
+@media (max-width:380px){
+  .logo-bar,.logo-t{display:none}
+  .hdr-cta{padding:0 16px}
+}
 @media (max-width:640px){
   .hero h1{font-size:clamp(36px,10.5vw,52px)}
   .ai-btn,.btn{width:100%}
@@ -641,7 +665,7 @@ section[id]{scroll-margin-top:84px}
   .ov-head .prof{max-width:none}
   .rcards{display:flex;width:auto;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;gap:12px;margin:0 -16px;padding:2px 16px 6px;scroll-padding-inline:16px;overscroll-behavior-inline:contain}
   .rcards::-webkit-scrollbar{display:none}
-  .rcard{flex:0 0 72%;scroll-snap-align:center}
+  .rcard{flex:0 0 max(72%,250px);scroll-snap-align:center}
   .rc-img{aspect-ratio:4/5}
   .rc-img img{object-position:50% 35%}
   .ov-head .eyebrow{display:none}
@@ -658,7 +682,19 @@ section[id]{scroll-margin-top:84px}
   .intro-art{height:30svh;width:auto;aspect-ratio:3/4;margin-inline:auto}
   .intro{padding-top:16px}
   .fd-title .lb{display:none}
+  .fd-h{font-size:clamp(22px,6.9vw,26px)}
   .adl{grid-template-columns:80px minmax(0,1fr)}
+  .btn{gap:12px;padding:0 20px 0 22px;letter-spacing:.08em}
+  .ai-btn{padding:0 16px 0 12px;letter-spacing:.04em}
+  .ai-btn .new{display:none}
+  .fd-head{gap:10px;padding-right:12px}
+  .fd-title b{display:none}
+  .fd-steps{gap:4px;margin-right:2px}
+  .fd-steps em{width:8px}
+  .ov-head .fd-h{font-size:clamp(21px,6.4vw,26px);word-break:keep-all}
+  .foot nav{gap:4px 20px}
+  .mrow{grid-template-columns:30px minmax(0,1fr) auto;gap:6px 12px}
+  .mrow .nm b{font-size:clamp(17px,5.2vw,20px)}
 }
 @media (prefers-reduced-motion: reduce){.sdot{opacity:1}*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
@@ -863,7 +899,7 @@ section[id]{scroll-margin-top:84px}
         <button type="button" class="btn btn--washi" onClick="{{ openFinder }}" data-finder-trigger="1" data-mag="1">{{ aiCta }}<span class="arr">→</span></button>
         <sc-if value="{{ !hasResult }}"><button type="button" class="btn btn--ghost" onClick="{{ openSample }}" data-finder-trigger="1">サンプルで試す</button></sc-if>
       </div>
-      <p class="privacy" data-reveal="up"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="6" width="9" height="6.5" rx="1.5"/><path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6"/></svg><span>写真は端末の中だけで処理され、送信・保存されません。カメラは撮影後すぐにオフになります。※ デモ版では解析と合成イメージを簡易的に再現しています。</span></p>
+      <p class="privacy" data-reveal="up"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="6" width="9" height="6.5" rx="1.5"/><path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6"/></svg><span>{{ aiSectionPrivacy }}</span></p>
     </div>
     <div class="teaser" data-reveal="up">
       <div class="fan" aria-label="診断結果の例（サンプルのイラスト）" role="img">
@@ -1173,7 +1209,7 @@ section[id]{scroll-margin-top:84px}
     <div class="fd-bg" onClick="{{ closeFinder }}"></div>
     <div class="fd-sheet" role="dialog" aria-modal="true" aria-labelledby="fd-h">
       <div class="fd-head">
-        <span class="fd-title"><b>AI</b><span class="lb">似合わせ診断</span><span class="new">DEMO</span></span>
+        <span class="fd-title"><b>AI</b><span class="lb">似合わせ診断</span><span class="new">{{ aiBadge }}</span></span>
         <div class="fd-steps" aria-label="進行状況">
           <sc-for list="{{ fSteps }}" as="s">
             <sc-if value="{{ s.i > 0 }}"><em aria-hidden="true"></em></sc-if>
@@ -1208,7 +1244,7 @@ section[id]{scroll-margin-top:84px}
               </div>
               <button type="button" class="alt" onClick="{{ fSample }}">写真を使わずに、サンプルで試す<span aria-hidden="true">→</span></button>
               <sc-if value="{{ fErr }}"><div class="fd-err" role="alert">{{ fErr }}</div></sc-if>
-              <p class="privacy"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="6" width="9" height="6.5" rx="1.5"/><path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6"/></svg><span>写真は端末の中だけで処理され、サーバーへの送信・保存は行いません。カメラは撮影が終わるとすぐにオフになります。</span></p>
+              <p class="privacy"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="6" width="9" height="6.5" rx="1.5"/><path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6"/></svg><span>{{ aiPrivacy }}</span></p>
             </div>
           </div>
         </sc-if>
@@ -1343,7 +1379,7 @@ section[id]{scroll-margin-top:84px}
               </div>
               <div class="prof">
                 <sc-for list="{{ fChips }}" as="c"><span class="pc"><small>{{ c.k }}</small><b>{{ c.v }}</b></span></sc-for>
-                <button type="button" class="edit" onClick="{{ fEditToggle }}" aria-expanded="{{ fEdit }}">{{ fEdit ? '閉じる' : '修正する' }}</button>
+                <sc-if value="{{ !aiMode }}"><button type="button" class="edit" onClick="{{ fEditToggle }}" aria-expanded="{{ fEdit }}">{{ fEdit ? '閉じる' : '修正する' }}</button></sc-if>
               </div>
             </div>
             <sc-if value="{{ fEdit }}">
@@ -1364,7 +1400,9 @@ section[id]{scroll-margin-top:84px}
                     <img loading="lazy" class="rc-after" data-rc-after="1" src="{{ r.img }}" alt="{{ r.name }}の合成イメージ" draggable="false">
                     <span class="rc-line" data-rc-line="1" aria-hidden="true"></span>
                     <span class="rc-rank {{ r.rankCls }}">{{ r.rank }}</span>
-                    <button type="button" class="rc-before" onClick="{{ fBeforeToggle }}" aria-pressed="false">BEFORE</button>
+                    <sc-if value="{{ r.ready }}"><button type="button" class="rc-before" onClick="{{ fBeforeToggle }}" aria-pressed="false">BEFORE</button></sc-if>
+                    <sc-if value="{{ r.pending }}"><span class="rc-gen" role="status"><i aria-hidden="true"></i>AIが仕上げています…</span></sc-if>
+                    <sc-if value="{{ r.failed }}"><span class="rc-gen err" role="alert">画像を作れませんでした<button type="button" onClick="{{ r.retry }}">もう一度生成</button></span></sc-if>
                   </div>
                   <div class="rc-body" onClick="{{ r.pick }}">
                     <div class="rc-top">
@@ -1381,7 +1419,7 @@ section[id]{scroll-margin-top:84px}
               </sc-for>
             </div>
             <div class="rdots" aria-hidden="true"><sc-for list="{{ fList }}" as="r"><i class="{{ r.active ? 'on' : '' }}"></i></sc-for></div>
-            <p class="ov-note"><span class="only-touch">写真を長押しするとビフォーに戻ります。</span><span class="only-fine">写真を押している間、ビフォーを表示します。</span>合成イメージ（デモ）— 本番ではAIがご本人の写真を編集します。</p>
+            <p class="ov-note"><span class="only-touch">写真を長押しするとビフォーに戻ります。</span><span class="only-fine">写真を押している間、ビフォーを表示します。</span>{{ aiImageNote }}</p>
           </div>
         </sc-if>
 
@@ -1396,7 +1434,8 @@ section[id]{scroll-margin-top:84px}
                 <span class="ba-tag l">BEFORE</span><span class="ba-tag r">AFTER</span>
                 <input class="ba-range" data-ba-range="1" type="range" min="0" max="100" step="1" onInput="{{ fSlide }}" aria-label="ビフォー・アフターを比較">
                 <span class="ba-ring" aria-hidden="true"></span>
-                <span class="ba-demo">合成イメージ（デモ）— 本番ではAIがご本人の写真を編集します。</span>
+                <span class="ba-demo">{{ aiImageNote }}</span>
+                <sc-if value="{{ fCur.pending }}"><span class="rc-gen"><i aria-hidden="true"></i>AIが仕上げています…</span></sc-if>
               </div>
             </div>
             <div class="res-info">
@@ -1406,7 +1445,7 @@ section[id]{scroll-margin-top:84px}
                 <h2 id="fd-h" class="sr-only" tabindex="-1" data-fd-focus="1">診断結果</h2>
                 <div class="prof" style="margin-top:14px;">
                   <sc-for list="{{ fChips }}" as="c"><span class="pc"><small>{{ c.k }}</small><b>{{ c.v }}</b></span></sc-for>
-                  <button type="button" class="edit" onClick="{{ fEditToggle }}" aria-expanded="{{ fEdit }}">{{ fEdit ? '閉じる' : '修正する' }}</button>
+                  <sc-if value="{{ !aiMode }}"><button type="button" class="edit" onClick="{{ fEditToggle }}" aria-expanded="{{ fEdit }}">{{ fEdit ? '閉じる' : '修正する' }}</button></sc-if>
                 </div>
               </div>
               <sc-if value="{{ fEdit }}">
@@ -1467,7 +1506,7 @@ section[id]{scroll-margin-top:84px}
           <button type="button" class="btn btn--sm btn--washi" onClick="{{ fAnalyze }}">この位置で診断する<span class="arr">→</span></button>
         </sc-if>
         <sc-if value="{{ fStep === 'scan' }}">
-          <span class="note">写真は端末内で処理中です。</span><span></span>
+          <span class="note">{{ aiScanNote }}</span><span></span>
         </sc-if>
         <sc-if value="{{ fStep === 'result' }}">
           <div class="foot-sub">
@@ -1495,6 +1534,8 @@ class Component extends DCLogic {
     fProfile: null, fTone: '', fFocus: null, fPick: 0, fEdit: false, fRev: 0,
     // path: camera | album | sample · view: overview (3 cards) | detail (one style)
     fPath: 'camera', fView: 'overview', fQuiet: false, fShotUrl: '',
+    // real AI (trial): on when /api/hair says so; fAi holds the model's picks and the restyled photos
+    aiLive: false, fAi: null,
     fCam: 'idle', fCamErr: '', fFacing: 'user', fMirror: true, fCanFlip: false, fLight: '', fLightOk: true, fTimer: false, fCount: 0,
     wish: null, teaser: [], teaserBefore: ''
   };
@@ -1521,6 +1562,7 @@ class Component extends DCLogic {
     addEventListener('scroll', this.onS, { passive: true }); addEventListener('resize', this.onR); addEventListener('keydown', this.onK);
     this.io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { this.play(e.target); this.io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
     this.intro(); setTimeout(() => { this.scan(); this.bindTrack(); this.bindMagnet(); }, 60);
+    fetch('/api/hair', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((d) => { if (d && d.enabled) this.setState({ aiLive: true }); }).catch(() => {});
     this.onS();
   }
   componentDidUpdate(pp, ps) {
@@ -1552,6 +1594,9 @@ class Component extends DCLogic {
     }
     if (st.fOpen && st.fStep === 'result' && st.fView === 'detail' && (ps.fStep !== 'result' || ps.fView !== 'detail' || ps.fPick !== st.fPick || ps.fRev !== st.fRev || !ps.fOpen)) this.resetSlider();
     if (st.fOpen && st.fStep === 'result' && st.fView === 'overview' && (ps.fStep !== 'result' || ps.fView !== 'overview' || ps.fRev !== st.fRev || !ps.fOpen)) this.revealCards(ps.fView === 'detail' && ps.fStep === 'result');
+    if (st.fAi && ps.fAi && st.fAi.images !== ps.fAi.images && st.fStep === 'result') {
+      st.fAi.picks.forEach((p, i) => { const now = st.fAi.images[p.styleId], was = ps.fAi.images[p.styleId]; if (now && now !== 'error' && now !== was) this.revealOne(i); });
+    }
     // the camera lives only on its own step: leaving it, or closing the dialog, always switches it off
     if ((ps.fStep === 'camera' && st.fStep !== 'camera') || (ps.fOpen && !st.fOpen)) this.stopCam();
     if (st.fOpen && st.fStep === 'camera' && st.fCam === 'live') this.attachCam();
@@ -1661,10 +1706,10 @@ class Component extends DCLogic {
     const st = this.state, focus = typeof focusId === 'string' ? focusId : null;
     // A finished diagnosis is kept for the visit: reopening (or asking about another style) goes straight to results.
     if (st.fProfile && this.base) {
-      const list = KH.advise(st.fProfile, focus);
+      const list = st.fAi ? this.aiList() : KH.advise(st.fProfile, focus);
       this.ensure(list);
-      const fi = focus ? list.findIndex((x) => x.style.id === focus) : 0;
-      this.setState({ fOpen: true, fStep: 'result', fQuiet: false, fView: focus ? 'detail' : 'overview', fFocus: focus, fPick: Math.max(0, fi), fEdit: false, fRev: st.fRev + 1 });
+      const fi = focus ? list.findIndex((x) => x.style.id === focus) : -1;
+      this.setState({ fOpen: true, fStep: 'result', fQuiet: false, fView: fi >= 0 ? 'detail' : 'overview', fFocus: st.fAi ? null : focus, fPick: Math.max(0, fi), fEdit: false, fRev: st.fRev + 1 });
       return;
     }
     this.setState({ fOpen: true, fStep: 'intro', fErr: '', fFocus: focus });
@@ -1807,7 +1852,13 @@ class Component extends DCLogic {
     this.setState({ fTf: KHF.clampTf(Object.assign({}, this.state.fTf, { s: +e.target.value }), p.w, p.h) });
   }
   analyzeNow(tf) {
+    if (this.state.aiLive && this.photo && !this.photo.sample) return this.analyzeAi(tf);
+    this.analyzeSim(tf);
+  }
+  analyzeSim(tf) {
     const photo = this.photo;
+    this.aiToken = (this.aiToken || 0) + 1;
+    if (this.state.fAi) this.setState({ fAi: null });
     this.base = KHF.crop(photo, tf);
     const a = KHF.analyze(photo, this.base);
     this.cmp = {};
@@ -1821,6 +1872,85 @@ class Component extends DCLogic {
     this.timers.push(setTimeout(() => this.ensure(KH.advise(a.profile, this.state.fFocus)), 80));
     this.timers.push(setTimeout(() => this.finishScan(), step * 4 + (this.rm ? 0 : 420)));
   }
+  // ---------- real AI (trial) ----------
+  // One cheap vision call picks the three styles; then three image edits restyle the visitor's own photo,
+  // in parallel, each card opening as soon as its image arrives.
+  analyzeAi(tf) {
+    const token = (this.aiToken = (this.aiToken || 0) + 1);
+    this.base = KHF.crop(this.photo, tf);
+    this.cmp = {};
+    this.beforeUrl = this.base.toDataURL('image/jpeg', 0.9);
+    this.aiPhoto = this.base.toDataURL('image/jpeg', 0.85);
+    this.pending = null;
+    this.clearTimers();
+    this.setState({ fStep: 'scan', fScan: 0, fEdit: false, fAi: null });
+    const step = this.rm ? 60 : 640, started = Date.now();
+    for (let i = 1; i <= 3; i++) this.timers.push(setTimeout(() => this.setState({ fScan: i }), step * i));
+    this.postAi('/api/hair/analyze', { image: this.aiPhoto }).then((a) => {
+      if (token !== this.aiToken) return;
+      const open = () => {
+        if (token !== this.aiToken) return;
+        this.clearTimers();
+        if (!a.faceFound) {
+          this.setState({ fStep: 'intro', fErr: '顔が見つかりませんでした。正面を向き、明るい場所でもう一度撮影してください。' });
+          return;
+        }
+        this.setState({ fStep: 'result', fQuiet: false, fView: 'overview', fProfile: a.profile, fTone: '', fPick: 0, fFocus: null, fRev: this.state.fRev + 1, fScan: 4, fAi: { picks: a.picks, images: {} } });
+        a.picks.forEach((p) => this.tryOn(p.styleId, token));
+      };
+      // let the scan finish its last beat rather than snapping straight to the result
+      this.timers.push(setTimeout(open, Math.max(0, (this.rm ? 0 : 2400) - (Date.now() - started))));
+    }).catch((err) => {
+      if (token !== this.aiToken) return;
+      this.say('AIに接続できなかったため、簡易版の診断で表示しています（' + this.aiMessage(err) + '）。');
+      this.analyzeSim(tf);
+    });
+  }
+  tryOn(styleId, token) {
+    // functional update: three images can land within the same tick, and each must keep the others
+    const setImg = (v) => { if (token !== this.aiToken) return; this.setState((prev) => (prev.fAi ? { fAi: Object.assign({}, prev.fAi, { images: Object.assign({}, prev.fAi.images, { [styleId]: v }) }) } : null)); };
+    if (this.state.fAi && this.state.fAi.images[styleId] === 'error') setImg(undefined);
+    this.postAi('/api/hair/tryon', { image: this.aiPhoto, styleId }).then((r) => {
+      const img = new Image();
+      img.onload = () => {
+        // keep a canvas too: "save image" and the booking thumbnail draw from it
+        const c = document.createElement('canvas'); c.width = KHF.W; c.height = KHF.H;
+        c.getContext('2d').drawImage(img, 0, 0, KHF.W, KHF.H);
+        this.cmp[styleId] = { canvas: c, url: r.image };
+        setImg(r.image);
+      };
+      img.onerror = () => setImg('error');
+      img.src = r.image;
+    }).catch((err) => { setImg('error'); if (token === this.aiToken) this.aiErr = this.aiMessage(err); });
+  }
+  postAi(url, body) {
+    return fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }).then((r) =>
+      r.json().catch(() => ({})).then((d) => { if (!r.ok) { const e = new Error(d.error || 'server_error'); e.code = d.error; throw e; } return d; }));
+  }
+  aiMessage(err) {
+    return ({
+      rate_limited: '短時間に試せる回数の上限です。しばらくしてからお試しください',
+      ai_rate_limited: 'AIが混み合っています',
+      ai_moderated: 'この写真は画像生成に使えませんでした',
+      ai_timeout: 'AIの応答に時間がかかりすぎました',
+      ai_image_unavailable: '画像生成が利用できません',
+      ai_off: 'AIは現在オフです',
+      too_large: '写真が大きすぎます'
+    })[err && err.code] || 'AIの応答に問題がありました';
+  }
+  aiList() {
+    const ai = this.state.fAi;
+    return ai.picks.map((p) => ({ style: KH.styles.find((x) => x.id === p.styleId), score: p.score, reasons: [p.reason], focus: false })).filter((x) => x.style);
+  }
+  resultList() { return this.state.fAi ? this.aiList() : KH.advise(this.state.fProfile, this.state.fFocus); }
+  revealOne(i) {
+    if (this.rm) return;
+    const el = document.querySelectorAll('[data-rcard]')[i];
+    if (!el) return;
+    const a = el.querySelector('[data-rc-after]'), l = el.querySelector('[data-rc-line]'), ease = 'cubic-bezier(.65,0,.35,1)';
+    a && a.animate([{ clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)' }], { duration: 1250, easing: ease, fill: 'backwards' });
+    l && l.animate([{ top: '0%', opacity: 0 }, { top: '4%', opacity: 1, offset: 0.05 }, { top: '100%', opacity: 1, offset: 0.94 }, { top: '100%', opacity: 0 }], { duration: 1330, easing: ease, fill: 'backwards' });
+  }
   finishScan() {
     this.clearTimers();
     const a = this.pending; if (!a) return;
@@ -1830,6 +1960,7 @@ class Component extends DCLogic {
     this.setState({ fStep: 'result', fQuiet: false, fView: this.state.fFocus ? 'detail' : 'overview', fProfile: a.profile, fTone: a.tone, fPick: Math.max(0, fi), fRev: this.state.fRev + 1 });
   }
   ensure(list) {
+    if (this.state.fAi) return; // AI photos come from the server, not the in-browser renderer
     const tone = (this.pending && this.pending.tone) || this.state.fTone;
     list.forEach((x) => {
       const id = x.style.id;
@@ -1850,6 +1981,7 @@ class Component extends DCLogic {
     if (this.rm || back) return;
     cards.forEach((el, i) => {
       el.animate([{ opacity: 0, transform: 'translateY(28px) scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 760, delay: i * 120, easing: this.E, fill: 'backwards' });
+      if (el.querySelector('.rc-gen')) return; // AI photo still on its way: revealOne() plays this when it lands
       const d = 560 + i * 280, ease = 'cubic-bezier(.65,0,.35,1)';
       const a = el.querySelector('[data-rc-after]'), l = el.querySelector('[data-rc-line]');
       a && a.animate([{ clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)' }], { duration: 1250, delay: d, easing: ease, fill: 'backwards' });
@@ -1888,7 +2020,7 @@ class Component extends DCLogic {
   currentResult() {
     const st = this.state;
     if (!st.fProfile) return null;
-    const list = KH.advise(st.fProfile, st.fFocus);
+    const list = this.resultList();
     return { list, cur: list[Math.min(st.fPick, list.length - 1)] };
   }
   fSave() {
@@ -1898,7 +2030,7 @@ class Component extends DCLogic {
     a.href = KHF.poster(c.canvas, { name: r.cur.style.name, en: r.cur.style.en, score: r.cur.score });
     a.download = 'kurohane-' + r.cur.style.id + '.png';
     document.body.appendChild(a); a.click(); a.remove();
-    this.say('合成イメージを保存しました（デモ）。');
+    this.say(this.state.fAi ? 'AI生成イメージを保存しました。' : '合成イメージを保存しました（デモ）。');
   }
   fBook(index) {
     const r = this.currentResult(); if (!r) return;
@@ -2020,6 +2152,12 @@ class Component extends DCLogic {
       hasWish: !!st.wish, wishImg: st.wish ? st.wish.img : '', wishName: '', clearWish: () => this.setState({ wish: null }),
       // every way into the diagnosis says what it will do now: start one, or reopen the last result
       hasResult: !!st.fProfile,
+      aiMode: !!st.fAi, aiLive: st.aiLive,
+      aiBadge: st.fAi || (st.aiLive && st.fStep !== 'result') ? 'LIVE AI' : 'DEMO',
+      aiPrivacy: st.aiLive ? '写真はAIで解析・画像生成するため OpenAI に送信されます。Skyland では保存しません。カメラは撮影後すぐにオフになります。' : '写真は端末の中だけで処理され、サーバーへの送信・保存は行いません。カメラは撮影が終わるとすぐにオフになります。',
+      aiSectionPrivacy: st.aiLive ? '写真はAIで解析・画像生成するため OpenAI に送信され、Skyland では保存しません。カメラは撮影後すぐにオフになります。' : '写真は端末の中だけで処理され、送信・保存されません。カメラは撮影後すぐにオフになります。※ デモ版では解析と合成イメージを簡易的に再現しています。',
+      aiImageNote: st.fAi ? 'AI生成イメージ — 実際の仕上がりは担当の理容師とご相談ください。' : '合成イメージ（デモ）— 本番ではAIがご本人の写真を編集します。',
+      aiScanNote: st.aiLive && st.fPath !== 'sample' ? 'AIが写真を解析しています…' : '写真は端末内で処理中です。',
       aiHero: st.fProfile ? 'AI診断の結果を見る' : 'カメラで似合う髪型を診断',
       aiCta: st.fProfile ? '診断結果を見る' : 'カメラで診断する',
       wishAddLabel: st.fProfile ? '診断結果から希望スタイルを選ぶ' : '希望スタイルを添える（AI似合わせ診断）',
@@ -2056,7 +2194,8 @@ class Component extends DCLogic {
     base.marquee = [0, 1].flatMap(() => K.services.map((s) => ({ name: s.name, en: s.en })));
     base.homeServices = ['cut', 'fade', 'shave', 'cutshave', 'spa', 'premium'].map((id, i) => {
       const s = K.svc(id);
-      return Object.assign({}, s, { no: K.pad(i + 1), priceLabel: K.yen(s.price), minLabel: s.min + '分',
+      // a break opportunity after ＆, so a long name wraps between its two words, never inside one
+      return Object.assign({}, s, { name: s.name.replace('＆', '＆\u200b'), no: K.pad(i + 1), priceLabel: K.yen(s.price), minLabel: s.min + '分',
         go: () => this.preset({ svcId: id }), aria: s.name + ' ' + K.yen(s.price) + ' ' + s.min + '分 を予約する',
         enter: () => { if (!this.fine || st.mobile) return; const pv = document.querySelector('[data-mprev]'); if (!pv) return; pv.querySelector('img').src = 'img/' + IMG[id] + '.webp'; pv.classList.add('on'); } });
     });
@@ -2099,14 +2238,17 @@ class Component extends DCLogic {
     if (st.fProfile) {
       base.fChips = K.profileDims.map((d) => ({ k: d.name, v: K.dimLabel(d.id, st.fProfile[d.id]) }));
       base.fEditor = K.profileDims.map((d) => ({ name: d.name, opts: d.opts.map((o) => ({ label: o[1], active: st.fProfile[d.id] === o[0], pick: () => this.fSetDim(d.id, o[0]) })) }));
-      const res = KH.advise(st.fProfile, st.fFocus), pick = Math.min(st.fPick, res.length - 1);
+      const res = this.resultList(), pick = Math.min(st.fPick, res.length - 1);
       base.fList = res.map((r, i) => {
         const s = r.style, sv = K.svc(s.service), bb = K.barber(s.barber), c = this.cmp[s.id];
+        const im = st.fAi ? st.fAi.images[s.id] : null, ready = !!im && im !== 'error';
         const rank = r.focus && i >= 3 ? '気になる' : i === 0 ? 'BEST MATCH' : 'NO.0' + (i + 1);
         return { no: s.no, name: s.name, en: s.en, desc: s.desc, cycle: s.cycle, score: r.score, reasons: r.reasons,
           tag: r.focus && i >= 3 ? '気になる · ' + r.score + '%' : (r.focus ? '気になる · ' : '') + 'おすすめ ' + (i + 1),
           rank, rankCls: i === 0 ? 'best' : '', lead: r.reasons[0] || s.desc, aria: rank + ' ' + s.name + ' 相性' + r.score + '%',
-          svcLabel: sv.name + ' ' + K.yen(sv.price), barberName: bb.name, img: c ? c.url : this.beforeUrl,
+          svcLabel: sv.name + ' ' + K.yen(sv.price), barberName: bb.name, img: ready ? im : c && !st.fAi ? c.url : this.beforeUrl,
+          pending: !!st.fAi && !im, failed: im === 'error', ready: !st.fAi || ready,
+          retry: (e) => { e && e.stopPropagation(); this.tryOn(s.id, this.aiToken); },
           delay: (760 + i * 280) + 'ms',
           active: i === pick, pick: () => { this.ensure([r]); if (this.state.fPick !== i) this.setState({ fPick: i }); },
           detail: (e) => { e && e.stopPropagation(); this.ensure([r]); this.setState({ fPick: i, fView: 'detail' }); },

@@ -190,6 +190,32 @@ ditentukan kode. Renderer yang sama dipakai preview dan attachment order;
 server menambahkan watermark `Concept · SKY-...`. Preview iframe tidak mengizinkan
 script. Mockup tidak memuat halaman lain atau mengimplementasikan fitur plan.
 
+## AI gaya rambut Kurohane (percobaan, default mati)
+
+Endpoint khusus demo `/samples/kurohane/`, **mati kecuali `KUROHANE_AI=1`** dan
+`OPENAI_API_KEY` ada. Selama mati, demo memakai simulasi di browser.
+
+| Endpoint | Isi | Model (env) |
+| --- | --- | --- |
+| `GET /api/hair` | `{ enabled }` | — |
+| `POST /api/hair/analyze` | `{ image }` → `{ faceFound, profile, picks[3] }` | `OPENAI_VISION_MODEL`, default `gpt-6-luna`, gambar `detail: low` |
+| `POST /api/hair/tryon` | `{ image, styleId }` → `{ styleId, image }` | `OPENAI_IMAGE_MODEL`, default `gpt-image-2.6-flare`, `OPENAI_IMAGE_QUALITY` default `low`, `768x1024` JPEG |
+
+- `image` adalah data URL JPEG frame demo (768×1024), dicek magic bytes,
+  maksimal 1,2 MB; body dibatasi 1,7 MB lewat `readJson(request, maxBytes)`.
+- Batas per IP: analyze 6/jam, tryon 18/jam (in-memory, best effort seperti
+  endpoint lain). Pasang juga batas pengeluaran di project OpenAI.
+- Katalog gaya dan enum profil di `src/lib/hair.ts` harus sama dengan
+  `public/samples/kurohane/kurohane-data.js`; `tests/hair.test.ts` menjaganya.
+- Kode error baru: `photo_invalid`, `ai_off`, `ai_moderated`, `ai_rate_limited`,
+  `ai_timeout`, `ai_image_unavailable`.
+- Biaya terukur (19 Nov 2026, satu foto potret):
+  - analyze: 976 token masuk + 250 keluar ≈ $0,0002;
+  - tryon: 768 token gambar + 137 token teks masuk, 563 keluar ≈ $0,024 per gambar;
+  - **±$0,07 (≈¥11) per diagnosis** (1 analyze + 3 tryon).
+- Waktu terukur: kartu muncul ±5 detik setelah foto dikirim; ketiga foto AI
+  selesai ±13 detik (tryon paralel).
+
 ## Mode development
 
 `devMode() = import.meta.env.DEV && !env('OPENAI_API_KEY')`. Create/revise/mockup

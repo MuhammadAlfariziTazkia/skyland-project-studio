@@ -9,6 +9,21 @@ Dokumen ini adalah baseline untuk agent berikutnya. Temuan di bawah tidak
 otomatis menjadi backlog yang disetujui pemilik dan belum diperbaiki dalam
 tugas penyusunan dokumentasi ini.
 
+## Pembaruan 19 November 2026 — AI gaya rambut sungguhan (default mati)
+
+Percobaan; mati kecuali env `KUROHANE_AI=1` (belum di-set di Vercel). Dengan `KUROHANE_AI=1`, jalur kamera/album demo
+Kurohane memakai AI sungguhan: `gpt-6-luna` memilih 3 gaya dari foto, lalu
+`gpt-image-2.6-flare` mengedit rambut di foto pengunjung untuk tiap gaya
+(paralel, kartu terbuka satu per satu, retry per kartu). Sampel tetap simulasi;
+bila AI mati atau gagal, demo kembali ke simulasi dengan toast. Badge "LIVE AI"
+dan teks privasi menyebut foto dikirim ke OpenAI. Detail dan biaya di
+[API_AI.md](API_AI.md#ai-gaya-rambut-kurohane-percobaan-default-mati).
+
+- Diuji nyata satu kali dengan potret stok Pexels (analyze + 4 tryon). Juga
+  diuji di Chrome dengan kamera palsu: alur AI, cadangan saat 429, retry
+  setelah gagal, simulasi saat AI mati. Tidak ada error console.
+- Belum diuji dengan wajah pemilik sendiri dan kamera HP sungguhan.
+
 ## Pembaruan 19 November 2026 — demo Kurohane: kamera di website + 3 hasil di foto pengunjung
 
 Diagnosis gaya rambut di `/samples/kurohane/` sekarang dimulai dari **kamera di

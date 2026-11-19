@@ -28,12 +28,13 @@ export function rateLimit(key: string, limit: number) {
   if (++b.count > limit) throw new HttpError(429, 'rate_limited');
 }
 
-export async function readJson(request: Request): Promise<unknown> {
+/** `maxBytes` raises the body limit for the one endpoint family that carries a photo (src/pages/api/hair/). */
+export async function readJson(request: Request, maxBytes = MAX_BODY): Promise<unknown> {
   const origin = request.headers.get('origin');
   const host = request.headers.get('host');
   if (origin && host && new URL(origin).host !== host) throw new HttpError(403, 'forbidden');
   const raw = await request.text();
-  if (raw.length > MAX_BODY) throw new HttpError(413, 'too_large');
+  if (raw.length > maxBytes) throw new HttpError(413, 'too_large');
   try {
     return JSON.parse(raw);
   } catch {

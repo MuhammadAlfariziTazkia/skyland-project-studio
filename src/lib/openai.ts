@@ -173,9 +173,11 @@ Output JSON only, following the schema.
 
 LANGUAGE: every text value — brandName aside, which keeps the client's own business name — must be written in ${LANG[locale]}. This applies even though these instructions are in English.`;
 
-interface ChatMessage {
+/** A user message may carry an image (as a data URL) next to its text; see src/lib/hair.ts. */
+export type ChatPart = { type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string; detail?: 'low' | 'high' | 'auto' } };
+export interface ChatMessage {
   role: 'system' | 'user';
-  content: string;
+  content: string | ChatPart[];
 }
 
 /**
@@ -184,10 +186,11 @@ interface ChatMessage {
  */
 type Effort = 'deep' | 'light';
 
-async function chatJson(name: string, schema: object, messages: ChatMessage[], maxTokens: number, depth: Effort = 'deep'): Promise<unknown> {
+/** `model` overrides OPENAI_MODEL for a call that needs a different (e.g. cheaper vision) model. */
+export async function chatJson(name: string, schema: object, messages: ChatMessage[], maxTokens: number, depth: Effort = 'deep', modelOverride = ''): Promise<unknown> {
   const key = env('OPENAI_API_KEY');
   if (!key) throw new HttpError(503, 'ai_unconfigured');
-  const model = env('OPENAI_MODEL') || 'gpt-5-mini';
+  const model = modelOverride || env('OPENAI_MODEL') || 'gpt-5-mini';
   const reasoning = /^(gpt-5|o\d)/.test(model);
   const effort = !reasoning ? '' : depth === 'light' && /^gpt-5/.test(model) ? 'minimal' : env('OPENAI_REASONING_EFFORT') || 'low';
   const body: Record<string, unknown> = {
